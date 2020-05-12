@@ -1,0 +1,10 @@
+Movement dependence:
+Independent Movement Via Raycasts:
+Pros: Framerate independent
+Cons: Breaks collisions with non terrain geometry
+
+Dependent Movement Via Velocity:
+Pros: Proper collisions with all objects
+Cons: Movement slightly dependent on framerate from sloped surfaces and clamping. Solutions to this problems causes issues.
+(1) Have horizontal movement constant and vertical movement change --> Unnatural movement on slopes
+(2) Adjust position on clamping --> Potential collisions ignored
