@@ -42,14 +42,14 @@ public class MenuManager : MonoBehaviour
             {
                 GameInfo.Paused = true;
                 Time.timeScale = 0;
-                //GameInfo.Manager.OverlayFreezeInput();
+                GameInfo.Manager.OverlayFreezeInput();
             }
             //If paused
             else
             {
                 GameInfo.Paused = false;
                 Time.timeScale = 1;
-                //GameInfo.Manager.OverlayUnfreezeInput();
+                GameInfo.Manager.OverlayUnfreezeInput();
             }
         }
     }
@@ -63,7 +63,7 @@ public class MenuManager : MonoBehaviour
 
             GameInfo.Paused = true;
             Time.timeScale = 0;
-            //GameInfo.Manager.OverlayFreezeInput();
+            GameInfo.Manager.OverlayFreezeInput();
         }
     }
 }

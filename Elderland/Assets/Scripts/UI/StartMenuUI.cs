@@ -52,7 +52,7 @@ public class StartMenuUI : MonoBehaviour
 
         GameInfo.Paused = false;
         Time.timeScale = 1;
-        //GameInfo.Manager.OverlayUnfreezeInput();
+        GameInfo.Manager.OverlayUnfreezeInput();
 
         // Deselect active button to have highlight by default when turning on
         eventSystem.SetSelectedGameObject(null);

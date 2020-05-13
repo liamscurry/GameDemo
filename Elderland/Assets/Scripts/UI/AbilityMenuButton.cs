@@ -18,6 +18,10 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
     [SerializeField]
     private Text previewText;
     [SerializeField]
+    private Text abilityStatus;
+    [SerializeField]
+    private int abilityCost;
+    [SerializeField]
     private AbilityMenuButton prerequisite;
     [SerializeField]
     private bool acquiredInitially;
@@ -31,6 +35,7 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
         if (acquiredInitially)
         {
             TryAcquire();
+            
         }
         Acquired = acquiredInitially;
     }
@@ -41,12 +46,14 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
         previewPlayer.Stop();
         previewPlayer.Play();
         previewText.text = abilityDescription;
+        UpdateAbilityStatus();
     }
 
     public void TryAcquire()
     {
         if (!Acquired &&
-            (prerequisite == null || prerequisite.Acquired))
+            (prerequisite == null || prerequisite.Acquired) &&
+            PlayerInfo.StatsManager.UpgradePoints >= abilityCost)
         {
             Button button = GetComponent<Button>();
             ColorBlock colorBlock = button.colors;
@@ -63,6 +70,23 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
                 
             button.colors = colorBlock;
             Acquired = true;
+
+            PlayerInfo.StatsManager.UpgradePoints -= abilityCost;
+
+            UpdateAbilityStatus();
+        }
+    }
+
+    protected virtual void UpdateAbilityStatus()
+    {
+        if (Acquired)
+        {
+            abilityStatus.text = "Unlocked";
+        }
+        else
+        {
+            abilityStatus.text =
+                PlayerInfo.StatsManager.UpgradePoints + " / " + abilityCost;
         }
     }
 }

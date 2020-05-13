@@ -25,6 +25,8 @@ public class PlayerStatsManager
 	public GameObject MovespeedEditor { get; set; }
 	public GameObject JumpspeedEditor { get; set; }
 
+	public int UpgradePoints { get; set; }
+
 	public PlayerStatsManager()
 	{
 		//Base values
@@ -35,5 +37,7 @@ public class PlayerStatsManager
 		//Modifiers
 		MovespeedModifier = 1;
 		JumpspeedModifier = 1;
+
+		UpgradePoints = 4;
 	}
 }

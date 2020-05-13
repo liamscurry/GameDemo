@@ -102,9 +102,9 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {   
-        //StartGameplay();
-        //GameInfo.Manager.TurnOnInput();
-        StartIdle();
+        StartGameplay();
+        GameInfo.Manager.UnfreezeInput(null);
+        //StartIdle();
 
         //Default values
         DefaultGameplaySettings();
