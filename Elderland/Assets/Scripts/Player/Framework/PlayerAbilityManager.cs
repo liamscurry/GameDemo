@@ -30,7 +30,8 @@ public class PlayerAbilityManager : AbilitySystem
     public PlayerAbilityManager(Animator animator, PhysicsSystem physics, MovementSystem movement, GameObject parent) : base(animator, physics, movement, parent)
     { 
         InitializePreferences();
-        Stamina = 0;
+        RangedAvailable = true;
+        //Stamina = 0;
     }
 
     //Updates each ability slot, called by PlayerManager.
@@ -97,7 +98,7 @@ public class PlayerAbilityManager : AbilitySystem
     {  
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
-        EquipAbility<PlayerFireball>(ref ranged);
+        EquipAbility<PlayerFireballTier2>(ref ranged);
         EquipAbility<PlayerDrain>(ref heal);
     }
 

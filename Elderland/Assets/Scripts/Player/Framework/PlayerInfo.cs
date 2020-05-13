@@ -68,5 +68,7 @@ public static class PlayerInfo
 
         //Informational Properties
         BottomSphereOffset = Capsule.BottomSphereOffset();
+
+        PlayerInfo.Manager.MaxOutStamina();
     }
 }
