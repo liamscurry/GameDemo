@@ -98,7 +98,7 @@ public class PlayerAbilityManager : AbilitySystem
     {  
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
-        EquipAbility<PlayerFireballTier2>(ref ranged);
+        EquipAbility<PlayerFireballTier3>(ref ranged);
         EquipAbility<PlayerDrain>(ref heal);
     }
 

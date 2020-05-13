@@ -39,6 +39,7 @@ public static class ResourceConstants
         public static class Projectiles
         {
             public const string Fireball = "Player/Projectiles/PlayerFireball";
+            public const string HomingFireball = "Player/Projectiles/PlayerHomingFireball";
             public const string MultishotChild = "Player/Projectiles/PlayerMultishotChild";
             public const string MultishotParent = "Player/Projectiles/PlayerMultishotParent";
             public const string Nullify = "Player/Projectiles/PlayerNullify";
