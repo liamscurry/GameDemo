@@ -4,26 +4,36 @@
 
 public class MenuManager : MonoBehaviour 
 {
+    [SerializeField]
+    private GameObject startMenu;
+
+    private bool pausedLastFrame;
+
+    private void Start()
+    {
+        pausedLastFrame = false;
+    }
+
     //Change state of menus only after the majority of current frame has been calculated.
     private void LateUpdate()
     {
         UpdateMenuInput();
     }
 
-    //Calls various menu input methods
+    //Calls menu toggles
     private void UpdateMenuInput()
     {
-        GameMenu();
-    }
+        if (!pausedLastFrame)
+        {
+            PauseMenu();
+            StartMenu();
+        }
 
-    //Menu Toggles
-    private void GameMenu()
-    {
-        Pause();
+        pausedLastFrame = GameInfo.Paused;
     }
 
     //Menu Functionality
-    private void Pause()
+    private void PauseMenu()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {      
@@ -32,15 +42,28 @@ public class MenuManager : MonoBehaviour
             {
                 GameInfo.Paused = true;
                 Time.timeScale = 0;
-                GameInfo.Manager.OverlayFreezeInput();
+                //GameInfo.Manager.OverlayFreezeInput();
             }
             //If paused
             else
             {
                 GameInfo.Paused = false;
                 Time.timeScale = 1;
-                GameInfo.Manager.OverlayUnfreezeInput();
+                //GameInfo.Manager.OverlayUnfreezeInput();
             }
+        }
+    }
+
+    private void StartMenu()
+    {
+        if (Input.GetKeyDown(KeyCode.Joystick1Button7))
+        {
+            startMenu.SetActive(true);
+            
+
+            GameInfo.Paused = true;
+            Time.timeScale = 0;
+            //GameInfo.Manager.OverlayFreezeInput();
         }
     }
 }
