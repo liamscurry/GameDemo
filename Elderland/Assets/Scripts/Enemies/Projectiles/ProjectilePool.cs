@@ -17,7 +17,7 @@ public class ProjectilePool : MonoBehaviour
     }
 
     //Returns a projectile and sets its properties
-    public void Create<T>(
+    public T Create<T>(
         GameObject projectile,
         Vector3 position,
         Vector3 velocity,
@@ -42,13 +42,18 @@ public class ProjectilePool : MonoBehaviour
             }
 
             ProjectileGroup<T>.Projectiles.Add(p);
+
+            return p;
         }
         else
         //use older object
         {
+            T p = ProjectileGroup<T>.AsleepProjectiles[0];
             ProjectileGroup<T>.AsleepProjectiles[0].gameObject.SetActive(true);      
             ProjectileGroup<T>.AsleepProjectiles[0].Reset(position, velocity, time, targetTag, hitTarget, info);
-            ProjectileGroup<T>.AsleepProjectiles.RemoveAt(0);            
+            ProjectileGroup<T>.AsleepProjectiles.RemoveAt(0);  
+
+            return p;          
         }
     }
 

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 //Weapon ability that casts Fireball projectiles.
 
@@ -10,6 +12,9 @@ public sealed class PlayerFireballTier3 : PlayerAbility
 
     private const float damage = 3f;
     private const float staminaCost = 1;
+
+    private int currentGroupID;
+    private const int groupIDMax = 10000;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
@@ -29,6 +34,8 @@ public sealed class PlayerFireballTier3 : PlayerAbility
 
         //Durations
         coolDownDuration = .1f;
+
+        currentGroupID = 0;
     }
 
     protected override bool WaitCondition()
@@ -73,6 +80,13 @@ public sealed class PlayerFireballTier3 : PlayerAbility
 
 	public void ActBegin()
     {
+        Vector3 direction = CalculateProjectileDirection();
+        SpawnProjectiles(direction);
+        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+    }
+
+    private Vector3 CalculateProjectileDirection()
+    {
         Vector2 analog = GameInfo.Settings.RightDirectionalInput;
         Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
         
@@ -87,25 +101,38 @@ public sealed class PlayerFireballTier3 : PlayerAbility
         {
             direction = ((cursorRay.origin + 100f * cursorRay.direction) - PlayerInfo.Capsule.TopSpherePosition()).normalized;
         }
-        
-        for (int i = 0; i < 5; i++)
+        return direction;
+    }
+
+    private void SpawnProjectiles(Vector3 direction)
+    {
+        var group = new List<HomingFireboltProjectile>();
+        currentGroupID = (currentGroupID + 1) % groupIDMax;
+
+        for (int i = 0; i < 3; i++)
         {
             Vector3 iterationRight = Vector3.Cross(direction, Vector3.up);
             Vector3 iterationUp = Vector3.Cross(iterationRight, direction);
-            Vector3 iterationDirection = Matho.Rotate(direction, iterationUp, 5f * (i - 2));
-            Vector3 velocity = 50 * iterationDirection; // 50
+            Vector3 iterationDirection = Matho.Rotate(direction, iterationUp, 5f * (i - 1));
+            Vector3 velocity = 50 * iterationDirection;
 
-            GameInfo.ProjectilePool.Create<HomingFireboltProjectile>(
-                Resources.Load<GameObject>(ResourceConstants.Player.Projectiles.HomingFireball), 
-                PlayerInfo.Capsule.TopSpherePosition(),
-                velocity * (1f - 0.5f * (i / 4f)),
-                2,
-                TagConstants.EnemyHitbox,
-                OnHit,
-                ProjectileArgs.Empty);
+            HomingFireboltProjectile projectile = 
+                GameInfo.ProjectilePool.Create<HomingFireboltProjectile>(
+                    Resources.Load<GameObject>(ResourceConstants.Player.Projectiles.HomingFireball), 
+                    PlayerInfo.Capsule.TopSpherePosition(),
+                    velocity * (1f - 0.5f * (i / 4f)),
+                    5,
+                    TagConstants.EnemyHitbox,
+                    OnHit,
+                    ProjectileArgs.Empty);
+
+            group.Add(projectile);
         }
 
-        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+        foreach (HomingFireboltProjectile projectile in group)
+        {
+            projectile.SetGroupInformation(group, currentGroupID);
+        }
     }
 
     public override bool OnHit(GameObject character)
