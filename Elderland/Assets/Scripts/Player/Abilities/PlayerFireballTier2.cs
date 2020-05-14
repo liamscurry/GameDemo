@@ -8,18 +8,18 @@ public sealed class PlayerFireballTier2 : PlayerAbility
     private AbilityProcess waitProcess;
     private AbilityProcess shootProcess;
 
-    private const float damage = 3f;
-    private const float staminaCost = 1;
+    private const float damage = 1f;
+    private const float staminaCost = 0.5f * 0.5f;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
         //Specifications
         this.system = abilitySystem;
 
-        AnimationClip actClip = Resources.Load<AnimationClip>("Player/Abilities/Ranged/FireballAct");
+        AnimationClip actClip = Resources.Load<AnimationClip>("Player/Abilities/Fireball/FireballTier2Act");
 
-        waitProcess = new AbilityProcess(null, null, null, 0.35f);
-        shootProcess = new AbilityProcess(ActBegin, null, null, 0.65f);
+        waitProcess = new AbilityProcess(null, null, null, 0.25f);
+        shootProcess = new AbilityProcess(ActBegin, null, null, 0.75f);
         act = new AbilitySegment(actClip, waitProcess, shootProcess);
         act.Type = AbilitySegmentType.Normal;
 
@@ -28,7 +28,7 @@ public sealed class PlayerFireballTier2 : PlayerAbility
         segments.NormalizeSegments();
 
         //Durations
-        coolDownDuration = .1f;
+        continous = true;
     }
 
     protected override bool WaitCondition()
@@ -73,6 +73,18 @@ public sealed class PlayerFireballTier2 : PlayerAbility
 
 	public void ActBegin()
     {
+        // PlayerInfo.Capsule.TopSpherePosition()
+        Vector3 startPosition = 
+            PlayerInfo.Capsule.TopSpherePosition() +
+            Vector3.up * 0.75f +
+            GameInfo.CameraController.transform.right * -1 * 0.5f;
+        Vector3 direction = CalculateProjectileDirection(startPosition);
+        SpawnProjectiles(direction, startPosition);
+        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+    }
+
+    private Vector3 CalculateProjectileDirection(Vector3 startPosition)
+    {
         Vector2 analog = GameInfo.Settings.RightDirectionalInput;
         Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
         
@@ -81,31 +93,27 @@ public sealed class PlayerFireballTier2 : PlayerAbility
         Vector3 direction = Vector3.zero;
         if (Physics.Raycast(cursorRay, out cursorHit, 100f, LayerConstants.GroundCollision))
         {
-            direction = (cursorHit.point - PlayerInfo.Capsule.TopSpherePosition()).normalized;
+            direction = (cursorHit.point - startPosition).normalized;
         }
         else
         {
-            direction = ((cursorRay.origin + 100f * cursorRay.direction) - PlayerInfo.Capsule.TopSpherePosition()).normalized;
+            direction = ((cursorRay.origin + 100f * cursorRay.direction) - startPosition).normalized;
         }
-        
-        for (int i = 0; i < 3; i++)
-        {
-            Vector3 iterationRight = Vector3.Cross(direction, Vector3.up);
-            Vector3 iterationUp = Vector3.Cross(iterationRight, direction);
-            Vector3 iterationDirection = Matho.Rotate(direction, iterationUp, 5f * (i - 1));
-            Vector3 velocity = 50 * iterationDirection;
+        return direction;
+    }
 
-            GameInfo.ProjectilePool.Create<FireboltProjectile>(
-                Resources.Load<GameObject>(ResourceConstants.Player.Projectiles.Fireball), 
-                PlayerInfo.Capsule.TopSpherePosition(),
-                velocity,
-                2,
-                TagConstants.EnemyHitbox,
-                OnHit,
-                ProjectileArgs.Empty);
-        }
+    private void SpawnProjectiles(Vector3 direction, Vector3 startPosition)
+    {
+        Vector3 velocity = 50 * direction;
 
-        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+        GameInfo.ProjectilePool.Create<FireboltProjectile>(
+            Resources.Load<GameObject>(ResourceConstants.Player.Projectiles.Fireball), 
+            startPosition,
+            velocity,
+            2,
+            TagConstants.EnemyHitbox,
+            OnHit,
+            ProjectileArgs.Empty);
     }
 
     public override bool OnHit(GameObject character)

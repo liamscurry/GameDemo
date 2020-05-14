@@ -10,8 +10,8 @@ public sealed class PlayerFireballTier3 : PlayerAbility
     private AbilityProcess waitProcess;
     private AbilityProcess shootProcess;
 
-    private const float damage = 3f;
-    private const float staminaCost = 1;
+    private const float damage = 1f;
+    private const float staminaCost = 0.5f * 0.5f;
 
     private int currentGroupID;
     private const int groupIDMax = 10000;
@@ -21,10 +21,10 @@ public sealed class PlayerFireballTier3 : PlayerAbility
         //Specifications
         this.system = abilitySystem;
 
-        AnimationClip actClip = Resources.Load<AnimationClip>("Player/Abilities/Ranged/FireballAct");
+        AnimationClip actClip = Resources.Load<AnimationClip>("Player/Abilities/Fireball/FireballTier3Act");
 
-        waitProcess = new AbilityProcess(null, null, null, 0.35f);
-        shootProcess = new AbilityProcess(ActBegin, null, null, 0.65f);
+        waitProcess = new AbilityProcess(null, null, null, 0.25f);
+        shootProcess = new AbilityProcess(ActBegin, null, null, 0.75f);
         act = new AbilitySegment(actClip, waitProcess, shootProcess);
         act.Type = AbilitySegmentType.Normal;
 
@@ -33,9 +33,9 @@ public sealed class PlayerFireballTier3 : PlayerAbility
         segments.NormalizeSegments();
 
         //Durations
-        coolDownDuration = .1f;
-
         currentGroupID = 0;
+
+        continous = true;
     }
 
     protected override bool WaitCondition()
@@ -80,12 +80,17 @@ public sealed class PlayerFireballTier3 : PlayerAbility
 
 	public void ActBegin()
     {
-        Vector3 direction = CalculateProjectileDirection();
-        SpawnProjectiles(direction);
+        // PlayerInfo.Capsule.TopSpherePosition()
+        Vector3 startPosition = 
+            PlayerInfo.Capsule.TopSpherePosition() +
+            Vector3.up * 0.75f +
+            GameInfo.CameraController.transform.right * -1 * 0.5f;
+        Vector3 direction = CalculateProjectileDirection(startPosition);
+        SpawnProjectiles(direction, startPosition);
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
     }
 
-    private Vector3 CalculateProjectileDirection()
+    private Vector3 CalculateProjectileDirection(Vector3 startPosition)
     {
         Vector2 analog = GameInfo.Settings.RightDirectionalInput;
         Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
@@ -95,31 +100,31 @@ public sealed class PlayerFireballTier3 : PlayerAbility
         Vector3 direction = Vector3.zero;
         if (Physics.Raycast(cursorRay, out cursorHit, 100f, LayerConstants.GroundCollision))
         {
-            direction = (cursorHit.point - PlayerInfo.Capsule.TopSpherePosition()).normalized;
+            direction = (cursorHit.point - startPosition).normalized;
         }
         else
         {
-            direction = ((cursorRay.origin + 100f * cursorRay.direction) - PlayerInfo.Capsule.TopSpherePosition()).normalized;
+            direction = ((cursorRay.origin + 100f * cursorRay.direction) - startPosition).normalized;
         }
         return direction;
     }
 
-    private void SpawnProjectiles(Vector3 direction)
+    private void SpawnProjectiles(Vector3 direction, Vector3 startPosition)
     {
         var group = new List<HomingFireboltProjectile>();
         currentGroupID = (currentGroupID + 1) % groupIDMax;
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 2; i++)
         {
             Vector3 iterationRight = Vector3.Cross(direction, Vector3.up);
             Vector3 iterationUp = Vector3.Cross(iterationRight, direction);
-            Vector3 iterationDirection = Matho.Rotate(direction, iterationUp, 5f * (i - 1));
-            Vector3 velocity = 50 * iterationDirection;
+            Vector3 iterationDirection = Matho.Rotate(direction, iterationUp, 5f * (i - 0.5f));
+            Vector3 velocity = 60 * iterationDirection;
 
             HomingFireboltProjectile projectile = 
                 GameInfo.ProjectilePool.Create<HomingFireboltProjectile>(
                     Resources.Load<GameObject>(ResourceConstants.Player.Projectiles.HomingFireball), 
-                    PlayerInfo.Capsule.TopSpherePosition(),
+                    startPosition,
                     velocity * (1f - 0.5f * (i / 4f)),
                     5,
                     TagConstants.EnemyHitbox,
