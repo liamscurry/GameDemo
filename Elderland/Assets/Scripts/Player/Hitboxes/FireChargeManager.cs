@@ -54,6 +54,16 @@ public class FireChargeManager : MonoBehaviour
         }
     }
 
+    public void InWallCheck()
+    {
+        if (Physics.OverlapSphere(transform.position,
+                                  PlayerInfo.Capsule.radius,
+                                  LayerConstants.GroundCollision).Length != 0)
+        {
+            Deactivate();
+        }
+    }
+
     private void GroundClamp()
     {
         RaycastHit raycast;

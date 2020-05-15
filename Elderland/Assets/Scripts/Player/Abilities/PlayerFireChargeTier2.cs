@@ -4,23 +4,21 @@ using UnityEngine;
 
 //The Dash skill allows the player to travel long distances in a short amount of time.
 
-public sealed class PlayerFireChargeTier1 : PlayerAbility 
+public sealed class PlayerFireChargeTier2 : PlayerAbility 
 {
     //Fields
     private Vector2 direction;
     private float speed = 20f;
     private const float lifeDurationPercentage = 0.25f;
-    private const float damage = 1f;
+    private const float damage = 2f;
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
 
     private const float staminaCost = .25f;
 
-    private FireChargeManager segment1;
-    private PlayerMultiDamageHitbox hitbox1;
-    private FireChargeManager segment2;
-    private PlayerMultiDamageHitbox hitbox2;
+    private List<FireChargeManager> charges;
+    private List<PlayerMultiDamageHitbox> hitboxes; 
 
     private int invokeID;
     private List<EnemyHit> enemyHits;
@@ -41,20 +39,20 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
 
         coolDownDuration = 2f;
 
-        GameObject segment1 = Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.FireChargeSegment), transform.position, Quaternion.identity);
-        segment1.transform.parent = PlayerInfo.MeleeObjects.transform;
+        charges = new List<FireChargeManager>();
+        hitboxes = new List<PlayerMultiDamageHitbox>();
 
-        GameObject segment2 = Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.FireChargeSegment), transform.position, Quaternion.identity);
-        segment2.transform.parent = PlayerInfo.MeleeObjects.transform;
+        for (int i = 0; i < 4; i++)
+        {
+            GameObject charge = Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.FireChargeSegment), transform.position, Quaternion.identity);
+            charge.transform.parent = PlayerInfo.MeleeObjects.transform;
 
-        this.segment1 = segment1.GetComponent<FireChargeManager>();
-        this.hitbox1 = segment1.GetComponentInChildren<PlayerMultiDamageHitbox>();
-        this.segment2 = segment2.GetComponent<FireChargeManager>();
-        this.hitbox2 = segment2.GetComponentInChildren<PlayerMultiDamageHitbox>();
+            charges.Add(charge.GetComponent<FireChargeManager>());
+            hitboxes.Add(charge.GetComponentInChildren<PlayerMultiDamageHitbox>());
 
-        hitbox1.gameObject.SetActive(false);
-        hitbox2.gameObject.SetActive(false);
-
+            hitboxes[i].gameObject.SetActive(false);
+        }
+       
         invokeID = 0;
         enemyHits = new List<EnemyHit>();
     }
@@ -105,18 +103,16 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
 
         direction =
             Matho.StandardProjection2D(GameInfo.CameraController.transform.forward).normalized;
-        segment1.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
-        hitbox1.Activate(this);
-        segment1.gameObject.transform.position = transform.position - transform.right * 0.5f;
-        hitbox1.gameObject.SetActive(true);
-        segment1.InWallCheck();
 
-        segment2.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
-        hitbox2.Activate(this);
-        segment2.gameObject.transform.position = transform.position + transform.right * 0.5f;
-        hitbox2.gameObject.SetActive(true);
-        segment2.InWallCheck();
-
+        for (int i = 0; i < 4; i++)
+        {
+            charges[i].Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
+            hitboxes[i].Activate(this);
+            charges[i].gameObject.transform.position = transform.position + transform.right * (i - 2f);
+            hitboxes[i].gameObject.SetActive(true);
+            charges[i].InWallCheck();
+        }
+        
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
     }
 
