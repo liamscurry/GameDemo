@@ -42,7 +42,7 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.tag == "EnemyHealth" && !enemiesHit.Contains(other))
+        if (other.tag == "EnemyHealth" && !enemiesHit.Contains(other) && gameObject.activeSelf)
         {
             if (ability.OnHit(other.transform.parent.gameObject))
                 enemiesHit.Add(other);

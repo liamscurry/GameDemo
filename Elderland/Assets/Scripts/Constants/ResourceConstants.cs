@@ -29,6 +29,7 @@ public static class ResourceConstants
             public const string SphericalHitbox = "Player/Hitboxes/SphericalHitbox";
             public const string RectangularSingleHitbox = "Player/Hitboxes/RectangularSingleHitbox";
             public const string RectangularMultiHitbox = "Player/Hitboxes/RectangularMultiHitbox";
+            public const string FireChargeSegment = "Player/Hitboxes/FireChargeSegment";
         }
 
         public static class Pickups

@@ -31,6 +31,8 @@ public class PlayerAbilityManager : AbilitySystem
     { 
         InitializePreferences();
         RangedAvailable = true;
+        HealAvailable = true;
+        DodgeAvailable = true;
         //Stamina = 0;
     }
 
@@ -99,7 +101,7 @@ public class PlayerAbilityManager : AbilitySystem
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
         EquipAbility<PlayerFireballTier3>(ref ranged);
-        EquipAbility<PlayerDrain>(ref heal);
+        EquipAbility<PlayerFireChargeTier1>(ref heal);
     }
 
     public void ChangeStamina(float value)
