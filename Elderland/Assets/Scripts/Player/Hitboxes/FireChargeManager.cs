@@ -57,7 +57,7 @@ public class FireChargeManager : MonoBehaviour
     public void InWallCheck()
     {
         if (Physics.OverlapSphere(transform.position,
-                                  PlayerInfo.Capsule.radius,
+                                  characterController.radius * 0.9f,
                                   LayerConstants.GroundCollision).Length != 0)
         {
             Deactivate();

@@ -108,7 +108,8 @@ public sealed class PlayerFireChargeTier2 : PlayerAbility
         {
             charges[i].Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
             hitboxes[i].Activate(this);
-            charges[i].gameObject.transform.position = transform.position + transform.right * (i - 2f);
+            charges[i].gameObject.transform.position =
+                transform.position + GameInfo.CameraController.transform.right * (i - 2f + 0.5f);
             hitboxes[i].gameObject.SetActive(true);
             charges[i].InWallCheck();
         }
