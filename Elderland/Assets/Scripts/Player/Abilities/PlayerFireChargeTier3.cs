@@ -17,7 +17,7 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
 
     private const float staminaCost = .25f;
 
-    private List<FireChargeManager> charges;
+    private List<BurningFireChargeManager> charges;
     private List<PlayerMultiDamageHitbox> hitboxes; 
 
     private int invokeID;
@@ -39,15 +39,15 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
 
         coolDownDuration = 2f;
 
-        charges = new List<FireChargeManager>();
+        charges = new List<BurningFireChargeManager>();
         hitboxes = new List<PlayerMultiDamageHitbox>();
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 1; i++)
         {
-            GameObject charge = Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.FireChargeSegment), transform.position, Quaternion.identity);
+            GameObject charge = Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.BurningFireChargeSegment), transform.position, Quaternion.identity);
             charge.transform.parent = PlayerInfo.MeleeObjects.transform;
 
-            charges.Add(charge.GetComponent<FireChargeManager>());
+            charges.Add(charge.GetComponent<BurningFireChargeManager>());
             hitboxes.Add(charge.GetComponentInChildren<PlayerMultiDamageHitbox>());
 
             hitboxes[i].gameObject.SetActive(false);
@@ -104,14 +104,14 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
         direction =
             Matho.StandardProjection2D(GameInfo.CameraController.transform.forward).normalized;
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 1; i++)
         {
             charges[i].Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
             hitboxes[i].Activate(this);
             charges[i].gameObject.transform.position =
-                transform.position + GameInfo.CameraController.transform.right * (i - 2f + 0.5f);
+                transform.position + GameInfo.CameraController.transform.right * (i);
             hitboxes[i].gameObject.SetActive(true);
-            charges[i].InWallCheck();
+            charges[i].PostInitialization();
         }
         
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);

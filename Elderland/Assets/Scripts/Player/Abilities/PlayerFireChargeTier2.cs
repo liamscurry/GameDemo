@@ -111,7 +111,7 @@ public sealed class PlayerFireChargeTier2 : PlayerAbility
             charges[i].gameObject.transform.position =
                 transform.position + GameInfo.CameraController.transform.right * (i - 2f + 0.5f);
             hitboxes[i].gameObject.SetActive(true);
-            charges[i].InWallCheck();
+            charges[i].PostInitialization();
         }
         
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);

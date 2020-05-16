@@ -110,14 +110,14 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
         segment1.gameObject.transform.position =
             transform.position - GameInfo.CameraController.transform.right * 0.5f;
         hitbox1.gameObject.SetActive(true);
-        segment1.InWallCheck();
+        segment1.PostInitialization();
 
         segment2.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
         hitbox2.Activate(this);
         segment2.gameObject.transform.position =
             transform.position + GameInfo.CameraController.transform.right * 0.5f;
         hitbox2.gameObject.SetActive(true);
-        segment2.InWallCheck();
+        segment2.PostInitialization();
 
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
     }

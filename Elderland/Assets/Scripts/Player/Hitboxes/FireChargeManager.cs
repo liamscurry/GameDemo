@@ -5,27 +5,27 @@ using static UnityEngine.ParticleSystem;
 
 public class FireChargeManager : MonoBehaviour
 {
-    private CharacterController characterController;
-    private PlayerMultiDamageHitbox hitbox;
+    protected CharacterController characterController;
+    protected PlayerMultiDamageHitbox hitbox;
 
-    private Ability ability;
-    private Vector3 velocity;
-    private float lifeDuration;
-    private float lifeTimer;
+    protected Ability ability;
+    protected Vector3 velocity;
+    protected float lifeDuration;
+    protected float lifeTimer;
 
-    private float maxSpeed = 5f;
-    private float speedExponentialTerm = 1f;
+    protected float maxSpeed = 5f;
+    protected float speedExponentialTerm = 1f;
 
-    private ParticleSystem[] particles;
+    protected ParticleSystem[] particles;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         characterController = GetComponent<CharacterController>();
         hitbox = GetComponentInChildren<PlayerMultiDamageHitbox>();
         particles = GetComponentsInChildren<ParticleSystem>();
     }
 
-    public void Initialize(PlayerAbility ability, Vector2 velocity, float lifeDuration)
+    public virtual void Initialize(PlayerAbility ability, Vector2 velocity, float lifeDuration)
     {
         this.ability = ability;
         this.velocity = new Vector3(velocity.x, 0, velocity.y);
@@ -38,7 +38,7 @@ public class FireChargeManager : MonoBehaviour
         }
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         //float speed =
         //    80 * Mathf.Pow(speedExponentialTerm * Mathf.Clamp01(lifeTimer / lifeDuration), maxSpeed);
@@ -54,8 +54,9 @@ public class FireChargeManager : MonoBehaviour
         }
     }
 
-    public void InWallCheck()
+    public virtual void PostInitialization()
     {
+        // Wall check
         if (Physics.OverlapSphere(transform.position,
                                   characterController.radius * 0.9f,
                                   LayerConstants.GroundCollision).Length != 0)
@@ -64,7 +65,7 @@ public class FireChargeManager : MonoBehaviour
         }
     }
 
-    private void GroundClamp()
+    protected void GroundClamp()
     {
         RaycastHit raycast;
 
@@ -87,7 +88,7 @@ public class FireChargeManager : MonoBehaviour
         }
     }
 
-    private void OnControllerColliderHit(ControllerColliderHit hit)
+    protected void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (Matho.AngleBetween(hit.normal, Vector3.up) > 45)
         {
@@ -95,7 +96,7 @@ public class FireChargeManager : MonoBehaviour
         }
     }
 
-    private void Deactivate()
+    protected virtual void Deactivate()
     {
         foreach (ParticleSystem particle in particles)
         {
