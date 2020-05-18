@@ -133,6 +133,12 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
         return true;
     }
 
+    public override void OnStay(GameObject character)
+    {
+        EnemyManager enemy = character.GetComponent<EnemyManager>();
+        enemy.ChangeHealth(-damage * .1f);
+    }
+
     public override void ShortCircuitLogic()
     {
         

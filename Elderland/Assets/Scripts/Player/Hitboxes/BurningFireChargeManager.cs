@@ -12,6 +12,9 @@ public sealed class BurningFireChargeManager : FireChargeManager
 
     private bool moving;
 
+    private List<PlayerMultiDamageHitbox> currentDebuffHitboxes;
+    private List<PlayerMultiDamageHitbox> asleepDebuffHitboxes;
+
     protected override void Awake()
     {
         characterController = GetComponent<CharacterController>();
@@ -19,6 +22,8 @@ public sealed class BurningFireChargeManager : FireChargeManager
         particles = GetComponentsInChildren<ParticleSystem>();
 
         travelPoints = new List<Vector3>();
+        currentDebuffHitboxes = new List<PlayerMultiDamageHitbox>();
+        asleepDebuffHitboxes = new List<PlayerMultiDamageHitbox>();
     }
 
     public override void Initialize(PlayerAbility ability, Vector2 velocity, float lifeDuration)
@@ -36,6 +41,12 @@ public sealed class BurningFireChargeManager : FireChargeManager
         distanceTraveled = 0;
         travelPoints.Clear();
         moving = true;
+        for (int i = currentDebuffHitboxes.Count - 1; i >= 0; i--)
+        {
+            PlayerMultiDamageHitbox debuffHitbox = currentDebuffHitboxes[i];
+            currentDebuffHitboxes.RemoveAt(i);
+            asleepDebuffHitboxes.Add(debuffHitbox);
+        }
     }
 
     public override void PostInitialization()
@@ -137,6 +148,9 @@ public sealed class BurningFireChargeManager : FireChargeManager
                     travelPoints[i] * (1 - spawnPercentage) +
                     travelPoints[i + 1] * spawnPercentage;
                 Debug.DrawLine(spawnPosition, spawnPosition + Vector3.up, Color.magenta, 10f);
+
+                LocateBurner(spawnPosition);
+
                 pointToAdd = spawnPosition;
                 pointsToRemove++;
                 break;
@@ -157,9 +171,47 @@ public sealed class BurningFireChargeManager : FireChargeManager
         travelPoints.Insert(0, pointToAdd);
     }
 
-    private void SpawnBurner()
+    private void LocateBurner(Vector3 raycastStart)
     {
+        Quaternion spawnRotation =
+            Quaternion.LookRotation(Matho.StandardProjection3D(velocity).normalized, Vector3.up);
 
+        RaycastHit hit;
+        if (Physics.Raycast(raycastStart,
+                            Vector3.down,
+                            out hit,
+                            characterController.height,
+                            LayerConstants.GroundCollision))
+        {
+            GenerateBurner(hit.point, spawnRotation);
+        }
+    }
+
+    private void GenerateBurner(Vector3 position, Quaternion rotation)
+    {
+        if (asleepDebuffHitboxes.Count == 0)
+        {
+            GameObject debuffHitbox =
+                    Instantiate(Resources.Load<GameObject>(
+                                    ResourceConstants.Player.Hitboxes.BurningFireChargeDebuffHitbox),
+                                    position,
+                                    rotation);
+                
+            debuffHitbox.transform.parent = PlayerInfo.MeleeObjects.transform;
+            var hitbox = debuffHitbox.GetComponent<PlayerMultiDamageHitbox>();
+            currentDebuffHitboxes.Add(hitbox);
+            hitbox.Activate(ability, true);
+        }
+        else
+        {
+            var debuffHitbox = asleepDebuffHitboxes[asleepDebuffHitboxes.Count - 1];
+            asleepDebuffHitboxes.RemoveAt(asleepDebuffHitboxes.Count - 1);
+            debuffHitbox.transform.position = position;
+            debuffHitbox.transform.rotation = rotation;
+            currentDebuffHitboxes.Add(debuffHitbox);
+            debuffHitbox.Deactivate();
+            debuffHitbox.Activate(ability, true);
+        }
     }
 
     private void DeactivateBurners()

@@ -10,6 +10,8 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
     private List<Collider> enemiesHit;
     private PlayerAbility ability;
 
+    private bool callOnStay;
+
     public GameObject Display { get { return display; } }
 
     private void Awake()
@@ -17,10 +19,11 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
         enemiesHit = new List<Collider>();
     }
 
-    public void Activate(PlayerAbility ability)
+    public void Activate(PlayerAbility ability, bool callOnStay = false)
     {
         Reset();
         this.ability = ability;
+        this.callOnStay = callOnStay;
     }
 
     private void Reset()
@@ -42,10 +45,17 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.tag == "EnemyHealth" && !enemiesHit.Contains(other) && gameObject.activeSelf)
+        if (other.tag == "EnemyHealth" && gameObject.activeSelf)
         {
-            if (ability.OnHit(other.transform.parent.gameObject))
-                enemiesHit.Add(other);
+            if (!enemiesHit.Contains(other))
+            {
+                if (ability.OnHit(other.transform.parent.gameObject))
+                    enemiesHit.Add(other);
+            }
+            else if (callOnStay)
+            {
+                ability.OnStay(other.transform.parent.gameObject);
+            }
         }
     }
 

@@ -268,5 +268,6 @@ public abstract class Ability : MonoBehaviour
     protected abstract void AdvanceSegment();
     
     public abstract bool OnHit(GameObject character);
+    public virtual void OnStay(GameObject character) {}
     public virtual void OnLeave(GameObject character) {}
 }

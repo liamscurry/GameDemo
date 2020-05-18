@@ -8,7 +8,7 @@ public class FireChargeManager : MonoBehaviour
     protected CharacterController characterController;
     protected PlayerMultiDamageHitbox hitbox;
 
-    protected Ability ability;
+    protected PlayerAbility ability;
     protected Vector3 velocity;
     protected float lifeDuration;
     protected float lifeTimer;
