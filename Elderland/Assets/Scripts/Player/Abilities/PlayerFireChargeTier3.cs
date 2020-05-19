@@ -43,7 +43,7 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
         charges = new List<BurningFireChargeManager>();
         hitboxes = new List<PlayerMultiDamageHitbox>();
 
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 7; i++)
         {
             GameObject charge = Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.BurningFireChargeSegment), transform.position, Quaternion.identity);
             charge.transform.parent = PlayerInfo.MeleeObjects.transform;
@@ -105,10 +105,10 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
         direction =
             Matho.StandardProjection2D(GameInfo.CameraController.transform.forward).normalized;
 
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 7; i++)
         {
             charges[i].gameObject.transform.position =
-                transform.position + GameInfo.CameraController.transform.right * (i);// - 2f
+                transform.position + GameInfo.CameraController.transform.right * (i - 3f) * 0.8f;
             charges[i].Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
             hitboxes[i].Activate(this);           
             hitboxes[i].gameObject.SetActive(true);
@@ -128,7 +128,6 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
             if (hit.enemy == enemy && hit.id == invokeID)
                 return true;
         }
-        Debug.Log(enemy.StatsManager.DamageTakenMultiplier.Value);
         
         float damageDelt = 0;
         if (damageModifier != 0)

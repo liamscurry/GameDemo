@@ -36,6 +36,8 @@ public sealed class BurningFireChargeManager : FireChargeManager
         GameInfo.Manager.OnRespawn += OnRespawn;
 
         floorParticles = new Particle[500];
+        activated = false;
+        activatedBurners = false;
     }
 
     public override void Initialize(PlayerAbility ability, Vector2 velocity, float lifeDuration)
@@ -126,16 +128,43 @@ public sealed class BurningFireChargeManager : FireChargeManager
     {
         if (activatedBurners)
         {
-            FastForwardGroundParticles();
+            //FastForwardGroundParticles();
 
             foreach (PlayerMultiDamageHitbox hitbox in currentDebuffHitboxes)
             {
                 asleepDebuffHitboxes.Add(hitbox);
                 hitbox.Deactivate();
                 hitbox.gameObject.SetActive(false);
+
+                hitbox.transform.parent.GetComponentInChildren<ParticleSystem>().Stop();
+                var particleManager =
+                    hitbox.GetComponentInParent<BurningFireChargeParticleManager>();
+                particleManager.SwapActive();
+                particleManager.FadeDeactivatedOut();
             }
             currentDebuffHitboxes.Clear(); 
             activatedBurners = false;
+        }
+    }
+
+    private void ForceDeactivate()
+    {
+        Deactivate();
+        foreach (ParticleSystem particle in particles)
+        {
+            particle.Clear();
+        }
+    }
+
+    private void ForceDeactivateBurners()
+    {
+        DeactivateBurners();
+        foreach (PlayerMultiDamageHitbox hitbox in asleepDebuffHitboxes)
+        {
+            hitbox.transform.parent.GetComponentInChildren<ParticleSystem>().Clear();
+            var particleManager =
+                hitbox.GetComponentInParent<BurningFireChargeParticleManager>();
+            particleManager.Reset();
         }
     }
 
@@ -155,8 +184,8 @@ public sealed class BurningFireChargeManager : FireChargeManager
 
     private void OnRespawn(object sender, EventArgs e)
     {
-        Deactivate();
-        DeactivateBurners();
+        ForceDeactivate();
+        ForceDeactivateBurners();
     }
 
     private void SpawnBurnersWithDistance(Vector3 startPosition, Vector3 endPosition)
@@ -260,19 +289,29 @@ public sealed class BurningFireChargeManager : FireChargeManager
                                     rotation);
                 
             debuffHitbox.transform.parent = PlayerInfo.MeleeObjects.transform;
-            var hitbox = debuffHitbox.GetComponent<PlayerMultiDamageHitbox>();
+            var hitbox = debuffHitbox.GetComponentInChildren<PlayerMultiDamageHitbox>();
             currentDebuffHitboxes.Add(hitbox);
             hitbox.Activate(ability, false, true);
+            var particleManager = debuffHitbox.GetComponent<BurningFireChargeParticleManager>();
+            particleManager.SetMaterialOffset();
+            particleManager.FadeActiveIn();
         }
         else
         {
             var debuffHitbox = asleepDebuffHitboxes[asleepDebuffHitboxes.Count - 1];
+            var particleManager = debuffHitbox.GetComponentInParent<BurningFireChargeParticleManager>();
+            Vector3 deactivatedFloorPosition = particleManager.DeactivatedFloorRenderer.transform.position;
             asleepDebuffHitboxes.RemoveAt(asleepDebuffHitboxes.Count - 1);
-            debuffHitbox.transform.position = position;
-            debuffHitbox.transform.rotation = rotation;
+            debuffHitbox.transform.parent.transform.position = position;
+            debuffHitbox.transform.parent.transform.rotation = rotation;
+            particleManager.DeactivatedFloorRenderer.transform.position = deactivatedFloorPosition;
+            particleManager.ActiveFloorRenderer.transform.localPosition = Vector3.zero;
             currentDebuffHitboxes.Add(debuffHitbox);
             debuffHitbox.Activate(ability, false, true);
             debuffHitbox.gameObject.SetActive(true);
+            particleManager.SetMaterialOffset();
+            debuffHitbox.transform.parent.GetComponentInChildren<ParticleSystem>().Play();
+            particleManager.FadeActiveIn();
         }
     }
 

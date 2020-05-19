@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.ParticleSystem;
@@ -23,6 +24,7 @@ public class FireChargeManager : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         hitbox = GetComponentInChildren<PlayerMultiDamageHitbox>();
         particles = GetComponentsInChildren<ParticleSystem>();
+        GameInfo.Manager.OnRespawn += OnRespawn;
     }
 
     public virtual void Initialize(PlayerAbility ability, Vector2 velocity, float lifeDuration)
@@ -62,6 +64,20 @@ public class FireChargeManager : MonoBehaviour
                                   LayerConstants.GroundCollision).Length != 0)
         {
             Deactivate();
+        }
+    }
+
+    private void OnRespawn(object sender, EventArgs e)
+    {
+        ForceDeactivate();
+    }
+
+    private void ForceDeactivate()
+    {
+        Deactivate();
+        foreach (ParticleSystem particle in particles)
+        {
+            particle.Clear();
         }
     }
 
