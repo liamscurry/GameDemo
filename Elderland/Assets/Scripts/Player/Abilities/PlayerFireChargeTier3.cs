@@ -11,6 +11,7 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
     private float speed = 20f;
     private const float lifeDurationPercentage = 0.25f;
     private const float damage = 2f;
+    private const float damageModifier = 2f;
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
@@ -106,10 +107,10 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
 
         for (int i = 0; i < 1; i++)
         {
-            charges[i].Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
-            hitboxes[i].Activate(this);
             charges[i].gameObject.transform.position =
-                transform.position + GameInfo.CameraController.transform.right * (i);
+                transform.position + GameInfo.CameraController.transform.right * (i);// - 2f
+            charges[i].Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
+            hitboxes[i].Activate(this);           
             hitboxes[i].gameObject.SetActive(true);
             charges[i].PostInitialization();
         }
@@ -127,8 +128,33 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
             if (hit.enemy == enemy && hit.id == invokeID)
                 return true;
         }
+        Debug.Log(enemy.StatsManager.DamageTakenMultiplier.Value);
         
-        enemy.ChangeHealth(-damage);
+        float damageDelt = 0;
+        if (damageModifier != 0)
+        {
+            List<EnemyBuff> currentDebuffs = enemy.BuffManager.Debuffs;
+            bool containsFireChargeDebuff = false;
+            foreach (EnemyBuff buff in currentDebuffs)
+            {
+                if (buff is EnemyFireChargeDebuff)
+                {
+                    containsFireChargeDebuff = true;
+                    break;
+                }
+            }
+
+            if (containsFireChargeDebuff)
+            {
+                damageDelt = -damage / damageModifier;
+            }
+            else
+            {
+                damageDelt = -damage;
+            }
+        }
+
+        enemy.ChangeHealth(damageDelt);
         enemyHits.Add(new EnemyHit(invokeID, enemy));
         return true;
     }
@@ -136,7 +162,8 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
     public override void OnStay(GameObject character)
     {
         EnemyManager enemy = character.GetComponent<EnemyManager>();
-        enemy.ChangeHealth(-damage * .1f);
+        enemy.BuffManager.Apply(new EnemyFireChargeDebuff(damageModifier, enemy, EnemyBuff.BuffType.Debuff, 0.5f));
+        //enemy.ChangeHealth(-damage * .1f);
     }
 
     public override void ShortCircuitLogic()

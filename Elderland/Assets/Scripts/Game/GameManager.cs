@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
@@ -23,6 +24,8 @@ public class GameManager : MonoBehaviour
     private static object receivingInputSetter;
 
     public bool ReceivingInput { get { return receivingInput; } }
+
+    public event EventHandler OnRespawn;
 
     //Set up all components of the game.
 	private void Awake() 
@@ -141,6 +144,7 @@ public class GameManager : MonoBehaviour
 
         GameInfo.CurrentLevel.Reset();
         PlayerInfo.Manager.Reset();
+        OnRespawn.Invoke(this, EventArgs.Empty);
 
         //Fade out
         yield return Fade(duration / 2, 0);

@@ -105,17 +105,17 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
 
         direction =
             Matho.StandardProjection2D(GameInfo.CameraController.transform.forward).normalized;
-        segment1.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
-        hitbox1.Activate(this);
         segment1.gameObject.transform.position =
             transform.position - GameInfo.CameraController.transform.right * 0.5f;
+        segment1.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
+        hitbox1.Activate(this);
         hitbox1.gameObject.SetActive(true);
         segment1.PostInitialization();
 
-        segment2.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
-        hitbox2.Activate(this);
         segment2.gameObject.transform.position =
             transform.position + GameInfo.CameraController.transform.right * 0.5f;
+        segment2.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
+        hitbox2.Activate(this);
         hitbox2.gameObject.SetActive(true);
         segment2.PostInitialization();
 

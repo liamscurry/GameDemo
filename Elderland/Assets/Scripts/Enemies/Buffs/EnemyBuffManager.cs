@@ -20,14 +20,14 @@ public class EnemyBuffManager
 
     public void UpdateBuffs()
     {
-        foreach (EnemyBuff buff in buffs)
+        for (int i = buffs.Count - 1; i >= 0; i--)
         {
-            buff.UpdateBuff();
+            buffs[i].UpdateBuff();
         }
 
-        foreach (EnemyBuff debuff in debuffs)
+        for (int i = debuffs.Count - 1; i >= 0; i--)
         {
-            debuff.UpdateBuff();
+            debuffs[i].UpdateBuff();
         }
     }
 

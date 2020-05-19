@@ -10,6 +10,7 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
     private List<Collider> enemiesHit;
     private PlayerAbility ability;
 
+    private bool callOnHit;
     private bool callOnStay;
 
     public GameObject Display { get { return display; } }
@@ -19,10 +20,11 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
         enemiesHit = new List<Collider>();
     }
 
-    public void Activate(PlayerAbility ability, bool callOnStay = false)
+    public void Activate(PlayerAbility ability, bool callOnHit = true, bool callOnStay = false)
     {
         Reset();
         this.ability = ability;
+        this.callOnHit = callOnHit;
         this.callOnStay = callOnStay;
     }
 
@@ -49,7 +51,7 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
         {
             if (!enemiesHit.Contains(other))
             {
-                if (ability.OnHit(other.transform.parent.gameObject))
+                if ((callOnHit && ability.OnHit(other.transform.parent.gameObject)) || (!callOnHit))
                     enemiesHit.Add(other);
             }
             else if (callOnStay)

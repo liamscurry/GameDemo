@@ -1,16 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.ParticleSystem;
 
 public sealed class BurningFireChargeManager : FireChargeManager
 {
+    [SerializeField]
+    private ParticleSystem floorParticleSystem;
+    
+    private ParticleSystem.Particle[] floorParticles;
+
     private const float spawnDistance = 1f;
 
     private float distanceTraveled;
     private List<Vector3> travelPoints;
 
-    private bool moving;
+    private bool activated;
+    private bool activatedBurners;
+
+    private const float fireDuration = 5;
 
     private List<PlayerMultiDamageHitbox> currentDebuffHitboxes;
     private List<PlayerMultiDamageHitbox> asleepDebuffHitboxes;
@@ -24,6 +33,9 @@ public sealed class BurningFireChargeManager : FireChargeManager
         travelPoints = new List<Vector3>();
         currentDebuffHitboxes = new List<PlayerMultiDamageHitbox>();
         asleepDebuffHitboxes = new List<PlayerMultiDamageHitbox>();
+        GameInfo.Manager.OnRespawn += OnRespawn;
+
+        floorParticles = new Particle[500];
     }
 
     public override void Initialize(PlayerAbility ability, Vector2 velocity, float lifeDuration)
@@ -33,19 +45,17 @@ public sealed class BurningFireChargeManager : FireChargeManager
         this.lifeDuration = lifeDuration;
         lifeTimer = 0;
 
+        distanceTraveled = 0;
+        travelPoints.Clear();
+        activated = true;
+        DeactivateBurners();
+        activatedBurners = true;
+
+        floorParticleSystem.Stop();
+
         foreach (ParticleSystem particle in particles)
         {
             particle.Play();
-        }
-
-        distanceTraveled = 0;
-        travelPoints.Clear();
-        moving = true;
-        for (int i = currentDebuffHitboxes.Count - 1; i >= 0; i--)
-        {
-            PlayerMultiDamageHitbox debuffHitbox = currentDebuffHitboxes[i];
-            currentDebuffHitboxes.RemoveAt(i);
-            asleepDebuffHitboxes.Add(debuffHitbox);
         }
     }
 
@@ -59,6 +69,7 @@ public sealed class BurningFireChargeManager : FireChargeManager
             Deactivate();
         }
 
+        LocateBurner(transform.position);
         travelPoints.Add(transform.position);
     }
 
@@ -69,19 +80,32 @@ public sealed class BurningFireChargeManager : FireChargeManager
 
         //Vector3 currentVelocity = velocity.normalized * speed;
         //Debug.Log(speed);
-        if (moving)
+        lifeTimer += Time.deltaTime;
+
+        if (activated)
         {
             Vector3 startPosition = transform.position;
-            characterController.Move(velocity * Time.deltaTime);
+            characterController.Move(velocity * Time.deltaTime); // calling deactivate on hit
             travelPoints.Add(transform.position);
             Vector3 endPosition = transform.position;
-            SpawnBurnersWithDistance(startPosition, endPosition);
-            GroundClamp();
+
+            if (activated)
+            {
+                SpawnBurnersWithDistance(startPosition, endPosition);
+                GroundClamp();
+
+                if (lifeTimer >= lifeDuration)
+                {
+                    Deactivate();
+                }
+            }
         }
-        lifeTimer += Time.deltaTime;
-        if (lifeTimer >= lifeDuration)
-        {
-            Deactivate();
+        else
+        {         
+            if (lifeTimer >= lifeDuration + fireDuration)
+            {   
+                DeactivateBurners();
+            }
         }
     }
 
@@ -89,12 +113,50 @@ public sealed class BurningFireChargeManager : FireChargeManager
     {
         foreach (ParticleSystem particle in particles)
         {
-            particle.Stop();
+            //if (particle != floorParticleSystem)
+                particle.Stop();
         }
         velocity = Vector3.zero;
         hitbox.gameObject.SetActive(false);
         hitbox.Deactivate();
-        moving = false;
+        activated = false;
+    }
+
+    private void DeactivateBurners()
+    {
+        if (activatedBurners)
+        {
+            FastForwardGroundParticles();
+
+            foreach (PlayerMultiDamageHitbox hitbox in currentDebuffHitboxes)
+            {
+                asleepDebuffHitboxes.Add(hitbox);
+                hitbox.Deactivate();
+                hitbox.gameObject.SetActive(false);
+            }
+            currentDebuffHitboxes.Clear(); 
+            activatedBurners = false;
+        }
+    }
+
+    private void FastForwardGroundParticles()
+    {
+        int numberOfParticles =
+            floorParticleSystem.GetParticles(floorParticles);
+        
+        for (int i = 0; i < numberOfParticles; i++)
+        {
+            if (floorParticles[i].remainingLifetime > 0.5f)
+                floorParticles[i].remainingLifetime = 0.5f;
+        }
+
+        floorParticleSystem.SetParticles(floorParticles, numberOfParticles);
+    }
+
+    private void OnRespawn(object sender, EventArgs e)
+    {
+        Deactivate();
+        DeactivateBurners();
     }
 
     private void SpawnBurnersWithDistance(Vector3 startPosition, Vector3 endPosition)
@@ -200,7 +262,7 @@ public sealed class BurningFireChargeManager : FireChargeManager
             debuffHitbox.transform.parent = PlayerInfo.MeleeObjects.transform;
             var hitbox = debuffHitbox.GetComponent<PlayerMultiDamageHitbox>();
             currentDebuffHitboxes.Add(hitbox);
-            hitbox.Activate(ability, true);
+            hitbox.Activate(ability, false, true);
         }
         else
         {
@@ -209,14 +271,9 @@ public sealed class BurningFireChargeManager : FireChargeManager
             debuffHitbox.transform.position = position;
             debuffHitbox.transform.rotation = rotation;
             currentDebuffHitboxes.Add(debuffHitbox);
-            debuffHitbox.Deactivate();
-            debuffHitbox.Activate(ability, true);
+            debuffHitbox.Activate(ability, false, true);
+            debuffHitbox.gameObject.SetActive(true);
         }
-    }
-
-    private void DeactivateBurners()
-    {
-
     }
 
     private void OnDrawGizmos()

@@ -12,7 +12,11 @@ public abstract class EnemyManager : MonoBehaviour
     [SerializeField]
     private GameObject healthbarPivot;
     [SerializeField]
+    private MeshRenderer healthbarDisplay;
+    [SerializeField]
     private Collider hitbox;
+
+    private float baseAgentSpeed;
 
     public EnemyLevel Level { get; set; }
 
@@ -82,13 +86,18 @@ public abstract class EnemyManager : MonoBehaviour
 
         ArrangementNode = -1;
         Alive = true;
+
+        baseAgentSpeed = Agent.speed;
     }
 
     private void Update()
     {
         PhysicsSystem.UpdateSystem();
+        BuffManager.UpdateBuffs();
         MovementSystem.UpdateSystem();
         AbilityManager.UpdateAbilities();
+        ColorHealth();
+        Agent.speed = baseAgentSpeed * StatsManager.MovespeedMultiplier.Value;
     }
     
     private void LateUpdate()
@@ -157,7 +166,7 @@ public abstract class EnemyManager : MonoBehaviour
     {
         float preHealth = Health;
 
-        Health = Mathf.Clamp(Health + value, 0, MaxHealth);
+        Health = Mathf.Clamp(Health + (value * StatsManager.DamageTakenMultiplier.Value), 0, MaxHealth);
 
         Vector3 currentScale = healthbarPivot.transform.localScale;
         healthbarPivot.transform.localScale = new Vector3(Health / MaxHealth, currentScale.y, currentScale.z);
@@ -170,6 +179,15 @@ public abstract class EnemyManager : MonoBehaviour
         {
             healthbarPivot.SetActive(true);
         }
+    }
+
+    private void ColorHealth()
+    {
+        Color currentColor = healthbarDisplay.material.color;
+        healthbarDisplay.material.color =
+            new Color(currentColor.r,
+                      currentColor.g,
+                      1f - StatsManager.HealthDebuffMultiplier.Value);
     }
 
     public void Die()
