@@ -24,7 +24,36 @@ public class StandardInteraction : MonoBehaviour
 
 	protected bool activated;
 
-	public Vector3 ValidityDirection { get { return -transform.forward; } }
+	public Vector3 ValidityDirection { get { return transform.forward; } }
+
+	private Vector3 GeneratedTargetPosition
+	{
+		get
+		{
+			Vector3 generatedTargetPosition =
+				transform.position +
+				targetPosition.z * transform.forward +
+				targetPosition.y * transform.up +
+				targetPosition.x * transform.right;
+			
+			return generatedTargetPosition;
+		}
+	}
+
+	private Vector3 GeneratedTargetRotation
+	{
+		get
+		{
+			Vector3 normalizedTargetRotation = targetRotation.normalized;
+
+			Vector3 generatedTargetRotation = 
+				normalizedTargetRotation.z * transform.forward +
+				normalizedTargetRotation.y * transform.up +
+				normalizedTargetRotation.x * transform.right;
+			
+			return generatedTargetRotation;
+		}
+	}
 
 	public void Exit()
 	{
@@ -37,8 +66,8 @@ public class StandardInteraction : MonoBehaviour
 
 			if (target)
 			{
-				Quaternion rotation = Quaternion.LookRotation(targetRotation.normalized, Vector3.up);
-				var matchTarget = new PlayerAnimationManager.MatchTarget(transform.position + targetPosition, rotation, AvatarTarget.Root, positionWeight, rotationWeight);
+				Quaternion rotation = Quaternion.LookRotation(GeneratedTargetRotation, Vector3.up);
+				var matchTarget = new PlayerAnimationManager.MatchTarget(GeneratedTargetPosition, rotation, AvatarTarget.Root, positionWeight, rotationWeight);
 				PlayerInfo.AnimationManager.EnqueueTarget(matchTarget);
 				PlayerInfo.Animator.SetTrigger("targetMatch");
 			}
@@ -51,6 +80,7 @@ public class StandardInteraction : MonoBehaviour
 
 			StartCoroutine(UITimer());
 			//StartCoroutine(EndTimer());
+			OnExitBegin();
 		}
 	}
 
@@ -71,21 +101,24 @@ public class StandardInteraction : MonoBehaviour
 		//endEvent.Invoke();
 	//}
 
-	public void Reset()
+	public virtual void Reset()
 	{
 		activated = false;
 		ui.SetActive(true);
 	}
 
+	protected virtual void OnExitBegin() {}
+
 	protected void OnDrawGizmosSelected()
 	{
 		if (target)
 		{
-			Vector3 generatedTargetPosition = transform.position + targetPosition;
+			Vector3 generatedTargetPosition = GeneratedTargetPosition;
+			Vector3 generatedTargetRotation = GeneratedTargetRotation;
 
 			//Line
 			Gizmos.color = Color.blue;
-			Gizmos.DrawLine(generatedTargetPosition, generatedTargetPosition + targetRotation.normalized);
+			Gizmos.DrawLine(generatedTargetPosition, generatedTargetPosition + generatedTargetRotation);
 
 			//Position
 			Gizmos.color = Color.red;
@@ -93,7 +126,7 @@ public class StandardInteraction : MonoBehaviour
 
 			//Direction
 			Gizmos.color = Color.blue;
-			Gizmos.DrawCube(generatedTargetPosition + targetRotation.normalized, Vector3.one * 0.125f);
+			Gizmos.DrawCube(generatedTargetPosition + generatedTargetRotation, Vector3.one * 0.125f);
 		}
 	}
 }
