@@ -102,7 +102,7 @@ public class PlayerAbilityManager : AbilitySystem
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
         EquipAbility<PlayerFireballTier3>(ref ranged);
-        EquipAbility<PlayerFireChargeTier1>(ref heal);
+        EquipAbility<PlayerFireChargeTier3>(ref heal);
     }
 
     public void ChangeStamina(float value)
