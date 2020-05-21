@@ -18,7 +18,15 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
     [SerializeField]
     private Text previewText;
     [SerializeField]
-    private Text abilityStatus;
+    private Text abilityAvailableText;
+    [SerializeField]
+    private Text vitalityCostText;
+    [SerializeField]
+    private GameObject vitalityCostIcon;
+    [SerializeField]
+    private Text abilityCostText;
+    [SerializeField]
+    private GameObject abilityCostIcon;
     [SerializeField]
     private int abilityCost;
     [SerializeField]
@@ -35,7 +43,6 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
         if (acquiredInitially)
         {
             TryAcquire();
-            
         }
         Acquired = acquiredInitially;
     }
@@ -47,6 +54,8 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
         previewPlayer.Play();
         previewText.text = abilityDescription;
         UpdateAbilityStatus();
+        vitalityCostIcon.SetActive(false);
+        vitalityCostText.text = "";
     }
 
     public void TryAcquire()
@@ -79,14 +88,19 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
 
     protected virtual void UpdateAbilityStatus()
     {
+        abilityAvailableText.text =
+            "Available: " + PlayerInfo.StatsManager.UpgradePoints;
+
         if (Acquired)
         {
-            abilityStatus.text = "Unlocked";
+            abilityCostText.text = "";
+            abilityCostIcon.gameObject.SetActive(false);
         }
         else
         {
-            abilityStatus.text =
-                PlayerInfo.StatsManager.UpgradePoints + " / " + abilityCost;
+            abilityCostText.text =
+                "Cost: " + abilityCost;
+            abilityCostIcon.gameObject.SetActive(true);
         }
     }
 }

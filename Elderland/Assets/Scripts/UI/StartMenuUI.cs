@@ -20,7 +20,7 @@ public class StartMenuUI : MonoBehaviour
         StartCoroutine(DefaultSelectedCoroutine());
     }
 
-     private void Update()
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Joystick1Button7))
         {

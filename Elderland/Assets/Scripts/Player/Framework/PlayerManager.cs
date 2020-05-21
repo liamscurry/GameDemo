@@ -355,6 +355,21 @@ public class PlayerManager : MonoBehaviour
         ChangeHealth(savedHealth);
     }
 
+    public void IncreaseAbilityPoints()
+    {
+        PlayerInfo.StatsManager.UpgradePoints++;
+    }
+
+    public void IncreaseVitalityPoints()
+    {
+        PlayerInfo.StatsManager.VitalityPoints++;
+    }
+
+    public void ZeroVitalityPoints()
+    {
+        PlayerInfo.StatsManager.VitalityPoints = 0;
+    }
+
     public void Reset()
     {
         PlayerInfo.AbilityManager.ShortCircuit(false);

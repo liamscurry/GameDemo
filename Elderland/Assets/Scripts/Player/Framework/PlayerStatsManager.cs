@@ -26,6 +26,13 @@ public class PlayerStatsManager
 	public GameObject JumpspeedEditor { get; set; }
 
 	public int UpgradePoints { get; set; }
+	public int VitalityPoints { get; set; }
+
+	public int HealthTier { get; set; }
+	public int HealthTierMax { get; set; }
+
+	public int StaminaTier { get; set; }
+	public int StaminaTierMax { get; set; }
 
 	public PlayerStatsManager()
 	{
@@ -39,5 +46,9 @@ public class PlayerStatsManager
 		JumpspeedModifier = 1;
 
 		UpgradePoints = 4;
+		VitalityPoints = 7;
+
+		HealthTier = 0;
+		StaminaTier = 0;
 	}
 }
