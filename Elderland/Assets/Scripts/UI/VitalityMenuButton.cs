@@ -35,22 +35,13 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
     [SerializeField]
     private Image[] tierIndicators;
     [SerializeField]
-    private UnityEvent onUpgrade;
+    private Type type;
+
+    private enum Type { Health, Stamina };
 
     private const float dimPercentage = 0.5f;
 
     private int tier;
-
-    private void Start()
-    {
-        tier = 0;
-
-        vitalityAvailableText.text =
-            "Available: " + PlayerInfo.StatsManager.VitalityPoints;
-
-        vitalityCostText.text = "";
-        vitalityCostIcon.gameObject.SetActive(false);
-    }
 
     private void OnDisable()
     {
@@ -74,7 +65,6 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
 
     public void TryAcquireIteration()
     {
-        //Debug.Log("called");
         if (tier < maxTier &&
             PlayerInfo.StatsManager.VitalityPoints >= vitalityCost)
         {
@@ -102,10 +92,29 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
             PlayerInfo.StatsManager.VitalityPoints -= vitalityCost;
             tier++;
 
-            if (onUpgrade != null)
-                onUpgrade.Invoke();
-
             UpdateVitalityStatus();
+
+            if (type == Type.Health)
+            {
+                PlayerInfo.Manager.IncreaseMaxHealth(tier);
+                PlayerInfo.Manager.MaxOutHealth();
+            }
+        }
+    }
+    
+    public void Initialize()
+    {
+        tier = 0;
+
+        vitalityAvailableText.text =
+            "Available: " + PlayerInfo.StatsManager.VitalityPoints;
+
+        vitalityCostText.text = "";
+        vitalityCostIcon.gameObject.SetActive(false);
+
+        if (type == Type.Health)
+        {
+            PlayerInfo.Manager.InitializeHealth(maxTier);
         }
     }
 

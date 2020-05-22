@@ -5,7 +5,9 @@
 public class MenuManager : MonoBehaviour 
 {
     [SerializeField]
-    private GameObject startMenu;
+    private GameObject startMenuUI;
+    [SerializeField]
+    private GameObject gameplayUI;
 
     private bool pausedLastFrame;
 
@@ -58,8 +60,8 @@ public class MenuManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Joystick1Button7))
         {
-            startMenu.SetActive(true);
-            
+            startMenuUI.SetActive(true);
+            gameplayUI.SetActive(false);
 
             GameInfo.Paused = true;
             Time.timeScale = 0;

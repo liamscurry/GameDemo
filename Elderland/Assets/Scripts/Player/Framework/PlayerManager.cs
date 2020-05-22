@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using UnityEngine.Animations;
 
 //Manages the player's subpart update order.
 
@@ -10,13 +11,14 @@ public class PlayerManager : MonoBehaviour
 {
     [SerializeField]
     private float maxHealth;
-
     [SerializeField]
-    private Slider healthSlider1;
+    private RectTransform healthSlidersParent;
     [SerializeField]
-    private Slider healthSlider2;
+    private float healthSlidersSpacingPercentage;
     [SerializeField]
-    private Slider healthSlider3;
+    private VitalityMenuButton healthUpgradeButton;
+    [SerializeField]
+    private Slider[] healthSliders;
     [SerializeField]
     private Slider staminaSlider1;
     [SerializeField]
@@ -40,8 +42,7 @@ public class PlayerManager : MonoBehaviour
 
     private void Start()
     {
-        MaxHealth = maxHealth;
-        Health = MaxHealth;
+        healthUpgradeButton.Initialize();
     }
 
 	private void Update()
@@ -79,9 +80,13 @@ public class PlayerManager : MonoBehaviour
             //Time.fixedDeltaTime = Time.timeScale * 0.02f;
         }
 
-        if (Input.GetKeyDown(KeyCode.Y))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            GameInfo.Manager.Respawn();
+            ChangeHealth(-1);
+        }
+        else if (Input.GetKeyDown(KeyCode.W))
+        {
+            ChangeHealth(1);
         }
         #endif
     }
@@ -178,6 +183,25 @@ public class PlayerManager : MonoBehaviour
 
             float percentage = Health / MaxHealth;
 
+            int currentTier = PlayerInfo.StatsManager.HealthTier;
+            int maxTier = PlayerInfo.StatsManager.HealthTierMax;
+
+            float leftOverPercentage = percentage;
+            float sliderPercentage = 1f / (3f + currentTier);
+            for (int i = 0; i < 3 + currentTier; i++)
+            {
+                if (leftOverPercentage > 0)
+                {
+                    healthSliders[i].value = Mathf.Clamp01(leftOverPercentage / sliderPercentage);
+                    leftOverPercentage -= sliderPercentage;
+                }
+                else
+                {
+                    healthSliders[i].value = 0;
+                }
+            }
+ 
+            /*
             if (percentage == 0f)
             {
                 healthSlider1.value = 0;
@@ -208,6 +232,7 @@ public class PlayerManager : MonoBehaviour
                 healthSlider2.value = 1;
                 healthSlider3.value = 1;
             }
+            */
             
             if (preHealth != 0 && Health == 0)
             {
@@ -215,6 +240,71 @@ public class PlayerManager : MonoBehaviour
                 GameInfo.Manager.Respawn();
             }
         }
+    }
+
+    public void InitializeHealth(int maxTier)
+    {
+        MaxHealth = maxHealth;
+        Health = MaxHealth;
+        PlayerInfo.StatsManager.HealthTier = 0;
+        PlayerInfo.StatsManager.HealthTierMax = maxTier;
+        MaxOutHealth();
+
+        int currentTier = 0;
+
+        for (int i = 0; i < 3 + currentTier; i++)
+        {
+            healthSliders[i].value = 1;
+            healthSliders[i].gameObject.SetActive(true);
+        }
+
+        // Need to turn off not in use sliders
+        for (int i = 0; i < maxTier - currentTier; i++)
+        {
+            healthSliders[3 + i + currentTier].gameObject.SetActive(false);
+        }
+
+        RescaleHealth();
+        ChangeHealth(0);
+    }
+
+    public void IncreaseMaxHealth(int tier)
+    {
+        MaxHealth = MaxHealth / (tier + 2) * (tier + 3);
+        PlayerInfo.StatsManager.HealthTier = tier;
+        healthSliders[3 + tier - 1].gameObject.SetActive(true);
+        RescaleHealth();
+        ChangeHealth(0);
+    }
+
+    private void RescaleHealth()
+    {
+        int currentTier = PlayerInfo.StatsManager.HealthTier;
+        int maxTier = PlayerInfo.StatsManager.HealthTierMax;
+
+        Rect parentRect = healthSlidersParent.rect;
+        float sliderWidth =
+            (parentRect.width - healthSlidersSpacingPercentage * parentRect.width) /
+            (3 + currentTier);
+
+        float sliderSpacing = (healthSlidersSpacingPercentage * parentRect.width) /
+            (3 + currentTier - 1);
+
+        for (int i = 0; i < 3 + currentTier; i++)
+        {
+            ((RectTransform) healthSliders[i].transform).
+                SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sliderWidth);
+            ((RectTransform) healthSliders[i].transform).anchoredPosition = 
+                new Vector2(-parentRect.width / 2 + sliderWidth / 2 + i * (sliderSpacing + sliderWidth), 0);
+
+            healthSliders[i].value = 1;
+            healthSliders[i].gameObject.SetActive(true);
+        }
+    }
+
+    public void IncreaseStaminaYield(int tier)
+    {
+
     }
 
     public void Halt()

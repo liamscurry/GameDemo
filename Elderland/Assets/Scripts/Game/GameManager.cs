@@ -142,7 +142,8 @@ public class GameManager : MonoBehaviour
         //Fade in
         yield return Fade(duration, 1);
 
-        GameInfo.CurrentLevel.Reset();
+        if (GameInfo.CurrentLevel != null)
+            GameInfo.CurrentLevel.Reset();
         PlayerInfo.Manager.Reset();
         if (OnRespawn != null)
             OnRespawn.Invoke(this, EventArgs.Empty);

@@ -276,10 +276,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3132272be41c6844b877287bdb69677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 0
-  healthSlider1: {fileID: 0}
-  healthSlider2: {fileID: 0}
-  healthSlider3: {fileID: 0}
+  maxHealth: 9
+  healthSliders:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   staminaSlider1: {fileID: 0}
   staminaSlider2: {fileID: 0}
   staminaSlider3: {fileID: 0}

@@ -9,6 +9,8 @@ public class StartMenuUI : MonoBehaviour
     [SerializeField]
     protected GameObject startUIObject;
     [SerializeField]
+    protected GameObject gameplayUI;
+    [SerializeField]
     protected EventSystem eventSystem;
     [SerializeField]
     protected GameObject leftNeighborMenu;
@@ -56,6 +58,8 @@ public class StartMenuUI : MonoBehaviour
 
         // Deselect active button to have highlight by default when turning on
         eventSystem.SetSelectedGameObject(null);
+
+        gameplayUI.SetActive(true);
     }
 
     // Set active button to have highlight by default on enable.
