@@ -6,20 +6,20 @@ public class EnemyStatsManager
 {
     private EnemyManager manager;
 
-    public EnemyStatMultiplier MovespeedMultiplier { get; }
+    public StatMultiplier MovespeedMultiplier { get; }
 
-    public EnemyStatMultiplier DamageTakenMultiplier { get; }
+    public StatMultiplier DamageTakenMultiplier { get; }
 
     // Indicator that a health debuff is currently being applied to
     // the enemy. Used to color health bar to indicate health debuff.
-    public EnemyStatMultiplier HealthDebuffMultiplier { get; }
+    public StatMultiplier HealthDebuffMultiplier { get; }
 
     public EnemyStatsManager(EnemyManager manager)
     {   
         this.manager = manager;
 
-        MovespeedMultiplier = new EnemyStatMultiplier(1);
-        DamageTakenMultiplier = new EnemyStatMultiplier(1);
-        HealthDebuffMultiplier = new EnemyStatMultiplier(1);
+        MovespeedMultiplier = new StatMultiplier(1);
+        DamageTakenMultiplier = new StatMultiplier(1);
+        HealthDebuffMultiplier = new StatMultiplier(1);
     }
 }

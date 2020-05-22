@@ -429,7 +429,8 @@ public sealed class PlayerSword : PlayerAbility
     {
         EnemyManager enemy = character.GetComponent<EnemyManager>();
         enemy.ChangeHealth(-damage);
-        PlayerInfo.AbilityManager.ChangeStamina(0.5f);
+        PlayerInfo.AbilityManager.ChangeStamina(
+            0.5f * PlayerInfo.StatsManager.StaminaYieldMultiplier.Value);
         return true;
     }
 

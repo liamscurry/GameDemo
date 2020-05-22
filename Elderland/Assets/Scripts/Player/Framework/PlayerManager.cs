@@ -200,39 +200,6 @@ public class PlayerManager : MonoBehaviour
                     healthSliders[i].value = 0;
                 }
             }
- 
-            /*
-            if (percentage == 0f)
-            {
-                healthSlider1.value = 0;
-                healthSlider2.value = 0;
-                healthSlider3.value = 0;
-            }
-            else if (percentage <= 1 / 3f && percentage > 0f)
-            {
-                healthSlider1.value = percentage * 3f;
-                healthSlider2.value = 0;
-                healthSlider3.value = 0;
-            }   
-            else if (percentage <= 2 / 3f && percentage > 1 / 3f)
-            {
-                healthSlider1.value = 1;
-                healthSlider2.value = (percentage - (1 / 3f)) * 3f;
-                healthSlider3.value = 0;
-            }
-            else if (percentage < 1 && percentage > 2 / 3f)
-            {
-                healthSlider1.value = 1;
-                healthSlider2.value = 1;
-                healthSlider3.value = (percentage - (2 / 3f)) * 3f;
-            }
-            else
-            {
-                healthSlider1.value = 1;
-                healthSlider2.value = 1;
-                healthSlider3.value = 1;
-            }
-            */
             
             if (preHealth != 0 && Health == 0)
             {
@@ -304,7 +271,14 @@ public class PlayerManager : MonoBehaviour
 
     public void IncreaseStaminaYield(int tier)
     {
-
+        if (tier == 1 || tier == 2)
+        {
+            PlayerInfo.StatsManager.StaminaYieldMultiplier.AddModifier((tier + 2f) / (tier + 1f));
+        }
+        else
+        {
+            PlayerInfo.StatsManager.StaminaYieldMultiplier.AddModifier((tier + 3f) / (tier + 1f));
+        }
     }
 
     public void EquipTier2Fireball()

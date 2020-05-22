@@ -99,6 +99,10 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
                 PlayerInfo.Manager.IncreaseMaxHealth(tier);
                 PlayerInfo.Manager.MaxOutHealth();
             }
+            else
+            {
+                PlayerInfo.Manager.IncreaseStaminaYield(tier);
+            }
         }
     }
     

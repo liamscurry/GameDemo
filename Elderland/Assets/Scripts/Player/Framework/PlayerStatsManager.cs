@@ -34,6 +34,8 @@ public class PlayerStatsManager
 	public int StaminaTier { get; set; }
 	public int StaminaTierMax { get; set; }
 
+	public StatMultiplier StaminaYieldMultiplier { get; }
+
 	public PlayerStatsManager()
 	{
 		//Base values
@@ -50,5 +52,7 @@ public class PlayerStatsManager
 
 		HealthTier = 0;
 		StaminaTier = 0;
+
+		StaminaYieldMultiplier = new StatMultiplier(1);
 	}
 }

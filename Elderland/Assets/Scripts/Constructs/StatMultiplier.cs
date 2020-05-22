@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyStatMultiplier
+public class StatMultiplier
 {
     private List<float> modifiers;
 
@@ -21,7 +21,7 @@ public class EnemyStatMultiplier
         }
     }
 
-    public EnemyStatMultiplier(float baseValue)
+    public StatMultiplier(float baseValue)
     {
         this.BaseValue = baseValue;
         modifiers = new List<float>();

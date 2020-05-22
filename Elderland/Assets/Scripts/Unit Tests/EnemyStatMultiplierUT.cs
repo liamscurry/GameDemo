@@ -9,7 +9,7 @@ public class EnemyStatMultiplierUT : MonoBehaviour
     {
         try
         {
-            EnemyStatMultiplier multiplier = new EnemyStatMultiplier(1);
+            StatMultiplier multiplier = new StatMultiplier(1);
             UT.CheckEquality<float>(multiplier.Value, 1.0f);  
             multiplier.AddModifier(0.5f);
             UT.CheckEquality<float>(multiplier.Value, 0.5f);  
