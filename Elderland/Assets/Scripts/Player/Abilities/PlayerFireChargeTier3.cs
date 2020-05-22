@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //The Dash skill allows the player to travel long distances in a short amount of time.
-
+// When making tier 4 need to implement DeleteResouce to this tier 3
 public sealed class PlayerFireChargeTier3 : PlayerAbility 
 {
     //Fields

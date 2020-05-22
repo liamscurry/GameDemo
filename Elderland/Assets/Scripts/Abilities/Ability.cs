@@ -119,7 +119,7 @@ public abstract class Ability : MonoBehaviour
         AdvanceSegment();
     }
 
-    public abstract void ShortCircuit();
+    public abstract void ShortCircuit(bool forceNoReuse = false);
     public abstract void ShortCircuitLogic();
 
     protected IEnumerator ProcessSegment()
@@ -270,4 +270,5 @@ public abstract class Ability : MonoBehaviour
     public abstract bool OnHit(GameObject character);
     public virtual void OnStay(GameObject character) {}
     public virtual void OnLeave(GameObject character) {}
+    public virtual void DeleteResources() {}
 }

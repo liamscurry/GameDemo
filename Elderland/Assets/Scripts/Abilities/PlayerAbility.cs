@@ -137,7 +137,7 @@ public abstract class PlayerAbility : Ability
         }
     }
 
-    public sealed override void ShortCircuit()
+    public sealed override void ShortCircuit(bool forceNoReuse = false)
     {
         //StopCoroutine("SegmentCoroutine");
         StopAllCoroutines();
@@ -150,7 +150,7 @@ public abstract class PlayerAbility : Ability
 
         ShortCircuitLogic();
 
-        if (continous)
+        if (continous && !forceNoReuse)
         {
             system.CurrentAbility = null;
             state = AbilityState.Waiting;

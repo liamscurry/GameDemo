@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class AbilityMenuButton : MonoBehaviour, ISelectHandler
 {
@@ -33,6 +34,8 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
     private AbilityMenuButton prerequisite;
     [SerializeField]
     private bool acquiredInitially;
+    [SerializeField]
+    private UnityEvent onAcquire;
 
     private const float dimPercentage = 0.5f;
 
@@ -81,6 +84,9 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
             Acquired = true;
 
             PlayerInfo.StatsManager.UpgradePoints -= abilityCost;
+
+            if (onAcquire != null)
+                onAcquire.Invoke();
 
             UpdateAbilityStatus();
         }

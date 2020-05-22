@@ -67,6 +67,12 @@ public class FireChargeManager : MonoBehaviour
         }
     }
 
+    public virtual void DeleteResource()
+    {
+        ForceDeactivate();
+        Destroy(hitbox.gameObject);
+    }
+
     private void OnRespawn(object sender, EventArgs e)
     {
         ForceDeactivate();

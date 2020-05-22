@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //Weapon ability that casts Fireball projectiles.
-
+// When making tier 4 need to implement DeleteResouce to this tier 3
 public sealed class PlayerFireballTier3 : PlayerAbility
 {
     private AbilitySegment act;

@@ -143,6 +143,14 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
         
     }
 
+    public override void DeleteResources()
+    {
+        segment1.DeleteResource();
+        Destroy(segment1.gameObject);
+        segment2.DeleteResource();
+        Destroy(segment2.gameObject);
+    }
+
     private struct EnemyHit
     {
         public readonly EnemyManager enemy;

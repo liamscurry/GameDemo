@@ -307,6 +307,38 @@ public class PlayerManager : MonoBehaviour
 
     }
 
+    public void EquipTier2Fireball()
+    {
+        PlayerInfo.AbilityManager.
+            UnequipAbility<PlayerFireball>(ref PlayerInfo.AbilityManager.ranged);
+        PlayerInfo.AbilityManager.
+            EquipAbility<PlayerFireballTier2>(ref PlayerInfo.AbilityManager.ranged);
+    }
+
+    public void EquipTier3Fireball()
+    {
+        PlayerInfo.AbilityManager.
+            UnequipAbility<PlayerFireballTier2>(ref PlayerInfo.AbilityManager.ranged);
+        PlayerInfo.AbilityManager.
+            EquipAbility<PlayerFireballTier3>(ref PlayerInfo.AbilityManager.ranged);
+    }
+
+    public void EquipTier2Firecharge()
+    {
+        PlayerInfo.AbilityManager.
+            UnequipAbility<PlayerFireChargeTier1>(ref PlayerInfo.AbilityManager.aoe);
+        PlayerInfo.AbilityManager.
+            EquipAbility<PlayerFireChargeTier2>(ref PlayerInfo.AbilityManager.aoe);
+    }
+
+    public void EquipTier3Firecharge()
+    {
+        PlayerInfo.AbilityManager.
+            UnequipAbility<PlayerFireChargeTier2>(ref PlayerInfo.AbilityManager.aoe);
+        PlayerInfo.AbilityManager.
+            EquipAbility<PlayerFireChargeTier3>(ref PlayerInfo.AbilityManager.aoe);
+    }
+
     public void Halt()
     {
         PlayerInfo.MovementManager.TargetPercentileSpeed = 0;

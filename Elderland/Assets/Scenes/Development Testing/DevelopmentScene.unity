@@ -276,6 +276,20 @@ MonoBehaviour:
   abilityCost: 3
   prerequisite: {fileID: 334885312}
   acquiredInitially: 0
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 509375904}
+        m_MethodName: EquipTier3Firecharge
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &37033784
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,6 +1047,18 @@ PrefabInstance:
       propertyPath: m_Navigation.m_Mode
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 420066325, guid: 997b74d52e6ae144a8a4315b06f52769, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 420066325, guid: 997b74d52e6ae144a8a4315b06f52769, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 420066325, guid: 997b74d52e6ae144a8a4315b06f52769, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1146279935, guid: 997b74d52e6ae144a8a4315b06f52769, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 150.50018
@@ -1150,6 +1176,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7538395423937192972, guid: 997b74d52e6ae144a8a4315b06f52769,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7538395423937192972, guid: 997b74d52e6ae144a8a4315b06f52769,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7538395423937192972, guid: 997b74d52e6ae144a8a4315b06f52769,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7538395424375588921, guid: 997b74d52e6ae144a8a4315b06f52769,
         type: 3}
@@ -1435,6 +1476,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7538395425312476062, guid: 997b74d52e6ae144a8a4315b06f52769,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 997b74d52e6ae144a8a4315b06f52769, type: 3}
@@ -1761,6 +1807,9 @@ MonoBehaviour:
   abilityCost: 5
   prerequisite: {fileID: 2109106451}
   acquiredInitially: 0
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &334885307
 GameObject:
   m_ObjectHideFlags: 0
@@ -1916,6 +1965,20 @@ MonoBehaviour:
   abilityCost: 1
   prerequisite: {fileID: 1672378194}
   acquiredInitially: 0
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 509375904}
+        m_MethodName: EquipTier2Firecharge
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &509375900
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2078,6 +2141,18 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 509375900}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &509375904 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114875325966251592, guid: 8ae649922321374449c83f714cdb9624,
+    type: 3}
+  m_PrefabInstance: {fileID: 509375900}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 509375901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3132272be41c6844b877287bdb69677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &531381391
 GameObject:
   m_ObjectHideFlags: 0
@@ -3249,6 +3324,9 @@ MonoBehaviour:
   abilityCost: 0
   prerequisite: {fileID: 0}
   acquiredInitially: 1
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1009183025
 GameObject:
   m_ObjectHideFlags: 0
@@ -3512,6 +3590,20 @@ MonoBehaviour:
   abilityCost: 3
   prerequisite: {fileID: 1430865002}
   acquiredInitially: 0
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 509375904}
+        m_MethodName: EquipTier3Fireball
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1042639144
 GameObject:
   m_ObjectHideFlags: 0
@@ -3667,6 +3759,9 @@ MonoBehaviour:
   abilityCost: 5
   prerequisite: {fileID: 27135157}
   acquiredInitially: 0
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1062779586
 GameObject:
   m_ObjectHideFlags: 0
@@ -4912,6 +5007,9 @@ MonoBehaviour:
   abilityCost: 0
   prerequisite: {fileID: 0}
   acquiredInitially: 1
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1338885652
 GameObject:
   m_ObjectHideFlags: 0
@@ -5235,6 +5333,20 @@ MonoBehaviour:
   abilityCost: 1
   prerequisite: {fileID: 954020052}
   acquiredInitially: 0
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 509375904}
+        m_MethodName: EquipTier2Fireball
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &1442037449
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5693,6 +5805,9 @@ MonoBehaviour:
   abilityCost: 0
   prerequisite: {fileID: 0}
   acquiredInitially: 1
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1695408805
 GameObject:
   m_ObjectHideFlags: 0
@@ -6397,6 +6512,9 @@ MonoBehaviour:
   abilityCost: 5
   prerequisite: {fileID: 1039632148}
   acquiredInitially: 0
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2097882088
 GameObject:
   m_ObjectHideFlags: 0
@@ -6677,6 +6795,9 @@ MonoBehaviour:
   abilityCost: 3
   prerequisite: {fileID: 2112319163}
   acquiredInitially: 0
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2112319158
 GameObject:
   m_ObjectHideFlags: 0
@@ -6832,3 +6953,6 @@ MonoBehaviour:
   abilityCost: 1
   prerequisite: {fileID: 1311861520}
   acquiredInitially: 0
+  onAcquire:
+    m_PersistentCalls:
+      m_Calls: []

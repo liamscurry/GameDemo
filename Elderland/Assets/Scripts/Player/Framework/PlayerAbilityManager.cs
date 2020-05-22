@@ -8,14 +8,16 @@ public class PlayerAbilityManager : AbilitySystem
     //Abilities Slots
     private PlayerAbility melee;
     private PlayerAbility dodge;
-    private PlayerAbility ranged;
-    private PlayerAbility heal;
+    public PlayerAbility ranged;
+    public PlayerAbility aoe;
 
     //Ability Properties
     public PlayerAbility Melee { get { return melee; } }
     public PlayerAbility Dodge { get { return dodge; } }
+    [Obsolete]
     public PlayerAbility Ranged { get { return ranged; } }
-    public PlayerAbility Heal { get { return heal; } }
+    [Obsolete]
+    public PlayerAbility AOE { get { return aoe; } }
     public new PlayerAbility CurrentAbility { get { return (PlayerAbility) currentAbility; } set { currentAbility = value; } }
 
     public bool MeleeAvailable { get; set; }
@@ -42,7 +44,7 @@ public class PlayerAbilityManager : AbilitySystem
     {
         //Try to run specified ability if held down
         bool rangedInput = (GameInfo.Manager.ReceivingInput && RangedAvailable) ? Input.GetAxis("Right Trigger") != 0 : false;
-        bool healInput = (GameInfo.Manager.ReceivingInput && HealAvailable) ? Input.GetKey(KeyCode.Joystick1Button4) : false;
+        bool aoeInput = (GameInfo.Manager.ReceivingInput && HealAvailable) ? Input.GetKey(KeyCode.Joystick1Button4) : false;
         bool meleeInput = (GameInfo.Manager.ReceivingInput && MeleeAvailable) ? Input.GetKey(GameInfo.Settings.MeleeAbilityKey) : false;
         bool dodgeInput = (GameInfo.Manager.ReceivingInput && DodgeAvailable) ? Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
 
@@ -52,8 +54,8 @@ public class PlayerAbilityManager : AbilitySystem
         if (rangedInput)
             weaponHeldDown = ranged;
         
-        if (healInput)
-            weaponHeldDown = heal;
+        if (aoeInput)
+            weaponHeldDown = aoe;
 
         if (meleeInput)
             weaponHeldDown = melee;
@@ -64,8 +66,8 @@ public class PlayerAbilityManager : AbilitySystem
         if (ranged != null)
             ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
 
-        if (heal != null)
-            heal.UpdateAbility(heal == weaponHeldDown, healInput);
+        if (aoe != null)
+            aoe.UpdateAbility(aoe == weaponHeldDown, aoeInput);
 
         if (melee != null)
             melee.UpdateAbility(melee == weaponHeldDown, meleeInput);
@@ -92,6 +94,9 @@ public class PlayerAbilityManager : AbilitySystem
     public void UnequipAbility<T>(ref PlayerAbility slot) where T : PlayerAbility
     {
         PlayerAbility temp = slot;
+        if (currentAbility == temp)
+            temp.ShortCircuit(true);
+        temp.DeleteResources();
         GameObject.Destroy(temp);
         slot = null;
     }
@@ -101,8 +106,8 @@ public class PlayerAbilityManager : AbilitySystem
     {  
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
-        EquipAbility<PlayerFireballTier3>(ref ranged);
-        EquipAbility<PlayerFireChargeTier3>(ref heal);
+        EquipAbility<PlayerFireball>(ref ranged);
+        EquipAbility<PlayerFireChargeTier1>(ref aoe);
     }
 
     public void ChangeStamina(float value)
