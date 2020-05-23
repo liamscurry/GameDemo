@@ -193,10 +193,13 @@ public abstract class EnemyManager : MonoBehaviour
     public void Die()
     {
         Alive = false;
+        SpawnPickups();
         DieLogic();
 
         StartCoroutine(DieTimer());
     }
+
+    protected virtual void SpawnPickups() {}
 
     public void DieInstant()
     {

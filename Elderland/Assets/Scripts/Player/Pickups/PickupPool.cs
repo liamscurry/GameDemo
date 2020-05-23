@@ -15,6 +15,7 @@ public class PickupPool : MonoBehaviour
     public void Add<T>(GameObject obj) where T : Pickup
     {
         PickupGroup<T>.AsleepPickups.Add(obj.GetComponent<T>());
+        PickupGroup<T>.CurrentPickups.Remove(obj.GetComponent<T>());
         obj.SetActive(false);
     }
 
@@ -26,26 +27,26 @@ public class PickupPool : MonoBehaviour
         // If no pickup are ready for reuse, create new one
         if (PickupGroup<T>.AsleepPickups.Count == 0)
         {
-            if (PickupGroup<T>.Pickups.Count < maxPickups)
+            if (PickupGroup<T>.CurrentPickups.Count < maxPickups)
             {
                 return CreateNew<T>(pickup, position);
             }
             else
             {
                 //Reuse current
-                for (int i = PickupGroup<T>.Pickups.Count - 1; i >= 0; i--)
+                for (int i = 0; i < PickupGroup<T>.CurrentPickups.Count; i++)
                 {
-                    if (!PickupGroup<T>.Pickups[i].SeekingPlayer)
+                    if (!PickupGroup<T>.CurrentPickups[i].SeekingPlayer)
                     {   
                         GameObject currentObject =
-                            PickupGroup<T>.Pickups[i].gameObject;
+                            PickupGroup<T>.CurrentPickups[i].gameObject;
                         Add<T>(currentObject);
                         return ReuseOlder<T>(position);
                     }
                 }
 
                 GameObject firstObject =
-                    PickupGroup<T>.Pickups[0].gameObject;
+                    PickupGroup<T>.CurrentPickups[0].gameObject;
                 firstObject.GetComponent<Pickup>().OnForceRecycle();
                 Add<T>(firstObject);
                 return ReuseOlder<T>(position);
@@ -72,6 +73,7 @@ public class PickupPool : MonoBehaviour
         }
 
         PickupGroup<T>.Pickups.Add(p);
+        PickupGroup<T>.CurrentPickups.Add(p);
 
         return p;
     }
@@ -82,6 +84,7 @@ public class PickupPool : MonoBehaviour
         PickupGroup<T>.AsleepPickups[0].gameObject.SetActive(true);      
         PickupGroup<T>.AsleepPickups[0].Reset(position);
         PickupGroup<T>.AsleepPickups.RemoveAt(0);  
+        PickupGroup<T>.CurrentPickups.Add(p);
         return p;   
     }
 
@@ -99,12 +102,14 @@ public class PickupPool : MonoBehaviour
     private static class PickupGroup<T> where T : Pickup
     {
         public static List<T> AsleepPickups { get; set; }
+        public static List<T> CurrentPickups { get; set; }
         public static List<T> Pickups { get; set; }
         public static bool InUse { get; set; }
 
         static PickupGroup()
         {
             AsleepPickups = new List<T>();
+            CurrentPickups = new List<T>();
             Pickups = new List<T>();
             InUse = false;
         }
@@ -118,6 +123,7 @@ public class PickupPool : MonoBehaviour
             }
 
             AsleepPickups.Clear();
+            CurrentPickups.Clear();
             Pickups.Clear();
             InUse = false;
         }

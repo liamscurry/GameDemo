@@ -40,6 +40,26 @@ public abstract class Pickup : MonoBehaviour
         }
     }
 
+    public static void SpawnPickups<T>(
+        GameObject pickupResource,
+        Vector3 position,
+        int count,
+        float speed,
+        float maxRandomDegreeShift) where T : Pickup, new()
+    {
+        for (int i = 0; i < count; i++)
+        {
+            float angleShift =
+                Random.Range(0f, 1f) * maxRandomDegreeShift * Mathf.Deg2Rad;
+
+            T pickup =
+                GameInfo.PickupPool.Create<T>(pickupResource, position);
+            float angle = (i + 1f) / count * 2 * Mathf.PI;
+            pickup.GetComponent<Rigidbody>().velocity =
+                speed * new Vector3(Mathf.Cos(angle + angleShift), 0, Mathf.Sin(angle + angleShift));
+        }
+    }
+
     protected abstract void Recycle();
     protected abstract void OnReachPlayer();
     public abstract void OnForceRecycle();

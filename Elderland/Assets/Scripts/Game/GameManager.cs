@@ -46,9 +46,12 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            GameInfo.PickupPool.Create<HealthPickup>(
+            Pickup.SpawnPickups<HealthPickup>(
                 Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
-                new Vector3(0.26f, 1.24f, 7.59f));
+                new Vector3(0.26f, 2.54f, 7.59f),
+                3,
+                3f,
+                90f);
         }
         else if (Input.GetKeyDown(KeyCode.R))
         {

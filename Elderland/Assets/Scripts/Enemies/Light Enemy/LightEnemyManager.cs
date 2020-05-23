@@ -39,4 +39,14 @@ public sealed class LightEnemyManager : EnemyManager
             NextAttack = Sword;
         }
     }
+
+    protected override void SpawnPickups()
+    {
+        Pickup.SpawnPickups<HealthPickup>(
+            Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
+            transform.position,
+            2,
+            3f,
+            90f);
+    }
 }

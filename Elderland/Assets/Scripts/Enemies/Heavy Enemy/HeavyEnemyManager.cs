@@ -24,6 +24,16 @@ public sealed class HeavyEnemyManager : EnemyManager
         Type = EnemyType.Melee;
     }
 
+    protected override void SpawnPickups()
+    {
+        Pickup.SpawnPickups<HealthPickup>(
+            Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
+            transform.position,
+            6,
+            3f,
+            90f);
+    }
+
     public override void ChooseNextAbility()
     {
         int chance = EnemyInfo.AbilityRandomizer.Next(10) + 1;
