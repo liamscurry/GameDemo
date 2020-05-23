@@ -22,6 +22,11 @@ public static class ResourceConstants
         public const string Particle = "Misc/Particle";
     }
 
+    public static class Pickups
+    {
+        public const string HealthPickup = "Pickups/HealthPickup";
+    }
+
     public static class Player
     {
         public static class Hitboxes

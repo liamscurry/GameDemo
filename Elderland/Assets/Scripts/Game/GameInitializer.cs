@@ -17,11 +17,13 @@ public class GameInitializer : MonoBehaviour
     private GameObject meleeObjects;
     [SerializeField]
     private ProjectilePool projectilePool;
+    [SerializeField]
+    private PickupPool pickupPool;
 
     public void Initialize()
     {
         //Reference initialization
-        GameInfo.Initialize(gameObject, projectilePool);
+        GameInfo.Initialize(gameObject, projectilePool, pickupPool);
         PlayerInfo.Initialize(player, sensor, playerObjects, meleeObjects);
         EnemyInfo.Initialize();
         GetComponent<GameSettings>().Initialize();

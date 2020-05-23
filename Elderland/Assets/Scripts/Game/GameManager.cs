@@ -43,6 +43,17 @@ public class GameManager : MonoBehaviour
         {
             eventSystem.SetSelectedGameObject(eventSystem.firstSelectedGameObject);
         }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            GameInfo.PickupPool.Create<HealthPickup>(
+                Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
+                new Vector3(0.26f, 1.24f, 7.59f));
+        }
+        else if (Input.GetKeyDown(KeyCode.R))
+        {
+            GameInfo.PickupPool.ClearPickupPool();
+        }
     }
 
     private void OnApplicationFocus()

@@ -13,6 +13,7 @@ public static class GameInfo
     public static CameraController CameraController { get; private set; }
 
     public static ProjectilePool ProjectilePool { get; private set; }
+    public static PickupPool PickupPool { get; private set; }
 
     public static EnemyLevel CurrentLevel { get; set; }
 
@@ -22,7 +23,10 @@ public static class GameInfo
 
 
     //Initializes references, called from GameInitializer.
-    public static void Initialize(GameObject manager, ProjectilePool projectilePool)
+    public static void Initialize(
+        GameObject manager,
+        ProjectilePool projectilePool,
+        PickupPool pickupPool)
     {
         //Systems
         Manager = manager.GetComponent<GameManager>();
@@ -32,6 +36,7 @@ public static class GameInfo
         //References
         CameraController = Camera.main.GetComponent<CameraController>();
         ProjectilePool = projectilePool;
+        PickupPool = pickupPool;
 
         //States
         Paused = false;
