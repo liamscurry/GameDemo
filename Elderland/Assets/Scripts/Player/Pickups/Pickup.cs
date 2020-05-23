@@ -15,6 +15,8 @@ public abstract class Pickup : MonoBehaviour
 
     private Rigidbody body;
 
+    public bool SeekingPlayer { get { return seekingPlayer; } }
+
     private void Awake()
     {
         body = GetComponent<Rigidbody>();
@@ -40,6 +42,7 @@ public abstract class Pickup : MonoBehaviour
 
     protected abstract void Recycle();
     protected abstract void OnReachPlayer();
+    public abstract void OnForceRecycle();
 
     public void Reset(Vector3 position)
     {
