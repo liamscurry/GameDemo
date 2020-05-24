@@ -104,7 +104,6 @@ public abstract class PlayerAbility : Ability
             if (fallUponFinish)
             {
                 //Check if fall is valid
-                Debug.Log(PlayerInfo.PhysicsSystem.OverlappingGroundContact);
                 if (!PlayerInfo.PhysicsSystem.OverlappingGroundContact)
                 {
                     PlayerInfo.Animator.SetBool("falling", true);

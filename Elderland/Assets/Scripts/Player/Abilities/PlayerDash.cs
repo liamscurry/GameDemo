@@ -12,6 +12,7 @@ public sealed class PlayerDash : PlayerAbility
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
+    private const float staminaCost = 2f;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -22,7 +23,7 @@ public sealed class PlayerDash : PlayerAbility
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1);
         act = new AbilitySegment(dashClip, actProcess);
         act.Type = AbilitySegmentType.Physics;
-        act.LoopFactor = 4;
+        act.LoopFactor = 2;
 
         segments = new AbilitySegmentList();
         segments.AddSegment(act);
@@ -31,20 +32,28 @@ public sealed class PlayerDash : PlayerAbility
         coolDownDuration = .2f;
     }
 
+    protected override bool WaitCondition()
+    {
+        return GameInfo.Settings.LeftDirectionalInput.magnitude >= 0.25f &&
+               PlayerInfo.AbilityManager.Stamina >= staminaCost;
+    }
+
     private void ActBegin()
     {
-        direction = PlayerInfo.MovementManager.CurrentDirection;
-        PlayerInfo.MovementManager.LockDirection();
+        direction = GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput);
+        PlayerInfo.MovementManager.TargetDirection = direction;
+        PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;
         system.Movement.ExitEnabled = false;
+        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
     }
 
     private void DuringAct()
     {
-        if (GameInfo.Settings.LeftDirectionalInput.magnitude > 0.25f)
-        {
-            direction = Matho.RotateTowards(direction, GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput.normalized), 150 * Time.deltaTime);
-        }
+        //if (GameInfo.Settings.LeftDirectionalInput.magnitude > 0.25f)
+        //{
+        //    direction = Matho.RotateTowards(direction, GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput.normalized), 150 * Time.deltaTime);
+        //}
         
         if (system.Physics.TouchingFloor)
         {
@@ -56,14 +65,14 @@ public sealed class PlayerDash : PlayerAbility
             actVelocity = system.Movement.ExitVelocity;
         }  
         
-        Quaternion rotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.y), Vector3.up);
-        system.Parent.transform.rotation = rotation;
+        //Quaternion rotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.y), Vector3.up);
+        //system.Parent.transform.rotation = rotation;
     }
 
     private void ActEnd()
     {  
-        PlayerInfo.MovementManager.TargetDirection = direction;
-        PlayerInfo.MovementManager.SnapDirection();
+        //PlayerInfo.MovementManager.TargetDirection = direction;
+        //PlayerInfo.MovementManager.SnapDirection();
         PlayerInfo.MovementManager.TargetPercentileSpeed = 1;
         PlayerInfo.MovementManager.SnapSpeed();
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;

@@ -8,6 +8,7 @@ public class PlayerAbilityManager : AbilitySystem
     //Abilities Slots
     private PlayerAbility melee;
     private PlayerAbility dodge;
+    public PlayerAbility dash;
     public PlayerAbility ranged;
     public PlayerAbility aoe;
 
@@ -22,6 +23,7 @@ public class PlayerAbilityManager : AbilitySystem
 
     public bool MeleeAvailable { get; set; }
     public bool DodgeAvailable { get; set; }
+    public bool DashAvailable { get; set; }
     public bool RangedAvailable { get; set; }
     public bool HealAvailable { get; set; }
 
@@ -34,8 +36,9 @@ public class PlayerAbilityManager : AbilitySystem
         InitializePreferences();
         MeleeAvailable = true;
         RangedAvailable = true;
-        //HealAvailable = true;
+        HealAvailable = true;
         DodgeAvailable = true;
+        DashAvailable = true;
         //Stamina = 0;
     }
 
@@ -46,6 +49,7 @@ public class PlayerAbilityManager : AbilitySystem
         bool rangedInput = (GameInfo.Manager.ReceivingInput && RangedAvailable) ? Input.GetAxis("Right Trigger") != 0 : false;
         bool aoeInput = (GameInfo.Manager.ReceivingInput && HealAvailable) ? Input.GetKey(KeyCode.Joystick1Button4) : false;
         bool meleeInput = (GameInfo.Manager.ReceivingInput && MeleeAvailable) ? Input.GetKey(GameInfo.Settings.MeleeAbilityKey) : false;
+        bool dashInput = (GameInfo.Manager.ReceivingInput && DashAvailable) ? Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
         bool dodgeInput = (GameInfo.Manager.ReceivingInput && DodgeAvailable) ? Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
 
         //Weapon prioritization
@@ -60,9 +64,12 @@ public class PlayerAbilityManager : AbilitySystem
         if (meleeInput)
             weaponHeldDown = melee;
 
+        if (dashInput)
+            weaponHeldDown = dash;
+
         if (dodgeInput)
             weaponHeldDown = dodge;
-        
+
         if (ranged != null)
             ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
 
@@ -71,6 +78,9 @@ public class PlayerAbilityManager : AbilitySystem
 
         if (melee != null)
             melee.UpdateAbility(melee == weaponHeldDown, meleeInput);
+
+        if (dash != null)
+            dash.UpdateAbility(dash == weaponHeldDown, dashInput);
 
         if (dodge != null)
             dodge.UpdateAbility(dodge == weaponHeldDown, dodgeInput);
@@ -106,6 +116,7 @@ public class PlayerAbilityManager : AbilitySystem
     {  
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
+        EquipAbility<PlayerDash>(ref dash);
         EquipAbility<PlayerFireball>(ref ranged);
         EquipAbility<PlayerFireChargeTier1>(ref aoe);
     }
