@@ -133,7 +133,8 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
                 return true;
         }
         
-        enemy.ChangeHealth(-damage);
+        enemy.ChangeHealth(
+            -damage * PlayerInfo.StatsManager.DamageMultiplier.Value);
         enemyHits.Add(new EnemyHit(invokeID, enemy));
         return true;
     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public abstract class EnemyManager : MonoBehaviour
+public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 {
     public enum EnemyType { Melee, Ranged }
     public enum EnemyState { Watching, Attacking, None }
@@ -27,7 +27,7 @@ public abstract class EnemyManager : MonoBehaviour
     public PhysicsSystem PhysicsSystem { get; protected set; }
     public AdvancedMovementSystem MovementSystem { get; protected set; }
     public EnemyAbilityManager AbilityManager { get; protected set; }
-    public EnemyBuffManager BuffManager { get; protected set; }
+    public BuffManager<EnemyManager> BuffManager { get; protected set; }
     public EnemyStatsManager StatsManager { get; protected set; }
     public EnemyType Type { get; protected set; }
     public EnemyState State;
@@ -74,7 +74,7 @@ public abstract class EnemyManager : MonoBehaviour
         PhysicsSystem = new PhysicsSystem(gameObject, Capsule, Body, 1);
         MovementSystem = new AdvancedMovementSystem(gameObject, Capsule, PhysicsSystem);
         AbilityManager = new EnemyAbilityManager(Animator, PhysicsSystem, MovementSystem, gameObject);
-        BuffManager = new EnemyBuffManager(this);
+        BuffManager = new BuffManager<EnemyManager>(this);
         StatsManager = new EnemyStatsManager(this);
         State = EnemyState.None;
         Initialize();

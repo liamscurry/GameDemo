@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class EnemyBuff
+public enum BuffType { Buff, Debuff }
+
+public abstract class Buff<T>
 {
-    public enum BuffType { Buff, Debuff }
 
     public BuffType Type { get; private set; }
 
-    protected EnemyManager manager;
+    protected BuffManager<T> manager;
 
     protected float timer;
     protected float duration;
@@ -16,7 +17,7 @@ public abstract class EnemyBuff
     public float Timer { get { return timer; } }
     public float Duration { get { return duration; } set { duration = value; } }
 
-    public EnemyBuff(EnemyManager manager, BuffType type, float duration)
+    public Buff(BuffManager<T> manager, BuffType type, float duration)
     {
         this.manager = manager;
         this.Type = type;
@@ -29,7 +30,7 @@ public abstract class EnemyBuff
         timer += Time.deltaTime;
         if (timer >= duration)
         {
-            manager.BuffManager.Clear(this);
+            manager.Clear(this);
         }
     }
 

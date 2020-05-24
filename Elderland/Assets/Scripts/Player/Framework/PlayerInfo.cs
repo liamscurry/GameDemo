@@ -25,6 +25,7 @@ public static class PlayerInfo
     //Manager subparts
     public static PlayerAbilityManager AbilityManager { get; private set; }
     public static PlayerAnimationManager AnimationManager { get; private set; }
+    public static BuffManager<PlayerManager> BuffManager { get; private set; }
     public static PlayerInteractionManager InteractionManager { get; private set; }
     public static PlayerMovementManager MovementManager { get; private set; }
     public static PlayerSkillManager SkillManager { get; private set; }
@@ -61,6 +62,7 @@ public static class PlayerInfo
         //Manager subpart initializations
         AbilityManager = new PlayerAbilityManager(Animator, PhysicsSystem, MovementSystem, Player);
         AnimationManager = new PlayerAnimationManager();
+        BuffManager = new BuffManager<PlayerManager>(Manager);
         InteractionManager = new PlayerInteractionManager();
         MovementManager = new PlayerMovementManager();
         StatsManager = new PlayerStatsManager();

@@ -428,7 +428,8 @@ public sealed class PlayerSword : PlayerAbility
     public override bool OnHit(GameObject character)
     {
         EnemyManager enemy = character.GetComponent<EnemyManager>();
-        enemy.ChangeHealth(-damage);
+        enemy.ChangeHealth(
+            -damage * PlayerInfo.StatsManager.DamageMultiplier.Value);
         PlayerInfo.AbilityManager.ChangeStamina(
             0.5f * PlayerInfo.StatsManager.StaminaYieldMultiplier.Value);
         return true;

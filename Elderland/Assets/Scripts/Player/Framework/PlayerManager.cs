@@ -7,7 +7,7 @@ using UnityEngine.Animations;
 
 //Manages the player's subpart update order.
 
-public class PlayerManager : MonoBehaviour 
+public class PlayerManager : MonoBehaviour, ICharacterManager
 {
     [SerializeField]
     private float maxHealth;
@@ -54,6 +54,7 @@ public class PlayerManager : MonoBehaviour
 
         //Managers//
         //Data based
+        PlayerInfo.BuffManager.UpdateBuffs();
         
         //Input based
         PlayerInfo.AnimationManager.UpdateAnimations();
@@ -126,6 +127,8 @@ public class PlayerManager : MonoBehaviour
     public void OnDeath()
     {
         GameInfo.Manager.FreezeInput(this);
+        PlayerInfo.BuffManager.ClearBuffs();
+        PlayerInfo.BuffManager.ClearDebuffs();
         PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
     }
 

@@ -20,10 +20,10 @@ public class EnemyBuffManagerUT : MonoBehaviour
                 GameObject.FindGameObjectWithTag("Enemy").GetComponent<EnemyManager>();
 
             var debuff =
-                new EnemyFireChargeDebuff(0.5f, manager, EnemyBuff.BuffType.Debuff, 5f);
+                new EnemyFireChargeDebuff(0.5f, manager.BuffManager, BuffType.Debuff, 5f);
             
             var buff =
-                new EnemyFireChargeDebuff(2f, manager, EnemyBuff.BuffType.Buff, 8f);
+                new EnemyFireChargeDebuff(2f, manager.BuffManager, BuffType.Buff, 8f);
 
             // Apply, SearchForDebuff tests
             UT.CheckEquality<int>(manager.BuffManager.Debuffs.Count, 0);

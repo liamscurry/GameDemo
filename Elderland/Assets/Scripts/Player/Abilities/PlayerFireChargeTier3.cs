@@ -132,9 +132,9 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
         float damageDelt = 0;
         if (damageModifier != 0)
         {
-            List<EnemyBuff> currentDebuffs = enemy.BuffManager.Debuffs;
+            List<Buff<EnemyManager>> currentDebuffs = enemy.BuffManager.Debuffs;
             bool containsFireChargeDebuff = false;
-            foreach (EnemyBuff buff in currentDebuffs)
+            foreach (Buff<EnemyManager> buff in currentDebuffs)
             {
                 if (buff is EnemyFireChargeDebuff)
                 {
@@ -153,7 +153,7 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
             }
         }
 
-        enemy.ChangeHealth(damageDelt);
+        enemy.ChangeHealth(damageDelt * PlayerInfo.StatsManager.DamageMultiplier.Value);
         enemyHits.Add(new EnemyHit(invokeID, enemy));
         return true;
     }
@@ -161,7 +161,7 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
     public override void OnStay(GameObject character)
     {
         EnemyManager enemy = character.GetComponent<EnemyManager>();
-        enemy.BuffManager.Apply(new EnemyFireChargeDebuff(damageModifier, enemy, EnemyBuff.BuffType.Debuff, 0.5f));
+        enemy.BuffManager.Apply(new EnemyFireChargeDebuff(damageModifier, enemy.BuffManager, BuffType.Debuff, 0.5f));
         //enemy.ChangeHealth(-damage * .1f);
     }
 

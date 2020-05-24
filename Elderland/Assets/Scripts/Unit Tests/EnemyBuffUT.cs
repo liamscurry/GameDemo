@@ -22,7 +22,7 @@ public class EnemyBuffUT : MonoBehaviour
                 GameObject.FindGameObjectWithTag("Enemy").GetComponent<EnemyManager>();
 
             var debuff =
-                new EnemyFireChargeDebuff(0.5f, manager, EnemyBuff.BuffType.Debuff, 1f);
+                new EnemyFireChargeDebuff(0.5f, manager.BuffManager, BuffType.Debuff, 1f);
             UT.CheckEquality<bool>(debuff != null, true);  
             UT.CheckEquality<float>(debuff.Timer, 0);  
             debuff.UpdateBuff();

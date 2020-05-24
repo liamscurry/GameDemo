@@ -116,7 +116,7 @@ public class PlayerAbilityManager : AbilitySystem
     {  
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
-        EquipAbility<PlayerDash>(ref dash);
+        EquipAbility<PlayerDashTier2>(ref dash);
         EquipAbility<PlayerFireball>(ref ranged);
         EquipAbility<PlayerFireChargeTier1>(ref aoe);
     }

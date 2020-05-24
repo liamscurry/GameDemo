@@ -2,20 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyBuffManager
+public class BuffManager<T>
 {
-    private EnemyManager manager;
-    private List<EnemyBuff> buffs;
-    private List<EnemyBuff> debuffs;
+    private T manager;
+    private List<Buff<T>> buffs;
+    private List<Buff<T>> debuffs;
 
-    public List<EnemyBuff> Buffs { get { return buffs; } }
-    public List<EnemyBuff> Debuffs { get { return debuffs; } }
+    public List<Buff<T>> Buffs { get { return buffs; } }
+    public List<Buff<T>> Debuffs { get { return debuffs; } }
 
-    public EnemyBuffManager(EnemyManager manager)
+    public T Manager { get { return manager; } }
+
+    public BuffManager(T manager)
     {
         this.manager = manager;
-        buffs = new List<EnemyBuff>();
-        debuffs = new List<EnemyBuff>();
+        buffs = new List<Buff<T>>();
+        debuffs = new List<Buff<T>>();
     }
 
     public void UpdateBuffs()
@@ -31,23 +33,23 @@ public class EnemyBuffManager
         }
     }
 
-    public void Apply<T>(T effect) where T : EnemyBuff
+    public void Apply<U>(U effect) where U : Buff<T>
     {
-        if (effect.Type == EnemyBuff.BuffType.Buff)
+        if (effect.Type == BuffType.Buff)
         {
-            SearchForBuff<T>(effect);
+            SearchForBuff<U>(effect);
         }
         else
         {
-            SearchForDebuff<T>(effect);
+            SearchForDebuff<U>(effect);
         }
     }
 
-    private void SearchForBuff<T>(T effect) where T : EnemyBuff
+    private void SearchForBuff<U>(U effect) where U : Buff<T>
     {
-        foreach (EnemyBuff buff in buffs)
+        foreach (Buff<T> buff in buffs)
         {
-            if (buff is T)
+            if (buff is U)
             {
                 if (buff.Duration - buff.Timer < effect.Duration)
                 {
@@ -63,11 +65,11 @@ public class EnemyBuffManager
         effect.ApplyBuff();
     }
 
-    private void SearchForDebuff<T>(T effect) where T : EnemyBuff
+    private void SearchForDebuff<U>(U effect) where U : Buff<T>
     {
-        foreach (EnemyBuff debuff in debuffs)
+        foreach (Buff<T> debuff in debuffs)
         {
-            if (debuff is T)
+            if (debuff is U)
             {
                 if (debuff.Duration - debuff.Timer < effect.Duration)
                 {
@@ -83,10 +85,10 @@ public class EnemyBuffManager
         effect.ApplyBuff();
     }
 
-    public void Clear(EnemyBuff effect)
+    public void Clear(Buff<T> effect)
     {
         effect.ReverseBuff();
-        if (effect.Type == EnemyBuff.BuffType.Buff)
+        if (effect.Type == BuffType.Buff)
         {
             buffs.Remove(effect);
         }
@@ -98,7 +100,7 @@ public class EnemyBuffManager
 
     public void ClearBuffs()
     {
-        foreach (EnemyBuff buff in buffs)
+        foreach (Buff<T> buff in buffs)
         {
             buff.ReverseBuff();
         }
@@ -107,7 +109,7 @@ public class EnemyBuffManager
 
     public void ClearDebuffs()
     {
-        foreach (EnemyBuff debuff in debuffs)
+        foreach (Buff<T> debuff in debuffs)
         {
             debuff.ReverseBuff();
         }

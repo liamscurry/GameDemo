@@ -36,6 +36,8 @@ public class PlayerStatsManager
 
 	public StatMultiplier StaminaYieldMultiplier { get; }
 
+	public StatMultiplier DamageMultiplier { get; }
+
 	public PlayerStatsManager()
 	{
 		//Base values
@@ -54,5 +56,6 @@ public class PlayerStatsManager
 		StaminaTier = 0;
 
 		StaminaYieldMultiplier = new StatMultiplier(1);
+		DamageMultiplier = new StatMultiplier(1);
 	}
 }

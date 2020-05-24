@@ -121,7 +121,8 @@ public sealed class PlayerFireballTier2 : PlayerAbility
         if (character != null)
         {
             EnemyManager enemy = character.GetComponent<EnemyManager>();
-            enemy.ChangeHealth(-damage);
+            enemy.ChangeHealth(
+                -damage * PlayerInfo.StatsManager.DamageMultiplier.Value);
         }
         return true;
     }
