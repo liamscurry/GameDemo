@@ -125,7 +125,7 @@ Transform:
   m_GameObject: {fileID: 9177388232668068275}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.5}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9177388233208114945}
   m_RootOrder: 2
@@ -141,7 +141,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.5, y: 1, z: 3}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &9177388233055664133
 GameObject:
@@ -202,7 +202,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 912705473627d404ab00e28555db6646, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -245,7 +245,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9177388233208114945}
-  - component: {fileID: 9177388233208114946}
+  - component: {fileID: 312364079}
   m_Layer: 0
   m_Name: Button Event
   m_TagString: Untagged
@@ -270,7 +270,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &9177388233208114946
+--- !u!114 &312364079
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -279,16 +279,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 9177388233208114944}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fac5ccba7098c141b0c45d1612e8e6f, type: 3}
+  m_Script: {fileID: 11500000, guid: f7133231781c82047960b06595d20874, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animationClip: {fileID: 7400000, guid: e379741504bdc764ca4ea8c54a6fe80d, type: 2}
+  animationClip: {fileID: 0}
   ui: {fileID: 382873053286909441}
-  target: 0
-  targetPosition: {x: 0, y: 0, z: 0}
-  positionWeight: {x: 0, y: 0, z: 0}
-  targetRotation: {x: 0, y: 0, z: 0}
-  rotationWeight: 0
+  target: 1
+  targetPosition: {x: 0, y: 0.5, z: -1.13}
+  positionWeight: {x: 1, y: 1, z: 1}
+  targetRotation: {x: 0, y: 0, z: 1}
+  rotationWeight: 1
   endEvent:
     m_PersistentCalls:
       m_Calls: []

@@ -12,18 +12,23 @@ public class Door : MonoBehaviour
     private float liftHeight;
     [SerializeField]
     private float liftSpeed;
+    [SerializeField]
+    private Type type;
 
-    private Vector3 downPosition;
+    private enum Type { OpenDownwards = -1, OpenUpwards = 1, }
+
+    private Vector3 closedPosition;
 
     private void Awake()
     {
         if (state == State.Open)
         {
-            downPosition = transform.position - transform.up * (liftHeight);
+            closedPosition = 
+                transform.position - transform.up * (liftHeight) * (int) type;
         }
         else
         {
-            downPosition = transform.position;
+            closedPosition = transform.position;
         }
     }   
 
@@ -51,7 +56,8 @@ public class Door : MonoBehaviour
     {
         if (state == State.Closed)
         {
-            Vector3 openPosition = downPosition + transform.up * (liftHeight);
+            Vector3 openPosition = 
+                closedPosition + transform.up * (liftHeight) * (int) type;
             transform.position = openPosition;
             state = State.Open;
         }
@@ -61,7 +67,6 @@ public class Door : MonoBehaviour
     {
         if (state == State.Open)
         {
-            Vector3 closedPosition = downPosition;
             transform.position = closedPosition;
             state = State.Closed;
         }
@@ -71,11 +76,12 @@ public class Door : MonoBehaviour
     {
         while (true)
         {
-            Vector3 closedPosition = transform.position;
-            Vector3 openPosition = downPosition + transform.up * (liftHeight);
-            Vector3 incremented = Vector3.MoveTowards(closedPosition, openPosition, liftSpeed * Time.deltaTime);
+            Vector3 currentPosition = transform.position;
+            Vector3 openPosition = 
+                this.closedPosition + transform.up * (liftHeight) * (int) type;
+            Vector3 incremented = Vector3.MoveTowards(currentPosition, openPosition, liftSpeed * Time.deltaTime);
             transform.position = incremented;
-            if (Vector3.Distance(closedPosition, openPosition) < 0.05f)
+            if (Vector3.Distance(currentPosition, openPosition) < 0.05f)
             {
                 break;
             }
@@ -91,10 +97,10 @@ public class Door : MonoBehaviour
         while (true)
         {
             Vector3 openPosition = transform.position;
-            Vector3 closedPosition = downPosition;
-            Vector3 incremented = Vector3.MoveTowards(openPosition, closedPosition, liftSpeed * Time.deltaTime);
+            Vector3 currentPosition = closedPosition;
+            Vector3 incremented = Vector3.MoveTowards(openPosition, currentPosition, liftSpeed * Time.deltaTime);
             transform.position = incremented;
-            if (Vector3.Distance(openPosition, closedPosition) < 0.05f)
+            if (Vector3.Distance(openPosition, currentPosition) < 0.05f)
             {
                 break;
             }

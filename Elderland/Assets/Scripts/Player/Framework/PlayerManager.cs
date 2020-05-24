@@ -43,6 +43,7 @@ public class PlayerManager : MonoBehaviour
     private void Start()
     {
         healthUpgradeButton.Initialize();
+        UnlockSprint();
     }
 
 	private void Update()
