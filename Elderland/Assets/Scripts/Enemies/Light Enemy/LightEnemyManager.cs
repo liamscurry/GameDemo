@@ -45,7 +45,7 @@ public sealed class LightEnemyManager : EnemyManager
         Pickup.SpawnPickups<HealthPickup>(
             Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
             transform.position,
-            2,
+            1,
             3f,
             90f);
     }

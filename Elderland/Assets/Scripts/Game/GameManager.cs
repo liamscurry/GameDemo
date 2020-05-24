@@ -157,7 +157,15 @@ public class GameManager : MonoBehaviour
         yield return Fade(duration, 1);
 
         if (GameInfo.CurrentLevel != null)
+        {
             GameInfo.CurrentLevel.Reset();
+            PlayerInfo.Player.transform.position =
+                GameInfo.CurrentLevel.RespawnTransform.position;
+            PlayerInfo.Player.transform.rotation = 
+                GameInfo.CurrentLevel.RespawnTransform.rotation;
+            GameInfo.CameraController.SetDirection(
+                GameInfo.CurrentLevel.RespawnTransform.rotation);
+        }
         PlayerInfo.Manager.Reset();
         if (OnRespawn != null)
             OnRespawn.Invoke(this, EventArgs.Empty);

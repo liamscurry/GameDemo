@@ -36,6 +36,8 @@ public class EnemyLevel : MonoBehaviour
 
     private LevelMechanic[] mechanics;
 
+    public Transform RespawnTransform { get { return respawnTransform; } }
+
     public void Start()
     {
         topPosition = transform.position.y + center.y + top;
