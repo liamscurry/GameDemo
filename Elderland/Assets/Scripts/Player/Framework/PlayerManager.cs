@@ -317,6 +317,34 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
             EquipAbility<PlayerFireChargeTier3>(ref PlayerInfo.AbilityManager.aoe);
     }
 
+    public void EquipTier2Dash()
+    {
+        PlayerInfo.AbilityManager.
+            UnequipAbility<PlayerDash>(ref PlayerInfo.AbilityManager.dash);
+        PlayerInfo.AbilityManager.
+            EquipAbility<PlayerDashTier2>(ref PlayerInfo.AbilityManager.dash);
+    }
+
+    public void EquipTier3Dash()
+    {
+        PlayerInfo.AbilityManager.
+            UnequipAbility<PlayerDashTier2>(ref PlayerInfo.AbilityManager.dash);
+        
+        for (int i = PlayerInfo.BuffManager.Buffs.Count - 1;
+             i >= 0; i--)
+        {
+            Buff<PlayerManager> buff = PlayerInfo.BuffManager.Buffs[i];
+            if (buff is PlayerDashTier2Buff)
+            {
+                PlayerInfo.BuffManager.Clear(buff);
+                break;
+            }
+        }
+
+        PlayerInfo.AbilityManager.
+            EquipAbility<PlayerDashTier3>(ref PlayerInfo.AbilityManager.dash);
+    }
+
     public void Halt()
     {
         PlayerInfo.MovementManager.TargetPercentileSpeed = 0;

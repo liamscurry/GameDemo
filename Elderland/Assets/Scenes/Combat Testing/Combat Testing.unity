@@ -1095,6 +1095,11 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1774390298050647347, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_Name
+      value: Tier 4 Dash
+      objectReference: {fileID: 0}
     - target: {fileID: 1774390298157369429, guid: 7f59d9a7fd4839f41872f40657c1b19d,
         type: 3}
       propertyPath: m_AnchorMin.x
@@ -1159,6 +1164,86 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298839417953, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_Name
+      value: Tier 2 Dash
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298839417964, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298839417964, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298839417964, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298839417964, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 690411428}
+    - target: {fileID: 1774390298839417964, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: EquipTier2Dash
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298839417964, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298842497988, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298842497988, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298842497988, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298842497988, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 690411428}
+    - target: {fileID: 1774390298842497988, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: EquipTier3Dash
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298842497988, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: onAcquire.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298842498009, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_Name
+      value: Tier 3 Dash
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298842645559, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_Name
+      value: Dash
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390299069448668, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_Name
+      value: Tier 1 Dash
       objectReference: {fileID: 0}
     - target: {fileID: 1818891241569385317, guid: 7f59d9a7fd4839f41872f40657c1b19d,
         type: 3}
@@ -1357,6 +1442,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7f59d9a7fd4839f41872f40657c1b19d, type: 3}
+--- !u!114 &690411428 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1803682936964180227, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+    type: 3}
+  m_PrefabInstance: {fileID: 690411427}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3132272be41c6844b877287bdb69677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &746065793
 PrefabInstance:
   m_ObjectHideFlags: 0
