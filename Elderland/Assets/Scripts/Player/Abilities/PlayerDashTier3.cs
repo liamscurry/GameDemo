@@ -4,7 +4,7 @@ using UnityEngine;
 
 //The Dash skill allows the player to travel long distances in a short amount of time.
 
-public sealed class PlayerDash : PlayerAbility 
+public sealed class PlayerDashTier3 : PlayerAbility 
 {
     //Fields
     private Vector2 direction;
@@ -29,13 +29,14 @@ public sealed class PlayerDash : PlayerAbility
         segments.AddSegment(act);
         segments.NormalizeSegments();
 
-        coolDownDuration = 1f;
+        continous = true;
     }
 
     protected override bool WaitCondition()
     {
         return GameInfo.Settings.LeftDirectionalInput.magnitude >= 0.25f &&
-               PlayerInfo.AbilityManager.Stamina >= staminaCost;
+               PlayerInfo.AbilityManager.Stamina >=
+                staminaCost * PlayerInfo.StatsManager.DashCostMultiplier.Value;
     }
 
     private void ActBegin()
@@ -45,7 +46,7 @@ public sealed class PlayerDash : PlayerAbility
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;
         system.Movement.ExitEnabled = false;
-        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost * PlayerInfo.StatsManager.DashCostMultiplier.Value);
     }
 
     private void DuringAct()
@@ -77,6 +78,28 @@ public sealed class PlayerDash : PlayerAbility
         PlayerInfo.MovementManager.SnapSpeed();
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
         system.Movement.ExitEnabled = true;
+        
+        bool alreadyHasDashBuff = false;
+        for (int i = PlayerInfo.BuffManager.Buffs.Count - 1;
+             i >= 0; i--)
+        {
+            Buff<PlayerManager> buff = PlayerInfo.BuffManager.Buffs[i];
+            if (buff is PlayerDashTier3Buff)
+            {
+                alreadyHasDashBuff = true;
+                PlayerInfo.BuffManager.Clear(buff);
+                break;
+            }
+        }
+
+        PlayerInfo.BuffManager.Apply<PlayerDashTier2Buff>(
+            new PlayerDashTier2Buff(2f, PlayerInfo.BuffManager, BuffType.Buff, 5f));
+
+        if (!alreadyHasDashBuff)
+        {
+            PlayerInfo.BuffManager.Apply<PlayerDashTier3Buff>(
+                new PlayerDashTier3Buff(PlayerInfo.BuffManager, BuffType.Buff, 5f));
+        }
     }
 
     public override bool OnHit(GameObject character)

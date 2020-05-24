@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class PlayerDashBuff : Buff<PlayerManager>
+public sealed class PlayerDashTier2Buff : Buff<PlayerManager>
 {
     private float damageMultiplier;
 
-    public PlayerDashBuff(float damageMultiplier, BuffManager<PlayerManager> manager, BuffType type, float duration)
+    public PlayerDashTier2Buff(float damageMultiplier, BuffManager<PlayerManager> manager, BuffType type, float duration)
         : base(manager, type, duration)
     {
         this.damageMultiplier = damageMultiplier;

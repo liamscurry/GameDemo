@@ -29,7 +29,7 @@ public sealed class PlayerDashTier2 : PlayerAbility
         segments.AddSegment(act);
         segments.NormalizeSegments();
 
-        coolDownDuration = .2f;
+        coolDownDuration = 1f;
     }
 
     protected override bool WaitCondition()
@@ -77,8 +77,8 @@ public sealed class PlayerDashTier2 : PlayerAbility
         PlayerInfo.MovementManager.SnapSpeed();
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
         system.Movement.ExitEnabled = true;
-        PlayerInfo.BuffManager.Apply<PlayerDashBuff>(
-            new PlayerDashBuff(2f, PlayerInfo.BuffManager, BuffType.Buff, 5f));
+        PlayerInfo.BuffManager.Apply<PlayerDashTier2Buff>(
+            new PlayerDashTier2Buff(2f, PlayerInfo.BuffManager, BuffType.Buff, 5f));
     }
 
     public override bool OnHit(GameObject character)
