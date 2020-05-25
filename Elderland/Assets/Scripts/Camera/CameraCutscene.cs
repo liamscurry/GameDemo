@@ -9,6 +9,7 @@ public class CameraCutscene
 	private float startConnectionTime;
 	private CameraCutsceneWaypointEvent[] startConnectionEvents;
 	private float startWaitTime;
+	private bool startJumpcut;
 	private float finalHorizontalAngle;
 	private bool lookAtFinalWaypoint;
 	private float finalVerticalAngle;
@@ -27,6 +28,7 @@ public class CameraCutscene
 		float startConnectionTime,
 		CameraCutsceneWaypointEvent[] startConnectionEvents,
 		float startWaitTime,
+		bool startJumpcut,
 		float finalHorizontalAngle,
 		bool lookAtFinalWaypoint,
 		float finalVerticalAngle,
@@ -38,6 +40,7 @@ public class CameraCutscene
 		this.startConnectionTime = startConnectionTime;
 		this.startConnectionEvents = startConnectionEvents;
 		this.startWaitTime = startWaitTime;
+		this.startJumpcut = startJumpcut;
 		this.finalHorizontalAngle = finalHorizontalAngle;
 		this.lookAtFinalWaypoint = lookAtFinalWaypoint;
 		this.finalVerticalAngle = finalVerticalAngle;
@@ -49,7 +52,7 @@ public class CameraCutscene
 	public void Start()
 	{
 		Camera camera = GameInfo.CameraController.Camera;
-		CameraCutsceneWaypoint autoWaypoint = new CameraCutsceneWaypoint(camera.transform.position, camera.transform.rotation, startConnectionTime, startWaitTime, startConnectionEvents);
+		CameraCutsceneWaypoint autoWaypoint = new CameraCutsceneWaypoint(camera.transform.position, camera.transform.rotation, startConnectionTime, startWaitTime, startJumpcut, startConnectionEvents);
 		waypoints.AddFirst(autoWaypoint);
 
 		CurrentWaypointNode = waypoints.First;
@@ -152,6 +155,6 @@ public class CameraCutscene
 		Quaternion targetRotation = GameInfo.CameraController.GenerateRotation();
 		Vector3 targetPosition = GameInfo.CameraController.GeneratePosition(PlayerInfo.Player.transform.position);
 
-		waypoints.AddLast(new CameraCutsceneWaypoint(targetPosition, targetRotation, 0, 0, null));
+		waypoints.AddLast(new CameraCutsceneWaypoint(targetPosition, targetRotation, 0, 0, false, null));
 	}
 }

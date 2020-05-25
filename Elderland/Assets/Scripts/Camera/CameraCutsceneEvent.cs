@@ -12,6 +12,8 @@ public class CameraCutsceneEvent : MonoBehaviour
 	[SerializeField]
 	private float startWaitTime;
 	[SerializeField]
+	private bool startJumpcut;
+	[SerializeField]
 	private GeneratedWaypoint[] waypoints;
 	[SerializeField]
 	[Range(0f, 360f)]
@@ -45,7 +47,7 @@ public class CameraCutsceneEvent : MonoBehaviour
 				Quaternion globalRotation = Quaternion.Euler(-waypoint.verticalRotation, waypoint.horizontalRotation + 90, waypoint.tiltRotation);
 				globalRotation = transform.rotation * globalRotation;
 				Vector3 globalPosition = transform.position + Matrix4x4.TRS(Vector3.zero, transform.rotation, Vector3.one).MultiplyPoint(waypoint.position);
-				linkedWaypoints.AddLast(new CameraCutsceneWaypoint(globalPosition, globalRotation, waypoint.connectionTime, waypoint.waitTime, waypoint.connectionEvents));
+				linkedWaypoints.AddLast(new CameraCutsceneWaypoint(globalPosition, globalRotation, waypoint.connectionTime, waypoint.waitTime, waypoint.jumpCut, waypoint.connectionEvents));
 			}
 
 			GameInfo.CameraController.StartCutscene(
@@ -54,6 +56,7 @@ public class CameraCutsceneEvent : MonoBehaviour
 				startConnectionTime,
 				startConnectionEvents,
 				startWaitTime,
+				startJumpcut,
 				finalHorizontalAngle,
 				lookAtFinalWaypoint,
 				finalVerticalAngle,
@@ -136,6 +139,8 @@ public class CameraCutsceneEvent : MonoBehaviour
 		[SerializeField]
 		public float waitTime;
 		[SerializeField]
+		public bool jumpCut;
+		[SerializeField]
 		public CameraCutsceneWaypointEvent[] connectionEvents;
 
 		public GeneratedWaypoint(
@@ -145,6 +150,7 @@ public class CameraCutsceneEvent : MonoBehaviour
 			float tiltRotation,
 			float connectionTime,
 			float waitTime,
+			bool jumpCut,
 			CameraCutsceneWaypointEvent[] connectionEvents)
 		{
 			this.position = position;
@@ -153,6 +159,7 @@ public class CameraCutsceneEvent : MonoBehaviour
 			this.tiltRotation = tiltRotation;
 			this.connectionTime = connectionTime;
 			this.waitTime = waitTime;
+			this.jumpCut = jumpCut;
 			this.connectionEvents = connectionEvents;
 		}
 

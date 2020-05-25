@@ -325,12 +325,13 @@ public class CameraController : MonoBehaviour
 
         cutscene.Update();
         float waypointTime = cutscene.CurrentWaypointNode.Value.time;
-        float x = Mathf.SmoothStep(cutscene.CurrentWaypointNode.Value.Position.x, cutscene.TargetWaypointNode.Value.Position.x, cutscene.Timer / waypointTime);
-        float y = Mathf.SmoothStep(cutscene.CurrentWaypointNode.Value.Position.y, cutscene.TargetWaypointNode.Value.Position.y, cutscene.Timer / waypointTime);
-        float z = Mathf.SmoothStep(cutscene.CurrentWaypointNode.Value.Position.z, cutscene.TargetWaypointNode.Value.Position.z, cutscene.Timer / waypointTime);
+        float lerpTime = (cutscene.CurrentWaypointNode.Value.jumpCut) ? 1 : cutscene.Timer / waypointTime;
+        float x = Mathf.SmoothStep(cutscene.CurrentWaypointNode.Value.Position.x, cutscene.TargetWaypointNode.Value.Position.x, lerpTime);
+        float y = Mathf.SmoothStep(cutscene.CurrentWaypointNode.Value.Position.y, cutscene.TargetWaypointNode.Value.Position.y, lerpTime);
+        float z = Mathf.SmoothStep(cutscene.CurrentWaypointNode.Value.Position.z, cutscene.TargetWaypointNode.Value.Position.z, lerpTime);
         transform.position = new Vector3(x, y, z);
 
-        transform.rotation = Quaternion.Slerp(cutscene.CurrentWaypointNode.Value.Rotation, cutscene.TargetWaypointNode.Value.Rotation, cutscene.Timer / waypointTime);
+        transform.rotation = Quaternion.Slerp(cutscene.CurrentWaypointNode.Value.Rotation, cutscene.TargetWaypointNode.Value.Rotation, lerpTime);
     }
 
     private void UpdateGameplaySettings()
