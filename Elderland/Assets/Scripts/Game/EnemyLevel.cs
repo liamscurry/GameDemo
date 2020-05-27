@@ -110,6 +110,11 @@ public class EnemyLevel : MonoBehaviour
         }
     }
 
+    public void SetRespawnTransform(Transform respawnTransform)
+    {
+        this.respawnTransform = respawnTransform;
+    }
+
     private void AdvanceWave()
     {
         currentWave++;

@@ -9,12 +9,22 @@ public class TriggerEvent : MonoBehaviour
     private UnityEvent triggerEvent;
     [SerializeField]
     private string triggerTag = "PlayerHealth";
-
+    [SerializeField]
     private bool executed;
 
     public void Reset()
     {
         executed = false;
+    }
+
+    public void Enable()
+    {
+        executed = false;
+    }
+
+    public void Disable()
+    {
+        executed = true;
     }
 
     private void OnTriggerEnter(Collider other)
