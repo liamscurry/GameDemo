@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
@@ -44,6 +45,15 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
     private int tier;
 
     private void OnDisable()
+    {
+        vitalityAvailableText.text =
+            "Available: " + PlayerInfo.StatsManager.VitalityPoints;
+
+        vitalityCostText.text = "";
+        vitalityCostIcon.gameObject.SetActive(false);
+    }
+
+    private void OnEnable()
     {
         vitalityAvailableText.text =
             "Available: " + PlayerInfo.StatsManager.VitalityPoints;
