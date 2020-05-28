@@ -166,6 +166,15 @@ public class GameManager : MonoBehaviour
             GameInfo.CameraController.SetDirection(
                 GameInfo.CurrentLevel.RespawnTransform.rotation);
         }
+        else
+        {
+            PlayerInfo.Player.transform.position =
+                GameInfo.RespawnTransformNoLevel.position;
+            PlayerInfo.Player.transform.rotation = 
+                GameInfo.RespawnTransformNoLevel.rotation;
+            GameInfo.CameraController.SetDirection(
+                GameInfo.RespawnTransformNoLevel.rotation);
+        }
         PlayerInfo.Manager.Reset();
         if (OnRespawn != null)
             OnRespawn.Invoke(this, EventArgs.Empty);
@@ -203,5 +212,10 @@ public class GameManager : MonoBehaviour
     public void Respawn()
     {
         StartCoroutine(FadeRespawn(4));
+    }
+
+    public void SetRespawnTransformNoLevel(Transform transform)
+    {
+        GameInfo.RespawnTransformNoLevel = transform;
     }
 }

@@ -20,11 +20,26 @@ public class StandardInteraction : MonoBehaviour
 	[SerializeField]
 	protected float rotationWeight;
 	[SerializeField]
+	protected bool reusable;
+	[SerializeField]
+	protected Type type;
+	[Header("For hold until release or complete interactions")]
+	[SerializeField]
+	protected float holdDuration;
+	[Header("For hold interactions")]
+	[SerializeField]
+	protected UnityEvent holdEvent;
+	[Header("For all interactions")]
+	[SerializeField]
 	protected UnityEvent endEvent;
 
 	protected bool activated;
 
 	public Vector3 ValidityDirection { get { return transform.forward; } }
+	public Type InteractionType { get { return type; } }
+	public float HoldNormalizedTime { get; set; }
+	public float HoldDuration { get { return holdDuration; } }
+	public bool Reusable { get { return reusable; } }
 
 	private Vector3 GeneratedTargetPosition
 	{
@@ -55,6 +70,8 @@ public class StandardInteraction : MonoBehaviour
 		}
 	}
 
+	public enum Type { press, holdUntilRelease, holdUntilReleaseOrComplete }  
+
 	public void Exit()
 	{
 		if (!activated)
@@ -74,6 +91,7 @@ public class StandardInteraction : MonoBehaviour
 			
 			PlayerInfo.Animator.SetTrigger("interacting");
 			PlayerInfo.Animator.SetTrigger("generalInteracting");
+			PlayerInfo.Animator.SetBool("instantaneous", type == Type.press);
 			//PlayerInfo.AnimationManager.SetInteractionAnimation(animationClip);
 
 			PlayerInfo.Manager.Interaction = this;
@@ -95,6 +113,11 @@ public class StandardInteraction : MonoBehaviour
 		endEvent.Invoke();
 	}
 
+	public void HoldEvent()
+	{
+		holdEvent.Invoke();
+	}
+
 	//protected IEnumerator EndTimer()
 	//{
 		//yield return new WaitForSeconds(functionalityTime);
@@ -105,6 +128,7 @@ public class StandardInteraction : MonoBehaviour
 	{
 		activated = false;
 		ui.SetActive(true);
+		HoldNormalizedTime = 0;
 	}
 
 	protected virtual void OnExitBegin() {}

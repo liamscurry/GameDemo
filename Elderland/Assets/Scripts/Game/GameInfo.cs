@@ -16,6 +16,7 @@ public static class GameInfo
     public static PickupPool PickupPool { get; private set; }
 
     public static EnemyLevel CurrentLevel { get; set; }
+    public static Transform RespawnTransformNoLevel { get; set; }
 
     //States
     public static bool Panning { get; set; }

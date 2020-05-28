@@ -27,6 +27,11 @@ public class PlayerSensor : MonoBehaviour
 
 		if (other.tag == TagConstants.Interactive)
 			Interaction = other.transform.parent.GetComponent<StandardInteraction>();
+
+		if (other.tag == "FallingDoorDeathTrigger")
+		{
+			PlayerInfo.Manager.ChangeHealth(-100f);
+		}
 	}
 
 	private void OnTriggerExit(Collider other)
