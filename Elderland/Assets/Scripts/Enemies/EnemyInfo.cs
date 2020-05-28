@@ -34,7 +34,7 @@ public static class EnemyInfo
 
         Vector2 playerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
         MeleeArranger = new MeleeArranger(playerPosition, 1.75f + 1.5f, 8, 0);
-        RangedArranger = new RangedArranger(playerPosition, 7, 16, 0);
+        RangedArranger = new RangedArranger(playerPosition, 12, 16, 0);//7
 
         AbilityRandomizer = new System.Random();
     }

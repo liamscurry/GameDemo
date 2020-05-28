@@ -110,7 +110,7 @@ public sealed class RangedEnemyManager : EnemyManager
         float distance = direction.magnitude;
         RaycastHit enemyHit;
 
-        Vector2 rectangleCenter = Matho.StandardProjection2D(Vector3.MoveTowards(PlayerInfo.Player.transform.position, transform.position, 7f));
+        Vector2 rectangleCenter = Matho.StandardProjection2D(Vector3.MoveTowards(PlayerInfo.Player.transform.position, transform.position, EnemyInfo.RangedArranger.radius));
         rectangleCenter += Matho.StandardProjection2D(direction).normalized;
         Vector3 rectangleCenterNav = GameInfo.CurrentLevel.NavCast(rectangleCenter);
         Vector3 rectangleSize = new Vector3(2, 3, 1f - 0.1f);
@@ -147,7 +147,7 @@ public sealed class RangedEnemyManager : EnemyManager
     protected override void OnDrawGizmos()
     {
         Vector3 direction = PlayerInfo.Player.transform.position - transform.position;
-        Vector2 rectangleCenter = Matho.StandardProjection2D(Vector3.MoveTowards(PlayerInfo.Player.transform.position, transform.position, 7f));
+        Vector2 rectangleCenter = Matho.StandardProjection2D(Vector3.MoveTowards(PlayerInfo.Player.transform.position, transform.position, EnemyInfo.RangedArranger.radius));
         rectangleCenter += Matho.StandardProjection2D(direction).normalized;
         Vector3 rectangleCenterNav = GameInfo.CurrentLevel.NavCast(rectangleCenter);
         Vector3 rectangleSize = new Vector3(2, 3, 1f - 0.1f);

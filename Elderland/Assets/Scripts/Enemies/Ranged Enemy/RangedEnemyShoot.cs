@@ -35,7 +35,7 @@ public sealed class RangedEnemyShoot : EnemyAbility
         segments.AddSegment(shoot);
         segments.NormalizeSegments();
 
-        AttackDistance = 7f;
+        AttackDistance = EnemyInfo.RangedArranger.radius;
         AttackDistanceMargin = 3.5f;
         AttackAngleMargin = 5;
 

@@ -77,7 +77,7 @@ public class RangedEnemyAttackStationary : StateMachineBehaviour
     {
         Vector2 currentPosition = Matho.StandardProjection2D(manager.transform.position);
         Vector2 playerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
-        Vector2 closePosition = playerPosition + (currentPosition - playerPosition).normalized * (7f - 1.5f);
+        Vector2 closePosition = playerPosition + (currentPosition - playerPosition).normalized * (EnemyInfo.RangedArranger.radius - 1.5f);
         Vector3 closePositionNav = GameInfo.CurrentLevel.NavCast(closePosition);
         manager.Agent.SetDestination(closePositionNav);
         manager.Agent.updateRotation = false;

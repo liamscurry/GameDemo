@@ -8,11 +8,11 @@ public sealed class PlayerDashTier2 : PlayerAbility
 {
     //Fields
     private Vector2 direction;
-    private float speed = 30f;
+    private float speed = 18f;
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
-    private const float staminaCost = 2f;
+    private const float staminaCost = 1f;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
