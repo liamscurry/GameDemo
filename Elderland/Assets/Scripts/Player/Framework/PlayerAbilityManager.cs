@@ -38,7 +38,7 @@ public class PlayerAbilityManager : AbilitySystem
         RangedAvailable = true;
         HealAvailable = true;
         DodgeAvailable = true;
-        DashAvailable = true;
+        //DashAvailable = true;
         //Stamina = 0;
     }
 

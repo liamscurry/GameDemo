@@ -385,6 +385,11 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         PlayerInfo.AbilityManager.DodgeAvailable = true;
     }
 
+    public void UnlockDash()
+    {
+        PlayerInfo.AbilityManager.DashAvailable = true;
+    }
+
     public void UnlockRanged()
     {
         PlayerInfo.AbilityManager.RangedAvailable = true;
