@@ -111,7 +111,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2, y: 6, z: 2}
+  m_Size: {x: 2, y: 6, z: 1}
   m_Center: {x: 0, y: 3, z: 0}
 --- !u!114 &1286645238968036361
 MonoBehaviour:
@@ -132,12 +132,50 @@ MonoBehaviour:
   positionWeight: {x: 1, y: 1, z: 1}
   targetRotation: {x: 0, y: 0, z: 1}
   rotationWeight: 1
+  reusable: 0
+  type: 0
+  holdDuration: 0
+  holdEvent:
+    m_PersistentCalls:
+      m_Calls: []
   endEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114875325966251592, guid: 8ae649922321374449c83f714cdb9624,
-          type: 3}
+      - m_Target: {fileID: 0}
         m_MethodName: IncreaseAbilityPoints
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_MethodName: SlowFreezeGame
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0.25
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_MethodName: WaitForUseToUnfreeze
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_MethodName: Open
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
