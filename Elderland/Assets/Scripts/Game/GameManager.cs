@@ -90,6 +90,7 @@ public class GameManager : MonoBehaviour
     {
         StopCoroutine(slowEnumerator);
         Time.timeScale = 1;
+        Time.fixedDeltaTime = 1 / 50f;
     }
 
     public void FreezeInput(object setter)
@@ -129,7 +130,7 @@ public class GameManager : MonoBehaviour
         {
             slowFreezeTimer += Time.deltaTime;
             Time.timeScale = Mathf.SmoothStep(1, 0, slowFreezeTimer / duration);
-            //Time.fixedDeltaTime = (Time.timeScale != 0) ?  (1 / 50f) * Time.timeScale : (1 / 50f);
+            Time.fixedDeltaTime = (Time.timeScale != 0) ?  (1 / 50f) * Time.timeScale : (1 / 50f);
             if (Time.timeScale != 0)
             {
                 yield return new WaitForEndOfFrame();
