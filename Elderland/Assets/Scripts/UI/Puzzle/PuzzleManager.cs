@@ -7,23 +7,23 @@ using UnityEngine.Events;
 public class PuzzleManager : MonoBehaviour
 {
     [SerializeField]
-    private PuzzleVertex startVertex;
+    protected PuzzleVertex startVertex;
     [SerializeField]
-    private PuzzleVertex endVertex;
+    protected PuzzleVertex endVertex;
     [SerializeField]
-    private RectTransform highlightObject;
+    protected RectTransform highlightObject;
     [SerializeField]
-    private Transform selectedObject;
+    protected Transform selectedObject;
     [SerializeField]
-    private Slider indicatorTimer;
+    protected Slider indicatorTimer;
     [SerializeField]
-    private RawImage indicator;
+    protected RawImage indicator;
     [SerializeField]
-    private Transform edgesParent;
+    protected Transform edgesParent;
     [SerializeField]
-    private RawImage[] edges; // up = 0, right = 1, down = 2, left = 3
+    protected RawImage[] edges; // up = 0, right = 1, down = 2, left = 3
     [SerializeField]
-    private RawImage background;
+    protected RawImage background;
     [SerializeField]
     protected Color upColor;
     [SerializeField]
@@ -35,26 +35,26 @@ public class PuzzleManager : MonoBehaviour
     [SerializeField]
     protected Color solvedColor;
     [SerializeField]
-    private float timePerVertex;
+    protected float timePerVertex;
     [SerializeField]
-    private UnityEvent onExit;
+    protected UnityEvent onExit;
     [SerializeField]
-    private UnityEvent onSolve;
+    protected UnityEvent onSolve;
 
     protected PuzzleVertex currentVertex;
 
     protected Color[] standardColors;
-    private Color[] deactivatedColors;
+    protected Color[] deactivatedColors;
 
-    private const KeyCode upKeycode =    KeyCode.Joystick1Button3;
-    private const KeyCode rightKeycode = KeyCode.Joystick1Button1;
-    private const KeyCode downKeycode =  KeyCode.Joystick1Button0;
-    private const KeyCode leftKeycode =  KeyCode.Joystick1Button2;
-    private const KeyCode exitKeycode =  KeyCode.Joystick1Button6;
+    protected const KeyCode upKeycode =    KeyCode.Joystick1Button3;
+    protected const KeyCode rightKeycode = KeyCode.Joystick1Button1;
+    protected const KeyCode downKeycode =  KeyCode.Joystick1Button0;
+    protected const KeyCode leftKeycode =  KeyCode.Joystick1Button2;
+    protected const KeyCode exitKeycode =  KeyCode.Joystick1Button6;
 
-    private bool solved;
+    protected bool solved;
 
-    private void Start()
+    protected void Start()
     {
         standardColors = 
             new Color[4] { upColor, rightColor, downColor, leftColor };
@@ -66,7 +66,7 @@ public class PuzzleManager : MonoBehaviour
         enabled = false;
     }
 
-    private void Update()
+    protected void Update()
     {
         if (!solved)
         {
@@ -106,7 +106,7 @@ public class PuzzleManager : MonoBehaviour
         Disable();
     }
 
-    private void UpdateInput()
+    protected virtual void UpdateInput()
     {
         PuzzleDirection pressedDirection = PuzzleDirection.Up;
         bool pressed = false;
@@ -144,7 +144,7 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    private void CheckForExit()
+    protected void CheckForExit()
     {
         if (Input.GetKeyDown(exitKeycode))
         {
@@ -152,13 +152,13 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    private void Reset()
+    protected void Reset()
     {
         currentVertex = startVertex;
         UpdateSelected(GetDirectionColors());
     }
 
-    private void AdvanceVertex()
+    protected void AdvanceVertex()
     {
         currentVertex = currentVertex.SolutionVertex;
         if (currentVertex.SolutionVertex == null)
@@ -183,7 +183,7 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    private void UpdateSelected(Color[] directionColors)
+    protected void UpdateSelected(Color[] directionColors)
     {
         selectedObject.position = currentVertex.transform.position;
         highlightObject.position = currentVertex.transform.position;
