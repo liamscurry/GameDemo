@@ -25,15 +25,15 @@ public class PuzzleManager : MonoBehaviour
     [SerializeField]
     private RawImage background;
     [SerializeField]
-    private Color upColor;
+    protected Color upColor;
     [SerializeField]
-    private Color rightColor;
+    protected Color rightColor;
     [SerializeField]
-    private Color downColor;
+    protected Color downColor;
     [SerializeField]
-    private Color leftColor;
+    protected Color leftColor;
     [SerializeField]
-    private Color solvedColor;
+    protected Color solvedColor;
     [SerializeField]
     private float timePerVertex;
     [SerializeField]
@@ -41,9 +41,9 @@ public class PuzzleManager : MonoBehaviour
     [SerializeField]
     private UnityEvent onSolve;
 
-    private PuzzleVertex currentVertex;
+    protected PuzzleVertex currentVertex;
 
-    private Color[] standardColors;
+    protected Color[] standardColors;
     private Color[] deactivatedColors;
 
     private const KeyCode upKeycode =    KeyCode.Joystick1Button3;
