@@ -54,7 +54,7 @@ public class PuzzleManager : MonoBehaviour
 
     protected bool solved;
 
-    protected void Start()
+    protected virtual void Start()
     {
         standardColors = 
             new Color[4] { upColor, rightColor, downColor, leftColor };
@@ -85,7 +85,7 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    public void Enable()
+    public virtual void Enable()
     {
         enabled = true;
         Reset();
@@ -183,7 +183,7 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    protected void UpdateSelected(Color[] directionColors)
+    protected virtual void UpdateSelected(Color[] directionColors)
     {
         selectedObject.position = currentVertex.transform.position;
         highlightObject.position = currentVertex.transform.position;
