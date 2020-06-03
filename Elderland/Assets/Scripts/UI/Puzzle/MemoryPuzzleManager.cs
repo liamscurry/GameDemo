@@ -104,11 +104,17 @@ public sealed class MemoryPuzzleManager : PuzzleManager
         {
             for (int i = 0; i < numberOfActivatedIndicators; i++)
             {
+                float positionI = i;
+
+                if (numberOfActivatedIndicators == 1)
+                    positionI = .5f;
+
                 indicators[i].color = GetSolutionColor(directionColors, memoryCurrentVertex);
                 indicators[i].transform.localScale = Vector3.one;
-                ((RectTransform) indicators[i].transform).localPosition = new Vector3(i * 1f / numberOfActivatedIndicators * startScale.x, 0, 0);
+                ((RectTransform) indicators[i].transform).localPosition = new Vector3(positionI * 1f / numberOfActivatedIndicators * startScale.x, 0, 0);
+                indicators[i].transform.localRotation = Quaternion.identity;
                 indicators[i].transform.localScale =
-                    new Vector3(1f / numberOfActivatedIndicators * startScale.x, startScale.y, startScale.z);
+                    new Vector3(1f / numberOfActivatedIndicators * startScale.x * .90f, startScale.y, startScale.z);
                 memoryCurrentVertex = 
                     (MemoryPuzzleVertex) memoryCurrentVertex.SolutionVertex;
             }

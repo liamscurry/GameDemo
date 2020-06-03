@@ -493,6 +493,11 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         PlayerInfo.StatsManager.UpgradePoints++;
     }
 
+    public void IncreaseAbilityPoints(int amount)
+    {
+        PlayerInfo.StatsManager.UpgradePoints += amount;
+    }
+
     public void IncreaseVitalityPoints()
     {
         PlayerInfo.StatsManager.VitalityPoints++;
@@ -501,6 +506,18 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     public void ZeroVitalityPoints()
     {
         PlayerInfo.StatsManager.VitalityPoints = 0;
+    }
+
+    public void DisableAbilities()
+    {
+        PlayerInfo.AbilityManager.AbilitiesAvailable = false;
+        GameInfo.CameraController.AllowZoom = false;
+    }
+
+    public void EnableAbilities()
+    {
+        PlayerInfo.AbilityManager.AbilitiesAvailable = true;
+        GameInfo.CameraController.AllowZoom = true;
     }
 
     public void Reset()

@@ -50,7 +50,7 @@ public class PlayerStatsManager
 		MovespeedModifier = 1;
 		JumpspeedModifier = 1;
 
-		UpgradePoints = 4;
+		UpgradePoints = 1;
 		VitalityPoints = 0;
 
 		HealthTier = 0;

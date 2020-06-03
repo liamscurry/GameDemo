@@ -26,6 +26,7 @@ public class PlayerAbilityManager : AbilitySystem
     public bool DashAvailable { get; set; }
     public bool RangedAvailable { get; set; }
     public bool HealAvailable { get; set; }
+    public bool AbilitiesAvailable { get; set; }
 
     public const float MaxStamina = 4;
     public float Stamina { get; private set; }
@@ -39,6 +40,7 @@ public class PlayerAbilityManager : AbilitySystem
         HealAvailable = true;
         DodgeAvailable = true;
         DashAvailable = true;
+        AbilitiesAvailable = true;
         //Stamina = 0;
     }
 
@@ -46,11 +48,11 @@ public class PlayerAbilityManager : AbilitySystem
 	public override void UpdateAbilities() 
     {
         //Try to run specified ability if held down
-        bool rangedInput = (GameInfo.Manager.ReceivingInput && RangedAvailable) ? Input.GetAxis("Right Trigger") != 0 : false;
-        bool aoeInput = (GameInfo.Manager.ReceivingInput && HealAvailable) ? Input.GetKey(KeyCode.Joystick1Button4) : false;
-        bool meleeInput = (GameInfo.Manager.ReceivingInput && MeleeAvailable) ? Input.GetKey(GameInfo.Settings.MeleeAbilityKey) : false;
-        bool dashInput = (GameInfo.Manager.ReceivingInput && DashAvailable) ? Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
-        bool dodgeInput = (GameInfo.Manager.ReceivingInput && DodgeAvailable) ? Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
+        bool rangedInput = (GameInfo.Manager.ReceivingInput && RangedAvailable && AbilitiesAvailable) ? Input.GetAxis("Right Trigger") != 0 : false;
+        bool aoeInput = (GameInfo.Manager.ReceivingInput && HealAvailable && AbilitiesAvailable) ? Input.GetKey(KeyCode.Joystick1Button4) : false;
+        bool meleeInput = (GameInfo.Manager.ReceivingInput && MeleeAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.MeleeAbilityKey) : false;
+        bool dashInput = (GameInfo.Manager.ReceivingInput && DashAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
+        bool dodgeInput = (GameInfo.Manager.ReceivingInput && DodgeAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
 
         //Weapon prioritization
         PlayerAbility weaponHeldDown = null;

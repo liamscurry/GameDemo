@@ -83,6 +83,7 @@ public class Door : MonoBehaviour
             transform.position = incremented;
             if (Vector3.Distance(currentPosition, openPosition) < 0.05f)
             {
+                transform.position = openPosition;
                 break;
             }
             else
@@ -102,6 +103,7 @@ public class Door : MonoBehaviour
             transform.position = incremented;
             if (Vector3.Distance(openPosition, currentPosition) < 0.05f)
             {
+                transform.position = openPosition;
                 break;
             }
             else

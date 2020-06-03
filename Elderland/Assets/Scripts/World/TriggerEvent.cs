@@ -11,6 +11,8 @@ public class TriggerEvent : MonoBehaviour
     private string triggerTag = "PlayerHealth";
     [SerializeField]
     private bool executed;
+    [SerializeField]
+    private bool repeatable;
 
     public void Reset()
     {
@@ -31,7 +33,7 @@ public class TriggerEvent : MonoBehaviour
     {
         if (other.tag == triggerTag && gameObject.activeInHierarchy)
         {
-            if (!executed)
+            if (!executed || repeatable)
             {
                 executed = true;
                 triggerEvent.Invoke();
