@@ -22,6 +22,8 @@ public class StandardInteraction : MonoBehaviour
 	[SerializeField]
 	protected bool reusable;
 	[SerializeField]
+	protected bool disableOnStart;
+	[SerializeField]
 	protected Type type;
 	[Header("For hold until release or complete interactions")]
 	[SerializeField]
@@ -71,6 +73,14 @@ public class StandardInteraction : MonoBehaviour
 	}
 
 	public enum Type { press, holdUntilRelease, holdUntilReleaseOrComplete }  
+
+	protected virtual void Start()
+	{
+		if (disableOnStart)
+		{
+			Disable();
+		}
+	}
 
 	public void Exit()
 	{
@@ -123,6 +133,12 @@ public class StandardInteraction : MonoBehaviour
 		//yield return new WaitForSeconds(functionalityTime);
 		//endEvent.Invoke();
 	//}
+
+	public virtual void Disable()
+	{
+		activated = true;
+		ui.SetActive(false);
+	}
 
 	public virtual void Reset()
 	{

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Door : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class Door : MonoBehaviour
     private float liftSpeed;
     [SerializeField]
     private Type type;
+    [SerializeField]
+    private UnityEvent onCloseEnd;
 
     private enum Type { OpenDownwards = -1, OpenUpwards = 1, }
 
@@ -104,6 +107,8 @@ public class Door : MonoBehaviour
             if (Vector3.Distance(openPosition, currentPosition) < 0.05f)
             {
                 transform.position = openPosition;
+                if (onCloseEnd != null)
+                    onCloseEnd.Invoke();
                 break;
             }
             else
