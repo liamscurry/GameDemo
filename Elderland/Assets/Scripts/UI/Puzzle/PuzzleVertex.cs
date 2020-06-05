@@ -33,7 +33,7 @@ public class PuzzleVertex : MonoBehaviour
         new float[4] {0, 1, 1, 0}, // top left
         new float[4] {0, 0, 1, 1}, // top right
         new float[4] {1, 0, 0, 1}, // bottom right
-        new float[4] {1, 1, 0, 0}, // bottom left
+        new float[4] {1, 1, 0, 0}  // bottom left
     };
 
     public float[] GetAlphas()
