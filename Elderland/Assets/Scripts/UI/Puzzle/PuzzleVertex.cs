@@ -7,7 +7,8 @@ public enum PuzzleVertexType
 { 
    Center, 
    Top, Right, Bottom, Left,
-   TopLeftCorner, TopRightCorner, BottomRightCorner, BottomLeftCorner 
+   TopLeftCorner, TopRightCorner, BottomRightCorner, BottomLeftCorner,
+   MiddleHorizontal, MiddleVertical
 }
 
 public class PuzzleVertex : MonoBehaviour
@@ -23,7 +24,7 @@ public class PuzzleVertex : MonoBehaviour
     public PuzzleDirection SolutionDirection { get { return solutionDirection; } }
     public PuzzleVertexType VertexType { get { return vertexType; } }
 
-    private static readonly float[][] alphas = new float[9][]
+    private static readonly float[][] alphas = new float[11][]
     {
         new float[4] {1, 1, 1, 1}, // center
         new float[4] {0, 1, 1, 1}, // top
@@ -33,7 +34,9 @@ public class PuzzleVertex : MonoBehaviour
         new float[4] {0, 1, 1, 0}, // top left
         new float[4] {0, 0, 1, 1}, // top right
         new float[4] {1, 0, 0, 1}, // bottom right
-        new float[4] {1, 1, 0, 0}  // bottom left
+        new float[4] {1, 1, 0, 0}, // bottom left
+        new float[4] {0, 1, 0, 1}, // middle horizontal
+        new float[4] {1, 0, 1, 0}  // middle veritcal
     };
 
     public float[] GetAlphas()
