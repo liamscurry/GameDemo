@@ -24,6 +24,7 @@ public sealed class MemoryPuzzleManager : PuzzleManager
         deactivatedColors = 
             new Color[4] { new Color(0 ,0, 0, 0), new Color(0 ,0, 0, 0),
                            new Color(0 ,0, 0, 0), new Color(0 ,0, 0, 0) };
+        baseBackgroundColor = background.color;
         //Reset();
         solved = false;
         enabled = false;

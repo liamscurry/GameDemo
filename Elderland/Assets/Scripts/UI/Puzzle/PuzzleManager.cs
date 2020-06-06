@@ -45,6 +45,7 @@ public class PuzzleManager : MonoBehaviour
 
     protected Color[] standardColors;
     protected Color[] deactivatedColors;
+    protected Color baseBackgroundColor;
 
     protected const KeyCode upKeycode =    KeyCode.Joystick1Button3;
     protected const KeyCode rightKeycode = KeyCode.Joystick1Button1;
@@ -61,6 +62,7 @@ public class PuzzleManager : MonoBehaviour
         deactivatedColors = 
             new Color[4] { new Color(0 ,0, 0, 0), new Color(0 ,0, 0, 0),
                            new Color(0 ,0, 0, 0), new Color(0 ,0, 0, 0) };
+        baseBackgroundColor = background.color;
         Reset();
         solved = false;
         enabled = false;
@@ -152,9 +154,12 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    protected void Reset()
+    public void Reset()
     {
+        solved = false;
+        highlightObject.gameObject.SetActive(true);
         currentVertex = startVertex;
+        background.color = baseBackgroundColor;
         UpdateSelected(GetDirectionColors());
     }
 
