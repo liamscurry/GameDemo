@@ -130,7 +130,7 @@ public class GameManager : MonoBehaviour
     {
         while (true)
         {
-            slowFreezeTimer += Time.deltaTime;
+            slowFreezeTimer += Time.unscaledDeltaTime;
             Time.timeScale = Mathf.SmoothStep(1, 0, slowFreezeTimer / duration);
             Time.fixedDeltaTime = (Time.timeScale != 0) ?  (1 / 50f) * Time.timeScale : (1 / 50f);
             if (Time.timeScale != 0)

@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class HeavyEnemyWatchFollow : StateMachineBehaviour
 {
-    private LightEnemyManager manager;
+    private HeavyEnemyManager manager;
 
     private float checkTimer;
     private float checkDuration = 0.5f;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        manager = animator.GetComponent<LightEnemyManager>();
+        manager = animator.GetComponent<HeavyEnemyManager>();
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 

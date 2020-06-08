@@ -2879,7 +2879,7 @@ GameObject:
   - component: {fileID: 1774390298050647345}
   - component: {fileID: 1774390298050647358}
   m_Layer: 5
-  m_Name: Tier 4 Undecided
+  m_Name: Tier 4 Dash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4764,7 +4764,7 @@ GameObject:
   - component: {fileID: 1774390298839417967}
   - component: {fileID: 1774390298839417964}
   m_Layer: 5
-  m_Name: Tier 2 Undecided
+  m_Name: Tier 2 Dash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4907,7 +4907,18 @@ MonoBehaviour:
   acquiredInitially: 0
   onAcquire:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1803682936964180227}
+        m_MethodName: EquipTier2Dash
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1774390298842498009
 GameObject:
   m_ObjectHideFlags: 0
@@ -4922,7 +4933,7 @@ GameObject:
   - component: {fileID: 1774390298842497991}
   - component: {fileID: 1774390298842497988}
   m_Layer: 5
-  m_Name: Tier 3 Undecided
+  m_Name: Tier 3 Dash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5065,7 +5076,18 @@ MonoBehaviour:
   acquiredInitially: 0
   onAcquire:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1803682936964180227}
+        m_MethodName: EquipTier3Dash
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1774390298842645559
 GameObject:
   m_ObjectHideFlags: 0
@@ -5076,7 +5098,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1774390298842645558}
   m_Layer: 5
-  m_Name: Undecided Ability
+  m_Name: Dash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5909,7 +5931,7 @@ GameObject:
   - component: {fileID: 1774390299069448666}
   - component: {fileID: 1774390299069448647}
   m_Layer: 5
-  m_Name: Tier 1 Undecided
+  m_Name: Tier 1 Dash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

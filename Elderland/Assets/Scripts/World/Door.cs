@@ -17,6 +17,8 @@ public class Door : MonoBehaviour
     private Type type;
     [SerializeField]
     private UnityEvent onCloseEnd;
+    [SerializeField]
+    private UnityEvent onOpenEnd;
 
     private enum Type { OpenDownwards = -1, OpenUpwards = 1, }
 
@@ -87,6 +89,8 @@ public class Door : MonoBehaviour
             if (Vector3.Distance(currentPosition, openPosition) < 0.05f)
             {
                 transform.position = openPosition;
+                if (onOpenEnd != null)
+                    onOpenEnd.Invoke();
                 break;
             }
             else
