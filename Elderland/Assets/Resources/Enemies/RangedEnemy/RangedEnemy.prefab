@@ -331,6 +331,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthbarPivot: {fileID: 4352733687237978321}
   healthbarDisplay: {fileID: 173265144690723454}
+  healthBarColor: {r: 1, g: 0, b: 0, a: 1}
   hitbox: {fileID: 1256689706545726483}
   State: 0
   ArrangementNode: 0
@@ -609,7 +610,7 @@ Transform:
   m_GameObject: {fileID: 1216513128792819050}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1.25, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 0.5, z: 1}
   m_Children:
   - {fileID: 7440649019160072021}
   - {fileID: 4685192126706889104}

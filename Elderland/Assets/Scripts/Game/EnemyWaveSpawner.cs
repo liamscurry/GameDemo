@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyWaveSpawner : MonoBehaviour
 {
     private enum EnemyType { Light, Heavy, Ranged }
+    private enum EnemyTier { One, Two, Three }
 
     [SerializeField]
     private EnemySpawn[] enemies;
@@ -12,6 +13,9 @@ public class EnemyWaveSpawner : MonoBehaviour
     private EnemyLevel level;
 
     public int Count { get { return enemies.Length; } }
+
+    private Color tier2Color = new Color(255f / 255f, 221f / 255f, 0, 1);
+    private Color tier3Color = new Color(0f / 255f, 255f / 255f, 136f / 255f, 1);
 
     public List<EnemyManager> Spawn()
     {
@@ -39,6 +43,7 @@ public class EnemyWaveSpawner : MonoBehaviour
             enemy = Instantiate(enemy, position, rotation) as GameObject;
             EnemyManager enemyManager = enemy.GetComponent<EnemyManager>();
             enemyManager.Level = level;
+            StartCoroutine(ApplyTierBuff(enemyManager, spawn.tier));
             enemyManagers.Add(enemyManager);
         }
         return enemyManagers;
@@ -74,12 +79,35 @@ public class EnemyWaveSpawner : MonoBehaviour
         public float direction;
         [SerializeField]
         public EnemyType type;
+        [SerializeField]
+        public EnemyTier tier;
 
-        public EnemySpawn(Vector2 location, float direction, EnemyType type)
+        public EnemySpawn(Vector2 location, float direction, EnemyType type, EnemyTier tier)
         {
             this.location = location;
             this.type = type;
             this.direction = direction;
+            this.tier = tier;
+        }
+    }
+
+    private IEnumerator ApplyTierBuff(EnemyManager enemyManager, EnemyTier tier)
+    {
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        if (enemyManager != null)
+        {
+            switch (tier)
+            {
+                case EnemyTier.Two:
+                    enemyManager.BuffManager.Apply(new EnemyTier2Buff(tier2Color, enemyManager.BuffManager));
+                    break;
+                case EnemyTier.Three:
+                    enemyManager.BuffManager.Apply(new EnemyTier3Buff(tier3Color, enemyManager.BuffManager));
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

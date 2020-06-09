@@ -1,4 +1,5 @@
-﻿Shader "Custom/DefaultShader"
+﻿// Custom shader which is default shader but has specified draw order for image effects.
+Shader "Custom/DefaultShader"
 {
     Properties
     {

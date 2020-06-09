@@ -14,6 +14,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private MeshRenderer healthbarDisplay;
     [SerializeField]
+    private Color healthBarColor;
+    [SerializeField]
     private Collider hitbox;
 
     private float baseAgentSpeed;
@@ -59,6 +61,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public float Health { get; protected set; }
     public float MaxHealth { get; protected set; }
+    public Color HealthBarColor { get; set; }
 
     public Collider Hitbox { get { return hitbox; } }
 
@@ -67,6 +70,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     private void Start()
     {
+        HealthBarColor = healthBarColor;
+
         Animator = GetComponent<Animator>();
         Capsule = GetComponent<CapsuleCollider>();
         Body = GetComponent<Rigidbody>();
@@ -181,13 +186,29 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         }
     }
 
+    public void MaxOutHealth()
+    {
+        Health = MaxHealth;
+    }
+
+    public void SetTierMaxHealth(float percentage)
+    {
+        MaxHealth *= percentage;
+    }
+
     private void ColorHealth()
     {
-        Color currentColor = healthbarDisplay.material.color;
-        healthbarDisplay.material.color =
-            new Color(currentColor.r,
-                      currentColor.g,
-                      1f - StatsManager.HealthDebuffMultiplier.Value);
+        if (StatsManager.HealthDebuffMultiplier.Value == 1)
+        {
+            healthbarDisplay.material.color = HealthBarColor;
+        }
+        else
+        {
+            healthbarDisplay.material.color =
+                new Color(1,
+                          0,
+                          1f - StatsManager.HealthDebuffMultiplier.Value);
+        }
     }
 
     public void Die()
