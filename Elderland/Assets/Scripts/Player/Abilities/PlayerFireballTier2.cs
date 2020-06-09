@@ -8,8 +8,8 @@ public sealed class PlayerFireballTier2 : PlayerAbility
     private AbilityProcess waitProcess;
     private AbilityProcess shootProcess;
 
-    private const float damage = 1f;
-    private const float staminaCost = 0.5f * 0.5f;
+    private const float damage = 0.875f;
+    private const float staminaCost = 1f * 0.5f;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {

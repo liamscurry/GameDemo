@@ -110,7 +110,7 @@ public class Door : MonoBehaviour
             transform.position = incremented;
             if (Vector3.Distance(openPosition, currentPosition) < 0.05f)
             {
-                transform.position = openPosition;
+                transform.position = currentPosition;
                 if (onCloseEnd != null)
                     onCloseEnd.Invoke();
                 break;

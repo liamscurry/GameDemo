@@ -16,7 +16,7 @@ public sealed class EnemyTier3Buff : Buff<EnemyManager>
     public override void ApplyBuff()
     {
         manager.Manager.HealthBarColor = healthBarColor;
-        manager.Manager.SetTierMaxHealth(2f);
+        manager.Manager.SetTierMaxHealth(3f);
         manager.Manager.MaxOutHealth();
     }
 

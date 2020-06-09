@@ -26,12 +26,12 @@ public sealed class HeavyEnemyManager : EnemyManager
 
     protected override void SpawnPickups()
     {
-        Pickup.SpawnPickups<HealthPickup>(
+        /*Pickup.SpawnPickups<HealthPickup>(
             Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
             transform.position,
-            6,
+            0,
             3f,
-            90f);
+            90f);*/
     }
 
     public override void ChooseNextAbility()

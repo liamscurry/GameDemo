@@ -11,7 +11,7 @@ public sealed class PlayerFireballTier3 : PlayerAbility
     private AbilityProcess shootProcess;
 
     private const float damage = 1f;
-    private const float staminaCost = 0.5f * 0.5f;
+    private const float staminaCost = 1f * 0.5f;
 
     private int currentGroupID;
     private const int groupIDMax = 10000;
