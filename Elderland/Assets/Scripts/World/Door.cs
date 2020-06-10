@@ -29,11 +29,11 @@ public class Door : MonoBehaviour
         if (state == State.Open)
         {
             closedPosition = 
-                transform.position - transform.up * (liftHeight) * (int) type;
+                transform.localPosition - transform.up * (liftHeight) * (int) type;
         }
         else
         {
-            closedPosition = transform.position;
+            closedPosition = transform.localPosition;
         }
     }   
 
@@ -63,7 +63,7 @@ public class Door : MonoBehaviour
         {
             Vector3 openPosition = 
                 closedPosition + transform.up * (liftHeight) * (int) type;
-            transform.position = openPosition;
+            transform.localPosition = openPosition;
             state = State.Open;
         }
     }
@@ -72,7 +72,7 @@ public class Door : MonoBehaviour
     {
         if (state == State.Open)
         {
-            transform.position = closedPosition;
+            transform.localPosition = closedPosition;
             state = State.Closed;
         }
     }
@@ -81,14 +81,14 @@ public class Door : MonoBehaviour
     {
         while (true)
         {
-            Vector3 currentPosition = transform.position;
+            Vector3 currentPosition = transform.localPosition;
             Vector3 openPosition = 
                 this.closedPosition + transform.up * (liftHeight) * (int) type;
             Vector3 incremented = Vector3.MoveTowards(currentPosition, openPosition, liftSpeed * Time.deltaTime);
-            transform.position = incremented;
+            transform.localPosition = incremented;
             if (Vector3.Distance(currentPosition, openPosition) < 0.05f)
             {
-                transform.position = openPosition;
+                transform.localPosition = openPosition;
                 if (onOpenEnd != null)
                     onOpenEnd.Invoke();
                 break;
@@ -104,13 +104,13 @@ public class Door : MonoBehaviour
     {
         while (true)
         {
-            Vector3 openPosition = transform.position;
+            Vector3 openPosition = transform.localPosition;
             Vector3 currentPosition = closedPosition;
             Vector3 incremented = Vector3.MoveTowards(openPosition, currentPosition, liftSpeed * Time.deltaTime);
-            transform.position = incremented;
+            transform.localPosition = incremented;
             if (Vector3.Distance(openPosition, currentPosition) < 0.05f)
             {
-                transform.position = currentPosition;
+                transform.localPosition = currentPosition;
                 if (onCloseEnd != null)
                     onCloseEnd.Invoke();
                 break;
