@@ -150,6 +150,24 @@ public class GameManager : MonoBehaviour
         UnfreezeGame();
     }
 
+    public void FadeOutro()
+    {
+        StartCoroutine(FadeOutroCoroutine(3.5f, 4f));
+    }
+
+    private IEnumerator FadeOutroCoroutine(float duration, float waitTime)
+    {
+        yield return new WaitForSecondsRealtime(2);
+
+        //Fade in
+        yield return Fade(duration, 1);
+
+        yield return new WaitForSecondsRealtime(waitTime);
+
+        //Fade out
+        yield return Fade(duration / 2, 0);
+    }
+
     private IEnumerator FadeRespawn(float duration)
     {
         Time.timeScale = 0;
