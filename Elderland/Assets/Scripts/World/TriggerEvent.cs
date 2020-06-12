@@ -6,13 +6,13 @@ using UnityEngine.Events;
 public class TriggerEvent : MonoBehaviour
 {
     [SerializeField]
-    private UnityEvent triggerEvent;
+    protected UnityEvent triggerEvent;
     [SerializeField]
-    private string triggerTag = "PlayerHealth";
+    protected string triggerTag = "PlayerHealth";
     [SerializeField]
-    private bool executed;
+    protected bool executed;
     [SerializeField]
-    private bool repeatable;
+    protected bool repeatable;
 
     public void Reset()
     {
@@ -29,11 +29,16 @@ public class TriggerEvent : MonoBehaviour
         executed = true;
     }
 
+    protected virtual bool HasMetRequirements(GameObject invoker)
+    {
+        return true;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == triggerTag && gameObject.activeInHierarchy)
         {
-            if (!executed || repeatable)
+            if ((!executed || repeatable) && HasMetRequirements(other.gameObject))
             {
                 executed = true;
                 triggerEvent.Invoke();

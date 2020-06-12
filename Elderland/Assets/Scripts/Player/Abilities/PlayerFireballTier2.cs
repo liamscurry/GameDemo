@@ -91,7 +91,7 @@ public sealed class PlayerFireballTier2 : PlayerAbility
         Ray cursorRay = GameInfo.CameraController.Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit cursorHit;
         Vector3 direction = Vector3.zero;
-        if (Physics.Raycast(cursorRay, out cursorHit, 100f, LayerConstants.GroundCollision | LayerConstants.Enemy))
+        if (Physics.Raycast(cursorRay, out cursorHit, 100f, LayerConstants.GroundCollision | LayerConstants.Enemy | LayerConstants.Destructable))
         {
             direction = (cursorHit.point - startPosition).normalized;
         }

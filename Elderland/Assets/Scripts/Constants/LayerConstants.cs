@@ -6,6 +6,7 @@ public static class LayerConstants
 {
     //Static Fields
     public static readonly LayerMask Bounds;
+    public static readonly LayerMask Destructable;
     public static readonly LayerMask Interactable;
     public static readonly LayerMask Enemy;
     public static readonly LayerMask EnemyHitbox;
@@ -21,6 +22,7 @@ public static class LayerConstants
     static LayerConstants()
     {
         Bounds = 1 << LayerMask.NameToLayer("Bounds");
+        Destructable = 1 << LayerMask.NameToLayer("Destructable");
         Interactable = 1 << LayerMask.NameToLayer("Interactable");
         Enemy = 1 << LayerMask.NameToLayer("Enemy");
         EnemyHitbox = 1 << LayerMask.NameToLayer("EnemyHitbox");

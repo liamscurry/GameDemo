@@ -135,21 +135,21 @@ public sealed class PlayerSword : PlayerAbility
             Vector3.down,
             out predictLedgeCastClose,
             (PlayerInfo.Capsule.height / 2) + PlayerInfo.Capsule.radius * 0.5f,
-            LayerConstants.GroundCollision);
+            LayerConstants.GroundCollision | LayerConstants.Destructable);
 
         bool hitLedgeFar = UnityEngine.Physics.Raycast(
             PlayerInfo.Player.transform.position + interuptDirection * 0.7f,
             Vector3.down,
             out predictLedgeCastFar,
             (PlayerInfo.Capsule.height / 2) + PlayerInfo.Capsule.radius * 0.5f,
-            LayerConstants.GroundCollision);
+            LayerConstants.GroundCollision | LayerConstants.Destructable);
 
         if (!hitLedgeClose || !hitLedgeFar)
         {
             Collider[] overlapColliders = UnityEngine.Physics.OverlapSphere(
                 PlayerInfo.Player.transform.position + PlayerInfo.Capsule.BottomSphereOffset() + interuptDirection * 0.6f,
                 PlayerInfo.Capsule.radius,
-                LayerConstants.GroundCollision);
+                LayerConstants.GroundCollision | LayerConstants.Destructable);
 
             if (overlapColliders.Length == 0)
             {
@@ -269,7 +269,7 @@ public sealed class PlayerSword : PlayerAbility
                     playerPlanarDirection.normalized,
                     out distanceHit,
                     1,
-                    LayerConstants.GroundCollision);
+                    LayerConstants.GroundCollision | LayerConstants.Destructable);
 
             float distance = (distanceRegistered) ? distanceHit.distance : 1;
 
@@ -277,7 +277,7 @@ public sealed class PlayerSword : PlayerAbility
             Physics.OverlapSphere(
                 PlayerInfo.Player.transform.position + playerPlanarDirection.normalized * 0.5f,
                 PlayerInfo.Capsule.radius,
-                LayerConstants.GroundCollision);
+                LayerConstants.GroundCollision | LayerConstants.Destructable);
             
             if (overlappingColliders.Length > 0)
                 distance = 0;
@@ -319,7 +319,7 @@ public sealed class PlayerSword : PlayerAbility
                                 targetPlanarDirection,
                                 out directionHit,
                                 targetHorizontalDistance - offset,
-                                LayerConstants.GroundCollision);
+                                LayerConstants.GroundCollision | LayerConstants.Destructable);
             float targetDistance = (hit) ? directionHit.distance : targetHorizontalDistance - offset;
             Vector3 targetPosition = PlayerInfo.Player.transform.position + targetDistance * targetPlanarDirection;
            

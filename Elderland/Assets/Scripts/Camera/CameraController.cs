@@ -252,7 +252,7 @@ public class CameraController : MonoBehaviour
         Vector3 pivotOffset = 0.8f * Vector3.up;
         
         RaycastHit pivotOffsetHit;
-        if (Physics.SphereCast(targetPosition, 0.5f * 0.9f, pivotOffset.normalized, out pivotOffsetHit, pivotOffset.magnitude, LayerConstants.GroundCollision))
+        if (Physics.SphereCast(targetPosition, 0.5f * 0.9f, pivotOffset.normalized, out pivotOffsetHit, pivotOffset.magnitude, LayerConstants.GroundCollision | LayerConstants.Destructable))
         {
             targetPosition += pivotOffsetHit.distance * pivotOffset.normalized;
         }
@@ -262,7 +262,7 @@ public class CameraController : MonoBehaviour
         }
 
         RaycastHit offsetHit;
-        if (Physics.SphereCast(targetPosition, 0.5f * 0.75f, offset.normalized, out offsetHit, offset.magnitude, LayerConstants.GroundCollision))
+        if (Physics.SphereCast(targetPosition, 0.5f * 0.75f, offset.normalized, out offsetHit, offset.magnitude, LayerConstants.GroundCollision | LayerConstants.Destructable))
         {
             targetRadius = offsetHit.distance;
             targetPosition += Radius * offset.normalized;
