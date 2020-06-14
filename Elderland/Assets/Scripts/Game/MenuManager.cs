@@ -8,6 +8,8 @@ public class MenuManager : MonoBehaviour
     private GameObject startMenuUI;
     [SerializeField]
     private GameObject gameplayUI;
+    [SerializeField]
+    private ObjectiveUIManager objectiveUIManager;
 
     private bool pausedLastFrame;
 
@@ -29,6 +31,7 @@ public class MenuManager : MonoBehaviour
         {
             PauseMenu();
             StartMenu();
+            ObjectiveMenu();
         }
 
         pausedLastFrame = GameInfo.Paused;
@@ -66,6 +69,14 @@ public class MenuManager : MonoBehaviour
             GameInfo.Paused = true;
             Time.timeScale = 0;
             GameInfo.Manager.OverlayFreezeInput();
+        }
+    }
+
+    private void ObjectiveMenu()
+    {
+        if (Input.GetKeyDown(KeyCode.Joystick1Button9))
+        {
+            objectiveUIManager.PingObjectives();
         }
     }
 }
