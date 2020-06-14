@@ -10,16 +10,6 @@ public class ObjectiveUIManager : MonoBehaviour
     [SerializeField]
     private GameObject sideObjectiveContainer;
     [SerializeField]
-    private GameObject objective1;
-    [SerializeField]
-    private GameObject objective2;
-    [SerializeField]
-    private GameObject sideObjective1;
-    [SerializeField]
-    private GameObject sideObjective2;
-    [SerializeField]
-    private GameObject sideObjective3;
-    [SerializeField]
     private float sideObjectiveSpacing;
 
     private Vector3 outPosition;
@@ -43,6 +33,7 @@ public class ObjectiveUIManager : MonoBehaviour
     {
         oldMainObjective = mainObjective;
         mainObjective = newMainObjective;
+        newMainObjective.SetActive(true);
         StopAllCoroutines();
         StartCoroutine(TransitionMainObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
     }
@@ -69,6 +60,7 @@ public class ObjectiveUIManager : MonoBehaviour
         }
         else
         {
+            sideObjective.gameObject.SetActive(true);
             sideObjective.transform.SetParent(sideObjectiveContainer.transform);
             sideObjective.anchoredPosition = new Vector2(500, 0);
             sideObjectives.Add(sideObjective);
@@ -195,6 +187,7 @@ public class ObjectiveUIManager : MonoBehaviour
 
         UpdateTransitionPosition(targetTransform, 1, 0, outPosition.x);
         transitioning = false;
+        GameObject.Destroy(oldMainObjective);
     }
 
     private IEnumerator AddSideObjectiveCoroutine(
@@ -287,6 +280,7 @@ public class ObjectiveUIManager : MonoBehaviour
 
         UpdateTransitionPosition(targetTransform, 1, 0, outPosition.x);
         transitioning = false;
+        GameObject.Destroy(completedTransform.gameObject);
     }
 
     private void ArrangeSideObjectives()
