@@ -6,11 +6,21 @@ using UnityEngine.Events;
 public class ObjectiveUIManager : MonoBehaviour
 {
     [SerializeField]
-    private GameObject objectiveContainer;
+    private GameObject mainObjectiveContainer;
+    [SerializeField]
+    private GameObject sideObjectiveContainer;
     [SerializeField]
     private GameObject objective1;
     [SerializeField]
     private GameObject objective2;
+    [SerializeField]
+    private GameObject sideObjective1;
+    [SerializeField]
+    private GameObject sideObjective2;
+    [SerializeField]
+    private GameObject sideObjective3;
+    [SerializeField]
+    private float sideObjectiveSpacing;
 
     private Vector3 outPosition;
     private RectTransform rectTransform;
@@ -19,17 +29,28 @@ public class ObjectiveUIManager : MonoBehaviour
 
     private bool transitioning;
 
+    private List<RectTransform> sideObjectives;
+
     private void Awake()
     {
         rectTransform = (RectTransform) transform;
         outPosition = rectTransform.anchoredPosition;
         transitioning = false;
+        sideObjectives = new List<RectTransform>();
     }
 
     public void SetMainObjective(GameObject newMainObjective)
     {
         oldMainObjective = mainObjective;
         mainObjective = newMainObjective;
+        StopAllCoroutines();
+        StartCoroutine(TransitionMainObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
+    }
+
+    public void ClearMainObjective()
+    {
+        oldMainObjective = mainObjective;
+        mainObjective = null;
         StopAllCoroutines();
         StartCoroutine(TransitionMainObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
     }
@@ -40,9 +61,31 @@ public class ObjectiveUIManager : MonoBehaviour
             StartCoroutine(PingObjectivesCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
     }
 
-    public void AddSideObjective()
+    public void AddSideObjective(RectTransform sideObjective)
     {
+        if (sideObjectives.Contains(sideObjective))
+        {
+            throw new System.Exception("added side mission more than once");
+        }
+        else
+        {
+            sideObjective.transform.SetParent(sideObjectiveContainer.transform);
+            sideObjective.anchoredPosition = new Vector2(500, 0);
+            sideObjectives.Add(sideObjective);
+            StartCoroutine(AddSideObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
+        }
+    }
 
+    public void RemoveSideObjective(RectTransform sideObjective)
+    {
+        if (!sideObjectives.Contains(sideObjective))
+        {
+            throw new System.Exception("side mission not active");
+        }
+        else
+        {
+            StartCoroutine(RemoveSideObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, sideObjective, 0, outPosition.x, null));
+        }
     }
 
     private IEnumerator TransitionCoroutine(
@@ -108,9 +151,13 @@ public class ObjectiveUIManager : MonoBehaviour
         UnityEvent inEvent)
     {
         transitioning = true;
-
+        /*
         if (oldMainObjective == null)
-            SetInitialMainMissionCoroutine();
+        {
+            if (sideObjectives.Count != 0)
+                yield return StartCoroutine(ArrangeCoroutine(1f));
+            //SetInitialMainMissionCoroutine();
+        }*/
 
         float timer = 0;
 
@@ -123,8 +170,18 @@ public class ObjectiveUIManager : MonoBehaviour
 
         UpdateTransitionPosition(targetTransform, 1f, outPosition.x, 0);
 
-        if (oldMainObjective != null)
+        if (mainObjective != null)
+        { 
+            if (sideObjectives.Count != 0)
+                yield return StartCoroutine(ArrangeCoroutine(1f));
             yield return StartCoroutine(SwapMainMissionCoroutine());
+        }
+        else
+        {
+            yield return StartCoroutine(SwapMainMissionCoroutine());
+            if (sideObjectives.Count != 0)
+                yield return StartCoroutine(ArrangeCoroutine(1f));
+        }
 
         yield return new WaitForSeconds(pauseDuration);
 
@@ -140,6 +197,153 @@ public class ObjectiveUIManager : MonoBehaviour
         transitioning = false;
     }
 
+    private IEnumerator AddSideObjectiveCoroutine(
+        float inDuration,
+        float pauseDuration,
+        float outDuration,
+        RectTransform targetTransform,
+        float inX,
+        float outX,
+        UnityEvent inEvent)
+    {
+        transitioning = true;
+
+        ArrangeSideObjectives();
+
+        float timer = 0;
+
+        while (timer < inDuration)
+        {
+            yield return new WaitForEndOfFrame();
+            timer += Time.deltaTime;
+            UpdateTransitionPosition(targetTransform, timer / inDuration, outPosition.x, 0f);
+        }
+
+        UpdateTransitionPosition(targetTransform, 1f, outPosition.x, 0);
+
+        RectTransform newSideObjectiveTransform =
+            (RectTransform) sideObjectives[sideObjectives.Count - 1].transform;
+        yield return StartCoroutine(TransitionCoroutine(0.25f, newSideObjectiveTransform, 500f, 0f));
+
+        yield return new WaitForSeconds(pauseDuration);
+
+        timer = 0;
+        while (timer < outDuration)
+        {
+            yield return new WaitForEndOfFrame();
+            timer += Time.deltaTime;
+            UpdateTransitionPosition(targetTransform, timer / outDuration, 0, outPosition.x);
+        }
+
+        UpdateTransitionPosition(targetTransform, 1, 0, outPosition.x);
+        transitioning = false;
+    }
+
+    private IEnumerator RemoveSideObjectiveCoroutine(
+        float inDuration,
+        float pauseDuration,
+        float outDuration,
+        RectTransform targetTransform,
+        RectTransform completedTransform,
+        float inX,
+        float outX,
+        UnityEvent inEvent)
+    {
+        transitioning = true;
+
+        float timer = 0;
+
+        while (timer < inDuration)
+        {
+            yield return new WaitForEndOfFrame();
+            timer += Time.deltaTime;
+            UpdateTransitionPosition(targetTransform, timer / inDuration, outPosition.x, 0f);
+        }
+
+        UpdateTransitionPosition(targetTransform, 1f, outPosition.x, 0);
+
+        yield return StartCoroutine(TransitionCoroutine(0.25f, completedTransform, 0, 500f));
+
+        // only rearrange side objectives if non last element removed
+        if (sideObjectives.IndexOf(completedTransform) != sideObjectives.Count - 1)
+        {
+            sideObjectives.Remove(completedTransform);
+            yield return StartCoroutine(ArrangeCoroutine(1f));
+        }
+        else
+        {
+            sideObjectives.Remove(completedTransform);
+        }
+
+        yield return new WaitForSeconds(pauseDuration);
+
+        timer = 0;
+        while (timer < outDuration)
+        {
+            yield return new WaitForEndOfFrame();
+            timer += Time.deltaTime;
+            UpdateTransitionPosition(targetTransform, timer / outDuration, 0, outPosition.x);
+        }
+
+        UpdateTransitionPosition(targetTransform, 1, 0, outPosition.x);
+        transitioning = false;
+    }
+
+    private void ArrangeSideObjectives()
+    {
+        float currentYPosition = -sideObjectiveSpacing * 2;
+        if (mainObjective != null)
+        {
+            currentYPosition -= ((RectTransform) mainObjective.transform).rect.height;
+        }
+        for (int i = 0; i < sideObjectives.Count; i++)
+        {
+            sideObjectives[i].anchoredPosition =
+                new Vector2(sideObjectives[i].anchoredPosition.x, currentYPosition);
+            currentYPosition -= sideObjectives[i].rect.height + sideObjectiveSpacing;
+        }
+    }
+
+    private IEnumerator ArrangeCoroutine(float duration)
+    {
+        List<Vector2> startPositions = new List<Vector2>();
+        List<Vector2> targetPositions = new List<Vector2>();
+        float currentYPosition = -sideObjectiveSpacing * 2;
+
+        if (mainObjective != null)
+        {
+            currentYPosition -= ((RectTransform) mainObjective.transform).rect.height;
+        }
+
+        for (int i = 0; i < sideObjectives.Count; i++)
+        {
+            startPositions.Add(sideObjectives[i].anchoredPosition);
+            targetPositions.Add(
+                new Vector2(sideObjectives[i].anchoredPosition.x, currentYPosition));
+            currentYPosition -= sideObjectives[i].rect.height + sideObjectiveSpacing;
+        }
+
+        float timer = 0;
+        while (timer < duration)
+        {
+            yield return new WaitForEndOfFrame();
+            timer += Time.deltaTime;
+            for (int i = 0; i < sideObjectives.Count; i++)
+            {
+                float lerpY = Mathf.Lerp(startPositions[i].y, targetPositions[i].y, timer / duration);
+                sideObjectives[i].anchoredPosition =
+                    new Vector2(sideObjectives[i].anchoredPosition.x, lerpY);
+            }
+        }
+
+        for (int i = 0; i < sideObjectives.Count; i++)
+        {
+            float lerpY = Mathf.Lerp(startPositions[i].y, targetPositions[i].y, 1f);
+            sideObjectives[i].anchoredPosition =
+                new Vector2(sideObjectives[i].anchoredPosition.x, lerpY);
+        }
+    }
+
     private void UpdateTransitionPosition(RectTransform targetTransform, float percentage, float startX, float targetX)
     {
         float lerpX = Mathf.Lerp(startX, targetX, percentage);
@@ -149,7 +353,7 @@ public class ObjectiveUIManager : MonoBehaviour
 
     private void SetInitialMainMissionCoroutine()
     {
-        mainObjective.transform.SetParent(objectiveContainer.transform);
+        mainObjective.transform.SetParent(mainObjectiveContainer.transform);
         RectTransform newMainRectTransform = (RectTransform) mainObjective.transform;
         newMainRectTransform.anchoredPosition = new Vector2(0, 0);
     }
@@ -166,9 +370,12 @@ public class ObjectiveUIManager : MonoBehaviour
                     500));
         }
 
-        mainObjective.transform.SetParent(objectiveContainer.transform);
-        RectTransform newMainRectTransform = (RectTransform) mainObjective.transform;
-        newMainRectTransform.anchoredPosition = new Vector2(500, 0);
-        yield return StartCoroutine(TransitionCoroutine(0.25f, newMainRectTransform, 500f, 0f));
+        if (mainObjective != null)
+        {
+            mainObjective.transform.SetParent(mainObjectiveContainer.transform);
+            RectTransform newMainRectTransform = (RectTransform) mainObjective.transform;
+            newMainRectTransform.anchoredPosition = new Vector2(500, 0);
+            yield return StartCoroutine(TransitionCoroutine(0.25f, newMainRectTransform, 500f, 0f));
+        }
     }
 }
