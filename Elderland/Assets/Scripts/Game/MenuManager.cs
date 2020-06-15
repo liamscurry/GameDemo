@@ -63,13 +63,18 @@ public class MenuManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Joystick1Button7))
         {
-            startMenuUI.SetActive(true);
-            gameplayUI.SetActive(false);
-
-            GameInfo.Paused = true;
-            Time.timeScale = 0;
-            GameInfo.Manager.OverlayFreezeInput();
+            OpenStartMenu();
         }
+    }
+
+    public void OpenStartMenu()
+    {
+        startMenuUI.SetActive(true);
+        gameplayUI.SetActive(false);
+
+        GameInfo.Paused = true;
+        Time.timeScale = 0;
+        GameInfo.Manager.OverlayFreezeInput();
     }
 
     private void ObjectiveMenu()

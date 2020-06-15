@@ -34,6 +34,8 @@ public static class PlayerInfo
     //Informational Properties
     public static Vector3 BottomSphereOffset { get; private set; } 
 
+    public static bool TeleportingThisFrame;
+
     //Initializes references, called from GameInitializer.
     public static void Initialize(
         GameObject player,

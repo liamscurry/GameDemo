@@ -122,6 +122,11 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         PlayerInfo.PhysicsSystem.FixedUpdateSystem();
         PlayerInfo.AbilityManager.FixedUpdateAbilities();
     }
+
+    public void ForceClamp()
+    {
+        PlayerInfo.PhysicsSystem.ForceTouchingFloor();
+    }
     
     //To be implemented
     public void OnDeath()
@@ -354,6 +359,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     {
         transform.position = otherTransform.position;
         transform.rotation = otherTransform.rotation;
+        PlayerInfo.TeleportingThisFrame = true;
     }
 
     public void WalkToTransform(WalkToTuple tuple)

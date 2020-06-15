@@ -51,11 +51,16 @@ public class PlayerAnimationManager
 					Matho.StandardProjection2D(GameInfo.CameraController.Direction),
 					Matho.StandardProjection2D(PlayerInfo.Sensor.Interaction.ValidityDirection));
 
-			if (angle < 45 && Input.GetKeyDown(GameInfo.Settings.UseKey) && PlayerInfo.AbilityManager.CurrentAbility == null)
+			if (angle < 45 &&
+			 	Input.GetKeyDown(GameInfo.Settings.UseKey) &&
+				PlayerInfo.AbilityManager.CurrentAbility == null &&
+				!PlayerInfo.TeleportingThisFrame)
 			{
 				PlayerInfo.Sensor.Interaction.Exit();
 			}
 		}
+
+		PlayerInfo.TeleportingThisFrame = false;
 	}
 
 	public void EnqueueTarget(MatchTarget target)

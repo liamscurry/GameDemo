@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CameraCutscene 
 {
@@ -17,6 +18,7 @@ public class CameraCutscene
 	private bool makeLastWaypoint;
 	private bool transitionToGameplayUponFinish;
 	private bool unfreezeInputUponFinish;
+	private UnityEvent endEvent;
 
 	public LinkedListNode<CameraCutsceneWaypoint> CurrentWaypointNode { get; private set; }
 	public LinkedListNode<CameraCutsceneWaypoint> TargetWaypointNode { get; private set; }
@@ -34,7 +36,8 @@ public class CameraCutscene
 		float finalVerticalAngle,
 		bool makeLastWaypoint,
 		bool transitionToGameplayUponFinish,
-		bool unfreezeInputUponFinish)
+		bool unfreezeInputUponFinish,
+		UnityEvent endEvent)
 	{
 		this.waypoints = waypoints;
 		this.startConnectionTime = startConnectionTime;
@@ -47,6 +50,7 @@ public class CameraCutscene
 		this.makeLastWaypoint = makeLastWaypoint;
 		this.transitionToGameplayUponFinish = transitionToGameplayUponFinish;
 		this.unfreezeInputUponFinish = unfreezeInputUponFinish;
+		this.endEvent = endEvent;
 	}
 
 	public void Start()
@@ -129,6 +133,9 @@ public class CameraCutscene
 
 						if (unfreezeInputUponFinish)
 							GameInfo.Manager.UnfreezeInput(this);
+						
+						if (endEvent != null)
+							endEvent.Invoke();
 					}
 				}
 			}

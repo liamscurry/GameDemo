@@ -25,7 +25,7 @@ public class PlayerSensor : MonoBehaviour
 		if (other.tag == TagConstants.MantleBottom)
 			MantleBottom = other.transform.parent.GetComponent<Mantle>();
 
-		if (other.tag == TagConstants.Interactive)
+		if (other.tag == TagConstants.Interactive && other.gameObject.activeInHierarchy)
 			Interaction = other.transform.parent.GetComponent<StandardInteraction>();
 
 		if (other.tag == "FallingDoorDeathTrigger")

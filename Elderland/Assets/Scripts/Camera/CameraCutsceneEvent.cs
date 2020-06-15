@@ -29,6 +29,8 @@ public class CameraCutsceneEvent : MonoBehaviour
 	private bool transitionToGameplayUponFinish;
 	[SerializeField]
 	private bool unfreezeInputUponFinish;
+	[SerializeField]
+	private UnityEvent endEvent;
 
 	public void Invoke()
 	{
@@ -62,7 +64,8 @@ public class CameraCutsceneEvent : MonoBehaviour
 				finalVerticalAngle,
 				makeLastWaypoint,
 				transitionToGameplayUponFinish,
-				unfreezeInputUponFinish));
+				unfreezeInputUponFinish,
+				endEvent));
 		}
 	}
 

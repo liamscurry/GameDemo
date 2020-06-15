@@ -116,7 +116,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void OverlayUnfreezeInput()
-    {
+    {   
         UnfreezeInput(this);
         //receivingInput = previousReceivingInput;
     }
