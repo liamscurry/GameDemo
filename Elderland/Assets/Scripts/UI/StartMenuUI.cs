@@ -32,6 +32,7 @@ public class StartMenuUI : MonoBehaviour
 
         TabSwap();
     }
+
     protected void TabSwap()
     {
         if (Input.GetKeyDown(KeyCode.Joystick1Button4) &&
@@ -48,7 +49,7 @@ public class StartMenuUI : MonoBehaviour
         }
     }
 
-    protected void DisableMenu()
+    public void DisableMenu()
     {
         transform.parent.gameObject.SetActive(false);
 

@@ -287,6 +287,11 @@ public class CameraController : MonoBehaviour
         return q;
     }
 
+    public void SetDirection(Transform rotationTransform)
+    {
+        SetDirection(rotationTransform.rotation);
+    }
+
     public void SetDirection(Quaternion rotation)
     {
         Vector3 eulerAngles = rotation.eulerAngles;
