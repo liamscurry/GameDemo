@@ -33,6 +33,11 @@ public class StartMenuUI : MonoBehaviour
         TabSwap();
     }
 
+    public void SetStartUIObject(GameObject UIObject)
+    {
+        startUIObject = UIObject;
+    }
+
     protected virtual void TabSwap()
     {
         if (Input.GetKeyDown(KeyCode.Joystick1Button4) &&
