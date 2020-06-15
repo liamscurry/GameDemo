@@ -96,7 +96,11 @@ public class StandardInteraction : MonoBehaviour
 				Quaternion rotation = Quaternion.LookRotation(GeneratedTargetRotation, Vector3.up);
 				var matchTarget = new PlayerAnimationManager.MatchTarget(GeneratedTargetPosition, rotation, AvatarTarget.Root, positionWeight, rotationWeight);
 				PlayerInfo.AnimationManager.EnqueueTarget(matchTarget);
-				PlayerInfo.Animator.SetTrigger("targetMatch");
+				PlayerInfo.Animator.SetBool("targetMatch", true);
+			}
+			else
+			{
+				PlayerInfo.Animator.SetBool("targetMatch", false);
 			}
 			
 			PlayerInfo.Animator.SetTrigger("interacting");

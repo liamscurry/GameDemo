@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class ObjectiveUIManager : MonoBehaviour
 {
@@ -27,6 +28,47 @@ public class ObjectiveUIManager : MonoBehaviour
         outPosition = rectTransform.anchoredPosition;
         transitioning = false;
         sideObjectives = new List<RectTransform>();
+    }
+
+    public void SetMainObjectiveNoTransition(GameObject newMainObjective)
+    {
+        StopAllCoroutines();
+        transitioning = false;
+        GameObject.Destroy(mainObjective);
+        oldMainObjective = null;
+        mainObjective = newMainObjective;
+        mainObjective.transform.SetParent(mainObjectiveContainer.transform);
+        ((RectTransform) mainObjective.transform).anchoredPosition = new Vector2(0, 0);
+        newMainObjective.SetActive(true);
+    }
+
+    public void AddSideObjectives(GameObject newSideObjectivesParent)
+    {
+        newSideObjectivesParent.SetActive(true);
+        StopAllCoroutines();
+        transitioning = false;
+        Image[] newSideObjectives =
+            newSideObjectivesParent.GetComponentsInChildren<Image>();
+
+        foreach (Image image in newSideObjectives)
+        {
+            RectTransform sideObjective = image.GetComponent<RectTransform>();
+
+            if (sideObjectives.Contains(sideObjective))
+            {
+                throw new System.Exception("added side mission more than once");
+            }
+            else
+            {
+                sideObjective.gameObject.SetActive(true);
+                sideObjective.transform.SetParent(sideObjectiveContainer.transform);
+                sideObjective.anchoredPosition = new Vector2(0, 0);
+                sideObjectives.Add(sideObjective);
+            }
+        }
+
+        ArrangeSideObjectives();
+        GameObject.Destroy(newSideObjectivesParent);
     }
 
     public void SetMainObjective(GameObject newMainObjective)
