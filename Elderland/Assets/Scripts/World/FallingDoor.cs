@@ -43,8 +43,15 @@ public class FallingDoor : MonoBehaviour
     {
         if (transform.position.y > closedPosition.y)
         {
+            float playerDashModifier = 1;
+            if (PlayerInfo.AbilityManager.dash != null &&
+                PlayerInfo.AbilityManager.CurrentAbility == PlayerInfo.AbilityManager.dash)
+            {
+                playerDashModifier = 0.0f;
+            }
+
             body.MovePosition(
-                Vector3.MoveTowards(transform.position, closedPosition, fallSpeed));
+                Vector3.MoveTowards(transform.position, closedPosition, fallSpeed * playerDashModifier));
         }
         else
         {
