@@ -17,7 +17,7 @@ public class StartMenuUI : MonoBehaviour
     [SerializeField]
     protected GameObject rightNeighborMenu;
 
-    protected void OnEnable()
+    protected virtual void OnEnable()
     {
         StartCoroutine(DefaultSelectedCoroutine());
     }
