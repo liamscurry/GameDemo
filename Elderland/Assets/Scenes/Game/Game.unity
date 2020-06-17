@@ -1371,7 +1371,7 @@ Transform:
   - {fileID: 314547278}
   - {fileID: 274211727}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 10.092, z: 0}
 --- !u!1001 &78970556
 PrefabInstance:
@@ -3728,6 +3728,7 @@ MonoBehaviour:
           m_CallState: 2
     normalizedTime: 0
   startWaitTime: 0
+  startJumpcut: 0
   waypoints:
   - position: {x: 10.92, y: 11.41, z: 0}
     horizontalRotation: 0
@@ -3735,6 +3736,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 0.75
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -3772,6 +3774,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 1
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -3857,6 +3860,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 1
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -3953,6 +3957,9 @@ MonoBehaviour:
   makeLastWaypoint: 1
   transitionToGameplayUponFinish: 1
   unfreezeInputUponFinish: 1
+  endEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &255411355
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23602,10 +23609,12 @@ MonoBehaviour:
     heightOffset: 0
     direction: 245.3
     type: 0
+    tier: 0
   - location: {x: -8.47, y: 13.9}
     heightOffset: 0
     direction: 243.6
     type: 0
+    tier: 0
 --- !u!1001 &756600913
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25892,6 +25901,7 @@ MonoBehaviour:
           m_CallState: 2
     normalizedTime: 1
   startWaitTime: 0
+  startJumpcut: 0
   waypoints:
   - position: {x: -5.93, y: -1.86, z: 11.59}
     horizontalRotation: -93.45
@@ -25899,6 +25909,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 5
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -25914,6 +25925,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 8
     waitTime: 0
+    jumpCut: 0
     connectionEvents: []
   - position: {x: -4, y: -1.86, z: 2.22}
     horizontalRotation: 27.44
@@ -25921,6 +25933,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 2.5
     waitTime: 3
+    jumpCut: 0
     connectionEvents: []
   - position: {x: -3.16, y: -1.35, z: -2.49}
     horizontalRotation: -28.4
@@ -25928,6 +25941,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 2.5
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -25987,6 +26001,9 @@ MonoBehaviour:
   makeLastWaypoint: 1
   transitionToGameplayUponFinish: 1
   unfreezeInputUponFinish: 1
+  endEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &914933068
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26866,6 +26883,7 @@ MonoBehaviour:
           m_CallState: 2
     normalizedTime: 0.9
   startWaitTime: 0
+  startJumpcut: 0
   waypoints:
   - position: {x: 1.3, y: 2.2, z: 5.28}
     horizontalRotation: -62.7
@@ -26873,6 +26891,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 1.5
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -26991,6 +27010,9 @@ MonoBehaviour:
   makeLastWaypoint: 1
   transitionToGameplayUponFinish: 1
   unfreezeInputUponFinish: 1
+  endEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &966817245
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28031,6 +28053,7 @@ MonoBehaviour:
           m_CallState: 2
     normalizedTime: 0.9
   startWaitTime: 0
+  startJumpcut: 0
   waypoints:
   - position: {x: 1.3, y: 2.2, z: -5.28}
     horizontalRotation: 70.5
@@ -28038,6 +28061,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 1.5
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -28156,6 +28180,9 @@ MonoBehaviour:
   makeLastWaypoint: 1
   transitionToGameplayUponFinish: 1
   unfreezeInputUponFinish: 1
+  endEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1016726062
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -30363,7 +30390,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1151651271
 PrefabInstance:
@@ -36130,6 +36157,7 @@ MonoBehaviour:
           m_CallState: 2
     normalizedTime: 1
   startWaitTime: 0
+  startJumpcut: 0
   waypoints:
   - position: {x: 1.6, y: 1.51, z: -3.51}
     horizontalRotation: -64.35
@@ -36137,6 +36165,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 2.5
     waitTime: 0.25
+    jumpCut: 0
     connectionEvents: []
   - position: {x: 6.11, y: 1.51, z: -3.87}
     horizontalRotation: -90.82
@@ -36144,6 +36173,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 2.5
     waitTime: 0
+    jumpCut: 0
     connectionEvents: []
   - position: {x: 10.08, y: 1.54, z: -1.88}
     horizontalRotation: -69.33
@@ -36151,6 +36181,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 2.5
     waitTime: 5
+    jumpCut: 0
     connectionEvents: []
   - position: {x: 12.65, y: 1.91, z: 1.99}
     horizontalRotation: 0.37
@@ -36158,6 +36189,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 4
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -36180,6 +36212,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 1
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -36217,6 +36250,9 @@ MonoBehaviour:
   makeLastWaypoint: 1
   transitionToGameplayUponFinish: 1
   unfreezeInputUponFinish: 1
+  endEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1453105925 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 532629503550314065, guid: 997b74d52e6ae144a8a4315b06f52769,
@@ -37268,6 +37304,7 @@ MonoBehaviour:
           m_CallState: 2
     normalizedTime: 0.84
   startWaitTime: 0
+  startJumpcut: 0
   waypoints:
   - position: {x: 6.6, y: -2.3, z: -0.72}
     horizontalRotation: -3
@@ -37275,6 +37312,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 0
     waitTime: 0
+    jumpCut: 0
     connectionEvents: []
   - position: {x: 6.6, y: -2.3, z: -0.72}
     horizontalRotation: -3
@@ -37282,6 +37320,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 1
     waitTime: 5.75
+    jumpCut: 0
     connectionEvents: []
   - position: {x: 6.6, y: -2.3, z: -0.72}
     horizontalRotation: -3
@@ -37289,6 +37328,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 1
     waitTime: 0.5
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -37374,6 +37414,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 0
     waitTime: 0
+    jumpCut: 0
     connectionEvents: []
   finalHorizontalAngle: 314
   lookAtFinalWaypoint: 0
@@ -37381,6 +37422,9 @@ MonoBehaviour:
   makeLastWaypoint: 0
   transitionToGameplayUponFinish: 0
   unfreezeInputUponFinish: 0
+  endEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1499485956
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37904,6 +37948,7 @@ MonoBehaviour:
     heightOffset: 0
     direction: 146.9
     type: 2
+    tier: 0
 --- !u!1001 &1535431727
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -38256,10 +38301,12 @@ MonoBehaviour:
     heightOffset: 0
     direction: 245.3
     type: 0
+    tier: 0
   - location: {x: -13.58, y: 6.8}
     heightOffset: 0
     direction: 333.06
     type: 0
+    tier: 0
 --- !u!1001 &1544278977
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -39468,6 +39515,7 @@ MonoBehaviour:
     heightOffset: 0
     direction: 87
     type: 1
+    tier: 0
 --- !u!1001 &1600367414
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40032,51 +40080,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1621133345}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1622485035
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1622485036}
-  - component: {fileID: 1622485037}
-  m_Layer: 0
-  m_Name: Main Menu Functionality
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1622485036
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1622485035}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1622485037
+--- !u!114 &1622485037 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 2049383879862180030, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+    type: 3}
+  m_PrefabInstance: {fileID: 2049383879318302867}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1622485035}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26d47d1832d0a6144a974fa2b4f413f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cutscene: {fileID: 901059847}
-  mainMenuCanvas: {fileID: 393151725}
 --- !u!1001 &1631293307
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42046,6 +42061,7 @@ MonoBehaviour:
     heightOffset: 0
     direction: -44.2
     type: 2
+    tier: 0
 --- !u!1001 &1757563525
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42424,7 +42440,7 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 1586212647}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1793753210}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3132272be41c6844b877287bdb69677, type: 3}
@@ -43398,6 +43414,7 @@ MonoBehaviour:
           m_CallState: 2
     normalizedTime: 0.736
   startWaitTime: 1
+  startJumpcut: 0
   waypoints:
   - position: {x: 1.31, y: 1.57, z: -3.88}
     horizontalRotation: 102.1
@@ -43405,6 +43422,7 @@ MonoBehaviour:
     tiltRotation: 0
     connectionTime: 3
     waitTime: 0
+    jumpCut: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -43468,6 +43486,9 @@ MonoBehaviour:
   makeLastWaypoint: 1
   transitionToGameplayUponFinish: 1
   unfreezeInputUponFinish: 1
+  endEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1850537260
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44185,7 +44206,7 @@ Transform:
   - {fileID: 1840908986}
   - {fileID: 1717634365}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1903387647 stripped
 Transform:
@@ -44617,7 +44638,7 @@ Transform:
   - {fileID: 1922751106}
   - {fileID: 1143515178}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: -34.908, z: 0}
 --- !u!1 &1945170527
 GameObject:
@@ -48591,6 +48612,85 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 5764468183151461663}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &2049383879318302867
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2049383879862180024, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_Name
+      value: Main Menu Functionality
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180030, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: cutscene
+      value: 
+      objectReference: {fileID: 901059847}
+    - target: {fileID: 2049383879862180030, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: mainMenuCanvas
+      value: 
+      objectReference: {fileID: 393151725}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2049383879862180031, guid: 5d04911b51b6d9a4a93a581e5534ddb7,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5d04911b51b6d9a4a93a581e5534ddb7, type: 3}
 --- !u!1001 &3210700509955177216
 PrefabInstance:
   m_ObjectHideFlags: 0
