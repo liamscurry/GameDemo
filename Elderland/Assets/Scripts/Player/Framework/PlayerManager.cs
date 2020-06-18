@@ -218,6 +218,11 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         }
     }
 
+    public void ChangeStamina(float f)
+    {
+        PlayerInfo.AbilityManager.ChangeStamina(f);
+    }
+
     public void InitializeHealth(int maxTier)
     {
         MaxHealth = maxHealth;
@@ -374,6 +379,16 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         Vector3 rotationAngles = otherTransform.rotation.eulerAngles;
         transform.rotation = Quaternion.Euler(0, rotationAngles.y, rotationAngles.z);
         GameInfo.CameraController.SetDirection(otherTransform.rotation);
+    }
+
+    public void CallFirewallExplicitly()
+    {
+        PlayerInfo.AbilityManager.aoe.UpdateAbility(true, true);
+    }
+
+    public void CallFireballExplicitly()
+    {
+        PlayerInfo.AbilityManager.ranged.UpdateAbility(true, true);
     }
 
     public void UnlockSprint()
