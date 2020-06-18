@@ -94,6 +94,12 @@ public class ObjectiveUIManager : MonoBehaviour
             StartCoroutine(PingObjectivesCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
     }
 
+    public void PingObjectives(float duration)
+    {
+        if (!transitioning)
+            StartCoroutine(PingObjectivesCoroutine(0.5f, duration, 0.5f, rectTransform, 0, outPosition.x, null));
+    }
+
     public void AddSideObjective(RectTransform sideObjective)
     {
         if (sideObjectives.Contains(sideObjective))

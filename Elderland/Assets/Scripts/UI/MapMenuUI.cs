@@ -29,15 +29,22 @@ public sealed class MapMenuUI : StartMenuUI
 
     private Vector2 worldToUIFactors;
 
-    private void Awake()
+    private bool initialized;
+
+    private void Initialize()
     {
-        teleporterButtons =
-            teleporterParent.GetComponentsInChildren<Button>();
-        tabSwapEnabled = true;
+        if (!initialized)
+        {
+            teleporterButtons =
+                teleporterParent.GetComponentsInChildren<Button>();
+            tabSwapEnabled = true;
+            initialized = true;
+        }
     }
 
     protected override void OnEnable()
     {
+        Initialize();
         StartCoroutine(DefaultSelectedCoroutine());
 
         CalculateCoordinateConversion();
@@ -47,6 +54,7 @@ public sealed class MapMenuUI : StartMenuUI
 
     public void DisableTeleporters()
     {
+        Initialize();
         foreach (Button button in teleporterButtons)
         {
             button.interactable = false;
@@ -56,6 +64,7 @@ public sealed class MapMenuUI : StartMenuUI
 
     public void EnableTeleporters()
     {
+        Initialize();
         foreach (Button button in teleporterButtons)
         {
             button.interactable = true;
