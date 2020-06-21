@@ -100,40 +100,43 @@ public class FightingManager : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        for (int index = 0; index < EnemyInfo.MeleeArranger.n; index++)
+        if (EnemyInfo.MeleeArranger != null && GameInfo.CurrentLevel != null)
         {
-            if (EnemyInfo.MeleeArranger.nodes[index] != null)
+            for (int index = 0; index < EnemyInfo.MeleeArranger.n; index++)
             {
-                EnemyManager enemy = EnemyInfo.MeleeArranger.nodes[index];
-                float radius = enemy.ArrangmentRadius;
-                Vector3 position = EnemyInfo.MeleeArranger.GetPosition(index);
+                if (EnemyInfo.MeleeArranger.nodes[index] != null)
+                {
+                    EnemyManager enemy = EnemyInfo.MeleeArranger.nodes[index];
+                    float radius = enemy.ArrangmentRadius;
+                    Vector3 position = EnemyInfo.MeleeArranger.GetPosition(index);
+                    position.z = position.y;
+                    position.y = PlayerInfo.Player.transform.position.y;
+        
+                    Gizmos.color = (!EnemyInfo.MeleeArranger.CheckValidity(index)) ? Color.red : Color.green;
+                    Gizmos.DrawLine(enemy.transform.position, position);
+                    Gizmos.DrawCube(position + Vector3.up * 5, Vector3.one * 0.5f);
+                }
+                else
+                {
+                    Vector3 position = EnemyInfo.MeleeArranger.GetPosition(index);
+                    position.z = position.y;
+                    position.y = PlayerInfo.Player.transform.position.y;
+        
+                    Gizmos.color = (!EnemyInfo.MeleeArranger.CheckValidity(index)) ? Color.red : Color.green;
+                    Gizmos.DrawLine(PlayerInfo.Player.transform.position, position);
+                    Gizmos.DrawCube(position + Vector3.up * 5, Vector3.one * 0.5f);
+                }
+            }
+
+            for (int index = 0; index < EnemyInfo.RangedArranger.n; index++)
+            {
+                Vector3 position = EnemyInfo.RangedArranger.GetPosition(index);
                 position.z = position.y;
                 position.y = PlayerInfo.Player.transform.position.y;
-    
-                Gizmos.color = (!EnemyInfo.MeleeArranger.CheckValidity(index)) ? Color.red : Color.green;
-                Gizmos.DrawLine(enemy.transform.position, position);
+
+                Gizmos.color = (!EnemyInfo.RangedArranger.GetValidity(index)) ? Color.red : Color.green;
                 Gizmos.DrawCube(position + Vector3.up * 5, Vector3.one * 0.5f);
             }
-            else
-            {
-                Vector3 position = EnemyInfo.MeleeArranger.GetPosition(index);
-                position.z = position.y;
-                position.y = PlayerInfo.Player.transform.position.y;
-    
-                Gizmos.color = (!EnemyInfo.MeleeArranger.CheckValidity(index)) ? Color.red : Color.green;
-                Gizmos.DrawLine(PlayerInfo.Player.transform.position, position);
-                Gizmos.DrawCube(position + Vector3.up * 5, Vector3.one * 0.5f);
-            }
-        }
-
-        for (int index = 0; index < EnemyInfo.RangedArranger.n; index++)
-        {
-            Vector3 position = EnemyInfo.RangedArranger.GetPosition(index);
-            position.z = position.y;
-            position.y = PlayerInfo.Player.transform.position.y;
-
-            Gizmos.color = (!EnemyInfo.RangedArranger.GetValidity(index)) ? Color.red : Color.green;
-            Gizmos.DrawCube(position + Vector3.up * 5, Vector3.one * 0.5f);
         }
     }
 }
