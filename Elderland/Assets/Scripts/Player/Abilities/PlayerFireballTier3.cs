@@ -40,7 +40,8 @@ public sealed class PlayerFireballTier3 : PlayerAbility
 
     protected override bool WaitCondition()
     {
-        return PlayerInfo.AbilityManager.Stamina >= staminaCost;
+        return PlayerInfo.AbilityManager.Stamina >= staminaCost &&
+               Physics.OverlapSphere(CalculateStartPosition(), 1f, LayerConstants.GroundCollision).Length == 0;
     }
 
     // Called every frame of ability to keep movement during duration.
@@ -81,13 +82,17 @@ public sealed class PlayerFireballTier3 : PlayerAbility
 	public void ActBegin()
     {
         // PlayerInfo.Capsule.TopSpherePosition()
-        Vector3 startPosition = 
-            PlayerInfo.Capsule.TopSpherePosition() +
-            Vector3.up * 0.75f +
-            GameInfo.CameraController.transform.right * -1 * 0.5f;
+        Vector3 startPosition = CalculateStartPosition();
         Vector3 direction = CalculateProjectileDirection(startPosition);
         SpawnProjectiles(direction, startPosition);
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+    }
+
+    private Vector3 CalculateStartPosition()
+    {
+        return PlayerInfo.Capsule.TopSpherePosition() +
+               Vector3.up * 0.75f +
+               GameInfo.CameraController.transform.right * -1 * 0.5f;
     }
 
     private Vector3 CalculateProjectileDirection(Vector3 startPosition)
