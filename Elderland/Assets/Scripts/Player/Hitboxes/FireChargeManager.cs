@@ -69,6 +69,7 @@ public class FireChargeManager : MonoBehaviour
 
     public virtual void DeleteResource()
     {
+        GameInfo.Manager.OnRespawn -= OnRespawn;
         ForceDeactivate();
         Destroy(hitbox.gameObject);
     }

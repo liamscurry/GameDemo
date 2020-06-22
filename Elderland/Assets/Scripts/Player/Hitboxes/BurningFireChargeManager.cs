@@ -70,9 +70,11 @@ public sealed class BurningFireChargeManager : FireChargeManager
         {
             Deactivate();
         }
-
-        LocateBurner(transform.position);
-        travelPoints.Add(transform.position);
+        else
+        {
+            LocateBurner(transform.position);
+            travelPoints.Add(transform.position);
+        }
     }
 
     protected override void Update()
@@ -264,6 +266,7 @@ public sealed class BurningFireChargeManager : FireChargeManager
 
     private void LocateBurner(Vector3 raycastStart)
     {
+        // BUG: "look rotation viewing direction vector is zero"
         Quaternion spawnRotation =
             Quaternion.LookRotation(Matho.StandardProjection3D(velocity).normalized, Vector3.up);
 
