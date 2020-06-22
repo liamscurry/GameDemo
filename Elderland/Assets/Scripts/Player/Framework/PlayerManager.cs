@@ -544,6 +544,8 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     public void Reset()
     {
         PlayerInfo.AbilityManager.ShortCircuit(false);
+        PlayerInfo.AbilityManager.ResetCooldowns();
+
         PlayerInfo.PhysicsSystem.TotalZero(true, true, true);
         PlayerInfo.PhysicsSystem.ForceTouchingFloor();
         PlayerInfo.Animator.Play("Movement");

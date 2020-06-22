@@ -166,6 +166,24 @@ public class PlayerAbilityManager : AbilitySystem
         }
     }
 
+    public void ResetCooldowns()
+    {
+        if (melee != null && !melee.Continous)
+            melee.ResetCooldown();
+
+        if (dodge != null && !dodge.Continous)
+            dodge.ResetCooldown();
+
+        if (dash != null && !dash.Continous)
+            dash.ResetCooldown();
+
+        if (ranged != null && !ranged.Continous)
+            ranged.ResetCooldown();
+
+        if (aoe != null && !aoe.Continous)
+            aoe.ResetCooldown();
+    }
+
     public void ShortCircuit(bool allowNormalExit)
     {
         if (currentAbility != null)

@@ -13,6 +13,8 @@ public abstract class PlayerAbility : Ability
 
     private bool fallUponFinish;
 
+    public bool Continous { get { return continous; } }
+
     public virtual void Initialize(PlayerAbilityManager abilitySystem)
     {
         this.system = abilitySystem;
@@ -168,6 +170,12 @@ public abstract class PlayerAbility : Ability
     public virtual void FallUponFinish()
     {
         fallUponFinish = true;
+    }
+
+    public virtual void ResetCooldown()
+    {
+        state = AbilityState.Waiting;
+        coolDownTimer = 0;
     }
 
     public virtual void GlobalConstantUpdate() { }
