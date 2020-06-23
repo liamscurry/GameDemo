@@ -116,6 +116,7 @@ public class CameraController : MonoBehaviour
 
         //55
         VerticalAngle = 90;
+        HorizontalAngle = 20 - 90f;
 
         Gradations = true;
 
