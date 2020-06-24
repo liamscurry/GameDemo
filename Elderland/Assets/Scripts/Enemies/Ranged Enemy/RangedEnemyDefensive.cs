@@ -45,9 +45,12 @@ public class RangedEnemyDefensive : StateMachineBehaviour
                 manager.ignoreIndex,
                 ref manager.index);
 
-            if (checkTimer > checkDuration)
+            if (manager.index != -1)
             {
-                MoveAwayFromPlayer();
+                if (checkTimer > checkDuration)
+                {
+                    MoveAwayFromPlayer();
+                }
             }
 
             ClampToGround();

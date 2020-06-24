@@ -61,8 +61,7 @@ public class LightEnemyAttackFollow : StateMachineBehaviour
                 {
                     manager.CalculateAgentPath();
                 }
-                
-                if (checkTimer >= checkDuration)
+                else if (checkTimer >= checkDuration)
                 {
                     EnemyInfo.MeleeArranger.ClearNode(manager.ArrangementNode);
                     EnemyInfo.MeleeArranger.ClaimNode(manager);

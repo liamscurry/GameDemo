@@ -50,14 +50,18 @@ public class RangedEnemyAttackFollow : StateMachineBehaviour
                 manager.direction,
                 manager.ignoreIndex,
                 ref manager.index);
-            if (checkTimer > checkDuration)
-            {
-                MoveTowardsPlayer();
-            }
 
-            Vector2 destination = EnemyInfo.RangedArranger.GetPosition(manager.index);
-            Vector3 destinationNav = GameInfo.CurrentLevel.NavCast(destination);
-            PlayerInfo.Manager.test = destinationNav;
+            if (manager.index != -1)
+            {
+                if (checkTimer > checkDuration)
+                {
+                    MoveTowardsPlayer();
+                }
+
+                Vector2 destination = EnemyInfo.RangedArranger.GetPosition(manager.index);
+                Vector3 destinationNav = GameInfo.CurrentLevel.NavCast(destination);
+                PlayerInfo.Manager.test = destinationNav;
+            }
             
             ClampToGround();
 
@@ -121,7 +125,7 @@ public class RangedEnemyAttackFollow : StateMachineBehaviour
 
     private void StopTransition()
     {
-        if (manager.Agent.remainingDistance < 0.5f + 0.05f && startedFollowing)
+        if (manager.index != -1 && manager.Agent.remainingDistance < 0.5f + 0.05f && startedFollowing)
         {
             if (manager.HasClearPlacement())
             {

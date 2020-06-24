@@ -90,12 +90,14 @@ public class RangedArranger
                 pairRight += n;
             if (pairRight != ignoreIndex && GetValidity(pairRight))
             {
+
                 return pairRight;
             }
             specificCount++;
 
             if (specificCount == n - 1)
             {
+
                 return -1;
             }
 
@@ -103,12 +105,14 @@ public class RangedArranger
             int pairLeft = (index + pairCount) % n;
             if (pairLeft != ignoreIndex && GetValidity(pairLeft))
             {
+
                 return pairLeft;
             }
             specificCount++;
 
             if (specificCount == n - 1)
             {
+
                 return - 1;
             }
 
@@ -196,7 +200,7 @@ public class RangedArranger
     {
         if (node < 0 || node >= n)
         {
-            throw new System.ArgumentException("Not proper index: " + n);
+            throw new System.ArgumentException("Not proper index: " + node);
         }
         else
         {
@@ -208,7 +212,7 @@ public class RangedArranger
     {
         if (node < 0 || node >= n)
         {
-            throw new System.ArgumentException("Not proper index: " + n);
+            throw new System.ArgumentException("Not proper index: " + node);
         }
         else
         {
