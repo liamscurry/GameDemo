@@ -16,7 +16,7 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
     private AbilitySegment act;
     private AbilityProcess actProcess;
 
-    private const float staminaCost = .25f;
+    private const float staminaCost = 1.5f;
 
     private List<BurningFireChargeManager> charges;
     private List<PlayerMultiDamageHitbox> hitboxes; 

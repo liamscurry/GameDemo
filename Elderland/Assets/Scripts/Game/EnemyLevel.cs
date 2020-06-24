@@ -61,6 +61,8 @@ public class EnemyLevel : MonoBehaviour
     {
         startEvent.Invoke();
         StartWaves();
+        PlayerInfo.Manager.SaveHealth();
+        PlayerInfo.Manager.SaveStamina();
     }
 
     private void StartWaves()

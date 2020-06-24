@@ -15,7 +15,7 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
     private AbilitySegment act;
     private AbilityProcess actProcess;
 
-    private const float staminaCost = .25f;
+    private const float staminaCost = 1.5f;
 
     private FireChargeManager segment1;
     private PlayerMultiDamageHitbox hitbox1;

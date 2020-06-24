@@ -191,6 +191,9 @@ public class GameManager : MonoBehaviour
                 GameInfo.CurrentLevel.RespawnTransform.rotation;
             GameInfo.CameraController.SetDirection(
                 GameInfo.CurrentLevel.RespawnTransform.rotation);
+
+            PlayerInfo.Manager.RestoreHealth();
+            PlayerInfo.Manager.RestoreStamina();
         }
         else
         {
@@ -200,6 +203,9 @@ public class GameManager : MonoBehaviour
                 GameInfo.RespawnTransformNoLevel.rotation;
             GameInfo.CameraController.SetDirection(
                 GameInfo.RespawnTransformNoLevel.rotation);
+
+            PlayerInfo.Manager.RestoreHealth();
+            PlayerInfo.Manager.RestoreStamina();
         }
         PlayerInfo.Manager.Reset();
         if (OnRespawn != null)
