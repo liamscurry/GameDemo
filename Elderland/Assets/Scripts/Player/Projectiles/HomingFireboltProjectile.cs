@@ -118,6 +118,8 @@ public sealed class HomingFireboltProjectile : ParticleProjectile
     {
         if (alive)
         {
+            if (seekingEnemy && targetEnemy == null)
+                seekingEnemy = false;
             HomingUpdate();
         }
 

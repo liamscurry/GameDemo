@@ -89,6 +89,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         else if (Input.GetKeyDown(KeyCode.W))
         {
             ChangeHealth(1);
+            PlayerInfo.AbilityManager.ChangeStamina(10);
         }
         #endif
     }

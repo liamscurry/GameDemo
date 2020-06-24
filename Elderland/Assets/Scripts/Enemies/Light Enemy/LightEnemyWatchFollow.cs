@@ -18,7 +18,6 @@ public class LightEnemyWatchFollow : StateMachineBehaviour
 	{
         checkTimer += Time.deltaTime;
 
-        /*
         if (manager.IsSubscribeToAttackValid())
         {
             manager.SubscribeToAttack();
@@ -27,7 +26,6 @@ public class LightEnemyWatchFollow : StateMachineBehaviour
         {
             CheckForOverride();
         }
-        */
 
         if (checkTimer >= checkDuration)
             checkTimer = 0;
