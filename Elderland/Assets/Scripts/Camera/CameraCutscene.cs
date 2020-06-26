@@ -136,6 +136,8 @@ public class CameraCutscene
 						
 						if (endEvent != null)
 							endEvent.Invoke();
+						PlayerInfo.PhysicsSystem.ForceTouchingFloor();
+						PlayerInfo.PhysicsSystem.Animating = false;
 					}
 				}
 			}

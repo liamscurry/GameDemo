@@ -35,11 +35,11 @@ public class PlayerAbilityManager : AbilitySystem
     public PlayerAbilityManager(Animator animator, PhysicsSystem physics, MovementSystem movement, GameObject parent) : base(animator, physics, movement, parent)
     { 
         InitializePreferences();
-        MeleeAvailable = true;
-        RangedAvailable = true;
-        HealAvailable = true;
-        DodgeAvailable = true;
-        DashAvailable = true;
+        //MeleeAvailable = true;
+        //RangedAvailable = true;
+        //HealAvailable = true;
+        //DodgeAvailable = true;
+        //DashAvailable = true;
         AbilitiesAvailable = true;
         //Stamina = 0;
     }
