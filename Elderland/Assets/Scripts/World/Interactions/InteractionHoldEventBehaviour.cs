@@ -23,13 +23,16 @@ public class InteractionHoldEventBehaviour : StateMachineBehaviour
                 (PlayerInfo.Manager.Interaction.InteractionType == StandardInteraction.Type.holdUntilReleaseOrComplete &&
                 stateInfo.normalizedTime >= PlayerInfo.Manager.Interaction.HoldDuration))
             {
-                animator.SetTrigger("exitInteraction");
-                GameInfo.CameraController.AllowZoom = true;
-                PlayerInfo.Manager.Interaction.EndEvent();
-                exiting = true;
-                if (PlayerInfo.Manager.Interaction.Reusable)
+                if (stateInfo.normalizedTime * stateInfo.length > 0.4f)
                 {
-                    PlayerInfo.Manager.Interaction.Reset();
+                    animator.SetTrigger("exitInteraction");
+                    GameInfo.CameraController.AllowZoom = true;
+                    PlayerInfo.Manager.Interaction.EndEvent();
+                    exiting = true;
+                    if (PlayerInfo.Manager.Interaction.Reusable)
+                    {
+                        PlayerInfo.Manager.Interaction.Reset();
+                    }
                 }
             }
         }

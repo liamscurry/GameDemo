@@ -17,6 +17,7 @@ public class MovementSystem
 
     //Partitions
     public Vector3 movementVelocity;
+    private Vector3 lastMovementVelocity;
 
     //Properties//
     //Information
@@ -47,6 +48,7 @@ public class MovementSystem
         if (physics.TouchingFloor)
             GroundClamp();
 
+        lastMovementVelocity = movementVelocity;
         MovementDirection = Vector2.zero;
         movementVelocity = Vector3.zero;
     }
@@ -74,7 +76,7 @@ public class MovementSystem
     public virtual Vector3 Move(Vector2 direction, float speed, bool slopeEffectsSpeed = true)
     {
         if (physics.TouchingFloor && direction.magnitude != 0 && speed > 0)
-        {            
+        {          
             float slopeMagnitude = (slopeEffectsSpeed) ? SlopeMagnitude(physics.Theta) : 1;
             Vector3 slopeDirection = Matho.PlanarDirectionalDerivative(direction, physics.Normal).normalized;
 
@@ -84,7 +86,7 @@ public class MovementSystem
             return speed * slopeMagnitude * slopeDirection;
         }
         else
-        {
+        { 
             return Vector3.zero;
         }
     }
@@ -108,13 +110,13 @@ public class MovementSystem
         //Dynamic velocity assignment.
         if (ExitEnabled)
         {
-            physics.ImmediatePush(movementVelocity);
+            physics.ImmediatePush(lastMovementVelocity);
             PlayerInfo.MovementManager.LockDirection();
             PlayerInfo.MovementManager.LockSpeed();
         }
 
         ExitPosition = capsule.transform.position;
-        ExitVelocity = movementVelocity;
+        ExitVelocity = lastMovementVelocity;
     }
 
     protected virtual void GroundClamp()

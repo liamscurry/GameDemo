@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 //Deals with initialization, loading and quiting of the game. Manager of all classes.
 
@@ -15,6 +16,10 @@ public class GameManager : MonoBehaviour
     private GameObject gameplayUI;
     [SerializeField]
     private EventSystem eventSystem;
+    [SerializeField]
+    private UnityEvent onFadeOutroIn;
+    [SerializeField]
+    private UnityEvent onFadeOutroOut;
 
     private IEnumerator slowEnumerator;
     private float slowFreezeTimer;
@@ -32,6 +37,7 @@ public class GameManager : MonoBehaviour
     {
         GetComponent<GameInitializer>().Initialize();
         receivingInput = false;
+        Application.targetFrameRate = 300;
 	}
 
     private void Update()
@@ -42,20 +48,6 @@ public class GameManager : MonoBehaviour
         if (eventSystem.currentSelectedGameObject == null)
         {
             eventSystem.SetSelectedGameObject(eventSystem.firstSelectedGameObject);
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            Pickup.SpawnPickups<HealthPickup>(
-                Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
-                new Vector3(0.26f, 2.54f, 7.59f),
-                3,
-                3f,
-                90f);
-        }
-        else if (Input.GetKeyDown(KeyCode.R))
-        {
-            GameInfo.PickupPool.ClearPickupPool();
         }
     }
 
@@ -157,20 +149,26 @@ public class GameManager : MonoBehaviour
 
     public void FadeOutro()
     {
-        StartCoroutine(FadeOutroCoroutine(3.5f, 4f));
+        StartCoroutine(FadeOutroCoroutine(3.5f, 10f));
     }
 
     private IEnumerator FadeOutroCoroutine(float duration, float waitTime)
     {
-        yield return new WaitForSecondsRealtime(2);
+        yield return new WaitForSecondsRealtime(2.25f);
+
+        if (onFadeOutroIn != null)
+            onFadeOutroIn.Invoke();
 
         //Fade in
         yield return Fade(duration, 1);
 
         yield return new WaitForSecondsRealtime(waitTime);
 
+        if (onFadeOutroOut != null)
+            onFadeOutroOut.Invoke();
+
         //Fade out
-        yield return Fade(duration / 2, 0);
+        yield return Fade(duration, 0);
     }
 
     private IEnumerator FadeRespawn(float duration)

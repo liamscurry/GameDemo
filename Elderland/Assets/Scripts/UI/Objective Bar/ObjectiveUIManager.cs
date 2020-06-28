@@ -77,7 +77,7 @@ public class ObjectiveUIManager : MonoBehaviour
         mainObjective = newMainObjective;
         newMainObjective.SetActive(true);
         StopAllCoroutines();
-        StartCoroutine(TransitionMainObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
+        StartCoroutine(TransitionMainObjectiveCoroutine(0.5f, 7, 0.5f, rectTransform, 0, outPosition.x, null));
     }
 
     public void ClearMainObjective()
@@ -91,7 +91,7 @@ public class ObjectiveUIManager : MonoBehaviour
     public void PingObjectives()
     {
         if (!transitioning)
-            StartCoroutine(PingObjectivesCoroutine(0.5f, 7, 0.5f, rectTransform, 0, outPosition.x, null));
+            StartCoroutine(PingObjectivesCoroutine(0.5f, 7f, 0.5f, rectTransform, 0, outPosition.x, null));
     }
 
     public void PingObjectives(float duration)

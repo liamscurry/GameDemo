@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Normally would move rigid body using rigidbody.MovePosition,
+// but already made level content with current set up. As a result will use transform.position
+// instead of changing speeds in level.
 public class FallingDoor : MonoBehaviour
 {
     [SerializeField]
@@ -14,6 +17,11 @@ public class FallingDoor : MonoBehaviour
 
     private Vector3 closedPosition;
     private Rigidbody body;
+
+    private float DeltaTimeModifier
+    {
+        get { return Time.deltaTime * 60f * 0.85f; }
+    }
 
     private void Start()
     {
@@ -34,8 +42,11 @@ public class FallingDoor : MonoBehaviour
         {
             Vector3 targetPosition =
                 closedPosition + Vector3.up * liftHeight;
-            body.MovePosition(
-                Vector3.MoveTowards(transform.position, targetPosition, liftSpeed));
+            transform.position = 
+                Vector3.MoveTowards(
+                    transform.position,
+                    targetPosition,
+                    liftSpeed * DeltaTimeModifier);
         }
     }
 
@@ -50,18 +61,21 @@ public class FallingDoor : MonoBehaviour
                 playerDashModifier = 0.0f;
             }
 
-            body.MovePosition(
-                Vector3.MoveTowards(transform.position, closedPosition, fallSpeed * playerDashModifier));
+            transform.position = 
+                Vector3.MoveTowards(
+                    transform.position,
+                    closedPosition,
+                    fallSpeed * playerDashModifier * DeltaTimeModifier);
         }
         else
         {
-            body.MovePosition(closedPosition);
+            body.position = closedPosition;
         }
     }
 
     public void CloseInstantly()
     {
-        transform.position = closedPosition;
+        body.position = closedPosition;
     }
 
     public void OnRespawn(object sender, EventArgs e)
