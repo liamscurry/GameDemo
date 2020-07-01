@@ -15,6 +15,7 @@ public class MovementBehaviour : StateMachineBehaviour
         PlayerInfo.StatsManager.MovespeedModifier = 1;
         movespeedVelocity = 0;
         sprinting = false;
+        PlayerInfo.StatsManager.Sprinting = false;
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -34,6 +35,7 @@ public class MovementBehaviour : StateMachineBehaviour
                 PlayerInfo.MovementManager.LockDirection();
                 PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
                 sprinting = false;
+                PlayerInfo.StatsManager.Sprinting = false;
             }
             else
             {
@@ -48,7 +50,7 @@ public class MovementBehaviour : StateMachineBehaviour
                 float forwardsAngle = Matho.AngleBetween(Matho.StandardProjection2D(targetRotation), movementDirection);
                 float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
                 
-                float sprintingModifier = (sprinting) ? 2f : 1f;
+                float sprintingModifier = (sprinting) ? 1.5f : 1f;
            
                 PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
             }
@@ -70,16 +72,24 @@ public class MovementBehaviour : StateMachineBehaviour
         }
 	}
 
+    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+	{
+        sprinting = false;
+        PlayerInfo.StatsManager.Sprinting = false;
+	}
+
     private void UpdateSprinting()
     {
         if (Input.GetKeyDown(GameInfo.Settings.SprintKey) && PlayerInfo.MovementManager.SprintAvailable)
         {
             sprinting = true;
+            PlayerInfo.StatsManager.Sprinting = true;
         }
 
         if (Input.GetAxis("Left Trigger") != 0)
         {
             sprinting = false;
+            PlayerInfo.StatsManager.Sprinting = false;
         }
     }
 

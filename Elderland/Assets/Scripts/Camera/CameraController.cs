@@ -100,6 +100,12 @@ public class CameraController : MonoBehaviour
 
     float zoomModifier;
 
+    float sprintTimer;
+    float sprintPercentage;
+    float orientationDelta;
+    float orientationPercentage;
+    float orientationTimer;
+
     private void Start()
     {   
         //StartGameplay();
@@ -169,6 +175,9 @@ public class CameraController : MonoBehaviour
     {
         state = State.Gameplay;
         FollowTarget = PlayerInfo.Player.transform;
+        sprintTimer = 0;
+        sprintPercentage = 0;
+        orientationPercentage = 0;
     }
 
     public void StartCutscene(CameraCutscene cameraCutscene)
@@ -206,7 +215,9 @@ public class CameraController : MonoBehaviour
                 HorizontalOffset = 20;
                 MaxRadius = 2.75f;
                 transform.rotation = GenerateRotation();
-                transform.position = GeneratePosition(FollowTarget.transform.position);
+                UpdateSprintTimer();
+                transform.position =
+                    GeneratePosition(FollowTarget.transform.position + GenerateSprintOffset());
             }
             else
             {
@@ -227,14 +238,79 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            targetFov = 60;
-            zoomModifier = 1;
+            if (PlayerInfo.StatsManager.Sprinting)
+            {
+                targetFov = 60;
+                zoomModifier = 1;
+            }
+            else
+            {
+                targetFov = 60;
+                zoomModifier = 1;
+            }
         }
     }   
+
+    private void UpdateSprintTimer()
+    {
+        if (PlayerInfo.StatsManager.Sprinting
+            && PlayerInfo.PhysicsSystem.TouchingFloor &&
+            Matho.AngleBetween(PlayerInfo.PhysicsSystem.Normal, Vector3.up) < 15f)
+        {
+            sprintTimer += Time.deltaTime;
+            sprintPercentage += Time.deltaTime;
+            if (sprintPercentage > 1)
+                sprintPercentage = 1;
+            
+            if (orientationDelta != 0)
+            {
+                sprintPercentage -= 2 * Time.deltaTime;
+                if (sprintPercentage < 0)
+                    sprintPercentage = 0;
+            }
+        }
+        else
+        {
+            sprintPercentage -= Time.deltaTime;
+            if (sprintPercentage < 0)
+                sprintPercentage = 0;
+        }
+    }
+
+    private Vector3 GenerateSprintOffset()
+    {
+        float periodScalerVertical = Mathf.Sin(Mathf.Cos(sprintTimer * 1));
+        float verticalOffset = -0.0009f * Mathf.Pow((Mathf.Sin(sprintTimer * 22 + periodScalerVertical) - 1), 5);
+        float horizontalOffset = 0.5f * 0.05f * Mathf.Sin(sprintTimer * 12);
+        //Debug.Log(Matho.AngleBetween(PlayerInfo.MovementManager.CurrentDirection, PlayerInfo.MovementManager.TargetDirection));
+        return (verticalOffset * transform.up + horizontalOffset * transform.right) * sprintPercentage * 0.75f;
+    }
 
     private void AdjustOrientation()
     {
         HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
+        orientationDelta = Mathf.Sign(GameInfo.Settings.RightDirectionalInput.x);
+        if (GameInfo.Settings.RightDirectionalInput.magnitude < 0.25f)
+            orientationDelta = 0;
+
+        if (orientationDelta != 0)
+        {
+            orientationTimer += Time.deltaTime;
+        }
+        else
+        {
+            orientationTimer = 0;
+        }
+        
+        if (orientationDelta != 0 && PlayerInfo.StatsManager.Sprinting && orientationTimer > 0.35f)
+        {
+            orientationPercentage = Mathf.MoveTowards(orientationPercentage, orientationDelta, 1.8f * Time.deltaTime);
+        }
+        else
+        {
+            orientationPercentage = Mathf.MoveTowards(orientationPercentage, 0, 3 * Time.deltaTime);
+        }
+        
 
         if (GameInfo.Settings.RightDirectionalInput.magnitude != 0)
         {
@@ -282,8 +358,11 @@ public class CameraController : MonoBehaviour
         //Rotation assignment
         Vector3 rotationDirection = Matho.SphericalToCartesianX(1, HorizontalAngle - HorizontalOffset, VerticalAngle + 180);
         Direction = rotationDirection;
-       
-        Quaternion q = Quaternion.LookRotation(rotationDirection);
+        
+        Quaternion sprintTilt = Quaternion.Euler(0,0, -3 * orientationPercentage);
+
+        Quaternion q = Quaternion.LookRotation(rotationDirection) * sprintTilt;
+
         //Debug.Log(HorizontalAngle);
         return q;
     }

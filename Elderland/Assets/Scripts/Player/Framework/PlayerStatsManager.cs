@@ -39,11 +39,13 @@ public class PlayerStatsManager
 	public StatMultiplier DamageMultiplier { get; }
 	public StatMultiplier DashCostMultiplier { get; }
 
+	public bool Sprinting { get; set; }
+
 	public PlayerStatsManager()
 	{
 		//Base values
 		//7.25f
-		movespeed = 1.59544f * 1.75f;
+		movespeed = 1.59544f * 2.55f;
 		jumpspeed = 7;
 
 		//Modifiers
