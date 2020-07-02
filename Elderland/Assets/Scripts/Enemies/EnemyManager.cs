@@ -17,6 +17,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private Color healthBarColor;
     [SerializeField]
     private Collider hitbox;
+    [SerializeField]
+    private int maxResolve;
+
+    private int currentResolve;
 
     private float baseAgentSpeed;
 
@@ -66,7 +70,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public Collider Hitbox { get { return hitbox; } }
 
     private bool isAgentOn;
-    public bool Alive { get; private set;}
+    public bool Alive { get; private set; }
+
+    private Vector3 dynamicAgentVelocity;
+    private bool moveViaMovementManagerDuringAnimating;
 
     private void Start()
     {
@@ -103,6 +110,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         AbilityManager.UpdateAbilities();
         ColorHealth();
         Agent.speed = baseAgentSpeed * StatsManager.MovespeedMultiplier.Value;
+
+        if (!PhysicsSystem.Animating || moveViaMovementManagerDuringAnimating)
+        {
+            MovementSystem.Move(Matho.StandardProjection2D(dynamicAgentVelocity), dynamicAgentVelocity.magnitude);
+            Debug.Log(Matho.StandardProjection2D(dynamicAgentVelocity));
+        }
     }
     
     private void LateUpdate()
@@ -113,6 +126,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     private void FixedUpdate()
     {
+        moveViaMovementManagerDuringAnimating = false;
         if (!PhysicsSystem.Animating)
         {
             Body.velocity = PhysicsSystem.CalculatedVelocity;
@@ -121,7 +135,19 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         {
             Body.velocity = PhysicsSystem.AnimationVelocity;
             //Debug.Log(PhysicsSystem.AnimationVelocity);
+            if (isAgentOn)
+            {
+                Agent.Move(dynamicAgentVelocity * Time.deltaTime);
+            }
+            else
+            {
+                moveViaMovementManagerDuringAnimating = true;
+            }
         }       
+    
+        //if (isAgentOn)
+        //    Agent.Move(dynamicAgentVelocity);
+        DynamicDrag(12f);
 
         //Friction
         if (PhysicsSystem.TouchingFloor)
@@ -165,6 +191,38 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     {
         if (1 << other.collider.gameObject.layer == LayerConstants.GroundCollision.value)
             PhysicsSystem.HandleOverlapCollisions(PhysicsSystem, Capsule, transform.position, other);
+    }
+
+    public void Push(Vector3 velocity)
+    {
+        dynamicAgentVelocity += velocity;
+    }
+
+    public void DynamicDrag(float strength)
+    {
+        float magnitude = dynamicAgentVelocity.magnitude;
+        magnitude -= strength * Time.deltaTime;
+        if (magnitude < 0)
+            magnitude = 0;
+        
+        dynamicAgentVelocity = magnitude * dynamicAgentVelocity.normalized;
+    }
+
+    public void IncreaseResolve(int amount)
+    {
+        currentResolve += amount;
+        if (currentResolve > maxResolve)
+            currentResolve = maxResolve;
+    }
+
+    public bool CheckResolve()
+    {
+        return currentResolve == maxResolve;
+    }
+
+    public void ConsumeResolve()
+    {
+        currentResolve = 0;
     }
 
     public void ChangeHealth(float value)
