@@ -69,6 +69,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public Collider Hitbox { get { return hitbox; } }
 
+    public bool IsAgentOn { get { return isAgentOn; } }
+
     private bool isAgentOn;
     public bool Alive { get; private set; }
 

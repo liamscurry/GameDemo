@@ -56,6 +56,11 @@ public sealed class RangedEnemySlow : EnemyAbility
         manager.DefensiveAttackSuccessful = false;
     }
 
+    public override void GlobalUpdate()
+    {
+        ((EnemyAbilityManager) system).Manager.ClampToGround();
+    }
+
     public void RotateBegin()
     {
         processTimer = 0;
@@ -92,7 +97,7 @@ public sealed class RangedEnemySlow : EnemyAbility
         hitbox.Invoke(this);
 
         Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, ((EnemyAbilityManager) system).Manager.GetGroundNormal());
-        hitbox.transform.rotation = normalRotation * hitbox.transform.rotation;
+        hitbox.transform.rotation = normalRotation * transform.rotation;
     }
 
     public void ActEnd()

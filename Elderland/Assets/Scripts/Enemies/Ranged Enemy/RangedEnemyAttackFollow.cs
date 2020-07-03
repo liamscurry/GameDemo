@@ -81,16 +81,19 @@ public class RangedEnemyAttackFollow : StateMachineBehaviour
 
     private void MoveTowardsPlayer()
     {
-        Vector2 destination = EnemyInfo.RangedArranger.GetPosition(manager.index);
-        Vector3 destinationNav = GameInfo.CurrentLevel.NavCast(destination);
-        NavMeshPath path = new NavMeshPath();
-        if (manager.Agent.CalculatePath(destinationNav, path) && path.status == NavMeshPathStatus.PathComplete)
+        if (manager.IsAgentOn)
         {
-            manager.Agent.path = path;
-            manager.path = new List<Vector3>(path.corners);
-            manager.path.Insert(0, GameInfo.CurrentLevel.NavCast(Matho.StandardProjection2D(manager.transform.position)));
-            manager.Agent.stoppingDistance = 0;
-            startedFollowing = true;
+            Vector2 destination = EnemyInfo.RangedArranger.GetPosition(manager.index);
+            Vector3 destinationNav = GameInfo.CurrentLevel.NavCast(destination);
+            NavMeshPath path = new NavMeshPath();
+            if (manager.Agent.CalculatePath(destinationNav, path) && path.status == NavMeshPathStatus.PathComplete)
+            {
+                manager.Agent.path = path;
+                manager.path = new List<Vector3>(path.corners);
+                manager.path.Insert(0, GameInfo.CurrentLevel.NavCast(Matho.StandardProjection2D(manager.transform.position)));
+                manager.Agent.stoppingDistance = 0;
+                startedFollowing = true;
+            }
         }
     }
 

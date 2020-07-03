@@ -47,6 +47,11 @@ public sealed class RangedEnemyShoot : EnemyAbility
         exiting = false;
     }
 
+    public override void GlobalUpdate()
+    {
+        ((EnemyAbilityManager) system).Manager.ClampToGround();
+    }
+
     public void DuringShoot()
     {
         Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
@@ -56,12 +61,14 @@ public sealed class RangedEnemyShoot : EnemyAbility
 
 	public void ShootEnd()
     {
-        Vector3 direction = (PlayerInfo.Player.transform.position - transform.position).normalized;
+        Vector3 start = transform.position + manager.Capsule.height / 4f * Vector3.up;
+        Vector3 end = PlayerInfo.Player.transform.position + PlayerInfo.Capsule.height / 4 * Vector3.up;
+        Vector3 direction = (end - start).normalized;
         Vector3 velocity = speed * direction;
 
         GameInfo.ProjectilePool.Create<RangedEnemyProjectile>(
                 Resources.Load<GameObject>(ResourceConstants.Enemy.Projectiles.RangedEnemyProjectile),
-                transform.position,
+                start,
                 velocity,
                 lifeTime,
                 TagConstants.PlayerHitbox,

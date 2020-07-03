@@ -112,13 +112,16 @@ public class RangedEnemyAttackSearch : StateMachineBehaviour
 
     private void CalculateIndexPath()
     {
-        Vector2 destination = EnemyInfo.RangedArranger.GetPosition(manager.index, losPosition);
-        Vector3 destinationNav = GameInfo.CurrentLevel.NavCast(destination);
-        NavMeshPath path = new NavMeshPath();
-        if (manager.Agent.CalculatePath(destinationNav, path))
+        if (manager.IsAgentOn)
         {
-            manager.Agent.path = path;
-            manager.Agent.stoppingDistance = 0;
+            Vector2 destination = EnemyInfo.RangedArranger.GetPosition(manager.index, losPosition);
+            Vector3 destinationNav = GameInfo.CurrentLevel.NavCast(destination);
+            NavMeshPath path = new NavMeshPath();
+            if (manager.Agent.CalculatePath(destinationNav, path))
+            {
+                manager.Agent.path = path;
+                manager.Agent.stoppingDistance = 0;
+            }
         }
     }
 

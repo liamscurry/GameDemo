@@ -116,8 +116,12 @@ public sealed class RangedEnemyManager : EnemyManager
 
         Collider[] enemies = Physics.OverlapBox(rectangleCenterNav, rectangleSize / 2f, rectangleRotation, LayerConstants.EnemyHitbox);
 
+        Vector3 start = transform.position + Capsule.height / 4f * Vector3.up;
+        Vector3 end = PlayerInfo.Player.transform.position + PlayerInfo.Capsule.height / 4 * Vector3.up;
+        Vector3 sphereCastDirection = (end - start).normalized; 
+
         return (!Agent.Raycast(playerNav, out groundHit) &&
-        !Physics.SphereCast(transform.position, Capsule.radius - 0.1f, direction, out enemyHit, distance, LayerConstants.Enemy)
+        !Physics.SphereCast(start, Capsule.radius - 0.1f, sphereCastDirection, out enemyHit, distance, LayerConstants.Enemy | LayerConstants.GroundCollision)
         && (enemies.Length == 0 || (enemies.Length == 1 && enemies[0].GetComponentInParent<EnemyManager>() == this)));
     }
 

@@ -27,6 +27,8 @@ public class RangedEnemyWatchStationary : StateMachineBehaviour
             CheckForOverride();
         }
 
+        manager.ClampToGround();
+
         if (checkTimer >= checkDuration)
             checkTimer = 0;
 	}

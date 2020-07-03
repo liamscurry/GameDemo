@@ -41,6 +41,11 @@ public sealed class RangedEnemyDash : EnemyAbility
         manager = ((RangedEnemyManager) abilityManager.Manager);
     }
 
+    public override void GlobalUpdate()
+    {
+        ((EnemyAbilityManager) system).Manager.ClampToGround();
+    }
+
     private void DashBegin()
     {
         transformDirection = (random.Next(2) == 0) ? -1 : 1;
