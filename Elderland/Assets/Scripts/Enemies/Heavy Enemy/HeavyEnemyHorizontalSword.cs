@@ -51,6 +51,11 @@ public sealed class HeavyEnemyHorizontalSword : EnemyAbility
         AttackAngleMargin = 25;
     }
 
+    public override void GlobalUpdate()
+    {
+        ((EnemyAbilityManager) system).Manager.ClampToGround();
+    }
+
     private void DuringRotate()
     {
         if (type == EnemyAbilityType.None || type == EnemyAbilityType.First)

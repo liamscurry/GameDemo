@@ -138,6 +138,11 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
         hitbox.transform.localScale = localScale;
     }
 
+    public override void GlobalUpdate()
+    {
+        ((EnemyAbilityManager) system).Manager.ClampToGround();
+    }
+
     private void DuringRotate()
     {
         if (type == EnemyAbilityType.None || type == EnemyAbilityType.First)

@@ -95,13 +95,15 @@ public class HeavyEnemyAttackFollow : StateMachineBehaviour
         {
             if (manager.towardsPlayer)
             {
-                if (lastRemainingDistance < rotateDistance && remainingDistance >= rotateDistance)
+                if (remainingDistance >= rotateDistance) //lastRemainingDistance < rotateDistance && 
                 {
-                    manager.Agent.updateRotation = true;
+                    if (!manager.Agent.updateRotation)
+                        manager.Agent.updateRotation = true;
                 }
-                else if (remainingDistance < rotateDistance && lastRemainingDistance >= rotateDistance)
+                else if (remainingDistance < rotateDistance) // && lastRemainingDistance >= rotateDistance
                 {
-                    manager.Agent.updateRotation = false;
+                    if (manager.Agent.updateRotation)
+                        manager.Agent.updateRotation = false;
                 }
 
                 if (remainingDistance < rotateDistance)
