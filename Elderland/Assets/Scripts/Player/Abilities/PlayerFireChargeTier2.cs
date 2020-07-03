@@ -127,6 +127,8 @@ public sealed class PlayerFireChargeTier2 : PlayerAbility
             if (hit.enemy == enemy && hit.id == invokeID)
                 return true;
         }
+
+        enemy.Push((new Vector3(direction.x, 0, direction.y)).normalized * 7.75f);
         
         enemy.ChangeHealth(
             -damage * PlayerInfo.StatsManager.DamageMultiplier.Value);

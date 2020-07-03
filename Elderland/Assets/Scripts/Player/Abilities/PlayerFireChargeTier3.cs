@@ -128,6 +128,8 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
             if (hit.enemy == enemy && hit.id == invokeID)
                 return true;
         }
+
+        enemy.Push((new Vector3(direction.x, 0, direction.y)).normalized * 7.75f);
         
         float damageDelt = 0;
         if (damageModifier != 0)

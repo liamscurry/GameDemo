@@ -443,6 +443,7 @@ public sealed class PlayerSword : PlayerAbility
         }
         else
         {
+            enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 1.5f);
             enemy.IncreaseResolve(1);
         }
         

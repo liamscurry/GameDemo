@@ -37,7 +37,7 @@ public class PlayerAbilityManager : AbilitySystem
         InitializePreferences();
         MeleeAvailable = true;
         RangedAvailable = true;
-        //HealAvailable = true;
+        HealAvailable = true;
         DodgeAvailable = true;
         DashAvailable = true;
         AbilitiesAvailable = true;
