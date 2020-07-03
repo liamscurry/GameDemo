@@ -37,7 +37,8 @@ public abstract class Ability : MonoBehaviour
             fixedTimer += Time.fixedDeltaTime;
             if (fixedTimer >= fixedDuration)
             {
-                system.Physics.AnimationVelocity -= actVelocity;
+                if (system.Physics != null)
+                    system.Physics.AnimationVelocity -= actVelocity;
                 fixedFinished = true;
             }
         }
@@ -233,16 +234,20 @@ public abstract class Ability : MonoBehaviour
     //follow the ability's update mode to have correct timing.
     protected void SetAnimatorSettings()
     {
-        system.Physics.Animating = true;
-        
-        if (ActiveSegment.Type == AbilitySegmentType.Physics)
+        if (system.Physics != null)
         {
-            system.Physics.ClampWhileAnimating = true;
+            system.Physics.Animating = true;
+            
+            if (ActiveSegment.Type == AbilitySegmentType.Physics)
+            {
+                system.Physics.ClampWhileAnimating = true;
+            }
         }
 
         if (ActiveSegment.Type == AbilitySegmentType.RootMotion)
         {
-            system.Physics.Body.isKinematic = true;
+            if (system.Physics != null)
+                system.Physics.Body.isKinematic = true;
             system.Animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
             system.Animator.applyRootMotion = true;
         }
@@ -250,16 +255,20 @@ public abstract class Ability : MonoBehaviour
 
     protected void ResetAnimatorSettings()
     {
-        system.Physics.Animating = false;
-
-        if (ActiveSegment.Type == AbilitySegmentType.Physics)
+        if (system.Physics != null)
         {
-            system.Physics.ClampWhileAnimating = false;
+            system.Physics.Animating = false;
+
+            if (ActiveSegment.Type == AbilitySegmentType.Physics)
+            {
+                system.Physics.ClampWhileAnimating = false;
+            }
         }
 
         if (ActiveSegment.Type == AbilitySegmentType.RootMotion)
         {
-            system.Physics.Body.isKinematic = false;
+            if (system.Physics != null)
+                system.Physics.Body.isKinematic = false;
             system.Animator.updateMode = AnimatorUpdateMode.Normal;
             system.Animator.applyRootMotion = false;
         }

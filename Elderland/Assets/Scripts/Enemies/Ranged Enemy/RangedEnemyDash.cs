@@ -45,8 +45,8 @@ public sealed class RangedEnemyDash : EnemyAbility
     {
         transformDirection = (random.Next(2) == 0) ? -1 : 1;
 
-        system.Physics.GravityStrength = 0;
-        system.Movement.ExitEnabled = false;
+        //system.Physics.GravityStrength = 0;
+        //system.Movement.ExitEnabled = false;
     }
 
     private void DuringDash()
@@ -71,8 +71,8 @@ public sealed class RangedEnemyDash : EnemyAbility
 
     private void DashFinish()
     {  
-        system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
-        system.Movement.ExitEnabled = true;
+        //system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
+        //system.Movement.ExitEnabled = true;
         DefensiveCheck();
     }
 

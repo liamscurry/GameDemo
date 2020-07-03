@@ -45,4 +45,9 @@ public class EnemyAbilityManager : AbilitySystem
         QueuedAbilities.Clear();
         QueuedTypes.Clear();
     }
+
+    public override bool Ready()
+    {
+        return true;
+    }
 }

@@ -16,11 +16,9 @@ public class RangedEnemySpawn : StateMachineBehaviour
 	{
         if (!exiting)
         {
-            if (manager.PhysicsSystem.TouchingFloor)
-            {
-                DelegateToGroup();
-                exiting = true;
-            }
+            DelegateToGroup();
+            exiting = true;
+            manager.ClampToGround();
         }
 	}
 

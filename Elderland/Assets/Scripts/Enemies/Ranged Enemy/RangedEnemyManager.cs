@@ -59,8 +59,6 @@ public sealed class RangedEnemyManager : EnemyManager
     {
         TurnOffAgent();
 
-        PhysicsSystem.Animating = true;
-
         if (AbilityManager.CurrentAbility != null)
         {
             AbilityManager.CurrentAbility.ShortCircuit();

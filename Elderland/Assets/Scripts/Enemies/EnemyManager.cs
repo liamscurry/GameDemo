@@ -30,8 +30,6 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public CapsuleCollider Capsule { get; protected set; }
     public Rigidbody Body { get; protected set; }
     public NavMeshAgent Agent { get; protected set; }
-    public PhysicsSystem PhysicsSystem { get; protected set; }
-    public AdvancedMovementSystem MovementSystem { get; protected set; }
     public EnemyAbilityManager AbilityManager { get; protected set; }
     public BuffManager<EnemyManager> BuffManager { get; protected set; }
     public EnemyStatsManager StatsManager { get; protected set; }
@@ -66,6 +64,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public float Health { get; protected set; }
     public float MaxHealth { get; protected set; }
     public Color HealthBarColor { get; set; }
+    
+    public Vector3 BottomSphereOffset { get; private set; }
 
     public Collider Hitbox { get { return hitbox; } }
 
@@ -83,119 +83,92 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Capsule = GetComponent<CapsuleCollider>();
         Body = GetComponent<Rigidbody>();
         Agent = GetComponent<NavMeshAgent>();
-        PhysicsSystem = new PhysicsSystem(gameObject, Capsule, Body, 1);
-        MovementSystem = new AdvancedMovementSystem(gameObject, Capsule, PhysicsSystem);
-        AbilityManager = new EnemyAbilityManager(Animator, PhysicsSystem, MovementSystem, gameObject);
+        AbilityManager = new EnemyAbilityManager(Animator, null, null, gameObject);
         BuffManager = new BuffManager<EnemyManager>(this);
         StatsManager = new EnemyStatsManager(this);
         State = EnemyState.None;
         Initialize();
 
-        Agent.updatePosition = false;
         Agent.updateRotation = false;
-        PhysicsSystem.Animating = false;
+        //PhysicsSystem.Animating = false;
         waypoints = new List<Vector2>();
 
         ArrangementNode = -1;
         Alive = true;
 
         baseAgentSpeed = Agent.speed;
+
+        BottomSphereOffset = Capsule.BottomSphereOffset();
     }
 
     private void Update()
     {
-        PhysicsSystem.UpdateSystem();
         BuffManager.UpdateBuffs();
-        MovementSystem.UpdateSystem();
         AbilityManager.UpdateAbilities();
         ColorHealth();
         Agent.speed = baseAgentSpeed * StatsManager.MovespeedMultiplier.Value;
 
-        if (!PhysicsSystem.Animating || moveViaMovementManagerDuringAnimating)
+        //if (!PhysicsSystem.Animating || moveViaMovementManagerDuringAnimating)
         {
-            MovementSystem.Move(Matho.StandardProjection2D(dynamicAgentVelocity), dynamicAgentVelocity.magnitude);
-            Debug.Log(Matho.StandardProjection2D(dynamicAgentVelocity));
+            //MovementSystem.Move(Matho.StandardProjection2D(dynamicAgentVelocity), dynamicAgentVelocity.magnitude);
+            //Debug.Log(Matho.StandardProjection2D(dynamicAgentVelocity));
         }
-    }
-    
-    private void LateUpdate()
-    {
-        MovementSystem.LateUpdateSystem();
-        PhysicsSystem.LateUpdateSystem();
     }
 
     private void FixedUpdate()
     {
-        moveViaMovementManagerDuringAnimating = false;
-        if (!PhysicsSystem.Animating)
-        {
-            Body.velocity = PhysicsSystem.CalculatedVelocity;
-        } 
-        else
-        {
-            Body.velocity = PhysicsSystem.AnimationVelocity;
-            //Debug.Log(PhysicsSystem.AnimationVelocity);
-            if (isAgentOn)
-            {
-                Agent.Move(dynamicAgentVelocity * Time.deltaTime);
-            }
-            else
-            {
-                moveViaMovementManagerDuringAnimating = true;
-            }
-        }       
+        Agent.Move(dynamicAgentVelocity * Time.deltaTime);
     
-        //if (isAgentOn)
-        //    Agent.Move(dynamicAgentVelocity);
         DynamicDrag(12f);
 
-        //Friction
-        if (PhysicsSystem.TouchingFloor)
-        {
-            PhysicsSystem.DynamicDrag(12f);
-        }
-
-        MovementSystem.FixedUpdateSystem();
-        PhysicsSystem.FixedUpdateSystem();
         AbilityManager.FixedUpdateAbilities();
-    }
-
-    //Collision
-    private void OnCollisionEnter(Collision other)
-    {
-        VelocityCollision(other);
-        OverlapCollision(other);
-        GroundCollision(other);
-    }
-
-    private void OnCollisionStay(Collision other)
-    {
-        VelocityCollision(other);
-        OverlapCollision(other);
-    }
-
-    //Handle dynamic velocity alteration when player gets pushed or moved into ground collision.
-    private void VelocityCollision(Collision other)
-    {
-        if (1 << other.collider.gameObject.layer == LayerConstants.GroundCollision.value)
-            PhysicsSystem.HandleVelocityCollisions(PhysicsSystem, Capsule, transform.position, other);
-    }
-
-    private void GroundCollision(Collision other)
-    {
-        if (1 << other.collider.gameObject.layer == LayerConstants.GroundCollision.value)
-            PhysicsSystem.HandleGroundCollisions(PhysicsSystem, Capsule, transform.position, other);
-    }
-
-    private void OverlapCollision(Collision other)
-    {
-        if (1 << other.collider.gameObject.layer == LayerConstants.GroundCollision.value)
-            PhysicsSystem.HandleOverlapCollisions(PhysicsSystem, Capsule, transform.position, other);
     }
 
     public void Push(Vector3 velocity)
     {
         dynamicAgentVelocity += velocity;
+    }
+
+    public Vector3 GetGroundNormal()
+    {
+        RaycastHit raycast;
+        bool hit = UnityEngine.Physics.SphereCast(
+            transform.position + BottomSphereOffset + Capsule.radius * Vector3.up,
+            Capsule.radius,
+            Vector3.down,
+            out raycast,
+            Capsule.radius + Capsule.height / 2f,
+            LayerConstants.GroundCollision);
+
+        if (hit)
+        {
+            return raycast.normal;
+        }
+        else
+        {
+            return Vector3.up;
+        }
+    }
+
+    public void ClampToGround()
+    {
+        RaycastHit raycast;
+
+        Vector3 agentCenter = Agent.nextPosition + (-Agent.baseOffset + Agent.height / 2) * Vector3.up;
+
+        bool hit = UnityEngine.Physics.SphereCast(
+            agentCenter,
+            Capsule.radius,
+            Vector3.down,
+            out raycast,
+            (Capsule.height / 2) + Capsule.radius,
+            LayerConstants.GroundCollision);
+
+        if (hit)
+        {
+            float verticalOffset = 1 - (raycast.distance - (Capsule.height / 2 - Capsule.radius));
+            Agent.baseOffset = verticalOffset;
+        }
     }
 
     public void DynamicDrag(float strength)
@@ -308,8 +281,6 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         TurnOffAgent();
 
-        PhysicsSystem.Animating = true;
-
         if (AbilityManager.CurrentAbility != null)
         {
             AbilityManager.CurrentAbility.ShortCircuit();
@@ -321,8 +292,6 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public virtual void Freeze()
     {
         TurnOffAgent();
-
-        PhysicsSystem.Animating = true;
 
         if (AbilityManager.CurrentAbility != null)
         {
@@ -344,10 +313,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         {
             isAgentOn = true;
             Agent.ResetPath();
-            Agent.Warp(transform.position);
-            Agent.updatePosition = true;
             Agent.updateRotation = true;
-            PhysicsSystem.Animating = true;
         }
     }
 
@@ -356,11 +322,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         if (isAgentOn)
         {
             isAgentOn = false;
-            PhysicsSystem.TotalZero(true, true, true);
-            Agent.updatePosition = false;
+            Agent.ResetPath();
             Agent.updateRotation = false;
-            PhysicsSystem.Animating = false;
-            PhysicsSystem.ForceTouchingFloor();
         }
     }
 
@@ -718,18 +681,21 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     private void FollowAgentPoint()
     {
-        Vector3 destination = waypoints[waypoints.Count - 1];
-        currentWaypoint = destination;
-        Vector3 desinationNav = GameInfo.CurrentLevel.NavCast(destination);
+        if (isAgentOn)
+        {
+            Vector3 destination = waypoints[waypoints.Count - 1];
+            currentWaypoint = destination;
+            Vector3 desinationNav = GameInfo.CurrentLevel.NavCast(destination);
 
-        Agent.SetDestination(desinationNav);
-        waypoints.RemoveAt(waypoints.Count - 1);
-        Agent.stoppingDistance = 0;
-        startedWaypoints = true;
+            Agent.SetDestination(desinationNav);
+            waypoints.RemoveAt(waypoints.Count - 1);
+            Agent.stoppingDistance = 0;
+            startedWaypoints = true;
 
-        Vector2 centerDirection = EnemyInfo.MeleeArranger.Center - Matho.StandardProjection2D(transform.position);
-        Vector2 nodeDirection = Matho.StandardProjection2D(destination - transform.position);
-        Agent.autoBraking = (Matho.AngleBetween(nodeDirection, centerDirection) > 45);
+            Vector2 centerDirection = EnemyInfo.MeleeArranger.Center - Matho.StandardProjection2D(transform.position);
+            Vector2 nodeDirection = Matho.StandardProjection2D(destination - transform.position);
+            Agent.autoBraking = (Matho.AngleBetween(nodeDirection, centerDirection) > 45);
+        }
     }
 
     private void RightPath(int index, int endIndex, float exactIndex, Vector2 endPosition, ref bool valid, ref int count, ref List<Vector2> waypoints)

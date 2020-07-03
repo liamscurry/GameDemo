@@ -16,7 +16,7 @@ public sealed class PlayerSword : PlayerAbility
     private AnimationClip chargeNoTargetClip;
     private AnimationClip actNoTargetClip;
 
-    private float damage = 0f;//0.5
+    private float damage = 0.5f;//0.5
     private float strength = 18;
     private PlayerSingleDamageHitbox hitbox;
     private Vector3 hitboxScale = new Vector3(1.5f, 2, 2);
@@ -439,7 +439,7 @@ public sealed class PlayerSword : PlayerAbility
             enemy.ChangeHealth(
                 -damage * PlayerInfo.StatsManager.DamageMultiplier.Value);
             enemy.ConsumeResolve();
-            Debug.Log(enemy.PhysicsSystem.Animating);
+            //Debug.Log(enemy.PhysicsSystem.Animating);
         }
         else
         {

@@ -38,7 +38,7 @@ public class RangedEnemyAttackWaiting : StateMachineBehaviour
             distanceToPlayer = DistanceToPlayer();
 
             RotateTowardsPlayer();
-            ClampToGround();
+            manager.ClampToGround();
 
             if (!exiting) 
                 DefensiveTransition();
@@ -100,27 +100,6 @@ public class RangedEnemyAttackWaiting : StateMachineBehaviour
         Vector3 targetForward = Matho.StandardProjection3D(losPosition - manager.transform.position).normalized;
         Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 1.1f * Time.deltaTime, 0f);
         manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
-    }
-
-    private void ClampToGround()
-    {
-        RaycastHit raycast;
-
-        Vector3 agentCenter = manager.Agent.nextPosition + (-manager.Agent.baseOffset + manager.Agent.height / 2) * Vector3.up;
-
-        bool hit = UnityEngine.Physics.SphereCast(
-            agentCenter,
-            manager.Capsule.radius,
-            Vector3.down,
-            out raycast,
-            (manager.Capsule.height / 2) + manager.Capsule.radius,
-            LayerConstants.GroundCollision);
-
-        if (hit)
-        {
-            float verticalOffset = 1f - (raycast.distance - (manager.Capsule.height / 2 - manager.Capsule.radius));
-            manager.Agent.baseOffset = verticalOffset;
-        }
     }
 
     private float DistanceToPlayer()

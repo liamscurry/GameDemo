@@ -153,7 +153,7 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
         hitbox.gameObject.SetActive(true);
         hitbox.Invoke(this);
 
-        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, system.Physics.Normal);
+        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, ((EnemyAbilityManager) system).Manager.GetGroundNormal());
         hitbox.transform.rotation = normalRotation * transform.rotation;
     }
 

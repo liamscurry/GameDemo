@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Obsolete("Enemies now will never exit their navmesh.")]
 public class LightEnemyFalling : StateMachineBehaviour
 {
     private LightEnemyManager manager;
@@ -16,6 +17,7 @@ public class LightEnemyFalling : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        /*
         if ((manager.PhysicsSystem.EnteredFloor || manager.PhysicsSystem.TouchingFloor) && !animator.IsInTransition(0))
 		{
 			if (manager.PhysicsSystem.LastCalculatedVelocity.y < -15)
@@ -29,5 +31,6 @@ public class LightEnemyFalling : StateMachineBehaviour
 
 			animator.SetBool("falling", false);
 		}	
+        */
     }
 }

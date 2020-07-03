@@ -18,15 +18,13 @@ public sealed class LightEnemyCharge : EnemyAbility
     //Fields
     private float damage = 1;
  
-    private Vector2 direction;
+    private Vector3 direction;
     private const float speed = 6.75f;
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
     private AbilitySegment slow;
     private AbilityProcess slowProcess;
-
-    private bool exitedGround;
 
     public override void Initialize(EnemyAbilityManager abilityManager)
     {
@@ -50,51 +48,33 @@ public sealed class LightEnemyCharge : EnemyAbility
         AttackAngleMargin = 5;
     }
 
+    public override void GlobalUpdate()
+    {
+        ((EnemyAbilityManager) system).Manager.ClampToGround();
+    }
+
     private void ActBegin()
     {
-        direction = Matho.StandardProjection2D(PlayerInfo.Player.transform.position - transform.position).normalized;
-        system.Physics.GravityStrength = 0;
-        system.Movement.ExitEnabled = false;
+        direction = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
         hitbox.Invoke(this);
         hitbox.gameObject.SetActive(true);
-    
-        exitedGround = false;
     }
 
     private void DuringAct()
     {
-        if (system.Physics.TouchingFloor)
-        {
-            actVelocity = system.Movement.Move(direction, speed);
-        }
-        else
-        {
-            system.Physics.AnimationVelocity += system.Movement.ExitVelocity;
-            actVelocity = system.Movement.ExitVelocity;
-        }  
+        ((EnemyAbilityManager) system).Manager.Agent.Move(direction * speed * Time.deltaTime);
 
-        Vector3 targetForward = new Vector3(direction.x, 0, direction.y).normalized;
+        Vector3 targetForward = direction;
         Vector3 forward = Vector3.RotateTowards(transform.forward, targetForward, 3f * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
 
-        if (system.Physics.ExitedFloor)
-        {
-            exitedGround = true;
-        }
-
-        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, system.Physics.Normal);
+        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, ((EnemyAbilityManager) system).Manager.GetGroundNormal());
         hitbox.transform.rotation = normalRotation * transform.rotation;
     }
 
     private void ActEnd()
     {  
         hitbox.gameObject.SetActive(false);
-        system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
-        system.Movement.ExitEnabled = true;
-        if (exitedGround)
-        {
-            system.Animator.SetBool("falling", true);
-        }
     }
 
     public override bool OnHit(GameObject character)

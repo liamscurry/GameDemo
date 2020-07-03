@@ -34,7 +34,7 @@ public class LightEnemyAttackStationary : StateMachineBehaviour
             }
 
             RotateTowardsPlayer();
-            ClampToGround();
+            manager.ClampToGround();
             
             FollowTransition();
             AttackTransition();
@@ -43,27 +43,6 @@ public class LightEnemyAttackStationary : StateMachineBehaviour
                 checkTimer = 0;
         }
 	}
-
-    private void ClampToGround()
-    {
-        RaycastHit raycast;
-
-        Vector3 agentCenter = manager.Agent.nextPosition + (-manager.Agent.baseOffset + manager.Agent.height / 2) * Vector3.up;
-
-        bool hit = UnityEngine.Physics.SphereCast(
-            agentCenter,
-            manager.Capsule.radius,
-            Vector3.down,
-            out raycast,
-            (manager.Capsule.height / 2) + manager.Capsule.radius,
-            LayerConstants.GroundCollision);
-
-        if (hit)
-        {
-            float verticalOffset = 1 - (raycast.distance - (manager.Capsule.height / 2 - manager.Capsule.radius));
-            manager.Agent.baseOffset = verticalOffset;
-        }
-    }
 
     private void RotateTowardsPlayer()
     {
