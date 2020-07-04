@@ -6,6 +6,12 @@ public class HealthbarShadow : MonoBehaviour
 {
     [SerializeField]
     private Transform mimicTransform;
+    [SerializeField]
+    private MeshRenderer meshRenderer;
+    [SerializeField]
+    private float delayDuration;
+    [SerializeField]
+    private float shadowSpeed;
 
     private bool mimicing;
 
@@ -13,6 +19,9 @@ public class HealthbarShadow : MonoBehaviour
     {
         if (mimicTransform.localScale.x > transform.localScale.x + 0.05f)
         {
+            if (!meshRenderer.gameObject.activeSelf)
+                meshRenderer.gameObject.SetActive(true);
+
             transform.localScale =
                 new Vector3(mimicTransform.localScale.x,
                             transform.localScale.y,
@@ -22,9 +31,19 @@ public class HealthbarShadow : MonoBehaviour
         else if (mimicTransform.localScale.x < transform.localScale.x - 0.05f &&
                  !mimicing)
         {
-            StartCoroutine(DelayedMimicCoroutine(1.5f, 0.75f));
+            StartCoroutine(DelayedMimicCoroutine(delayDuration, shadowSpeed));
             mimicing = true;
         }
+    }
+
+    public void Zero()
+    {
+        transform.localScale =
+                new Vector3(0,
+                            transform.localScale.y,
+                            transform.localScale.z);
+        StopAllCoroutines();
+        meshRenderer.gameObject.SetActive(false);
     }
 
     private IEnumerator DelayedMimicCoroutine(float delay, float speed)
@@ -55,7 +74,11 @@ public class HealthbarShadow : MonoBehaviour
         }
         else
         {
-            gameObject.SetActive(false);
+            transform.localScale =
+                new Vector3(0,
+                            transform.localScale.y,
+                            transform.localScale.z);
+            meshRenderer.gameObject.SetActive(false);
         }
 
         mimicing = false;

@@ -16,11 +16,18 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private Color healthBarColor;
     [SerializeField]
+    private GameObject resolvebarPivot;
+    [SerializeField]
+    private HealthbarShadow resolvebarShadowPivot;
+    [SerializeField]
     private Collider hitbox;
     [SerializeField]
     private int maxResolve;
+    [SerializeField]
+    private float resolveZeroDuration;
 
     private int currentResolve;
+    private float resolveTimer;
 
     private float baseAgentSpeed;
 
@@ -101,6 +108,9 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         baseAgentSpeed = Agent.speed;
 
         BottomSphereOffset = Capsule.BottomSphereOffset();
+
+        ZeroResolveBar();
+        resolvebarShadowPivot.Zero();
     }
 
     private void Update()
@@ -108,6 +118,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         BuffManager.UpdateBuffs();
         AbilityManager.UpdateAbilities();
         ColorHealth();
+        TimeResolve();
         Agent.speed = baseAgentSpeed * StatsManager.MovespeedMultiplier.Value;
 
         //if (!PhysicsSystem.Animating || moveViaMovementManagerDuringAnimating)
@@ -188,6 +199,16 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         currentResolve += amount;
         if (currentResolve > maxResolve)
             currentResolve = maxResolve;
+
+        if (!resolvebarPivot.activeSelf)
+            resolvebarPivot.gameObject.SetActive(true);
+
+        float resolvePercentage = ((float) currentResolve) / maxResolve;
+
+        resolvebarPivot.transform.localScale =
+            new Vector3(resolvePercentage, resolvebarPivot.transform.localScale.y, resolvebarPivot.transform.localScale.z);
+
+        resolveTimer = 0;
     }
 
     public bool CheckResolve()
@@ -197,7 +218,29 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public void ConsumeResolve()
     {
-        currentResolve = 0;
+        if (currentResolve != 0)
+        {
+            currentResolve = 0;
+            ZeroResolveBar();
+        }
+    }
+
+    private void TimeResolve()
+    {
+        resolveTimer += Time.deltaTime;
+        if (resolveTimer >= resolveZeroDuration)
+        {
+            resolveTimer = 0;
+            ConsumeResolve();
+        }
+    }
+
+    public void ZeroResolveBar()
+    {
+        resolvebarPivot.transform.localScale =
+            new Vector3(0, resolvebarPivot.transform.localScale.y, resolvebarPivot.transform.localScale.z);
+
+        resolvebarPivot.SetActive(false);
     }
 
     public void ChangeHealth(float value)
