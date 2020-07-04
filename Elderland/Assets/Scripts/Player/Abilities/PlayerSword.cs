@@ -437,7 +437,7 @@ public sealed class PlayerSword : PlayerAbility
         {
             enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 5.5f);
             enemy.ChangeHealth(
-                -damage * PlayerInfo.StatsManager.DamageMultiplier.Value);
+                -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 2);
             enemy.ConsumeResolve();
             //Debug.Log(enemy.PhysicsSystem.Animating);
         }
