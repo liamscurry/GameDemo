@@ -302,7 +302,10 @@ public class CameraController : MonoBehaviour
             orientationTimer = 0;
         }
         
-        if (orientationDelta != 0 && PlayerInfo.StatsManager.Sprinting && orientationTimer > 0.35f)
+        if (orientationDelta != 0 &&
+            PlayerInfo.StatsManager.Sprinting &&
+            orientationTimer > 0.35f &&
+            Matho.AngleBetween(GameInfo.Settings.LeftDirectionalInput, Vector2.up) < 45f)
         {
             orientationPercentage = Mathf.MoveTowards(orientationPercentage, orientationDelta, 1.8f * Time.deltaTime);
         }
