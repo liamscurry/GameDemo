@@ -12,10 +12,11 @@ Shader "Custom/WavingGrassGround"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
+        _Threshold ("Threshold", Range(0, 1)) = 0.1
     }
     SubShader
     {
-        //Cull off
+        Cull off
 
         Pass
         {
@@ -91,6 +92,7 @@ Shader "Custom/WavingGrassGround"
 
             struct v2f
             {
+                float2 uv : TEXCOORD0;
                 float4 _ShadowCoord : TEXCOORD1;
                 float4 pos : SV_POSITION;
             };
@@ -100,16 +102,21 @@ Shader "Custom/WavingGrassGround"
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o._ShadowCoord = ComputeScreenPos(o.pos);
-
+                o.uv = v.uv;
                 return o;
             }
             
             float4 _Color;
             sampler2D _ShadowMapTexture; 
             sampler2D _MainTex;
+            float _Threshold;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
+                float4 textureColor = tex2D(_MainTex, i.uv);
+                if (textureColor.a < _Threshold)
+                    clip(textureColor.a - _Threshold);
+
                 float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
                 float4 finalColor = _Color;
 
