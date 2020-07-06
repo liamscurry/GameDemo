@@ -13,6 +13,9 @@ Shader "Custom/TreeTrunk"
         _MainTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
+        _CrossFade ("CrossFade", float) = 0
+        _EvenFade ("EvenFade", Range(0, 1)) = 0
+        _OddFade ("EvenFade", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -40,20 +43,77 @@ Shader "Custom/TreeTrunk"
             {
                 float2 uv :TEXCOORD0;
                 V2F_SHADOW_CASTER; //float4 pos : SV_POSITION thats it
+                float4 _ShadowCoord : TEXCOORD1;
             };
 
             sampler2D _MainTex;
+            float _CrossFade;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.uv = v.uv;
                 TRANSFER_SHADOW_CASTER_NORMALOFFSET(o); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
+                o._ShadowCoord = ComputeScreenPos(o.pos);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
+                float2 screenPercentagePos = i._ShadowCoord.xy / i._ShadowCoord.w;
+                float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
+                                             sin(screenPercentagePos.y * 2 * 3.151592 * _CrossFade * 9));
+                float checkboardClip = checkerboard.x > 0 ^ checkerboard.y > 0; 
+
+                float flipLOD = abs(unity_LODFade.x);
+                if (unity_LODFade.x > 0)
+                    flipLOD = 1 - flipLOD;
+                flipLOD = 1 - flipLOD;
+
+                //unity_LODFade.x at 1 is off.
+                //unity_LODFade.x at 0 is on.
+
+                //unity_LODFade.x at 1 is off.
+                //unity_LODFade.x at 0 is on.
+
+                int fadeSign = 1;
+                if (unity_LODFade.x < 0)
+                    fadeSign = -1;
+
+                if ((checkboardClip * -1 < 0 && fadeSign == 1) || (checkboardClip * -1 >= 0 && fadeSign == -1))
+                {
+                    //clip(-1);
+                    float rightLOD = (flipLOD - 0.5) * 2;
+                    if (rightLOD < 0)
+                        rightLOD = 0;
+
+                    float evenClip = 0;
+                    if (fadeSign == 1)
+                    {    
+                        evenClip = abs(checkerboard.x) > rightLOD && abs(checkerboard.y) > rightLOD;
+                    }
+                    else
+                    {
+                        evenClip = !(abs(checkerboard.x) > (1 - rightLOD) && abs(checkerboard.y) > (1 - rightLOD));
+                    }
+                    clip(evenClip * -1);
+                }
+                else
+                {
+                    //clip(-1);
+                    float leftLOD = flipLOD * 2;
+                    float oddClip = 0;
+                    if (fadeSign == 1)
+                    {
+                        oddClip = abs(checkerboard.x) > leftLOD && abs(checkerboard.y) > leftLOD;
+                    }
+                    else
+                    {
+                        oddClip = !(abs(checkerboard.x) > (1 - leftLOD) && abs(checkerboard.y) > (1 - leftLOD));
+                    }
+                    clip(oddClip * -1);
+                }
+
                 float4 textureColor = (tex2D(_MainTex, i.uv));
                 clip(textureColor.w - 1);
                 return 0;
@@ -73,7 +133,9 @@ Shader "Custom/TreeTrunk"
                 //"Queue"="Transparent"    
             }
 
-            //ZWrite On
+            //ZWrite Off
+
+            //Blend SrcAlpha OneMinusSrcAlpha
 
             CGPROGRAM
             #pragma vertex vert
@@ -121,13 +183,83 @@ Shader "Custom/TreeTrunk"
             sampler2D _ShadowMapTexture; 
             sampler2D _MainTex;
             float _Threshold;
+            float _CrossFade;
+            float _EvenFade;
+            float _OddFade;
+            sampler2D _CameraDepthTexture;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
+                //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
                 float4 textureColor = tex2D(_MainTex, i.uv);
                 if (textureColor.a < _Threshold)
                     clip(textureColor.a - _Threshold);
+
+                
+                //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
+                //return fixed4(depth,depth,depth,1);
+
+                float2 screenPercentagePos = i._ShadowCoord.xy / i._ShadowCoord.w;
+                float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
+                                             sin(screenPercentagePos.y * 2 * 3.151592 * _CrossFade * 9));
+                float checkboardClip = checkerboard.x > 0 ^ checkerboard.y > 0; 
+
+                //#ifdef LOD_FADE_CROSSFADE
+                //    return fixed4(1,0,0,1);
+                //#endif
+
+                float flipLOD = abs(unity_LODFade.x);
+                if (unity_LODFade.x > 0)
+                    flipLOD = 1 - flipLOD;
+                flipLOD = 1 - flipLOD;
+
+                //return fixed4(abs(unity_LODFade.x), abs(unity_LODFade.x), abs(unity_LODFade.x), 1);
+
+                //unity_LODFade.x at 1 is off.
+                //unity_LODFade.x at 0 is on.
+
+                //unity_LODFade.x at 1 is off.
+                //unity_LODFade.x at 0 is on.
+
+                int fadeSign = 1;
+                if (unity_LODFade.x < 0)
+                    fadeSign = -1;
+
+                if ((checkboardClip * -1 < 0 && fadeSign == 1) || (checkboardClip * -1 >= 0 && fadeSign == -1))
+                {
+                    //clip(-1);
+                    float rightLOD = (flipLOD - 0.5) * 2;
+                    if (rightLOD < 0)
+                        rightLOD = 0;
+
+                    float evenClip = 0;
+                    if (fadeSign == 1)
+                    {    
+                        evenClip = abs(checkerboard.x) > rightLOD && abs(checkerboard.y) > rightLOD;
+                    }
+                    else
+                    {
+                        evenClip = !(abs(checkerboard.x) > (1 - rightLOD) && abs(checkerboard.y) > (1 - rightLOD));
+                    }
+                    clip(evenClip * -1);
+                }
+                else
+                {
+                    //clip(-1);
+                    float leftLOD = flipLOD * 2;
+                    float oddClip = 0;
+                    if (fadeSign == 1)
+                    {
+                        oddClip = abs(checkerboard.x) > leftLOD && abs(checkerboard.y) > leftLOD;
+                    }
+                    else
+                    {
+                        oddClip = !(abs(checkerboard.x) > (1 - leftLOD) && abs(checkerboard.y) > (1 - leftLOD));
+                    }
+                    clip(oddClip * -1);
+                }
+                //clip(checkboardClip * -1);
 
                 float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
                 float4 finalColor = _Color;
