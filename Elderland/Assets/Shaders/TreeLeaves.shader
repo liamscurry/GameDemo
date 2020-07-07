@@ -14,6 +14,7 @@ Shader "Custom/TreeLeaves"
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
+        _FringeIntensity ("FringeIntensity", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -194,6 +195,7 @@ Shader "Custom/TreeLeaves"
             sampler2D _MainTex;
             float _Threshold;
             float _CrossFade;
+            float _FringeIntensity;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -263,10 +265,10 @@ Shader "Custom/TreeLeaves"
                 float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color;
                 
-                finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
+                finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5 * (1 - _FringeIntensity)), 2) * 0.45;
                 finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
-                float verticalProduct = sin(i.worldPos.y * .5);
-                float horizontalProduct = sin(i.worldPos.x * .25);
+                float verticalProduct = sin(i.worldPos.y * .5) * (1 - _FringeIntensity * .7);
+                float horizontalProduct = sin(i.worldPos.x * .25) * (1 - _FringeIntensity * .7);
                 finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct + float4(.1, 0, .1, 1) * horizontalProduct;
                 //float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 //float inShadowSide = shadowProduct > 0.5;
