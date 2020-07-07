@@ -28,6 +28,7 @@ Shader "Custom/TreeTrunk"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fwdbase
 
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -41,9 +42,10 @@ Shader "Custom/TreeTrunk"
 
             struct v2f
             {
-                float2 uv :TEXCOORD0;
-                V2F_SHADOW_CASTER; //float4 pos : SV_POSITION thats it
-                float4 _ShadowCoord : TEXCOORD1;
+                float4 pos : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                SHADOW_COORDS(1) //float4 pos : SV_POSITION thats it
+                //float4 screenPos : TEXCOORD1;
             };
 
             sampler2D _MainTex;
@@ -52,18 +54,22 @@ Shader "Custom/TreeTrunk"
             v2f vert (appdata v)
             {
                 v2f o;
+                o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
-                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
-                o._ShadowCoord = ComputeScreenPos(o.pos);
+                TRANSFER_SHADOW(o) //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
+                //o.screenPos = ComputeScreenPos(o.pos);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float2 screenPercentagePos = i._ShadowCoord.xy / i._ShadowCoord.w;
+                float4 screenPos = ComputeScreenPos(i.pos);
+                float2 screenPercentagePos = screenPos.xy / screenPos.w;
                 float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
                                              sin(screenPercentagePos.y * 2 * 3.151592 * _CrossFade * 9));
                 float checkboardClip = checkerboard.x > 0 ^ checkerboard.y > 0; 
+
+                //return fixed4(screenPercentagePos.x, screenPercentagePos.x, screenPercentagePos.x, 1);
 
                 float flipLOD = abs(unity_LODFade.x);
                 if (unity_LODFade.x > 0)
@@ -76,6 +82,7 @@ Shader "Custom/TreeTrunk"
                 //unity_LODFade.x at 1 is off.
                 //unity_LODFade.x at 0 is on.
 
+                
                 int fadeSign = 1;
                 if (unity_LODFade.x < 0)
                     fadeSign = -1;
@@ -114,6 +121,7 @@ Shader "Custom/TreeTrunk"
                     clip(oddClip * -1);
                 }
 
+
                 float4 textureColor = (tex2D(_MainTex, i.uv));
                 clip(textureColor.w - 1);
                 return 0;
@@ -140,10 +148,12 @@ Shader "Custom/TreeTrunk"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fwdbase
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "Color.cginc"
+            #include "AutoLight.cginc"
             
             // Angle between working
             float AngleBetween(float3 u, float3 v)
@@ -163,7 +173,8 @@ Shader "Custom/TreeTrunk"
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                float4 _ShadowCoord : TEXCOORD1;
+                //float4 _ShadowCoord : TEXCOORD1;
+                SHADOW_COORDS(1)
                 float4 pos : SV_POSITION;
                 float3 normal : TEXCOORD2;
             };
@@ -172,7 +183,8 @@ Shader "Custom/TreeTrunk"
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                o._ShadowCoord = ComputeScreenPos(o.pos);
+                //o._ShadowCoord = ComputeScreenPos(o.pos);
+                TRANSFER_SHADOW(o)
                 o.uv = v.uv;
                 // Via Vertex and fragment shader examples docs.
                 o.normal = UnityObjectToWorldNormal(normal);
@@ -180,7 +192,7 @@ Shader "Custom/TreeTrunk"
             }
             
             float4 _Color;
-            sampler2D _ShadowMapTexture; 
+            //sampler2D _ShadowMapTexture; 
             sampler2D _MainTex;
             float _Threshold;
             float _CrossFade;
@@ -191,6 +203,7 @@ Shader "Custom/TreeTrunk"
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
+                float4 screenPos = ComputeScreenPos(i.pos);
                 //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
                 float4 textureColor = tex2D(_MainTex, i.uv);
                 if (textureColor.a < _Threshold)
@@ -200,7 +213,7 @@ Shader "Custom/TreeTrunk"
                 //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
                 //return fixed4(depth,depth,depth,1);
 
-                float2 screenPercentagePos = i._ShadowCoord.xy / i._ShadowCoord.w;
+                float2 screenPercentagePos = screenPos.xy / screenPos.w;
                 float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
                                              sin(screenPercentagePos.y * 2 * 3.151592 * _CrossFade * 9));
                 float checkboardClip = checkerboard.x > 0 ^ checkerboard.y > 0; 
@@ -261,7 +274,7 @@ Shader "Custom/TreeTrunk"
                 }
                 //clip(checkboardClip * -1);
 
-                float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
+                float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color;
                 finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
                 finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;

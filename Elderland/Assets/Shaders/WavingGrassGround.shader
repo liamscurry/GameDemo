@@ -25,6 +25,7 @@ Shader "Custom/WavingGrassGround"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fwdbase
 
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -38,17 +39,22 @@ Shader "Custom/WavingGrassGround"
 
             struct v2f
             {
-                float2 uv :TEXCOORD0;
-                V2F_SHADOW_CASTER; //float4 pos : SV_POSITION thats it
+                float4 pos : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                SHADOW_COORDS(1) //float4 pos : SV_POSITION thats it
+                //float4 screenPos : TEXCOORD1;
             };
 
             sampler2D _MainTex;
+            float _CrossFade;
 
             v2f vert (appdata v)
             {
                 v2f o;
+                o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
-                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
+                TRANSFER_SHADOW(o) //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
+                //o.screenPos = ComputeScreenPos(o.pos);
                 return o;
             }
 
@@ -78,10 +84,12 @@ Shader "Custom/WavingGrassGround"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fwdbase
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "Color.cginc"
+            #include "AutoLight.cginc"
             
             struct appdata
             {
@@ -93,7 +101,8 @@ Shader "Custom/WavingGrassGround"
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                float4 _ShadowCoord : TEXCOORD1;
+                //float4 _ShadowCoord : TEXCOORD1;
+                SHADOW_COORDS(1)
                 float4 pos : SV_POSITION;
             };
 
@@ -101,13 +110,14 @@ Shader "Custom/WavingGrassGround"
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                o._ShadowCoord = ComputeScreenPos(o.pos);
+                //o._ShadowCoord = ComputeScreenPos(o.pos);
+                TRANSFER_SHADOW(o)
                 o.uv = v.uv;
                 return o;
             }
             
             float4 _Color;
-            sampler2D _ShadowMapTexture; 
+            //sampler2D _ShadowMapTexture; 
             sampler2D _MainTex;
             float _Threshold;
 
@@ -117,7 +127,7 @@ Shader "Custom/WavingGrassGround"
                 if (textureColor.a < _Threshold)
                     clip(textureColor.a - _Threshold);
 
-                float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
+                float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color;
 
                 if (inShadow)
