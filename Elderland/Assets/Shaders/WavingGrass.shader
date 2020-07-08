@@ -52,8 +52,9 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             fixed4 frag (v2f i) : SV_Target
             {
+                float _Threshold = 0.875;
                 float4 textureColor = (tex2D(_MainTex, i.uv));
-                clip(textureColor.w - 1);
+                clip(textureColor.w - _Threshold);
                 return 0;
             }
             ENDCG
@@ -66,12 +67,14 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             Tags 
             { 
                 "LightMode"="ForwardBase"
-                "RenderType"="Geometry+20"
+                "Queue"="Geometry+200"
+                "RenderType"="Grass"
                 //"RenderType"="Transparent"    
                 //"Queue"="Transparent"    
             }
 
             //ZWrite On
+            LOD 200
 
             CGPROGRAM
             #pragma vertex vert
@@ -95,17 +98,32 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float4 pos : SV_POSITION;
                 float4 color : COLOR;
                 float depth : COLOR2;
+                float worldDistance : TEXCOORD2;
             };
 
             v2f vert (appdata v)
             {
                 v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
+                o.depth = length(UnityObjectToViewPos(v.vertex)) / 35;
+
+                float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
+                float worldDistance = length(_WorldSpaceCameraPos.xyz - worldPos.xyz);
+                //o.pos = UnityObjectToClipPos(v.vertex);
+                if (worldDistance < 40)
+                {
+                    o.pos = UnityObjectToClipPos(v.vertex);
+                }
+                else
+                {
+                    float limitedDepth = saturate((worldDistance - 40) / 35);
+                    o.pos = UnityObjectToClipPos(v.vertex - fixed4(0, limitedDepth, 0, 0));
+                    //
+                    //o.pos = UnityObjectToClipPos(v.vertex * float4(1, worldDistance / 30,1,1));
+                }
+                o.worldDistance = worldDistance;
                 o.uv = v.uv;
                 o.color = v.color;
                 o._ShadowCoord = ComputeScreenPos(o.pos);
-
-                o.depth = length(UnityObjectToViewPos(v.vertex)) / 35;
 
                 return o;
             }
@@ -117,11 +135,19 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
+                //return fixed4(i.worldDistance / 50,0,0,1);
                 float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
 
+                float _Threshold = 0.275;
+                /*if (i.depth * 35 > 40)
+                {
+                    _Threshold = saturate(_Threshold + i.depth);   
+                }*/
+                //return fixed4(i.depth * 35 / 50, 0, 0, 1);
+                
                 float4 textureColor = (tex2D(_MainTex, i.uv));
 
-                clip(textureColor.w - 1);
+                clip(textureColor.w - _Threshold);
 
                 //float depthFactor = i.depth;
 

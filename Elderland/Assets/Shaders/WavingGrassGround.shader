@@ -5,7 +5,7 @@
 //Wanted to add group of objects for forward and backward rendering but can't as unity terrain details
 //can only have one object hierarchy per detail or else it is not drawn.
 
-//Based on built in grass shaders.
+//Based on built in grass shaders, UnityShadowLibrary.cginc, AutoLight.cginc and shadow example on vertex and fragment shader examples in docs.
 Shader "Custom/WavingGrassGround"
 {
     Properties
@@ -90,6 +90,7 @@ Shader "Custom/WavingGrassGround"
             #include "Lighting.cginc"
             #include "Color.cginc"
             #include "AutoLight.cginc"
+            #include "UnityShadowLibrary.cginc"
             
             struct appdata
             {
@@ -104,6 +105,7 @@ Shader "Custom/WavingGrassGround"
                 //float4 _ShadowCoord : TEXCOORD1;
                 SHADOW_COORDS(1)
                 float4 pos : SV_POSITION;
+                float4 worldPos : TEXCOORD2;
             };
 
             v2f vert (appdata v)
@@ -113,6 +115,7 @@ Shader "Custom/WavingGrassGround"
                 //o._ShadowCoord = ComputeScreenPos(o.pos);
                 TRANSFER_SHADOW(o)
                 o.uv = v.uv;
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 return o;
             }
             
@@ -130,13 +133,18 @@ Shader "Custom/WavingGrassGround"
                 float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color;
 
+                // Learned in AutoLight.cginc
+                float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
+                float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
+                float fadeValue = UnityComputeShadowFade(fadeDistance);
+
                 if (inShadow)
                 {
                     return finalColor;
                 }
                 else
                 {
-                    return finalColor * fixed4(.5, .5, .5, 1);
+                    return finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue);
                 }
             }
             ENDCG
