@@ -267,9 +267,10 @@ Shader "Custom/TreeLeaves"
                 
                 finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5 * (1 - _FringeIntensity)), 2) * 0.45;
                 finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
-                float verticalProduct = sin(i.worldPos.y * .5) * (1 - _FringeIntensity * .2);
+                float verticalProduct = sin(i.worldPos.y * .5) * (1 - _FringeIntensity * 1.3);
                 float horizontalProduct = sin(i.worldPos.x * .25) * (1 - _FringeIntensity * .7);
                 finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct + float4(.1, 0, .1, 1) * horizontalProduct;
+
                 //float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 //float inShadowSide = shadowProduct > 0.5;
                 //return fixed4(inShadowSide, inShadowSide, inShadowSide, 1);
@@ -280,6 +281,8 @@ Shader "Custom/TreeLeaves"
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
+
+                //return fixed4(inShadow, inShadow, inShadow, 1);
 
                 if (inShadow)
                 {
