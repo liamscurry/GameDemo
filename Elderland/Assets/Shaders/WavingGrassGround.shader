@@ -144,6 +144,7 @@ Shader "Custom/WavingGrassGround"
                 }
                 else
                 {
+                    return finalColor * fixed4(.5, .5, .5, 1);
                     return finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue);
                 }
             }
