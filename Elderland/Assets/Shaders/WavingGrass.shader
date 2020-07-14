@@ -26,6 +26,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
+            #include "FolliageHelper.cginc"
 
             struct appdata
             {
@@ -43,12 +44,14 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             sampler2D _MainTex;
 
-            v2f vert (appdata v)
+            v2f vert (appdata v, float3 normal : NORMAL)
             {
                 v2f o;
+                float3 alteredObjectVertex = WarpGrass(v.vertex, v.uv, normal);
                 o.uv = v.uv;
+                v.vertex = float4(alteredObjectVertex, 1);
                 TRANSFER_SHADOW_CASTER_NORMALOFFSET(o); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
-                float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
+                float4 worldPos = mul(unity_ObjectToWorld, float4(alteredObjectVertex, 1));
                 float worldDistance = length(_WorldSpaceCameraPos.xyz - worldPos.xyz);
                 o.worldDistance = worldDistance;
                 return o;
@@ -109,25 +112,26 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float4 color : COLOR0; //messing with multiple grass textures.
                 float depth : COLOR2;
                 float worldDistance : TEXCOORD2;
-                float4 objectPos : TEXCOORD3;
+                float3 objectPos : TEXCOORD3;
             };  
 
-            v2f vert (appdata v)
+            v2f vert (appdata v, float3 normal : NORMAL)
             {
                 v2f o;
-                o.depth = length(UnityObjectToViewPos(v.vertex)) / 35;
+                float3 alteredObjectVertex = WarpGrass(v.vertex, v.uv, normal);
+                o.depth = length(UnityObjectToViewPos(alteredObjectVertex)) / 35;
 
-                float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
+                float4 worldPos = mul(unity_ObjectToWorld, float4(alteredObjectVertex, 1));
                 float worldDistance = length(_WorldSpaceCameraPos.xyz - worldPos.xyz);
                 //o.pos = UnityObjectToClipPos(v.vertex);
                 if (worldDistance < 40)
                 {
-                    o.pos = UnityObjectToClipPos(v.vertex);
+                    o.pos = UnityObjectToClipPos(alteredObjectVertex);
                 }
                 else
                 {
                     float limitedDepth = saturate((worldDistance - 40) / 35);
-                    o.pos = UnityObjectToClipPos(v.vertex - fixed4(0, limitedDepth, 0, 0));
+                    o.pos = UnityObjectToClipPos(alteredObjectVertex - fixed4(0, limitedDepth, 0, 0));
                     //
                     //o.pos = UnityObjectToClipPos(v.vertex * float4(1, worldDistance / 30,1,1));
                 }
@@ -137,7 +141,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //o.color = float4(1,0,0,1);
                 o.color = v.color;
                 o._ShadowCoord = ComputeScreenPos(o.pos);
-                o.objectPos = v.vertex;
+                o.objectPos = alteredObjectVertex;
                 return o;
             }
             
