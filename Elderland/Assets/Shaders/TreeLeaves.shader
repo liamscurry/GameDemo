@@ -31,6 +31,7 @@ Shader "Custom/TreeLeaves"
 
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
+            #include "FolliageHelper.cginc"
 
             struct appdata
             {
@@ -49,11 +50,13 @@ Shader "Custom/TreeLeaves"
 
             sampler2D _MainTex;
             float _CrossFade;
+            float _Threshold;
 
-            v2f vert (appdata v)
+            v2f vert (appdata v, float3 normal : NORMAL)
             {
                 v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
+                float3 alteredObjectVertex = WarpFolliage(v.vertex, v.uv, normal);
+                o.pos = UnityObjectToClipPos(alteredObjectVertex);
                 o.uv = v.uv;
                 TRANSFER_SHADOW(o) //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
                 //o.screenPos = ComputeScreenPos(o.pos);
@@ -121,8 +124,10 @@ Shader "Custom/TreeLeaves"
                 }
 
 
-                float4 textureColor = (tex2D(_MainTex, i.uv));
-                clip(textureColor.w - 1);
+                float4 textureColor = tex2D(_MainTex, i.uv);
+                if (textureColor.a < _Threshold)
+                    clip(textureColor.a - _Threshold);
+                //clip(textureColor.w - 1);
                 return 0;
             }
             ENDCG
@@ -151,6 +156,7 @@ Shader "Custom/TreeLeaves"
             #include "Lighting.cginc"
             #include "Color.cginc"
             #include "AutoLight.cginc"
+            #include "FolliageHelper.cginc"
             
             // Angle between working
             float AngleBetween(float3 u, float3 v)
@@ -180,8 +186,9 @@ Shader "Custom/TreeLeaves"
             v2f vert (appdata v, float3 normal : NORMAL)
             {
                 v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
-                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                float3 alteredObjectVertex = WarpFolliage(v.vertex, v.uv, normal);
+                o.pos = UnityObjectToClipPos(alteredObjectVertex);
+                o.worldPos = mul(unity_ObjectToWorld, alteredObjectVertex);
                 //o.screenPos = ComputeScreenPos(o.pos);
                 TRANSFER_SHADOW(o)
                 o.uv = v.uv;
@@ -276,7 +283,7 @@ Shader "Custom/TreeLeaves"
                 if (verticalProduct < 0)
                     verticalProduct = 0;
                 float horizontalProduct = sin(i.worldPos.x * .25) * (1 - _FringeIntensity * .1);
-                finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct + float4(.1, 0, .1, 1) * horizontalProduct;
+                //finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct + float4(.1, 0, .1, 1) * horizontalProduct;
 
                 //float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 //float inShadowSide = shadowProduct > 0.5;

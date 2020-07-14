@@ -90,6 +90,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "Color.cginc"
+            #include "FolliageHelper.cginc"
             
             //float4 _MainTex_ST;
 
