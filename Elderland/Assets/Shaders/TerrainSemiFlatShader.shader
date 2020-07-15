@@ -137,7 +137,7 @@ Shader "Custom/TerrainSemiFlatShader"
         {
             Tags 
             { 
-                //"LightMode"="ForwardBase"
+                "LightMode"="ForwardBase"
                 "RenderType"="Geometry+20"
                 //"RenderType"="Transparent"    
                 //"Queue"="Transparent"    
@@ -192,7 +192,11 @@ Shader "Custom/TerrainSemiFlatShader"
             {
                 //float2 uv : TEXCOORD0;
                 float4 pos : SV_POSITION;
+                float3 normal : TEXCOORD0;
                 float4 tc : TEXCOORD1;
+                float4 uv : TEXCOORD2;
+                float3 worldPos : TEXCOORD3;
+                SHADOW_COORDS(4)
             };
 
             //v2f vert (appdata v, float3 normal : NORMAL)
@@ -208,10 +212,15 @@ Shader "Custom/TerrainSemiFlatShader"
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 */
                 v2fInput o;
+                o.pos = UnityObjectToClipPos(v.vertex);
+                o.uv = v.texcoord;
+                o.normal = UnityObjectToWorldNormal(v.normal);
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                TRANSFER_SHADOW(o)
+
                 Input data;
                 SplatmapVert(v, data);
                 o.tc = data.tc;
-                o.pos = UnityObjectToClipPos(v.vertex);
                 //o.uv = v.uv;
                 //return o;
                 return o;
@@ -244,8 +253,8 @@ Shader "Custom/TerrainSemiFlatShader"
                 Input input = (Input)0;
                 input.tc = i.tc;
                 SplatmapMix(input, defaultSmoothness, splatControl, weight, mixedDiffuse, normal);
-                return fixed4(mixedDiffuse.rgb, weight);
-                /*
+                //return fixed4(mixedDiffuse.rgb, weight);
+                
                 float4 screenPos = ComputeScreenPos(i.pos);
                 //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
                 float4 textureColor = tex2D(_MainTex, i.uv);
@@ -319,7 +328,7 @@ Shader "Custom/TerrainSemiFlatShader"
 
                 float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color;
-                finalColor *= tex2D(_MainTex, i.uv);
+                finalColor *= fixed4(mixedDiffuse.rgb, weight);//tex2D(_MainTex, i.uv);
                 //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
                 //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
 
@@ -351,7 +360,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 {
                     return shadowColor;
                 }
-                */
+                
             }
             ENDCG
         }
