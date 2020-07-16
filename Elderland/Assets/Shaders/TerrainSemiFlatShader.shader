@@ -11,6 +11,8 @@ Shader "Custom/TerrainSemiFlatShader"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _BumpMap ("BumpMap", 2D) = "white" {}
+        _OpacityMap ("OpacityMap", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
@@ -192,11 +194,13 @@ Shader "Custom/TerrainSemiFlatShader"
             {
                 //float2 uv : TEXCOORD0;
                 float4 pos : SV_POSITION;
-                float3 normal : TEXCOORD0;
+                float3 normal : TEXCOORD2;
                 float4 tc : TEXCOORD1;
-                float4 uv : TEXCOORD2;
+                float4 uv : TEXCOORD0;
                 float3 worldPos : TEXCOORD3;
                 SHADOW_COORDS(4)
+                float4 tangent : COLOR0;
+                float4 originalUV : TEXCOORD5;
             };
 
             //v2f vert (appdata v, float3 normal : NORMAL)
@@ -212,9 +216,14 @@ Shader "Custom/TerrainSemiFlatShader"
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 */
                 v2fInput o;
+                o.originalUV = v.texcoord;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                o.uv = v.texcoord;
-                o.normal = UnityObjectToWorldNormal(v.normal);
+                float tangentScale = length(mul(unity_ObjectToWorld, float3(0,0,0)) - mul(unity_ObjectToWorld, v.tangent.xyz));
+                float3 orthoTangent = cross(v.tangent.xyz, v.normal);
+                float orthoTangentScale = length(mul(unity_ObjectToWorld, float3(0,0,0)) - mul(unity_ObjectToWorld, orthoTangent));
+                o.uv = v.texcoord * float4(tangentScale, orthoTangentScale, 1, 1);//float4(unity_ObjectToWorld[0].x, unity_ObjectToWorld[1].y, unity_ObjectToWorld[2].z, 1); 
+                o.normal = v.normal;
+                o.tangent = v.tangent;
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 TRANSFER_SHADOW(o)
 
@@ -229,6 +238,8 @@ Shader "Custom/TerrainSemiFlatShader"
             float4 _Color;
             //sampler2D _ShadowMapTexture; 
             sampler2D _MainTex;
+            sampler2D _BumpMap;
+            sampler2D _OpacityMap;
             float _Threshold;
             float _CrossFade;
             float _EvenFade;
@@ -243,24 +254,43 @@ Shader "Custom/TerrainSemiFlatShader"
             //fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             fixed4 frag(v2fInput i, fixed facingCamera : VFACE) : SV_Target
             {
+                float3 normal = normalize(mul(unity_ObjectToWorld, i.normal));
+                float3 tangent = normalize(mul(unity_ObjectToWorld, i.tangent.xyz));
                 // Terrain texture:
                 // Learned via standard-firstpass.shader in default shaders
                 half4 splatControl;
                 half weight;
                 fixed4 mixedDiffuse;
                 half4 defaultSmoothness = half4(0.05, 0.05, 0.05, 0.05);
-                float3 normal = float3(0,1,0);
                 Input input = (Input)0;
                 input.tc = i.tc;
                 SplatmapMix(input, defaultSmoothness, splatControl, weight, mixedDiffuse, normal);
+
+                // Normal from terrain texture (From rendering systems project character helper):
+                float3 unpackedNormal = UnpackNormal(tex2D(_BumpMap, i.uv));//fixed4(mixedDiffuse.rgb, weight)
+                float3 orthogonalTangent = mul(unity_ObjectToWorld, -cross(i.normal, i.tangent.xyz));
+                float3x3 tangentMatrix =
+                    float3x3(tangent.x, orthogonalTangent.x, normal.x,
+                             tangent.y, orthogonalTangent.y, normal.y,
+                             tangent.z, orthogonalTangent.z, normal.z
+                    );
+                float3 worldUnpackedNormal = mul(tangentMatrix, unpackedNormal); //world unpacked normal is wrong.
+                float normalPercentage = tex2D(_OpacityMap, i.originalUV);
+                worldUnpackedNormal = worldUnpackedNormal * normalPercentage + 
+                                      normal * (1 - normalPercentage);
+                //worldUnpackedNormal = unpackedNormal;
+                //float a = AngleBetween(float3(0,1,0), unpackedNormal) / 3.141592;
+                //worldUnpackedNormal = i.normal;
+                //return fixed4(worldUnpackedNormal.y,worldUnpackedNormal.y,worldUnpackedNormal.y,1);
+                //return float4(worldUnpackedNormal, 1);
                 //return fixed4(mixedDiffuse.rgb, weight);
                 
                 float4 screenPos = ComputeScreenPos(i.pos);
                 //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
                 float4 textureColor = tex2D(_MainTex, i.uv);
-                if (textureColor.a < _Threshold)
-                    clip(textureColor.a - _Threshold);
-
+                //if (textureColor.a < _Threshold)
+                //    clip(textureColor.a - _Threshold);
+                textureColor = float4(1,1,1,1);
                 
                 //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
                 //return fixed4(depth,depth,depth,1);
@@ -328,11 +358,11 @@ Shader "Custom/TerrainSemiFlatShader"
 
                 float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color;
-                finalColor *= fixed4(mixedDiffuse.rgb, weight);//tex2D(_MainTex, i.uv);
+                //finalColor *= fixed4(mixedDiffuse.rgb, weight);//tex2D(_MainTex, i.uv);
                 //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
                 //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
 
-                float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
+                float shadowProduct = AngleBetween(worldUnpackedNormal, _WorldSpaceLightPos0.xyz) / 3.151592;//i.normal
                 float inShadowSide = shadowProduct > 0.5;
 
                 float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35, .35, .35, 1);
@@ -342,7 +372,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 if (inShadow && !inShadowSide)
                 {    
                     float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                    float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
+                    float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, worldUnpackedNormal);//i.normal
                     float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
                     //return fixed4(f,f,f,1);
                     if (f > .9f)
