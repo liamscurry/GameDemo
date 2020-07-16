@@ -12,7 +12,8 @@ Shader "Custom/TerrainSemiFlatShader"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _BumpMap ("BumpMap", 2D) = "white" {}
-        _OpacityMap ("OpacityMap", 2D) = "white" {}
+        _BlendMap ("BlendMap", 2D) = "white" {}
+        _ColorMap ("ColorMap", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
@@ -239,7 +240,8 @@ Shader "Custom/TerrainSemiFlatShader"
             //sampler2D _ShadowMapTexture; 
             sampler2D _MainTex;
             sampler2D _BumpMap;
-            sampler2D _OpacityMap;
+            sampler2D _BlendMap;
+            sampler2D _ColorMap;
             float _Threshold;
             float _CrossFade;
             float _EvenFade;
@@ -275,7 +277,7 @@ Shader "Custom/TerrainSemiFlatShader"
                              tangent.z, orthogonalTangent.z, normal.z
                     );
                 float3 worldUnpackedNormal = mul(tangentMatrix, unpackedNormal); //world unpacked normal is wrong.
-                float normalPercentage = tex2D(_OpacityMap, i.originalUV);
+                float normalPercentage = tex2D(_BlendMap, i.originalUV);
                 worldUnpackedNormal = worldUnpackedNormal * normalPercentage + 
                                       normal * (1 - normalPercentage);
                 //worldUnpackedNormal = unpackedNormal;
@@ -291,6 +293,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 //if (textureColor.a < _Threshold)
                 //    clip(textureColor.a - _Threshold);
                 textureColor = float4(1,1,1,1);
+                textureColor = float4(tex2D(_ColorMap, i.originalUV).rgb, 1);
                 
                 //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
                 //return fixed4(depth,depth,depth,1);
@@ -358,6 +361,7 @@ Shader "Custom/TerrainSemiFlatShader"
 
                 float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color;
+                finalColor *= textureColor;
                 //finalColor *= fixed4(mixedDiffuse.rgb, weight);//tex2D(_MainTex, i.uv);
                 //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
                 //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
