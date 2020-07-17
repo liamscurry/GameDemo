@@ -17,6 +17,9 @@ Shader "Custom/TerrainSemiFlatShader"
         _ColorMap ("ColorMap", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _BumpMapScale ("BumpMapScale", float) = 1
+        _ColorMapType ("ColorMapType", Range(0,1)) = 0
+        _ColorMapUpperThreshold ("ColorMapUpperThreshold", Range(0, 2)) = 1
+        _ColorMapLowerThreshold ("ColorMapLowerThreshold", Range(0, 2)) = 0
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
         _EvenFade ("EvenFade", Range(0, 1)) = 0
@@ -204,6 +207,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 SHADOW_COORDS(4)
                 float4 tangent : COLOR0;
                 float4 originalUV : TEXCOORD5;
+                float2 planeScale : COLOR1;
             };
 
             float _BumpMapScale;
@@ -227,6 +231,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 float3 orthoTangent = cross(v.tangent.xyz, v.normal);
                 float orthoTangentScale = length(mul(unity_ObjectToWorld, float3(0,0,0)) - mul(unity_ObjectToWorld, orthoTangent));
                 o.uv = v.texcoord * float4(tangentScale * _BumpMapScale, orthoTangentScale * _BumpMapScale, 1, 1);//float4(unity_ObjectToWorld[0].x, unity_ObjectToWorld[1].y, unity_ObjectToWorld[2].z, 1); 
+                o.planeScale = float2(tangentScale, orthoTangentScale);
                 o.normal = v.normal;
                 o.tangent = v.tangent;
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
@@ -247,6 +252,9 @@ Shader "Custom/TerrainSemiFlatShader"
             sampler2D _SecondaryBumpMap;
             sampler2D _BlendMap;
             sampler2D _ColorMap;
+            float _ColorMapType;
+            float _ColorMapUpperThreshold;
+            float _ColorMapLowerThreshold;
             float _Threshold;
             float _CrossFade;
             float _EvenFade;
@@ -301,8 +309,50 @@ Shader "Custom/TerrainSemiFlatShader"
                 //if (textureColor.a < _Threshold)
                 //    clip(textureColor.a - _Threshold);
                 textureColor = float4(1,1,1,1);
-                textureColor = float4(tex2D(_ColorMap, i.originalUV).rgb, 1) * tex2D(_MainTex, i.uv);
-                
+                float primaryBumpPercentage = 1 - saturate(1 - blendFactors.r - blendFactors.b);
+                //return float4(primaryBumpPercentage, primaryBumpPercentage, primaryBumpPercentage, 1);
+                //return float4(1,1,1,1);
+                float4 primaryBumpMapColor = tex2D(_MainTex, i.uv) * primaryBumpPercentage + float4(1,1,1,1) * (1 - primaryBumpPercentage); 
+                primaryBumpMapColor.a = 1;
+                //return primaryBumpMapColor;
+                if (_ColorMapType < 0.5)
+                {
+                    float mainTexColor = tex2D(_MainTex, i.uv);
+                    //return RGBLightness(primaryBumpMapColor);
+                    if (RGBLightness(mainTexColor) < _ColorMapUpperThreshold &&
+                        RGBLightness(mainTexColor) > _ColorMapLowerThreshold)
+                    {
+                        float2 normalizedPlaneScale = i.planeScale / i.planeScale.x;
+                        textureColor = float4(tex2D(_ColorMap, i.originalUV * normalizedPlaneScale).rgb, 1) * primaryBumpMapColor * _Color;
+                    }
+                    else
+                    {
+                        //return fixed4(1,0,0,1);
+                        float4 colorMapColor = tex2D(_ColorMap, i.originalUV);
+                        textureColor = primaryBumpMapColor * _Color;
+                    }
+                }
+                else
+                {
+                    float mainTexColor = tex2D(_MainTex, i.uv);
+                    //return RGBLightness(primaryBumpMapColor);
+                    if (RGBLightness(mainTexColor) < _ColorMapUpperThreshold &&
+                        RGBLightness(mainTexColor) > _ColorMapLowerThreshold)
+                    {
+                        float4 colorMapColor = tex2D(_ColorMap, i.originalUV);
+                        textureColor = float4(
+                            colorMapColor.r * colorMapColor.a,
+                            colorMapColor.g * colorMapColor.a,
+                            colorMapColor.b * colorMapColor.a, 0) + primaryBumpMapColor * _Color;
+                    }
+                    else
+                    {
+                        //return fixed4(1,0,0,1);
+                        float4 colorMapColor = tex2D(_ColorMap, i.originalUV);
+                        textureColor = primaryBumpMapColor * _Color;
+                    }
+                }
+                //return textureColor;
                 //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
                 //return fixed4(depth,depth,depth,1);
 
@@ -368,7 +418,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 //clip(checkboardClip * -1);
 
                 float inShadow = SHADOW_ATTENUATION(i);
-                float4 finalColor = _Color;
+                float4 finalColor = float4(1,1,1,1);
                 finalColor *= textureColor;
                 //finalColor *= fixed4(mixedDiffuse.rgb, weight);//tex2D(_MainTex, i.uv);
                 //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
@@ -396,7 +446,7 @@ Shader "Custom/TerrainSemiFlatShader"
                                         finalColor * (1 - scaledShadowProduct);
 
                     return lightShadowColor * _LightShadowStrength +
-                           finalColor * (1 - _LightShadowStrength) + f * .4;
+                           finalColor * (1 - _LightShadowStrength) + f * .3;
                 }
                 else
                 {
