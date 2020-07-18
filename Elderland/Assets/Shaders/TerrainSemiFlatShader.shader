@@ -20,6 +20,8 @@ Shader "Custom/TerrainSemiFlatShader"
         _ColorMapType ("ColorMapType", Range(0,1)) = 0
         _ColorMapUpperThreshold ("ColorMapUpperThreshold", Range(0, 2)) = 1
         _ColorMapLowerThreshold ("ColorMapLowerThreshold", Range(0, 2)) = 0
+        _UVOffsetX ("UVOffsetX", Range(0, 1)) = 0 
+        _UVOffsetY ("UVOffsetY", Range(0, 1)) = 0 
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
         _EvenFade ("EvenFade", Range(0, 1)) = 0
@@ -211,6 +213,8 @@ Shader "Custom/TerrainSemiFlatShader"
             };
 
             float _BumpMapScale;
+            float _UVOffsetX;
+            float _UVOffsetY;
 
             //v2f vert (appdata v, float3 normal : NORMAL)
             v2fInput vert (appdata_full v)
@@ -224,6 +228,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 o.normal = UnityObjectToWorldNormal(normal);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 */
+                v.texcoord += float4(_UVOffsetX, _UVOffsetY, 0, 0);
                 v2fInput o;
                 o.originalUV = v.texcoord;
                 o.pos = UnityObjectToClipPos(v.vertex);
