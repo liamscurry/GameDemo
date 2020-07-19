@@ -296,6 +296,7 @@ Shader "Custom/TerrainSemiFlatShader"
                              tangent.z, orthogonalTangent.z, normal.z
                     );
                 float3 worldUnpackedNormal = mul(tangentMatrix, unpackedNormal); //world unpacked normal is wrong.
+               
                 float3 worldSecondaryUnpackedNormal = mul(tangentMatrix, secondaryUnpackedNormal); 
                 float4 blendFactors = tex2D(_BlendMap, i.originalUV);
                 worldUnpackedNormal = normalize(worldUnpackedNormal * blendFactors.r + 
