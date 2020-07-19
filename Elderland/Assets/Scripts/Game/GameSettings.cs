@@ -7,6 +7,7 @@ public class GameSettings : MonoBehaviour
     //Input
     //Abilities
     public KeyCode MeleeAbilityKey { get; set; }
+    public KeyCode AlternateMeleeAbilityKey { get; set; }
     public KeyCode DodgeAbilityKey { get; set; }
     public KeyCode DashAbilityKey { get; set; }
     public KeyCode UtilityAbilityKey { get; set; }
@@ -63,6 +64,7 @@ public class GameSettings : MonoBehaviour
         //Input
         //Abilities
         MeleeAbilityKey = KeyCode.Joystick1Button2;
+        AlternateMeleeAbilityKey = KeyCode.Joystick1Button3;
         DodgeAbilityKey = KeyCode.JoystickButton0;
         DashAbilityKey = KeyCode.Joystick1Button5;
 

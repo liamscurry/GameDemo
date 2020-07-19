@@ -20,6 +20,7 @@ public abstract class Ability : MonoBehaviour
     protected float fixedTimer;
     protected bool fixedStarted;
     protected bool fixedFinished;
+    protected float speed = 1;
 
     protected AbilitySystem system;
     protected AbilitySegmentList segments;
@@ -34,7 +35,7 @@ public abstract class Ability : MonoBehaviour
     {
         if (state == AbilityState.InProgress && ActiveSegment.Type == AbilitySegmentType.Physics && fixedStarted && !fixedFinished)
         {
-            fixedTimer += Time.fixedDeltaTime;
+            fixedTimer += Time.fixedDeltaTime / speed;
             if (fixedTimer >= fixedDuration)
             {
                 if (system.Physics != null)
@@ -207,12 +208,12 @@ public abstract class Ability : MonoBehaviour
         if (system.Animator.IsInTransition(0))
         {
             AnimatorStateInfo nextStateInfo = system.Animator.GetNextAnimatorStateInfo(0);
-            yield return new WaitForSeconds(nextStateInfo.length * (scaledDuration - nextStateInfo.normalizedTime));
+            yield return new WaitForSeconds(nextStateInfo.length / system.Animator.speed * (scaledDuration - nextStateInfo.normalizedTime));
         }
         else
         {
             AnimatorStateInfo stateInfo = system.Animator.GetCurrentAnimatorStateInfo(0);
-            yield return new WaitForSeconds(stateInfo.length * (scaledDuration - stateInfo.normalizedTime));
+            yield return new WaitForSeconds(stateInfo.length / system.Animator.speed * (scaledDuration - stateInfo.normalizedTime));
         }
     }
 
@@ -221,12 +222,12 @@ public abstract class Ability : MonoBehaviour
         if (system.Animator.IsInTransition(0))
         {
             AnimatorStateInfo nextStateInfo = system.Animator.GetNextAnimatorStateInfo(0);
-            yield return new WaitForSeconds(nextStateInfo.length * (ActiveSegment.LoopFactor - nextStateInfo.normalizedTime));
+            yield return new WaitForSeconds(nextStateInfo.length / system.Animator.speed * (ActiveSegment.LoopFactor - nextStateInfo.normalizedTime));
         }
         else
         {
             AnimatorStateInfo stateInfo = system.Animator.GetCurrentAnimatorStateInfo(0);
-            yield return new WaitForSeconds(stateInfo.length * (ActiveSegment.LoopFactor - stateInfo.normalizedTime));
+            yield return new WaitForSeconds(stateInfo.length / system.Animator.speed * (ActiveSegment.LoopFactor - stateInfo.normalizedTime));
         }
     }
 
@@ -251,6 +252,8 @@ public abstract class Ability : MonoBehaviour
             system.Animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
             system.Animator.applyRootMotion = true;
         }
+
+        system.Animator.speed = speed;
     }
 
     protected void ResetAnimatorSettings()
@@ -272,6 +275,8 @@ public abstract class Ability : MonoBehaviour
             system.Animator.updateMode = AnimatorUpdateMode.Normal;
             system.Animator.applyRootMotion = false;
         }
+
+        system.Animator.speed = 1;
     }
 
     protected abstract void AdvanceSegment();

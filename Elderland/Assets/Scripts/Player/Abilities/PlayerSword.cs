@@ -40,6 +40,8 @@ public sealed class PlayerSword : PlayerAbility
     private PlayerAnimationManager.MatchTarget matchTarget;
     private bool interuptedTarget;
 
+    private int castDirection;
+
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         //Animation assignment
@@ -77,7 +79,9 @@ public sealed class PlayerSword : PlayerAbility
         hitbox = hitboxObject.GetComponent<PlayerSingleDamageHitbox>();
         hitbox.gameObject.transform.localScale = hitboxScale;
 
-        scanRotation = Quaternion.identity;        
+        scanRotation = Quaternion.identity;   
+
+        speed = .5f;     
     }
 
     public override void GlobalConstantUpdate()
@@ -254,6 +258,17 @@ public sealed class PlayerSword : PlayerAbility
             act.Clip = actNoTargetClip;
 
             type = Type.NoTarget;
+        }
+
+        //charge.Clip.apparentSpeed
+
+        if (Input.GetKey(GameInfo.Settings.MeleeAbilityKey))
+        {
+            castDirection = 0;
+        }
+        else
+        {
+            castDirection = 1;
         }
     }
 
@@ -445,6 +460,17 @@ public sealed class PlayerSword : PlayerAbility
         {
             enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 1.5f);
             enemy.IncreaseResolve(1);
+        }
+
+        if (castDirection == enemy.WeakDirection)
+        {
+            enemy.ChangeHealth(
+                -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 1);
+            Debug.Log("same direction");
+        }
+        else
+        {
+            Debug.Log("WRONG direction");
         }
         
         return true;

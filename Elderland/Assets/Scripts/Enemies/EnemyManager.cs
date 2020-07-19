@@ -42,6 +42,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public EnemyStatsManager StatsManager { get; protected set; }
     public EnemyType Type { get; protected set; }
     public EnemyState State;
+    public int WeakDirection { get; private set; }
 
     public EnemyAbility NextAttack { get; set; }
 
@@ -209,6 +210,11 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             new Vector3(resolvePercentage, resolvebarPivot.transform.localScale.y, resolvebarPivot.transform.localScale.z);
 
         resolveTimer = 0;
+    }
+
+    public void ScrambleWeakDirection()
+    {
+        WeakDirection = (WeakDirection + 1) % 2;
     }
 
     public bool CheckResolve()

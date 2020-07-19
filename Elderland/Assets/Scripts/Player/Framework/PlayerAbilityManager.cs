@@ -50,7 +50,8 @@ public class PlayerAbilityManager : AbilitySystem
         //Try to run specified ability if held down
         bool rangedInput = (GameInfo.Manager.ReceivingInput && RangedAvailable && AbilitiesAvailable) ? Input.GetAxis("Right Trigger") != 0 : false;
         bool aoeInput = (GameInfo.Manager.ReceivingInput && HealAvailable && AbilitiesAvailable) ? Input.GetKey(KeyCode.Joystick1Button4) : false;
-        bool meleeInput = (GameInfo.Manager.ReceivingInput && MeleeAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.MeleeAbilityKey) : false;
+        bool meleeInput = (GameInfo.Manager.ReceivingInput && MeleeAvailable && AbilitiesAvailable) ? 
+            Input.GetKey(GameInfo.Settings.MeleeAbilityKey) || Input.GetKey(GameInfo.Settings.AlternateMeleeAbilityKey) : false;
         bool dashInput = (GameInfo.Manager.ReceivingInput && DashAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
         bool dodgeInput = (GameInfo.Manager.ReceivingInput && DodgeAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
 

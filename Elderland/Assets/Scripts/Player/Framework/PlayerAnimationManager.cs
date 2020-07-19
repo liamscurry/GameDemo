@@ -75,6 +75,10 @@ public class PlayerAnimationManager
 
 	public void StartTarget(MatchTarget target)
 	{
+		if (PlayerInfo.Animator.IsInTransition(0))
+		{
+			
+		}
 		PlayerInfo.Manager.StartCoroutine(CoUpdateTargetMatch(target));
 	}
 
@@ -94,7 +98,7 @@ public class PlayerAnimationManager
 		if (PlayerInfo.Animator.IsInTransition(0))
 		{
 			AnimatorTransitionInfo transitionInfo = PlayerInfo.Animator.GetAnimatorTransitionInfo(0);
-			float offset = transitionInfo.duration * (1 - transitionInfo.normalizedTime);
+			float offset = transitionInfo.duration / PlayerInfo.Animator.speed * (1 - transitionInfo.normalizedTime);
 			yield return new WaitForSeconds(offset);
 		}
 
