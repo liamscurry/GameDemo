@@ -41,6 +41,12 @@ public sealed class PlayerSword : PlayerAbility
     private bool interuptedTarget;
 
     private int castDirection;
+    private float baseSpeed = 0.75f;
+    private float maxSpeed = 1.5f;
+    private float hitTime;
+    private const float resetHitTime = 3.5f;
+
+    public bool IsAbilitySpeedReset { get { return Time.time - hitTime > resetHitTime; } }
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -81,7 +87,7 @@ public sealed class PlayerSword : PlayerAbility
 
         scanRotation = Quaternion.identity;   
 
-        speed = .5f;     
+        abilitySpeed = baseSpeed;     
     }
 
     public override void GlobalConstantUpdate()
@@ -270,6 +276,11 @@ public sealed class PlayerSword : PlayerAbility
         {
             castDirection = 1;
         }
+
+        if (Time.time - hitTime > resetHitTime)
+        {
+            abilitySpeed = baseSpeed;
+        }
     }
 
     public void ChargeBegin()
@@ -300,7 +311,7 @@ public sealed class PlayerSword : PlayerAbility
             //need to limit matchtarget here
             Vector3 targetPosition = PlayerInfo.Player.transform.position + playerPlanarDirection.normalized * distance;
             Quaternion targetRotation = Quaternion.LookRotation(Matho.StandardProjection3D(playerPlanarDirection), Vector3.up);
-            matchTarget = new PlayerAnimationManager.MatchTarget(targetPosition, targetRotation, AvatarTarget.Root, new Vector3(1, 0, 1), 1 / 0.25f);
+            matchTarget = new PlayerAnimationManager.MatchTarget(targetPosition, targetRotation, AvatarTarget.Root, new Vector3(1, 0, 1), 1);//1 / 0.25f
             charge.LoopFactor = 1;
             //PlayerInfo.AnimationManager.AnimationPhysicsEnable();
 
@@ -314,7 +325,7 @@ public sealed class PlayerSword : PlayerAbility
         else if (type == Type.CloseTarget)
         {
             Quaternion targetRotation = Quaternion.LookRotation(Matho.StandardProjection3D(targetDisplacement).normalized, Vector3.up);
-            matchTarget = new PlayerAnimationManager.MatchTarget(Vector3.zero, targetRotation, AvatarTarget.Root, Vector3.zero, 1 / 0.25f);
+            matchTarget = new PlayerAnimationManager.MatchTarget(Vector3.zero, targetRotation, AvatarTarget.Root, Vector3.zero, 1);//1 / 0.25f
             charge.LoopFactor = 1;
 
             //PlayerInfo.AnimationManager.AnimationPhysicsEnable();
@@ -448,31 +459,37 @@ public sealed class PlayerSword : PlayerAbility
         PlayerInfo.AbilityManager.ChangeStamina(
             0.5f * PlayerInfo.StatsManager.StaminaYieldMultiplier.Value);
 
-        if (enemy.CheckResolve())
-        {
-            enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 5.5f);
-            enemy.ChangeHealth(
-                -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 2);
-            enemy.ConsumeResolve();
-            //Debug.Log(enemy.PhysicsSystem.Animating);
-        }
-        else
-        {
-            enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 1.5f);
-            enemy.IncreaseResolve(1);
-        }
-
         if (castDirection == enemy.WeakDirection)
         {
-            enemy.ChangeHealth(
-                -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 1);
-            Debug.Log("same direction");
+            if (enemy.CheckResolve())
+            {
+                enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 5.5f);
+                enemy.ChangeHealth(
+                    -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 2);
+                enemy.ConsumeResolve();
+                //Debug.Log(enemy.PhysicsSystem.Animating);
+            }
+            else
+            {
+                enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 1.5f);
+                enemy.IncreaseResolve(1);
+            }
+
+            //enemy.ChangeHealth(
+            //    -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 1);
+            abilitySpeed += 0.5f;
+            if (abilitySpeed > maxSpeed)
+                abilitySpeed = maxSpeed;
+
+            enemy.ScrambleWeakDirection();
         }
         else
         {
-            Debug.Log("WRONG direction");
+            abilitySpeed = baseSpeed;
         }
-        
+
+        hitTime = Time.time;
+
         return true;
     }
 

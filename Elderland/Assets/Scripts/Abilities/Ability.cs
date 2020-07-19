@@ -20,7 +20,7 @@ public abstract class Ability : MonoBehaviour
     protected float fixedTimer;
     protected bool fixedStarted;
     protected bool fixedFinished;
-    protected float speed = 1;
+    protected float abilitySpeed = 1;
 
     protected AbilitySystem system;
     protected AbilitySegmentList segments;
@@ -31,11 +31,13 @@ public abstract class Ability : MonoBehaviour
     public AbilityProcess ActiveProcess { get; protected set; }
     public AbilitySegment ActiveSegment { get; protected set; }
 
+    public float AbilitySpeed { get { return abilitySpeed; } }
+
     public void FixedUpdateAbility()
     {
         if (state == AbilityState.InProgress && ActiveSegment.Type == AbilitySegmentType.Physics && fixedStarted && !fixedFinished)
         {
-            fixedTimer += Time.fixedDeltaTime / speed;
+            fixedTimer += Time.fixedDeltaTime / abilitySpeed;
             if (fixedTimer >= fixedDuration)
             {
                 if (system.Physics != null)
@@ -253,7 +255,7 @@ public abstract class Ability : MonoBehaviour
             system.Animator.applyRootMotion = true;
         }
 
-        system.Animator.speed = speed;
+        system.Animator.speed = abilitySpeed;
     }
 
     protected void ResetAnimatorSettings()

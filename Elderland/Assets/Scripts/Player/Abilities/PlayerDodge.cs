@@ -13,6 +13,8 @@ public sealed class PlayerDodge : PlayerAbility
     private AbilitySegment act;
     private AbilityProcess actProcess;
 
+    private float swordSpeedModifier;
+
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         this.system = abilityManager;
@@ -35,6 +37,20 @@ public sealed class PlayerDodge : PlayerAbility
         return GameInfo.Settings.LeftDirectionalInput.magnitude >= 0.25f;
     }
 
+    protected override void GlobalStart()
+    {
+        if (!((PlayerSword) PlayerInfo.AbilityManager.Melee).IsAbilitySpeedReset)
+        {
+            swordSpeedModifier = (0.25f + PlayerInfo.AbilityManager.Melee.AbilitySpeed);
+            abilitySpeed = 1 / swordSpeedModifier;
+        }
+        else
+        {
+            swordSpeedModifier = 1;
+            abilitySpeed = 1;
+        }
+    }
+
     private void ActBegin()
     {
         direction = GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput);
@@ -48,7 +64,7 @@ public sealed class PlayerDodge : PlayerAbility
     {
         if (system.Physics.TouchingFloor)
         {
-            actVelocity = system.Movement.Move(direction, speed, false);
+            actVelocity = system.Movement.Move(direction, speed * swordSpeedModifier, false);
         }
         else
         {

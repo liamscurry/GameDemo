@@ -25,6 +25,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private int maxResolve;
     [SerializeField]
     private float resolveZeroDuration;
+    [SerializeField]
+    private GameObject leftWeakDirectionIndicator;
+    [SerializeField]
+    private GameObject rightWeakDirectionIndicator;
 
     private int currentResolve;
     private float resolveTimer;
@@ -112,6 +116,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         ZeroResolveBar();
         resolvebarShadowPivot.Zero();
+
+        ScrambleWeakDirection();
     }
 
     private void Update()
@@ -214,7 +220,17 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public void ScrambleWeakDirection()
     {
-        WeakDirection = (WeakDirection + 1) % 2;
+        WeakDirection = (UnityEngine.Random.value > 0.5) ? 1 : 0;
+        if (WeakDirection == 0)
+        {
+            leftWeakDirectionIndicator.SetActive(true);
+            rightWeakDirectionIndicator.SetActive(false);
+        }
+        else
+        {
+            leftWeakDirectionIndicator.SetActive(false);
+            rightWeakDirectionIndicator.SetActive(true);
+        }
     }
 
     public bool CheckResolve()
