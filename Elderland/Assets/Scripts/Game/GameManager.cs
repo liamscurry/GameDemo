@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     private UnityEvent onFadeOutroIn;
     [SerializeField]
     private UnityEvent onFadeOutroOut;
+    //[SerializeField]
+    //private UnityEvent onUseUnfreeze;
 
     private IEnumerator slowEnumerator;
     private float slowFreezeTimer;
@@ -144,6 +146,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator WaitForUseToUnfreezeCoroutine()
     {
         yield return new WaitUntil(() => Input.GetKeyDown(GameInfo.Settings.UseKey));
+
         UnfreezeGame();
     }
 

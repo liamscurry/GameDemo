@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    private enum State { Gameplay, Cutscene, Idle }
+    public enum State { Gameplay, Cutscene, Idle }
 
     //Fields//
     [Header("Default Gameplay Settings")]
@@ -88,6 +88,8 @@ public class CameraController : MonoBehaviour
         get { return orientationModifier; } 
         set { orientationModifier = Mathf.Clamp01(value); } 
     }
+
+    public State CameraState { get { return state; } }
 
     float targetRadius;
     float radiusVelocity;
