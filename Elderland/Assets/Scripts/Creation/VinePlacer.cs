@@ -8,6 +8,39 @@ namespace UnityEditor
     [ExecuteInEditMode]
     public class VinePlacer : MonoBehaviour
     {
+        [SerializeField]
+        private GameObject prefabObject1;
+        [SerializeField]
+        private GameObject prefabObject2;
+        [SerializeField]
+        private GameObject prefabObject3;
+        [SerializeField]
+        [Range(1, 3)]
+        private int selectedPrefab;
+        [SerializeField]
+        [Range(0, 5)]
+        private float scaleMultiplier = 1;
+
+        public GameObject SelectedPrefab 
+        { 
+            get
+            { 
+                switch (selectedPrefab)
+                {
+                    case 1:
+                        return prefabObject1;
+                    case 2:
+                        return prefabObject2;
+                    case 3:
+                        return prefabObject3;
+                    default:
+                        throw new System.Exception("Not a valid selected prefab index");
+                }
+            }
+        }
+
+        public float ScaleMultiplier { get { return scaleMultiplier; } }
+ 
         // Start is called before the first frame update
         void Start()
         {

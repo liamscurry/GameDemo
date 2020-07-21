@@ -30,6 +30,15 @@ namespace UnityEditor
                         {
                             DeleteVine((VinePlacer) target, hitInfo.point, 2);
                         }
+                        else if (Event.current.modifiers == EventModifiers.Control)
+                        {
+                            VinePlacer vinePlacer = (VinePlacer) target;
+                            DeleteSpecificVine(vinePlacer, hitInfo.point, 2, vinePlacer.SelectedPrefab.name);
+                        }
+                        else if (Event.current.modifiers == EventModifiers.Alt)
+                        {
+                            DeleteAllVines((VinePlacer) target);
+                        }
                         else
                         {
                             CreateVine((VinePlacer) target, hitInfo.point, hitInfo.normal);
@@ -42,11 +51,11 @@ namespace UnityEditor
         private void CreateVine(VinePlacer vinePlacer, Vector3 position, Vector3 normal)
         {
             Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, normal);
-            GameObject healthPickupPrefab = 
-                Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup);
+
             GameObject instanced = 
-                GameObject.Instantiate(healthPickupPrefab, position, normalRotation);
-            instanced.transform.parent = ((VinePlacer) target).gameObject.transform;
+                GameObject.Instantiate(vinePlacer.SelectedPrefab, position, normalRotation);
+            instanced.transform.parent = vinePlacer.gameObject.transform;
+            instanced.transform.localScale *= vinePlacer.ScaleMultiplier;
         }
 
         private void DeleteVine(VinePlacer vinePlacer, Vector3 position, float radius)
@@ -60,6 +69,29 @@ namespace UnityEditor
                 {
                     GameObject.DestroyImmediate(vines[i].gameObject);
                 }
+            }
+        }
+
+        private void DeleteSpecificVine(VinePlacer vinePlacer, Vector3 position, float radius, string typeName)
+        {
+            Collider[] vines =
+                Physics.OverlapSphere(position, radius);
+            
+            for (int i = vines.Length - 1; i >= 0; i--)
+            {
+                if (vines[i].gameObject.transform.IsChildOf(vinePlacer.transform) &&
+                    vines[i].gameObject.name.Contains(typeName))
+                {
+                    GameObject.DestroyImmediate(vines[i].gameObject);
+                }
+            }
+        }
+
+        private void DeleteAllVines(VinePlacer vinePlacer)
+        {
+            for (int i = vinePlacer.transform.childCount - 1; i >= 0; i--)
+            {
+                GameObject.DestroyImmediate(vinePlacer.transform.GetChild(i).gameObject);
             }
         }
     }
