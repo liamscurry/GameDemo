@@ -26,17 +26,39 @@ namespace UnityEditor
                     RaycastHit hitInfo;
                     if (Physics.Raycast(mousePositionRay, out hitInfo, 100f, LayerConstants.GroundCollision))
                     {
-                        //Debug.DrawLine(hitInfo.point, hitInfo.point + hitInfo.normal, Color.magenta, 5f);
-                        Debug.Log(((VinePlacer) target));
-                        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, hitInfo.normal);
-                        GameObject healthPickupPrefab = 
-                            Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup);
-                        GameObject instanced = 
-                            GameObject.Instantiate(healthPickupPrefab, hitInfo.point, normalRotation);
-                        instanced.transform.parent = ((VinePlacer) target).gameObject.transform;
-                        Debug.Log(hitInfo.transform.name);
-                        //Debug.Log(hitInfo.point);
+                        if (Event.current.modifiers == EventModifiers.Shift)
+                        {
+                            DeleteVine((VinePlacer) target, hitInfo.point, 2);
+                        }
+                        else
+                        {
+                            CreateVine((VinePlacer) target, hitInfo.point, hitInfo.normal);
+                        }
                     }
+                }
+            }
+        }
+
+        private void CreateVine(VinePlacer vinePlacer, Vector3 position, Vector3 normal)
+        {
+            Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, normal);
+            GameObject healthPickupPrefab = 
+                Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup);
+            GameObject instanced = 
+                GameObject.Instantiate(healthPickupPrefab, position, normalRotation);
+            instanced.transform.parent = ((VinePlacer) target).gameObject.transform;
+        }
+
+        private void DeleteVine(VinePlacer vinePlacer, Vector3 position, float radius)
+        {
+            Collider[] vines =
+                Physics.OverlapSphere(position, radius);
+            
+            for (int i = vines.Length - 1; i >= 0; i--)
+            {
+                if (vines[i].gameObject.transform.IsChildOf(vinePlacer.transform))
+                {
+                    GameObject.DestroyImmediate(vines[i].gameObject);
                 }
             }
         }
