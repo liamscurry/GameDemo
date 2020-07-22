@@ -10,6 +10,7 @@ public static class LayerConstants
     public static readonly LayerMask Interactable;
     public static readonly LayerMask Enemy;
     public static readonly LayerMask EnemyHitbox;
+    public static readonly LayerMask Folliage;
     public static readonly LayerMask Hitbox;
     public static readonly LayerMask EnemyProjectile;
     public static readonly LayerMask Floor;
@@ -26,6 +27,7 @@ public static class LayerConstants
         Interactable = 1 << LayerMask.NameToLayer("Interactable");
         Enemy = 1 << LayerMask.NameToLayer("Enemy");
         EnemyHitbox = 1 << LayerMask.NameToLayer("EnemyHitbox");
+        Folliage = 1 << LayerMask.NameToLayer("Folliage");
         Hitbox = 1 << LayerMask.NameToLayer("Hitbox");
         EnemyProjectile = 1 << LayerMask.NameToLayer("EnemyProjectile");
         Floor = 1 << LayerMask.NameToLayer("Floor");

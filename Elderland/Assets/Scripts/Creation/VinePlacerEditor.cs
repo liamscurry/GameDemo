@@ -24,31 +24,40 @@ namespace UnityEditor
 
                     Ray mousePositionRay = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
                     RaycastHit hitInfo;
-                    if (Physics.Raycast(mousePositionRay, out hitInfo, 100f, LayerConstants.GroundCollision))
-                    {
-                        VinePlacer vinePlacer = (VinePlacer) target;
-                        //vinePlacer.SelectedPosition = hitInfo.point;
+                    bool hit;
+        
+                    VinePlacer vinePlacer = (VinePlacer) target;
 
-                        if (Event.current.modifiers == EventModifiers.Shift)
-                        {
-                            DeleteVine((VinePlacer) target, hitInfo.point, vinePlacer.DeletionRadius);
-                        }
-                        else if (Event.current.modifiers == EventModifiers.Control)
-                        {
-                            DeleteSpecificVine(
-                                vinePlacer,
-                                hitInfo.point,
-                                vinePlacer.DeletionRadius,
-                                vinePlacer.SelectedPrefab.name);
-                        }
-                        else if (Event.current.modifiers == EventModifiers.Alt)
-                        {
-                            DeleteAllVines((VinePlacer) target);
-                        }
-                        else
-                        {
-                            CreateVine((VinePlacer) target, hitInfo.point, hitInfo.normal);
-                        }
+                    if (Event.current.modifiers == EventModifiers.Shift ||
+                        Event.current.modifiers == EventModifiers.Control ||
+                        Event.current.modifiers == EventModifiers.Alt)
+                    {
+                        hit = Physics.Raycast(mousePositionRay, out hitInfo, 100f, LayerConstants.Folliage);
+                    }
+                    else
+                    {
+                        hit = Physics.Raycast(mousePositionRay, out hitInfo, 100f, LayerConstants.GroundCollision);
+                    }
+
+                    if (Event.current.modifiers == EventModifiers.Shift)
+                    {
+                        DeleteVine((VinePlacer) target, hitInfo.point, vinePlacer.DeletionRadius);
+                    }
+                    else if (Event.current.modifiers == EventModifiers.Control)
+                    {
+                        DeleteSpecificVine(
+                            vinePlacer,
+                            hitInfo.point,
+                            vinePlacer.DeletionRadius,
+                            vinePlacer.SelectedPrefab.name);
+                    }
+                    else if (Event.current.modifiers == EventModifiers.Alt)
+                    {
+                        DeleteAllVines((VinePlacer) target);
+                    }
+                    else
+                    {
+                        CreateVine((VinePlacer) target, hitInfo.point, hitInfo.normal);
                     }
                 }
             }
@@ -61,7 +70,7 @@ namespace UnityEditor
                 Quaternion.Euler(0, vinePlacer.NormalRotation * (1 + ((Random.value - 0.5f) / 0.5f) * vinePlacer.NormalRotationRandom), 0);
 
             GameObject instanced = 
-                GameObject.Instantiate(vinePlacer.SelectedPrefab, position, normalRotation);
+                GameObject.Instantiate(vinePlacer.SelectedPrefab, position + normal * vinePlacer.NormalOffset, normalRotation);
             instanced.transform.parent = vinePlacer.gameObject.transform;
             instanced.transform.localScale *=
                 vinePlacer.ScaleMultiplier * (1 + ((Random.value - 0.5f) / 0.5f) * vinePlacer.ScaleRandom);
