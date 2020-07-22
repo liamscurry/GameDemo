@@ -26,6 +26,9 @@ namespace UnityEditor
         private float normalRotation;
         [SerializeField]
         private float normalRotationRandom;
+        [SerializeField]
+        [Range(0, 5)]
+        private float deletionRadius = 1;
         //[SerializeField]
         //private GameObject viewObject;
 
@@ -52,7 +55,7 @@ namespace UnityEditor
         public float NormalRotation { get { return normalRotation; } }
         public float NormalRotationRandom { get { return normalRotationRandom; } }
  
-        public Vector3 SelectedPosition { get; set; }
+        public float DeletionRadius { get { return deletionRadius; } }
 
         // Start is called before the first frame update
         void Start()

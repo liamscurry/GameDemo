@@ -31,11 +31,15 @@ namespace UnityEditor
 
                         if (Event.current.modifiers == EventModifiers.Shift)
                         {
-                            DeleteVine((VinePlacer) target, hitInfo.point, 2);
+                            DeleteVine((VinePlacer) target, hitInfo.point, vinePlacer.DeletionRadius);
                         }
                         else if (Event.current.modifiers == EventModifiers.Control)
                         {
-                            DeleteSpecificVine(vinePlacer, hitInfo.point, 2, vinePlacer.SelectedPrefab.name);
+                            DeleteSpecificVine(
+                                vinePlacer,
+                                hitInfo.point,
+                                vinePlacer.DeletionRadius,
+                                vinePlacer.SelectedPrefab.name);
                         }
                         else if (Event.current.modifiers == EventModifiers.Alt)
                         {
