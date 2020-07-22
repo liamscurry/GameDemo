@@ -20,6 +20,14 @@ namespace UnityEditor
         [SerializeField]
         [Range(0, 5)]
         private float scaleMultiplier = 1;
+        [SerializeField]
+        private float scaleRandom = 0;
+        [SerializeField]
+        private float normalRotation;
+        [SerializeField]
+        private float normalRotationRandom;
+        //[SerializeField]
+        //private GameObject viewObject;
 
         public GameObject SelectedPrefab 
         { 
@@ -40,7 +48,12 @@ namespace UnityEditor
         }
 
         public float ScaleMultiplier { get { return scaleMultiplier; } }
+        public float ScaleRandom { get { return scaleRandom; } }
+        public float NormalRotation { get { return normalRotation; } }
+        public float NormalRotationRandom { get { return normalRotationRandom; } }
  
+        public Vector3 SelectedPosition { get; set; }
+
         // Start is called before the first frame update
         void Start()
         {
@@ -50,19 +63,33 @@ namespace UnityEditor
         // Update is called once per frame
         void Update()
         {
-            
+            //Debug.Log("view mode");
         }
 
-        /*
-        private void OnGUI()
+        /*private void OnGUI()
         {
             Event currentEvent = Event.current;
             GUI.Box(new Rect(0,0, Screen.width, Screen.height), "Whole Screen");
             Debug.Log("wow");
             if (currentEvent.button == 0)
-            {
+            { 
                 Debug.Log("clicked");
             }
         }*/
+   
+        private void OnDrawGizmosSelected()
+        {
+            /*
+            Ray mousePositionRay = Camera.current.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitInfo;
+            //Debug.Log(mousePositionRay.origin);
+            if (Physics.Raycast(mousePositionRay, out hitInfo, 100f, LayerConstants.GroundCollision))
+            {
+                
+                Gizmos.color = new Color(0.5f, 0, 0.76f, 0.5f);
+                Gizmos.DrawSphere(hitInfo.point, 2);
+            }
+            */
+        }
     }
 }
