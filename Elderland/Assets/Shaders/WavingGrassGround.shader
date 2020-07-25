@@ -13,6 +13,8 @@ Shader "Custom/WavingGrassGround"
         _MainTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
+        _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
+        _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
     }
     SubShader
     {
@@ -91,6 +93,7 @@ Shader "Custom/WavingGrassGround"
             #include "Color.cginc"
             #include "AutoLight.cginc"
             #include "UnityShadowLibrary.cginc"
+            #include "/HelperCgincFiles/FogHelper.cginc"
             
             struct appdata
             {
@@ -123,6 +126,8 @@ Shader "Custom/WavingGrassGround"
             //sampler2D _ShadowMapTexture; 
             sampler2D _MainTex;
             float _Threshold;
+            float4 _MidFogColor;
+            float4 _EndFogColor;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
@@ -140,7 +145,8 @@ Shader "Custom/WavingGrassGround"
 
                 if (inShadow)
                 {
-                    return finalColor;
+                    //return finalColor;
+                    STANDARD_FOG(finalColor);
                 }
                 else
                 {

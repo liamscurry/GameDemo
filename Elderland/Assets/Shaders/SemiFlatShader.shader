@@ -18,6 +18,8 @@ Shader "Custom/SemiFlatShader"
         _OddFade ("EvenFade", Range(0, 1)) = 0
         _ShadowStrength ("ShadowStrength", Range(0, 2)) = 0
         _LightShadowStrength ("LightShadowStrength", Range(0, 1)) = 0
+        _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
+        _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
     }
     SubShader
     {
@@ -169,6 +171,7 @@ Shader "Custom/SemiFlatShader"
             #include "Color.cginc"
             #include "AutoLight.cginc"
             #include "TerrainSplatmapCommon.cginc"
+            #include "/HelperCgincFiles/FogHelper.cginc"
             
             // Angle between working
             float AngleBetween(float3 u, float3 v)
@@ -218,6 +221,8 @@ Shader "Custom/SemiFlatShader"
             sampler2D _CameraDepthTexture;
             float _ShadowStrength;
             float _LightShadowStrength;
+            float4 _MidFogColor;
+            float4 _EndFogColor;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -337,22 +342,28 @@ Shader "Custom/SemiFlatShader"
                 {    
                     if (!inShadowBool)
                     {
-                        return lightColor;
+                        //return lightColor;
+                        /*return ApplyFog(
+                            lightColor,
+                            _MidFogColor,
+                            _EndFogColor,
+                            i.worldPos.xyzx,
+                            _WorldSpaceCameraPos.xyz,
+                            20,
+                            120,
+                            120);*/
+                        STANDARD_FOG(lightColor)
                     }
                     else
                     {
-                        return shadowColor * (1 - fadeValue) + lightColor * fadeValue;
-                        //return inShadow * fixed4(1, 0, 0, 1);
-                        //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * inShadow;
+                        //return shadowColor * (1 - fadeValue) + lightColor * fadeValue;
+                        STANDARD_FOG(shadowColor * (1 - fadeValue) + lightColor * fadeValue);
                     }
                 }
                 else
                 {
-                    
-                    //return fixed4(1, 0, 0, 1);
-                    //return inShadow;
-                    return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
-                    //return shadowColor; //issue here
+                    //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
+                    STANDARD_FOG(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
                 }
             }
             ENDCG
