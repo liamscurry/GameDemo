@@ -311,26 +311,38 @@ Shader "Custom/SemiFlatShader"
                 
                 float inShadowBool = inShadow < 0.6;
 
-                if (!inShadowBool && !inShadowSide)
+                if (!inShadowSide)
                 {    
-                    float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                    float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
-                    float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
-                    //return fixed4(f,f,f,1);
-                    if (f > .9f)
+                    if (!inShadowBool)
                     {
+                        float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+                        float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
+                        float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
                         //return fixed4(f,f,f,1);
+                        if (f > .9f)
+                        {
+                            //return fixed4(f,f,f,1);
+                        }
+                        float scaledShadowProduct = pow(saturate(shadowProduct * 2),3);
+                        float4 lightShadowColor = baseShadowColor * scaledShadowProduct +
+                                            finalColor * (1 - scaledShadowProduct);
+                        //return baseShadowColor;
+                        return lightShadowColor * _LightShadowStrength +
+                            finalColor * (1 - _LightShadowStrength) + f * .4;
                     }
-                    float scaledShadowProduct = pow(saturate(shadowProduct * 2),3);
-                    float4 lightShadowColor = baseShadowColor * scaledShadowProduct +
-                                        finalColor * (1 - scaledShadowProduct);
-                    //return baseShadowColor;
-                    return lightShadowColor * _LightShadowStrength +
-                           finalColor * (1 - _LightShadowStrength) + f * .4;
+                    else
+                    {
+                        return shadowColor;
+                        //return inShadow * fixed4(1, 0, 0, 1);
+                        //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * inShadow;
+                    }
                 }
                 else
                 {
-                    return shadowColor;
+                    //return fixed4(1, 0, 0, 1) * shadowProduct;
+                    //return inShadow;
+                    return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
+                    //return shadowColor; //issue here
                 }
             }
             ENDCG
