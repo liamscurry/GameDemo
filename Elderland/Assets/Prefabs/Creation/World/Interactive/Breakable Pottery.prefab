@@ -138,6 +138,7 @@ GameObject:
   - component: {fileID: 4998723395825443730}
   - component: {fileID: 4998723395825443731}
   - component: {fileID: 8067012680918012604}
+  - component: {fileID: 651381856129312030}
   m_Layer: 9
   m_Name: Cube
   m_TagString: Untagged
@@ -236,6 +237,32 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
+--- !u!205 &651381856129312030
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4998723395825443729}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0, y: 0.25278014, z: -0.000000029802322}
+  m_Size: 1.5441538
+  m_FadeMode: 1
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.34104773
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 3760834979583407704}
+  - screenRelativeHeight: 0.23114875
+    fadeTransitionWidth: 1
+    renderers:
+    - renderer: {fileID: 3760834979583407704}
+  - screenRelativeHeight: 0.024794305
+    fadeTransitionWidth: 0
+    renderers: []
+  m_Enabled: 1
 --- !u!1 &4998723395892473490
 GameObject:
   m_ObjectHideFlags: 0
@@ -5706,6 +5733,12 @@ PrefabInstance:
 --- !u!4 &1091693844195271622 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 621600f3784fc8a4ba90d2b0bce58cbb,
+    type: 3}
+  m_PrefabInstance: {fileID: 5358383103442471132}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &3760834979583407704 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -113181020801827196, guid: 621600f3784fc8a4ba90d2b0bce58cbb,
     type: 3}
   m_PrefabInstance: {fileID: 5358383103442471132}
   m_PrefabAsset: {fileID: 0}

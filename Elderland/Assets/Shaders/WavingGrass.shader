@@ -177,18 +177,18 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float lightness = RGBLightness(textureColor);
                 lightness = 0.5;
                 float hue = RGBHue(textureColor.r, textureColor.g, textureColor.b);
-                float4 hueTint = float4(HSLToRGB(hue, 0.75, .35), 1);
+                float4 hueTint = float4(HSLToRGB(hue, 0.6, .35), 1);
 
                 // Local hue
                 //i.color.xyz,
                 float3 color = i.color.xyz;
                 float localHue = RGBHue(color.r, color.g, color.b);
-                float4 localHueTint = fixed4(HSLToRGB(localHue, 0.75, lightness), 1);
+                float4 localHueTint = fixed4(HSLToRGB(localHue, 0.5, lightness), 1);
                 //localHueTint = float4(1,1,1,1);
 
                 // Gradient factors
                 float hueFactor = saturate(1 - i.objectPos.y + 0.25);//i.uv.y, i.objectPos.y
-                hueFactor = 1 - saturate(1 - i.uv.y * 2);
+                hueFactor = 1 - saturate(1 - i.uv.y * 1.5);
                 //hueFactor = 1;
                 if (i.worldDistance > 20)
                 {
@@ -231,6 +231,12 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 fixed4 finalColor =
                         (fixed4(1, 1, 1, 1) * localHueTint * lerpFactorTop +
                         fixed4(1, 1, 1, 1) * hueTint * lerpFactorBottom);
+
+                float tipHighlight = 0.6;
+                if (i.uv.y > tipHighlight)
+                {
+                    finalColor += float4(1,1,1,1) * (i.uv.y - tipHighlight) / (1 - tipHighlight) * .1;
+                }
 
                 if (inShadow)
                 {
