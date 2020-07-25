@@ -12,7 +12,7 @@ Shader "Custom/FlatShader"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
-        _Threshold ("Threshold", Range(0, 1)) = 0.1
+        _Threshold ("Threshold", Range(0, 1.1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
         _EvenFade ("EvenFade", Range(0, 1)) = 0
         _OddFade ("EvenFade", Range(0, 1)) = 0
@@ -21,7 +21,9 @@ Shader "Custom/FlatShader"
     SubShader
     {
         //Cull off
+        LOD 400
 
+        // Via SpeedTree.shader
         Pass
         {
             Tags { "LightMode"="ShadowCaster" }
@@ -29,7 +31,7 @@ Shader "Custom/FlatShader"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile_fwdbase
+            #pragma multi_compile_shadowcaster
 
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -39,31 +41,35 @@ Shader "Custom/FlatShader"
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normal : NORMAL;
+                float2 uv1 : TEXCOORD1; // From UnityStandardInput.cginc for transfer lighting.
             };
 
             struct v2f
             {
-                float4 pos : SV_POSITION;
+                //float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                SHADOW_COORDS(1) //float4 pos : SV_POSITION thats it
+                V2F_SHADOW_CASTER; //float4 pos : SV_POSITION thats it
                 //float4 screenPos : TEXCOORD1;
             };
 
             sampler2D _MainTex;
             float _CrossFade;
+            float _Threshold;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
-                TRANSFER_SHADOW(o) //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
+                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
+                //UNITY_TRANSFER_LIGHTING(o, v.uv1); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
                 //o.screenPos = ComputeScreenPos(o.pos);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
+                /*
                 float4 screenPos = ComputeScreenPos(i.pos);
                 float2 screenPercentagePos = screenPos.xy / screenPos.w;
                 float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
@@ -120,12 +126,18 @@ Shader "Custom/FlatShader"
                         oddClip = !(abs(checkerboard.x) > (1 - leftLOD) && abs(checkerboard.y) > (1 - leftLOD));
                     }
                     clip(oddClip * -1);
+                }*/
+  
+                float4 textureColor = (tex2D(_MainTex, i.uv));
+                //clip(textureColor.w - .1);
+                if (textureColor.a < _Threshold)
+                {
+                    //return fixed4(1,0,0,1);
+                    clip(textureColor.a - _Threshold);
                 }
 
-
-                float4 textureColor = (tex2D(_MainTex, i.uv));
-                clip(textureColor.w - 1);
-                return 0;
+                SHADOW_CASTER_FRAGMENT(i)
+                //return 0;
             }
             ENDCG
         }
@@ -155,6 +167,7 @@ Shader "Custom/FlatShader"
             #include "Lighting.cginc"
             #include "Color.cginc"
             #include "AutoLight.cginc"
+            #include "UnityShadowLibrary.cginc"
             
             // Angle between working
             float AngleBetween(float3 u, float3 v)
@@ -177,7 +190,8 @@ Shader "Custom/FlatShader"
                 //float4 _ShadowCoord : TEXCOORD1;
                 SHADOW_COORDS(1)
                 float4 pos : SV_POSITION;
-                float3 normal : TEXCOORD2;
+                float3 normal : TEXCOORD3;
+                float4 worldPos : TEXCOORD4;
             };
 
             v2f vert (appdata v, float3 normal : NORMAL)
@@ -185,10 +199,12 @@ Shader "Custom/FlatShader"
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
                 //o._ShadowCoord = ComputeScreenPos(o.pos);
-                TRANSFER_SHADOW(o)
+                TRANSFER_SHADOW(o);
+                //TRANSFER_SHADOW(o)
                 o.uv = v.uv;
                 // Via Vertex and fragment shader examples docs.
                 o.normal = UnityObjectToWorldNormal(normal);
+                o.worldPos = mul(unity_ObjectToWorld, o.pos);
                 return o;
             }
             
@@ -209,8 +225,14 @@ Shader "Custom/FlatShader"
                 //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
                 float4 textureColor = tex2D(_MainTex, i.uv);
                 if (textureColor.a < _Threshold)
+                {
+                    //return fixed4(1,0,0,1);
                     clip(textureColor.a - _Threshold);
+                }
+                textureColor.a = 1;
+                //return textureColor;
 
+                //return textureColor;
                 
                 //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
                 //return fixed4(depth,depth,depth,1);
@@ -276,9 +298,14 @@ Shader "Custom/FlatShader"
                 }
                 //clip(checkboardClip * -1);
 
+                //float inShadow = SHADOW_ATTENUATION(i);
+                //float inShadow = 0;
                 float inShadow = SHADOW_ATTENUATION(i);
+                //inShadow = abs(inShadow);
                 float4 finalColor = _Color;
                 finalColor *= tex2D(_MainTex, i.uv);
+                //return finalColor;
+               // return finalColor;
                 //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
                 //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
 
@@ -286,14 +313,24 @@ Shader "Custom/FlatShader"
                 float inShadowSide = shadowProduct > 0.5;
                 //return fixed4(inShadowSide, inShadowSide, inShadowSide, 1);
 
-                if (inShadow && !inShadowSide)
+                //float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
+                //float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
+                //float fadeValue = UnityComputeShadowFade(fadeDistance);
+
+                float inShadowBool = inShadow < 0.96;
+                //return fixed4(inShadow, inShadow, inShadow, 1);
+                //return inShadow;
+
+                if (!inShadowBool && !inShadowSide)
                 {
                     return finalColor;
                 }
                 else
                 {
-                    return finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * _ShadowStrength +
-                           finalColor * (1 - _ShadowStrength);
+                    //_ShadowStrength
+                    
+                    return finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * (1 - inShadow) +
+                           finalColor * (inShadow);
                 }
             }
             ENDCG

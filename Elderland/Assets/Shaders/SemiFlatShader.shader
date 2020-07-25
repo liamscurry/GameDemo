@@ -21,8 +21,10 @@ Shader "Custom/SemiFlatShader"
     }
     SubShader
     {
-        //Cull off
+                //Cull off
+        LOD 400
 
+        // Via SpeedTree.shader
         Pass
         {
             Tags { "LightMode"="ShadowCaster" }
@@ -30,7 +32,7 @@ Shader "Custom/SemiFlatShader"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile_fwdbase
+            #pragma multi_compile_shadowcaster
 
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -40,31 +42,35 @@ Shader "Custom/SemiFlatShader"
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normal : NORMAL;
+                float2 uv1 : TEXCOORD1; // From UnityStandardInput.cginc for transfer lighting.
             };
 
             struct v2f
             {
-                float4 pos : SV_POSITION;
+                //float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                SHADOW_COORDS(1) //float4 pos : SV_POSITION thats it
+                V2F_SHADOW_CASTER; //float4 pos : SV_POSITION thats it
                 //float4 screenPos : TEXCOORD1;
             };
 
             sampler2D _MainTex;
             float _CrossFade;
+            float _Threshold;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
-                TRANSFER_SHADOW(o) //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
+                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
+                //UNITY_TRANSFER_LIGHTING(o, v.uv1); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
                 //o.screenPos = ComputeScreenPos(o.pos);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
+                /*
                 float4 screenPos = ComputeScreenPos(i.pos);
                 float2 screenPercentagePos = screenPos.xy / screenPos.w;
                 float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
@@ -121,12 +127,18 @@ Shader "Custom/SemiFlatShader"
                         oddClip = !(abs(checkerboard.x) > (1 - leftLOD) && abs(checkerboard.y) > (1 - leftLOD));
                     }
                     clip(oddClip * -1);
+                }*/
+  
+                float4 textureColor = (tex2D(_MainTex, i.uv));
+                //clip(textureColor.w - .1);
+                if (textureColor.a < _Threshold)
+                {
+                    //return fixed4(1,0,0,1);
+                    clip(textureColor.a - _Threshold);
                 }
 
-
-                float4 textureColor = (tex2D(_MainTex, i.uv));
-                clip(textureColor.w - 1);
-                return 0;
+                SHADOW_CASTER_FRAGMENT(i)
+                //return 0;
             }
             ENDCG
         }
@@ -294,10 +306,12 @@ Shader "Custom/SemiFlatShader"
                 float inShadowSide = shadowProduct > 0.5;
 
                 float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35, .35, .35, 1);
-                float4 shadowColor = baseShadowColor * _ShadowStrength +
-                           finalColor * (1 - _ShadowStrength);
+                float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
+                           finalColor * inShadow;//(1 - _ShadowStrength)
                 
-                if (inShadow && !inShadowSide)
+                float inShadowBool = inShadow < 0.6;
+
+                if (!inShadowBool && !inShadowSide)
                 {    
                     float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
                     float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
