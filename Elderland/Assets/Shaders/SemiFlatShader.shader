@@ -322,9 +322,9 @@ Shader "Custom/SemiFlatShader"
                         //return fixed4(f,f,f,1);
                     }
                     float scaledShadowProduct = pow(saturate(shadowProduct * 2),3);
-                    float4 lightShadowColor = shadowColor * scaledShadowProduct +
+                    float4 lightShadowColor = baseShadowColor * scaledShadowProduct +
                                         finalColor * (1 - scaledShadowProduct);
-
+                    //return baseShadowColor;
                     return lightShadowColor * _LightShadowStrength +
                            finalColor * (1 - _LightShadowStrength) + f * .4;
                 }
