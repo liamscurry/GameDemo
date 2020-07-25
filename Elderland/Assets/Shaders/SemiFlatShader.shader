@@ -299,6 +299,12 @@ Shader "Custom/SemiFlatShader"
                 float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color;
                 finalColor *= tex2D(_MainTex, i.uv);
+
+                // Learned in AutoLight.cginc
+                float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
+                float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
+                float fadeValue = UnityComputeShadowFade(fadeDistance);
+                
                 //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
                 //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
 
@@ -311,35 +317,39 @@ Shader "Custom/SemiFlatShader"
                 
                 float inShadowBool = inShadow < 0.6;
 
+
+                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+                float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
+                float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
+                //return fixed4(f,f,f,1);
+                if (f > .9f)
+                {
+                    //return fixed4(f,f,f,1);
+                }
+                float scaledShadowProduct = pow(saturate(shadowProduct * 2),3);
+                float4 lightShadowColor = baseShadowColor * scaledShadowProduct +
+                                    finalColor * (1 - scaledShadowProduct);
+                //return baseShadowColor;
+                float4 lightColor = lightShadowColor * _LightShadowStrength +
+                    finalColor * (1 - _LightShadowStrength) + f * .4;
+
                 if (!inShadowSide)
                 {    
                     if (!inShadowBool)
                     {
-                        float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                        float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
-                        float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
-                        //return fixed4(f,f,f,1);
-                        if (f > .9f)
-                        {
-                            //return fixed4(f,f,f,1);
-                        }
-                        float scaledShadowProduct = pow(saturate(shadowProduct * 2),3);
-                        float4 lightShadowColor = baseShadowColor * scaledShadowProduct +
-                                            finalColor * (1 - scaledShadowProduct);
-                        //return baseShadowColor;
-                        return lightShadowColor * _LightShadowStrength +
-                            finalColor * (1 - _LightShadowStrength) + f * .4;
+                        return lightColor;
                     }
                     else
                     {
-                        return shadowColor;
+                        return shadowColor * (1 - fadeValue) + lightColor * fadeValue;
                         //return inShadow * fixed4(1, 0, 0, 1);
                         //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * inShadow;
                     }
                 }
                 else
                 {
-                    //return fixed4(1, 0, 0, 1) * shadowProduct;
+                    
+                    //return fixed4(1, 0, 0, 1);
                     //return inShadow;
                     return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
                     //return shadowColor; //issue here
