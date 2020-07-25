@@ -68,7 +68,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
-                TRANSFER_SHADOW(o) //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
+                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o) //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
                 //o.screenPos = ComputeScreenPos(o.pos);
                 return o;
             }
@@ -136,7 +136,8 @@ Shader "Custom/TerrainSemiFlatShader"
 
                 float4 textureColor = (tex2D(_MainTex, i.uv));
                 clip(textureColor.w - 1);
-                return 0;
+                //return 0;
+                SHADOW_CASTER_FRAGMENT(i)
             }
             ENDCG
         }
@@ -433,32 +434,45 @@ Shader "Custom/TerrainSemiFlatShader"
                 float shadowProduct = AngleBetween(worldUnpackedNormal, _WorldSpaceLightPos0.xyz) / 3.151592;//i.normal
                 float inShadowSide = shadowProduct > 0.5;
 
-                float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35, .35, .35, 1);
-                float4 shadowColor = baseShadowColor * _ShadowStrength +
-                           finalColor * (1 - _ShadowStrength);
+                 float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35, .35, .35, 1);
+                float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
+                           finalColor * inShadow;//(1 - _ShadowStrength)
                 
-                if (inShadow && !inShadowSide)
-                {    
-                    float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                    float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, worldUnpackedNormal);//i.normal
-                    float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
-                    //return fixed4(f,f,f,1);
-                    if (f > .9f)
-                    {
-                        //return fixed4(f,f,f,1);
-                    }
-                    float scaledShadowProduct = pow(saturate(shadowProduct * 2),3);
-                    float4 lightShadowColor = shadowColor * scaledShadowProduct +
-                                        finalColor * (1 - scaledShadowProduct);
+                float inShadowBool = inShadow < 0.6;
 
-                    return lightShadowColor * _LightShadowStrength +
-                           finalColor * (1 - _LightShadowStrength) + f * .3;
+                if (!inShadowSide)
+                {    
+                    if (!inShadowBool)
+                    {
+                        float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+                        float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
+                        float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
+                        //return fixed4(f,f,f,1);
+                        if (f > .9f)
+                        {
+                            //return fixed4(f,f,f,1);
+                        }
+                        float scaledShadowProduct = pow(saturate(shadowProduct * 2),3);
+                        float4 lightShadowColor = baseShadowColor * scaledShadowProduct +
+                                            finalColor * (1 - scaledShadowProduct);
+                        //return baseShadowColor;
+                        return lightShadowColor * _LightShadowStrength +
+                            finalColor * (1 - _LightShadowStrength) + f * .4;
+                    }
+                    else
+                    {
+                        return shadowColor;
+                        //return inShadow * fixed4(1, 0, 0, 1);
+                        //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * inShadow;
+                    }
                 }
                 else
                 {
-                    return shadowColor;
+                    //return fixed4(1, 0, 0, 1) * shadowProduct;
+                    //return inShadow;
+                    return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
+                    //return shadowColor; //issue here
                 }
-                
             }
             ENDCG
         }
