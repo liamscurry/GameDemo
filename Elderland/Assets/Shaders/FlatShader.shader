@@ -204,7 +204,7 @@ Shader "Custom/FlatShader"
                 o.uv = v.uv;
                 // Via Vertex and fragment shader examples docs.
                 o.normal = UnityObjectToWorldNormal(normal);
-                o.worldPos = mul(unity_ObjectToWorld, o.pos);
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 return o;
             }
             
@@ -309,28 +309,53 @@ Shader "Custom/FlatShader"
                 //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
                 //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
 
+                //float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
+                //float inShadowSide = shadowProduct > 0.5;
+
                 float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 float inShadowSide = shadowProduct > 0.5;
+
+                float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35, .35, .35, 1);
+                float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
+                           finalColor * inShadow;//(1 - _ShadowStrength)
+                
+                float inShadowBool = inShadow < 0.6;
+
                 //return fixed4(inShadowSide, inShadowSide, inShadowSide, 1);
 
                 //float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 //float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 //float fadeValue = UnityComputeShadowFade(fadeDistance);
 
-                float inShadowBool = inShadow < 0.96;
+                //float inShadowBool = inShadow < 0.96;
                 //return fixed4(inShadow, inShadow, inShadow, 1);
                 //return inShadow;
 
-                if (!inShadowBool && !inShadowSide)
+                // Learned in AutoLight.cginc
+                float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
+                float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
+                float fadeValue = UnityComputeShadowFade(fadeDistance);
+
+                //return fadeValue;
+
+                if (!inShadowSide)
                 {
-                    return finalColor;
+                    if (!inShadowBool)
+                    {
+                        return finalColor;
+                    }
+                    else
+                    {
+                        return shadowColor * (1 - fadeValue) + finalColor * fadeValue;
+                    }
+                    //return finalColor;
                 }
                 else
                 {
                     //_ShadowStrength
                     
-                    return finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * (1 - inShadow) +
-                           finalColor * (inShadow);
+                    return finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * (_ShadowStrength) +
+                           finalColor * (1 - _ShadowStrength);
                 }
             }
             ENDCG
