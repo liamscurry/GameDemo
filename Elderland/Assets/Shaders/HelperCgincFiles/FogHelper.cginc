@@ -18,9 +18,18 @@ fixed4 ApplyFog(
     float isInShadowSide)
 {
     float normalVerticalAngle = AngleBetween(worldNormal, float3(0, 1, 0)) / PI;
+    float normalWarmPercentage = (normalVerticalAngle - 0.5) * 2;
     if (isInShadowSide)
     {
-        return float4(normalVerticalAngle, 0, 0, 1);
+        float warmLightness = RGBLightness(startColor) * 1.2;
+        
+        float4 warmModifier =
+                float4(1, .55, .1, 1) * (normalWarmPercentage) + 
+                float4(1, 1, 1, 1) * (1 - normalWarmPercentage);
+            
+        startColor *= 
+                warmModifier * (1 - warmLightness) +
+                float4(1,1,1,1) * (warmLightness);
     }
 
     float2 horizontalDisplacement = 

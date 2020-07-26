@@ -313,9 +313,8 @@ Shader "Custom/FlatShader"
                 float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 float inShadowSide = shadowProduct > 0.5;
 
-                float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35, .35, .35, 1);
-                float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
-                           finalColor * inShadow;//(1 - _ShadowStrength)
+                float4 shadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * (_ShadowStrength) +
+                           finalColor * (1 - _ShadowStrength);//(1 - _ShadowStrength)
                 
                 float inShadowBool = inShadow < 0.6;
 
@@ -346,15 +345,16 @@ Shader "Custom/FlatShader"
                     else
                     {
                         //return shadowColor * (1 - fadeValue) + finalColor * fadeValue;
-                        STANDARD_FOG(shadowColor * (1 - fadeValue) + finalColor * fadeValue);
+                        //STANDARD_FOG(shadowColor * (1 - fadeValue) + finalColor * fadeValue);
+                        
+                        STANDARD_SHADOWSIDE_FOG(shadowColor * (1 - fadeValue) + finalColor * fadeValue);
                     }
                 }
                 else
                 {
                     //return finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * (_ShadowStrength) +
                     //       finalColor * (1 - _ShadowStrength);
-                    STANDARD_FOG(finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * (_ShadowStrength) +
-                           finalColor * (1 - _ShadowStrength));
+                    STANDARD_SHADOWSIDE_FOG(shadowColor);
                 }
             }
             ENDCG

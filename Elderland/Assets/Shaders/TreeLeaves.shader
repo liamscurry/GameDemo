@@ -304,7 +304,7 @@ Shader "Custom/TreeLeaves"
                 else
                 {
                     //return finalColor * fixed4(.85, .75, .75, 1) * (1 - fadeValue) + finalColor * (fadeValue);
-                    STANDARD_FOG(finalColor * fixed4(.85, .75, .75, 1) * (1 - fadeValue) + finalColor * (fadeValue));
+                    STANDARD_FOG(finalColor * fixed4(1, .87, .625, 1) * (1 - fadeValue) + finalColor * (fadeValue));
                 }
             }
             ENDCG

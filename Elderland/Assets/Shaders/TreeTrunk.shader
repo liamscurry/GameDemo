@@ -283,15 +283,22 @@ Shader "Custom/TreeTrunk"
                 float inShadowSide = shadowProduct > 0.5;
                 //return fixed4(inShadowSide, inShadowSide, inShadowSide, 1);
 
-                if (inShadow && !inShadowSide)
+                if (inShadow)
                 {
-                    //return finalColor;
-                    STANDARD_FOG(finalColor);
+                    if (!inShadowSide)
+                    {
+                        //return finalColor;
+                        STANDARD_FOG(finalColor);
+                    }
+                    else
+                    {
+                        STANDARD_FOG(finalColor * fixed4(.85, .75, .75, 1) * fixed4(.7, .7, .7, 1));
+                    }
                 }
                 else
                 {
                     //return finalColor * fixed4(.85, .75, .75, 1) * fixed4(.7, .7, .7, 1);
-                    STANDARD_FOG(finalColor * fixed4(.85, .75, .75, 1) * fixed4(.7, .7, .7, 1));
+                    STANDARD_SHADOWSIDE_FOG(finalColor * fixed4(.85, .75, .75, 1) * fixed4(.7, .7, .7, 1));
                 }
             }
             ENDCG
