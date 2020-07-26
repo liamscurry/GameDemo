@@ -171,15 +171,8 @@ Shader "Custom/SemiFlatShader"
             #include "Color.cginc"
             #include "AutoLight.cginc"
             #include "TerrainSplatmapCommon.cginc"
+            #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
-            
-            // Angle between working
-            float AngleBetween(float3 u, float3 v)
-            {
-                float numerator = (u.x * v.x) + (u.y * v.y) + (u.z * v.z);
-                float denominator = length(u) * length(v);
-                return acos(numerator / denominator);
-            }
 
             struct appdata
             {
@@ -363,7 +356,7 @@ Shader "Custom/SemiFlatShader"
                 else
                 {
                     //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
-                    STANDARD_FOG(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
+                    STANDARD_SHADOWSIDE_FOG(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
                 }
             }
             ENDCG

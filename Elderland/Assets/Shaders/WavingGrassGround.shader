@@ -93,6 +93,7 @@ Shader "Custom/WavingGrassGround"
             #include "Color.cginc"
             #include "AutoLight.cginc"
             #include "UnityShadowLibrary.cginc"
+            #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
             
             struct appdata
@@ -109,9 +110,10 @@ Shader "Custom/WavingGrassGround"
                 SHADOW_COORDS(1)
                 float4 pos : SV_POSITION;
                 float4 worldPos : TEXCOORD2;
+                float3 normal : NORMAL;
             };
 
-            v2f vert (appdata v)
+            v2f vert (appdata v, float3 normal : NORMAL)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
@@ -119,6 +121,7 @@ Shader "Custom/WavingGrassGround"
                 TRANSFER_SHADOW(o)
                 o.uv = v.uv;
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                o.normal = UnityObjectToWorldNormal(normal);
                 return o;
             }
             
@@ -151,7 +154,8 @@ Shader "Custom/WavingGrassGround"
                 else
                 {
                     //return finalColor * fixed4(.5, .5, .5, 1);
-                    return finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue);
+                    //return finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue);
+                    STANDARD_FOG(finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue));
                 }
             }
             ENDCG

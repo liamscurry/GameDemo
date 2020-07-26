@@ -15,6 +15,8 @@ Shader "Custom/TreeLeaves"
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
         _FringeIntensity ("FringeIntensity", Range(0, 1)) = 1
+        _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
+        _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
     }
     SubShader
     {
@@ -157,14 +159,8 @@ Shader "Custom/TreeLeaves"
             #include "Color.cginc"
             #include "AutoLight.cginc"
             #include "FolliageHelper.cginc"
-            
-            // Angle between working
-            float AngleBetween(float3 u, float3 v)
-            {
-                float numerator = (u.x * v.x) + (u.y * v.y) + (u.z * v.z);
-                float denominator = length(u) * length(v);
-                return acos(numerator / denominator);
-            }
+            #include "/HelperCgincFiles/MathHelper.cginc"
+            #include "/HelperCgincFiles/FogHelper.cginc"
 
             struct appdata
             {
@@ -203,6 +199,8 @@ Shader "Custom/TreeLeaves"
             float _Threshold;
             float _CrossFade;
             float _FringeIntensity;
+            float4 _MidFogColor;
+            float4 _EndFogColor;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -300,11 +298,13 @@ Shader "Custom/TreeLeaves"
 
                 if (inShadow > 0.3)
                 {
-                    return finalColor;
+                    //return finalColor;
+                    STANDARD_FOG(finalColor);
                 }
                 else
                 {
-                    return finalColor * fixed4(.85, .75, .75, 1) * (1 - fadeValue) + finalColor * (fadeValue);
+                    //return finalColor * fixed4(.85, .75, .75, 1) * (1 - fadeValue) + finalColor * (fadeValue);
+                    STANDARD_FOG(finalColor * fixed4(.85, .75, .75, 1) * (1 - fadeValue) + finalColor * (fadeValue));
                 }
             }
             ENDCG

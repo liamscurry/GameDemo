@@ -17,6 +17,8 @@ Shader "Custom/FlatShader"
         _EvenFade ("EvenFade", Range(0, 1)) = 0
         _OddFade ("EvenFade", Range(0, 1)) = 0
         _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
+        _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
+        _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
     }
     SubShader
     {
@@ -168,14 +170,8 @@ Shader "Custom/FlatShader"
             #include "Color.cginc"
             #include "AutoLight.cginc"
             #include "UnityShadowLibrary.cginc"
-            
-            // Angle between working
-            float AngleBetween(float3 u, float3 v)
-            {
-                float numerator = (u.x * v.x) + (u.y * v.y) + (u.z * v.z);
-                float denominator = length(u) * length(v);
-                return acos(numerator / denominator);
-            }
+            #include "/HelperCgincFiles/MathHelper.cginc"
+            #include "HelperCgincFiles/FogHelper.cginc"
 
             struct appdata
             {
@@ -217,6 +213,8 @@ Shader "Custom/FlatShader"
             float _OddFade;
             sampler2D _CameraDepthTexture;
             float _ShadowStrength;
+            float4 _MidFogColor;
+            float4 _EndFogColor;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -342,20 +340,21 @@ Shader "Custom/FlatShader"
                 {
                     if (!inShadowBool)
                     {
-                        return finalColor;
+                        //return finalColor;
+                        STANDARD_FOG(finalColor);
                     }
                     else
                     {
-                        return shadowColor * (1 - fadeValue) + finalColor * fadeValue;
+                        //return shadowColor * (1 - fadeValue) + finalColor * fadeValue;
+                        STANDARD_FOG(shadowColor * (1 - fadeValue) + finalColor * fadeValue);
                     }
-                    //return finalColor;
                 }
                 else
                 {
-                    //_ShadowStrength
-                    
-                    return finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * (_ShadowStrength) +
-                           finalColor * (1 - _ShadowStrength);
+                    //return finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * (_ShadowStrength) +
+                    //       finalColor * (1 - _ShadowStrength);
+                    STANDARD_FOG(finalColor * fixed4(.75, .75, .85, 1) * fixed4(.7, .7, .7, 1) * (_ShadowStrength) +
+                           finalColor * (1 - _ShadowStrength));
                 }
             }
             ENDCG
