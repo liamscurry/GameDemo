@@ -184,7 +184,7 @@ Shader "Custom/TreeLeaves"
                 v2f o;
                 float3 alteredObjectVertex = WarpFolliage(v.vertex, v.uv, normal);
                 o.pos = UnityObjectToClipPos(alteredObjectVertex);
-                o.worldPos = mul(unity_ObjectToWorld, alteredObjectVertex);
+                o.worldPos = mul(unity_ObjectToWorld, float4(alteredObjectVertex, 1));
                 //o.screenPos = ComputeScreenPos(o.pos);
                 TRANSFER_SHADOW(o)
                 o.uv = v.uv;
