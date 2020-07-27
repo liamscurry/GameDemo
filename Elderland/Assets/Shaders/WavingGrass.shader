@@ -138,7 +138,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 }
                 o.worldDistance = worldDistance;
                 //In waving grass shader default
-                o.uv = UVClamp(v.uv);
+                o.uv = v.uv;
                 //o.color = float4(1,0,0,1);
                 o.color = v.color;
                 o._ShadowCoord = ComputeScreenPos(o.pos);
@@ -171,21 +171,22 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //return fixed4(i.depth * 35 / 50, 0, 0, 1);
                 
                 float4 textureColor = (tex2D(_MainTex, i.uv));
+                textureColor *= float4(169.0 / 255, 223.0 / 255, 32.0 / 255, 1);
                 //return textureColor;
-                //clip(textureColor.w - _Threshold);
+                clip(textureColor.w - _Threshold);
 
                 // Hue
                 float lightness = RGBLightness(textureColor);
                 lightness = 0.5;
                 float hue = RGBHue(textureColor.r, textureColor.g, textureColor.b);
                 float saturation = RGBSat(textureColor.r, textureColor.g, textureColor.b);
-                float4 hueTint = float4(HSLToRGB(hue, saturation, .35), 1);//0.6
+                float4 hueTint = float4(HSLToRGB(hue, 0.7, .35), 1);//0.6
 
                 // Local hue
                 //i.color.xyz,
                 float3 color = i.color.xyz;
                 float localHue = RGBHue(color.r, color.g, color.b);
-                float4 localHueTint = fixed4(HSLToRGB(localHue, saturation, lightness), 1);//0.5
+                float4 localHueTint = fixed4(HSLToRGB(localHue, 0.7, lightness), 1);//0.5
                 //localHueTint = float4(1,1,1,1);
 
                 // Gradient factors
@@ -200,11 +201,13 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                     hueFactorUV = i.uv.y * 2;
                 }
             
-                hueFactorUV = saturate(hueFactorUV - .02 * i.worldDistance);
+                //hueFactorUV = saturate(hueFactorUV - .02 * i.worldDistance);
+                hueFactorUV = i.uv.y;
                 hueFactor = 1 - saturate(1 - hueFactorUV * 1);
-                //return hueFactorUV;
-                return textureColor;
-                hueFactor = 0;
+                //return hueFactor;
+                //return i.uv.y;
+                //return textureColor;
+                //hueFactor = 0;
                 //return hue / 360;// HUE is distance issue.
                 //hueFactor = 1;
                 if (i.worldDistance > 20)
