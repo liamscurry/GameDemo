@@ -94,6 +94,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             #include "Lighting.cginc"
             #include "Color.cginc"
             #include "FolliageHelper.cginc"
+            #include "/HelperCgincFiles/MathHelper.cginc"
             
             //float4 _MainTex_ST;
 
@@ -137,7 +138,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 }
                 o.worldDistance = worldDistance;
                 //In waving grass shader default
-                o.uv = v.uv;
+                o.uv = UVClamp(v.uv);
                 //o.color = float4(1,0,0,1);
                 o.color = v.color;
                 o._ShadowCoord = ComputeScreenPos(o.pos);
@@ -171,29 +172,45 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 
                 float4 textureColor = (tex2D(_MainTex, i.uv));
                 //return textureColor;
-                clip(textureColor.w - _Threshold);
+                //clip(textureColor.w - _Threshold);
 
                 // Hue
                 float lightness = RGBLightness(textureColor);
                 lightness = 0.5;
                 float hue = RGBHue(textureColor.r, textureColor.g, textureColor.b);
-                float4 hueTint = float4(HSLToRGB(hue, 0.6, .35), 1);
+                float saturation = RGBSat(textureColor.r, textureColor.g, textureColor.b);
+                float4 hueTint = float4(HSLToRGB(hue, saturation, .35), 1);//0.6
 
                 // Local hue
                 //i.color.xyz,
                 float3 color = i.color.xyz;
                 float localHue = RGBHue(color.r, color.g, color.b);
-                float4 localHueTint = fixed4(HSLToRGB(localHue, 0.5, lightness), 1);
+                float4 localHueTint = fixed4(HSLToRGB(localHue, saturation, lightness), 1);//0.5
                 //localHueTint = float4(1,1,1,1);
 
                 // Gradient factors
                 float hueFactor = saturate(1 - i.objectPos.y + 0.25);//i.uv.y, i.objectPos.y
-                hueFactor = 1 - saturate(1 - i.uv.y * 1.5);
+                float hueFactorUV = 0;
+                if (i.uv.y > 0.5)
+                {
+                    hueFactorUV = (i.uv.y - 0.5) * 2;
+                }
+                else
+                {
+                    hueFactorUV = i.uv.y * 2;
+                }
+            
+                hueFactorUV = saturate(hueFactorUV - .02 * i.worldDistance);
+                hueFactor = 1 - saturate(1 - hueFactorUV * 1);
+                //return hueFactorUV;
+                return textureColor;
+                hueFactor = 0;
+                //return hue / 360;// HUE is distance issue.
                 //hueFactor = 1;
                 if (i.worldDistance > 20)
                 {
                     float limitedDepth = ((i.worldDistance - 20) / 20);
-                    hueFactor += limitedDepth;
+                    //hueFactor += limitedDepth;
                     if (hueFactor > 1)
                         hueFactor = 1;
                     //return fixed4(limitedDepth,limitedDepth,limitedDepth,1);
@@ -233,9 +250,9 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                         fixed4(1, 1, 1, 1) * hueTint * lerpFactorBottom);
 
                 float tipHighlight = 0.6;
-                if (i.uv.y > tipHighlight)
+                if (hueFactorUV > tipHighlight)
                 {
-                    finalColor += float4(1,1,1,1) * (i.uv.y - tipHighlight) / (1 - tipHighlight) * .1;
+                    finalColor += float4(1,1,1,1) * (hueFactorUV - tipHighlight) / (1 - tipHighlight) * .1;
                 }
 
                 if (inShadow)
