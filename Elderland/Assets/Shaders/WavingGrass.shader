@@ -114,6 +114,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float depth : COLOR2;
                 float worldDistance : TEXCOORD2;
                 float3 objectPos : TEXCOORD3;
+                float3 normal : TEXCOORD4;
             };  
 
             v2f vert (appdata v, float3 normal : NORMAL)
@@ -143,6 +144,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 o.color = v.color;
                 o._ShadowCoord = ComputeScreenPos(o.pos);
                 o.objectPos = v.vertex;
+                o.normal = UnityObjectToWorldNormal(normal);
                 return o;
             }
             
@@ -257,6 +259,12 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 {
                     finalColor += float4(1,1,1,1) * (hueFactorUV - tipHighlight) / (1 - tipHighlight) * .1;
                 }
+
+                //o.normal actually is based on surface :>
+                //return _WorldSpaceLightPos0;
+                float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, i.normal) / (PI));
+                finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
+                //return fixed4(groundAngle, groundAngle, groundAngle, 1);
 
                 if (inShadow)
                 {

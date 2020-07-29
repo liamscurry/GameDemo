@@ -146,6 +146,9 @@ Shader "Custom/WavingGrassGround"
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
+                float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, i.normal) / (PI));
+                finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
+
                 if (inShadow)
                 {
                     //return finalColor;
