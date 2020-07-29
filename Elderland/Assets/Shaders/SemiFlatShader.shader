@@ -72,7 +72,6 @@ Shader "Custom/SemiFlatShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                /*
                 float4 screenPos = ComputeScreenPos(i.pos);
                 float2 screenPercentagePos = screenPos.xy / screenPos.w;
                 float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
@@ -129,7 +128,7 @@ Shader "Custom/SemiFlatShader"
                         oddClip = !(abs(checkerboard.x) > (1 - leftLOD) && abs(checkerboard.y) > (1 - leftLOD));
                     }
                     clip(oddClip * -1);
-                }*/
+                }
   
                 float4 textureColor = (tex2D(_MainTex, i.uv));
                 //clip(textureColor.w - .1);
