@@ -46,14 +46,32 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
-                v2f o;
+                v2f o;  
+               
                 float3 alteredObjectVertex = WarpGrass(v.vertex, v.uv, normal);
-                o.uv = v.uv;
-                v.vertex = float4(alteredObjectVertex, 1);
-                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
+                //o.depth = length(UnityObjectToViewPos(alteredObjectVertex)) / 35;
+
                 float4 worldPos = mul(unity_ObjectToWorld, float4(alteredObjectVertex, 1));
                 float worldDistance = length(_WorldSpaceCameraPos.xyz - worldPos.xyz);
+                //o.pos = UnityObjectToClipPos(v.vertex);
+                if (worldDistance < 40)
+                {
+                    o.pos = UnityObjectToClipPos(alteredObjectVertex);
+                    alteredObjectVertex = alteredObjectVertex;
+                }
+                else
+                {
+                    float limitedDepth = saturate((worldDistance - 40) / 35);
+                    o.pos = UnityObjectToClipPos(alteredObjectVertex - fixed4(0, limitedDepth, 0, 0));
+                    alteredObjectVertex = alteredObjectVertex - fixed4(0, limitedDepth, 0, 0);
+                    //
+                    //o.pos = UnityObjectToClipPos(v.vertex * float4(1, worldDistance / 30,1,1));
+                }
+                v.vertex = float4(alteredObjectVertex, 1);
                 o.worldDistance = worldDistance;
+                o.uv = v.uv;
+                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
+
                 return o;
             }
 
