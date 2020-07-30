@@ -141,6 +141,9 @@ Shader "Custom/WavingGrassGround"
                 float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color;
 
+                //float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
+                //finalColor * inShadow;//(1 - _ShadowStrength)
+
                 // Learned in AutoLight.cginc
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
@@ -149,10 +152,22 @@ Shader "Custom/WavingGrassGround"
                 float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, i.normal) / (PI));
                 finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
 
+                float inShadowBool = inShadow < 0.6;
+
                 if (inShadow)
                 {
-                    //return finalColor;
-                    STANDARD_FOG(finalColor);
+                    if (!inShadowBool)
+                    {
+                        //return finalColor;
+                        STANDARD_FOG(finalColor);
+                    }
+                    else
+                    {
+                        //return inShadow;
+                        float4 mergeColor = finalColor * (inShadow) + 
+                        (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
+                        STANDARD_FOG(mergeColor);
+                    }
                 }
                 else
                 {

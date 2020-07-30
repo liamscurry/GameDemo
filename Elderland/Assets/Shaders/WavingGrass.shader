@@ -111,8 +111,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "Color.cginc"
-            #include "FolliageHelper.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
+            #include "FolliageHelper.cginc"
             
             //float4 _MainTex_ST;
 
@@ -138,7 +138,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             v2f vert (appdata v, float3 normal : NORMAL)
             {
                 v2f o;
-                float3 alteredObjectVertex = WarpGrass(v.vertex, v.uv, normal);
+                float3 alteredObjectVertex = WarpGrass(v.vertex, v.color.a, normal);
                 o.depth = length(UnityObjectToViewPos(alteredObjectVertex)) / 35;
 
                 float4 worldPos = mul(unity_ObjectToWorld, float4(alteredObjectVertex, 1));
@@ -155,6 +155,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                     //
                     //o.pos = UnityObjectToClipPos(v.vertex * float4(1, worldDistance / 30,1,1));
                 }
+                //o.pos = UnityObjectToClipPos(v.vertex);
+                //o.screenPos = ComputeScreenPos(UnityObjectToClipPos(v.vertex));
                 o.worldDistance = worldDistance;
                 //In waving grass shader default
                 o.uv = v.uv;
@@ -174,6 +176,11 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
+                //float2 screenPercentagePos = i.screenPos.xy / i.screenPos.w;
+                //return fixed4(screenPercentagePos.y, screenPercentagePos.y, screenPercentagePos.y, 1);
+                //return i.color.a;
+                //return fixed4(tex2D(_MainTex, screenPercentagePos).xyz * tex2D(_MainTex, screenPercentagePos).w, 1);
+
                 //return fixed4(i.worldDistance / 50,0,0,1);
                 float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
 
@@ -206,24 +213,14 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //i.color.xyz,
                 float3 color = i.color.xyz;
                 float localHue = RGBHue(color.r, color.g, color.b);
-                float4 localHueTint = fixed4(HSLToRGB(localHue, 0.7, lightness), 1);//0.5
+                float4 localHueTint = fixed4(HSLToRGB(localHue, 0.4, lightness), 1);//0.5
                 //localHueTint = float4(1,1,1,1);
 
                 // Gradient factors
                 float hueFactor = saturate(1 - i.objectPos.y + 0.25);//i.uv.y, i.objectPos.y
-                float hueFactorUV = 0;
-                if (i.uv.y > 0.5)
-                {
-                    hueFactorUV = (i.uv.y - 0.5) * 2;
-                }
-                else
-                {
-                    hueFactorUV = i.uv.y * 2;
-                }
-            
-                //hueFactorUV = saturate(hueFactorUV - .02 * i.worldDistance);
-                hueFactorUV = i.uv.y;
-                hueFactor = 1 - saturate(1 - hueFactorUV * 1);
+                
+                
+                hueFactor = 1 - saturate(1 - i.color.a * 1);
                 //return hueFactor;
                 //return i.uv.y;
                 //return textureColor;
@@ -272,10 +269,10 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                         (fixed4(1, 1, 1, 1) * localHueTint * lerpFactorTop +
                         fixed4(1, 1, 1, 1) * hueTint * lerpFactorBottom);
 
-                float tipHighlight = 0.6;
-                if (hueFactorUV > tipHighlight)
+                float tipHighlight = 0.8;
+                if (i.color.a > tipHighlight)
                 {
-                    finalColor += float4(1,1,1,1) * (hueFactorUV - tipHighlight) / (1 - tipHighlight) * .1;
+                    finalColor += float4(1,1,1,1) * (i.color.a - tipHighlight) / (1 - tipHighlight) * .05;
                 }
 
                 //o.normal actually is based on surface :>

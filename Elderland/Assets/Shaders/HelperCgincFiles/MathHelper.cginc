@@ -1,3 +1,6 @@
+#ifndef MATH_HELPER
+#define MATH_HELPER
+
 #define PI 3.141592
 
 // Angle between working
@@ -29,3 +32,4 @@ float4 UVClamp(float4 uv)
         newUV = float4(newUV.x, newUV.y + 0.5, newUV.zw);
     return newUV;
 }
+#endif
