@@ -20,6 +20,7 @@ Shader "Custom/SemiFlatShader"
         _LightShadowStrength ("LightShadowStrength", Range(0, 1)) = 0
         _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
         _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
+        _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
     }
     SubShader
     {
@@ -215,6 +216,7 @@ Shader "Custom/SemiFlatShader"
             float _LightShadowStrength;
             float4 _MidFogColor;
             float4 _EndFogColor;
+            float _HighlightStrength;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -328,7 +330,7 @@ Shader "Custom/SemiFlatShader"
                                     finalColor * (1 - scaledShadowProduct);
                 //return baseShadowColor;
                 float4 lightColor = lightShadowColor * _LightShadowStrength +
-                    finalColor * (1 - _LightShadowStrength) + f * .4;
+                    finalColor * (1 - _LightShadowStrength) + f * .4 * _HighlightStrength;
 
                 if (!inShadowSide)
                 {    
