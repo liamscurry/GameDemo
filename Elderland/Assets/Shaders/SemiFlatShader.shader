@@ -173,6 +173,7 @@ Shader "Custom/SemiFlatShader"
             #include "TerrainSplatmapCommon.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
+            #include "TerrainSplatmapCommon.cginc"
 
             struct appdata
             {
