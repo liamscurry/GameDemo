@@ -296,10 +296,17 @@ Shader "Custom/TreeLeaves"
 
                 //return fixed4(inShadow, inShadow, inShadow, 1);
 
+
+                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+                float3 horizontalViewDir = normalize(float3(viewDir.x, 0, viewDir.z));
+                float3 horizontalReflectedDir = normalize(float3(-_WorldSpaceLightPos0.x, 0, -_WorldSpaceLightPos0.z));
+                float f = 1 - saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, viewDir) / (PI / 2));
+                f = pow(f, 2);
+
                 if (inShadow > 0.3)
                 {
                     //return finalColor;
-                    STANDARD_FOG(finalColor);
+                    STANDARD_FOG(finalColor + float4(0.9, .9, 1, 0) * f * .5);
                 }
                 else
                 {

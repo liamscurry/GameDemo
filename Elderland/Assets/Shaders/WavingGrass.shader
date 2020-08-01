@@ -133,6 +133,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float worldDistance : TEXCOORD2;
                 float3 objectPos : TEXCOORD3;
                 float3 normal : TEXCOORD4;
+                float3 worldPos : TEXCOORD5;
             };  
 
             v2f vert (appdata v, float3 normal : NORMAL)
@@ -142,6 +143,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 o.depth = length(UnityObjectToViewPos(alteredObjectVertex)) / 35;
 
                 float4 worldPos = mul(unity_ObjectToWorld, float4(alteredObjectVertex, 1));
+                o.worldPos = worldPos.xyz;
                 float worldDistance = length(_WorldSpaceCameraPos.xyz - worldPos.xyz);
                 //o.pos = UnityObjectToClipPos(v.vertex);
                 if (worldDistance < 40)
@@ -198,7 +200,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //return fixed4(i.depth * 35 / 50, 0, 0, 1);
                 
                 float4 textureColor = (tex2D(_MainTex, i.uv));
-                textureColor *= float4(169.0 / 255, 223.0 / 255, 32.0 / 255, 1);
+                textureColor *= float4(121.0 / 255, 152.0 / 255, 44.0 / 255, 1);
+                //float4(169.0 / 255, 223.0 / 255, 32.0 / 255, 1) original saturated
                 //return textureColor;
                 clip(textureColor.w - _Threshold);
 
@@ -208,6 +211,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float hue = RGBHue(textureColor.r, textureColor.g, textureColor.b);
                 float saturation = RGBSat(textureColor.r, textureColor.g, textureColor.b);
                 float4 hueTint = float4(HSLToRGB(hue, 0.7, .35), 1);//0.6
+                hueTint = textureColor;
 
                 // Local hue
                 //i.color.xyz,
@@ -281,9 +285,18 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
                 //return fixed4(groundAngle, groundAngle, groundAngle, 1);
 
+                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+                float3 horizontalViewDir = normalize(float3(viewDir.x, 0, viewDir.z));
+                float3 horizontalReflectedDir = normalize(float3(-_WorldSpaceLightPos0.x, 0, -_WorldSpaceLightPos0.z));
+                float f = 1 - saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, viewDir) / (PI / 2));
+                f = pow(f, 2);
+                //return f;
+                
+                //float viewUpAngle = AngleBetween(viewDir, float3(0, 1, 0)); //working here rn
+
                 if (inShadow)
                 {
-                    return finalColor;
+                    return finalColor + float4(0.9, .9, 1, 0) * f * 2;
                 }
                 else
                 {

@@ -5,6 +5,50 @@ float4 MultiplyColor(float percentage, float lightness, float4 startColor, float
            multipliedColor * percentage;
 }
 
+float4 WarmShadowColor(float4 startColor, float3 worldNormal, float isInShadowSide)
+{
+    float normalVerticalAngle = AngleBetween(worldNormal, float3(0, 1, 0)) / PI;
+    float normalWarmPercentage = (normalVerticalAngle - 0.5) * 2;
+    if (isInShadowSide)
+    {
+        float warmLightness = RGBLightness(startColor) * 1.2;
+        
+        float4 warmModifier =
+                float4(1, .55, .1, 1) * (normalWarmPercentage) + 
+                float4(1, 1, 1, 1) * (1 - normalWarmPercentage);
+            
+        float4 newColor = startColor *
+                (warmModifier * (1 - warmLightness) +
+                float4(1,1,1,1) * (warmLightness));
+    
+        return newColor;
+    }
+    return startColor;
+}
+
+float4 HaloColor(float4 startColor, float distance, float3 worldPos)
+{
+    float3 sunDirection = _WorldSpaceLightPos0.xyz;
+
+    // Learned in vertex/fragment shader examples in unity docs.
+    float3 viewDir = normalize(UnityWorldSpaceViewDir(worldPos));
+
+    float viewSunAngle = 1 - saturate(AngleBetween(-sunDirection, viewDir) / (PI / 2));
+    distance -= 40;
+    if (distance < 0)
+        distance = 0;
+    float distanceFactor = 1 - saturate((100.0 - distance) / 100.0);
+    //return startColor;
+    float4 haloAddonColor = 
+        float4(
+            distanceFactor * viewSunAngle,
+            distanceFactor * viewSunAngle,
+            distanceFactor * viewSunAngle,
+            1);
+    //return haloAddonColor;
+    return startColor + haloAddonColor * .5 * fixed4(235.0 / 255, 195.0 / 255, 52.0 / 255, 1);
+}
+
 fixed4 ApplyFog(
     float4 startColor,
     float4 midColor,
@@ -17,20 +61,7 @@ fixed4 ApplyFog(
     float3 worldNormal,
     float isInShadowSide)
 {
-    float normalVerticalAngle = AngleBetween(worldNormal, float3(0, 1, 0)) / PI;
-    float normalWarmPercentage = (normalVerticalAngle - 0.5) * 2;
-    if (isInShadowSide)
-    {
-        float warmLightness = RGBLightness(startColor) * 1.2;
-        
-        float4 warmModifier =
-                float4(1, .55, .1, 1) * (normalWarmPercentage) + 
-                float4(1, 1, 1, 1) * (1 - normalWarmPercentage);
-            
-        startColor *= 
-                warmModifier * (1 - warmLightness) +
-                float4(1,1,1,1) * (warmLightness);
-    }
+    startColor = WarmShadowColor(startColor, worldNormal, isInShadowSide);
 
     float2 horizontalDisplacement = 
         (cameraPos - worldPos).xz;
@@ -38,16 +69,19 @@ fixed4 ApplyFog(
     float toMidPercentage = 0;
     if (distance < startDistance)
     {
+        return HaloColor(startColor, length(cameraPos - worldPos), worldPos);
         return startColor;
     }
     else //  if (distance >= startDistance) && distance < startDistance + midDuration
     {
         float lightness = RGBLightness(startColor) * 0.5 + 0.3;
         
+        float4 returnColor = float4(0,0,0,0);
+
         if (distance < startDistance + midDuration)
         {
             float percentageMid = saturate((distance - startDistance) / (midDuration)) * 1.2f;
-            return MultiplyColor(percentageMid, lightness, startColor, midColor);
+            returnColor = MultiplyColor(percentageMid, lightness, startColor, midColor);
         }
         else
         {
@@ -55,9 +89,11 @@ fixed4 ApplyFog(
             float4 finalMidColor = MultiplyColor(percentageMid, lightness, startColor, midColor);
 
             float percentage = saturate((distance - (startDistance + midDuration)) / (endDuration));
-            return finalMidColor * (1 - percentage) + 
+            returnColor = finalMidColor * (1 - percentage) + 
                    endColor * percentage;
         }
+
+        return HaloColor(returnColor, length(cameraPos - worldPos), worldPos);
     }
 }
 

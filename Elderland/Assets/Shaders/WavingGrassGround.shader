@@ -154,12 +154,20 @@ Shader "Custom/WavingGrassGround"
 
                 float inShadowBool = inShadow < 0.6;
 
+
+                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+                float3 horizontalViewDir = normalize(float3(viewDir.x, 0, viewDir.z));
+                float3 horizontalReflectedDir = normalize(float3(-_WorldSpaceLightPos0.x, 0, -_WorldSpaceLightPos0.z));
+                float f = 1 - saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, viewDir) / (PI / 2));
+                f = pow(f, 2);
+                //return f;
+                
                 if (inShadow)
                 {
                     if (!inShadowBool)
                     {
                         //return finalColor;
-                        STANDARD_FOG(finalColor);
+                        STANDARD_FOG(finalColor + float4(0.9, .9, 1, 0) * f * 2);// + float4(0.9, .9, 1, 0) * f * .7
                     }
                     else
                     {
