@@ -153,7 +153,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 else
                 {
                     float limitedDepth = saturate((worldDistance - 40) / 35);
-                    o.pos = UnityObjectToClipPos(alteredObjectVertex - fixed4(0, limitedDepth, 0, 0));
+                    o.pos = UnityObjectToClipPos(alteredObjectVertex - fixed4(0, limitedDepth * 1.75, 0, 0));
                     //
                     //o.pos = UnityObjectToClipPos(v.vertex * float4(1, worldDistance / 30,1,1));
                 }

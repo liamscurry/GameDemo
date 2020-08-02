@@ -280,8 +280,11 @@ Shader "Custom/TreeLeaves"
                 float verticalProduct = sin(i.worldPos.y * .25) * (1 - _FringeIntensity * 1.3) * .5;
                 if (verticalProduct < 0)
                     verticalProduct = 0;
-                float horizontalProduct = sin(i.worldPos.x * .125) * (1 - _FringeIntensity * .1);
-                finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct + float4(.1, 0, .1, 1) * horizontalProduct;
+                float horizontalProduct = abs(sin(i.worldPos.x * .125)) * (1 - _FringeIntensity * .1);
+                finalColor = finalColor + float4(.1, .1, 0  , 1) * 2.6 * horizontalProduct;
+                finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct;
+                //finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct + float4(.1, 0, .1, 1) * horizontalProduct;
+                finalColor = float4(HSLToRGB(RGBHue(finalColor), RGBSat(finalColor) - 0.3, RGBLightness(finalColor)), finalColor.a);
 
                 //float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 //float inShadowSide = shadowProduct > 0.5;
@@ -311,7 +314,8 @@ Shader "Custom/TreeLeaves"
                 else
                 {
                     //return finalColor * fixed4(.85, .75, .75, 1) * (1 - fadeValue) + finalColor * (fadeValue);
-                    STANDARD_FOG(finalColor * fixed4(1, .87, .625, 1) * (1 - fadeValue) + finalColor * (fadeValue));
+                    STANDARD_FOG((finalColor * fixed4(.8, .8, .8, 1) * (1 - fadeValue) + finalColor * (fadeValue)) + float4(0.9, .9, 1, 0) * f * .1);
+                    //STANDARD_FOG(finalColor * fixed4(1, .87, .625, 1) * (1 - fadeValue) + finalColor * (fadeValue));
                 }
             }
             ENDCG
