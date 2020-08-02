@@ -272,7 +272,7 @@ Shader "Custom/TreeLeaves"
                 
                 //return fixed4(inShadow, inShadow, inShadow, 1);
 
-                if (_FringeIntensity < 0.5)
+                if (_FringeIntensity < 0.75)
                 {
                     finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5 * (1 - _FringeIntensity)), 2) * 0.45;
                     finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75 * (1 - 6 * _FringeIntensity);
