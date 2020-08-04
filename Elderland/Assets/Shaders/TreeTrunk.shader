@@ -275,7 +275,8 @@ Shader "Custom/TreeTrunk"
                 //clip(checkboardClip * -1);
 
                 float inShadow = SHADOW_ATTENUATION(i);
-                float4 finalColor = _Color;
+                float4 finalColor = _Color * tex2D(_MainTex, i.uv);
+                //return tex2D(_MainTex, i.uv);
                 //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
                 //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
 
