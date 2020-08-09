@@ -14,7 +14,7 @@ namespace UnityEditor
             // Learned in "Disable mouse selection in editor view" unity answer.
             int eventID = GUIUtility.GetControlID(FocusType.Passive);
 
-            if (Event.current.type == EventType.MouseDown)
+            if (Event.current.type == EventType.MouseDown && ((VinePlacer) target).EditorOn)
             {
                 if (Event.current.button == 0 && Event.current.isMouse)
                 {
@@ -74,6 +74,17 @@ namespace UnityEditor
             instanced.transform.parent = vinePlacer.gameObject.transform;
             instanced.transform.localScale *=
                 vinePlacer.ScaleMultiplier * (1 + ((Random.value - 0.5f) / 0.5f) * vinePlacer.ScaleRandom);
+
+            LODGroup lodGroup = vinePlacer.GetComponent<LODGroup>();
+            LOD[] lods = lodGroup.GetLODs();
+            List<Renderer> nearRenderers = new List<Renderer>(lods[0].renderers);
+            Renderer[] newRenderers = instanced.GetComponents<Renderer>();
+            nearRenderers.AddRange(newRenderers);
+            newRenderers = instanced.GetComponentsInChildren<Renderer>();
+            nearRenderers.AddRange(newRenderers);
+            lods[0].renderers = nearRenderers.ToArray();
+            
+            lodGroup.SetLODs(lods);
         }
 
         private void DeleteVine(VinePlacer vinePlacer, Vector3 position, float radius)

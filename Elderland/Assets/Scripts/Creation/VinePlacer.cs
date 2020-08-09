@@ -9,6 +9,8 @@ namespace UnityEditor
     public class VinePlacer : MonoBehaviour
     {
         [SerializeField]
+        private bool editorOn;
+        [SerializeField]
         private GameObject prefabObject1;
         [SerializeField]
         private GameObject prefabObject2;
@@ -33,6 +35,8 @@ namespace UnityEditor
         private float normalOffset;
         //[SerializeField]
         //private GameObject viewObject;
+
+        public bool EditorOn { get { return editorOn; } }
 
         public GameObject SelectedPrefab 
         { 
