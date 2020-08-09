@@ -178,6 +178,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
+                //return fixed4(1,1,1,1)
+                //return fixed4(i.color.xyz, 1);
                 //float2 screenPercentagePos = i.screenPos.xy / i.screenPos.w;
                 //return fixed4(screenPercentagePos.y, screenPercentagePos.y, screenPercentagePos.y, 1);
                 //return i.color.a;
@@ -200,7 +202,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //return fixed4(i.depth * 35 / 50, 0, 0, 1);
                 
                 float4 textureColor = (tex2D(_MainTex, i.uv));
-                textureColor *= float4(121.0 / 255, 152.0 / 255, 44.0 / 255, 1);
+                textureColor;// *= float4(121.0 / 255, 152.0 / 255, 44.0 / 255, 1)
                 //float4(169.0 / 255, 223.0 / 255, 32.0 / 255, 1) original saturated
                 //return textureColor;
                 clip(textureColor.w - _Threshold);
@@ -212,12 +214,17 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float saturation = RGBSat(textureColor.r, textureColor.g, textureColor.b);
                 float4 hueTint = float4(HSLToRGB(hue, 0.7, .35), 1);//0.6
                 hueTint = textureColor;
+                //return hueTint;
+                //return hueTint;
 
                 // Local hue
                 //i.color.xyz,
                 float3 color = i.color.xyz;
                 float localHue = RGBHue(color.r, color.g, color.b);
                 float4 localHueTint = fixed4(HSLToRGB(localHue, 0.4, lightness), 1);//0.5
+                localHueTint = float4(i.color.xyz, 1);
+                //return localHueTint;
+                //return localHueTint;
                 //localHueTint = float4(1,1,1,1);
 
                 // Gradient factors
@@ -272,24 +279,26 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 fixed4 finalColor =
                         (fixed4(1, 1, 1, 1) * localHueTint * lerpFactorTop +
                         fixed4(1, 1, 1, 1) * hueTint * lerpFactorBottom);
+                //return finalColor;
 
                 float tipHighlight = 0.8;
                 if (i.color.a > tipHighlight)
                 {
                     finalColor += float4(1,1,1,1) * (i.color.a - tipHighlight) / (1 - tipHighlight) * .05;
                 }
-
+                
                 //o.normal actually is based on surface :>
                 //return _WorldSpaceLightPos0;
                 float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, i.normal) / (PI));
                 finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
                 //return fixed4(groundAngle, groundAngle, groundAngle, 1);
-
+                //return finalColor;
                 float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
                 float3 horizontalViewDir = normalize(float3(viewDir.x, 0, viewDir.z));
                 float3 horizontalReflectedDir = normalize(float3(-_WorldSpaceLightPos0.x, 0, -_WorldSpaceLightPos0.z));
                 float f = 1 - saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, viewDir) / (PI / 2));
                 f = pow(f, 2);
+                f = f * 1;
                 //return f;
                 
                 //float viewUpAngle = AngleBetween(viewDir, float3(0, 1, 0)); //working here rn
