@@ -255,12 +255,21 @@ Shader "Custom/TerrainSemiFlatShader"
                 float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, i.normal) / (PI));
                 finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
 
+                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+                float3 horizontalViewDir = normalize(float3(viewDir.x, 0, viewDir.z));
+                float3 horizontalReflectedDir = normalize(float3(-_WorldSpaceLightPos0.x, 0, -_WorldSpaceLightPos0.z));
+                float f = 1 - saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, viewDir) / (PI / 2));
+                f = pow(f, 2);
+                f = f * 1;
+                
                 float inShadowBool = inShadow < 0.6;
 
                 if (inShadow)
                 {
+                    
                     if (!inShadowBool)
                     {
+                        finalColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;
                         //return finalColor;
                         STANDARD_FOG(finalColor);
                     }

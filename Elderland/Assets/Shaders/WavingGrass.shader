@@ -187,6 +187,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
                 //return fixed4(i.worldDistance / 50,0,0,1);
                 float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
+                //return inShadow;
 
                 float _Threshold = 1;//0.675
                 _Threshold -= i.worldDistance * 0.02;
@@ -303,9 +304,30 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 
                 //float viewUpAngle = AngleBetween(viewDir, float3(0, 1, 0)); //working here rn
 
+                float inShadowBool = inShadow < 0.6;
+                //return inShadow;
                 if (inShadow)
                 {
-                    return finalColor + float4(0.9, .9, 1, 0) * f * 2;
+                    if (!inShadowBool)
+                    {
+                        
+                        return finalColor + float4(0.9, .9, 1, 0) * f * 2;
+                        //return finalColor;
+                        //STANDARD_FOG(finalColor);
+                    }
+                    else
+                    {
+                        //return inShadow;
+                        //float4 mergeColor = finalColor * (inShadow) + 
+                        //(finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
+                        float4 lightColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;
+                        float4 shadowColor = finalColor * float4(.5, .5, .5, 1);
+                        float4 compositeColor = shadowColor * (1 - inShadow) + lightColor * (inShadow);
+                        //return inShadow;
+                        return compositeColor;
+                        //return (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
+                        //STANDARD_FOG(mergeColor);
+                    }
                 }
                 else
                 {
