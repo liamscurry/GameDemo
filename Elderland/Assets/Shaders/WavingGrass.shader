@@ -135,6 +135,13 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float3 normal : TEXCOORD4;
                 float3 worldPos : TEXCOORD5;
             };  
+             
+            float4 _ShadowColor;
+            sampler2D _ShadowMapTexture; 
+            sampler2D _CameraDepthTexture;
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _WavingTint;
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
@@ -164,20 +171,17 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 o.uv = v.uv;
                 //o.color = float4(1,0,0,1);
                 o.color = v.color;
+               
                 o._ShadowCoord = ComputeScreenPos(o.pos);
                 o.objectPos = v.vertex;
                 o.normal = UnityObjectToWorldNormal(normal);
                 return o;
             }
-            
-            float4 _ShadowColor;
-            sampler2D _ShadowMapTexture; 
-            sampler2D _CameraDepthTexture;
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
+                //return _WavingTint;
+                //return i.color;
                 //return fixed4(1,1,1,1)
                 //return fixed4(i.color.xyz, 1);
                 //float2 screenPercentagePos = i.screenPos.xy / i.screenPos.w;
@@ -203,10 +207,26 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //return fixed4(i.depth * 35 / 50, 0, 0, 1);
                 
                 float4 textureColor = (tex2D(_MainTex, i.uv));
-                textureColor;// *= float4(121.0 / 255, 152.0 / 255, 44.0 / 255, 1)
+                //return textureColor.r;
+                /*if (textureColor.a > _Threshold)
+                {
+                    if (textureColor.r > 0.5)
+                    {
+                        textureColor = float4(121.0 / 255, 152.0 / 255, 44.0 / 255, textureColor.a);
+                    }
+                    else
+                    {
+                        textureColor = float4(230.0 / 255, 181.0 / 255, 96.0 / 255, textureColor.a);
+                    }
+                }*/
+                
+                
                 //float4(169.0 / 255, 223.0 / 255, 32.0 / 255, 1) original saturated
                 //return textureColor;
                 clip(textureColor.w - _Threshold);
+                //return textureColor;
+                //textureColor.w = 1;
+                //return textureColor;
 
                 // Hue
                 float lightness = RGBLightness(textureColor);
@@ -214,7 +234,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float hue = RGBHue(textureColor.r, textureColor.g, textureColor.b);
                 float saturation = RGBSat(textureColor.r, textureColor.g, textureColor.b);
                 float4 hueTint = float4(HSLToRGB(hue, 0.7, .35), 1);//0.6
-                hueTint = textureColor;
+                hueTint = _WavingTint;
+                //return float4(textureColor.rgb, 1);
                 //return hueTint;
                 //return hueTint;
 
@@ -281,12 +302,14 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                         (fixed4(1, 1, 1, 1) * localHueTint * lerpFactorTop +
                         fixed4(1, 1, 1, 1) * hueTint * lerpFactorBottom);
                 //return finalColor;
-
+                //return hueTint;
+                //return localHueTint;
                 float tipHighlight = 0.8;
                 if (i.color.a > tipHighlight)
                 {
                     finalColor += float4(1,1,1,1) * (i.color.a - tipHighlight) / (1 - tipHighlight) * .05;
                 }
+                
                 
                 //o.normal actually is based on surface :>
                 //return _WorldSpaceLightPos0;
