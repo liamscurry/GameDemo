@@ -165,6 +165,8 @@ Shader "Custom/TerrainSemiFlatShader"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_fwdbase
+            // In Specular-Base.shader and other terrain shaders.
+            #pragma multi_compile_local __ _ALPHATEST_ON
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
@@ -234,6 +236,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 half weight;
                 fixed4 splatColor;
                 SplatmapMix(data, splatColor, weight, splatColor, i.normal);
+
                 //return splatColor;
                 //Terrain texture:
                 
