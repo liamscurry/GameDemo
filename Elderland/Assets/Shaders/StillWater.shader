@@ -11,6 +11,7 @@ Shader "Custom/StillWater"
     SubShader
     {
         Tags { "RenderType"="Opaque" "LightMode"="ForwardBase" }
+        GrabPass { }
         //LOD 100
 
         Pass
@@ -23,18 +24,7 @@ Shader "Custom/StillWater"
             //#pragma multi_compile_fwdbase
 
             #include "UnityCG.cginc"
-
-            // Angle between working
-            float AngleBetween(float3 u, float3 v)
-            {
-                float numerator = (u.x * v.x) + (u.y * v.y) + (u.z * v.z);
-                if (numerator > 1)
-                    numerator = 1;
-                if (numerator < -1)
-                    numerator = -1;
-                float denominator = length(u) * length(v);
-                return acos(numerator / denominator);
-            }
+            #include "/HelperCgincFiles/MathHelper.cginc"
 
             struct appdata
             {
@@ -49,11 +39,16 @@ Shader "Custom/StillWater"
                 float4 vertex : SV_POSITION;
                 float4 worldPos : TEXCOORD2;
                 float3 normal : TEXCOORD3;
+                float3 ray : TEXCOORD4;
+                float4 screenPos : TEXCOORD5;
+                float4 grabPos : TEXCOORD6;
             };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float4 _WaterBedColor;
+            sampler2D _CameraDepthTexture;
+            sampler2D _GrabTexture;
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
@@ -63,7 +58,11 @@ Shader "Custom/StillWater"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                o.screenPos = ComputeScreenPos(o.vertex);
+                o.ray = UnityObjectToViewPos(v.vertex) * float3(-1, -1, 1);
                 o.normal = UnityObjectToWorldNormal(normal);
+                // From grab pass manual.
+                o.grabPos = ComputeGrabScreenPos(o.vertex);
                 return o;
             }
 
@@ -84,6 +83,31 @@ Shader "Custom/StillWater"
                 float3 reflectionDirection = reflect(-viewDir, alteredNormal);
                 fixed4 color = UNITY_SAMPLE_TEXCUBE(unity_SpecCube0, reflectionDirection);
 
+                float2 uv = i.screenPos.xy / i.screenPos.w;
+                float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
+                //Found in Internal-DeferredReflections frag function
+                i.ray = i.ray * (_ProjectionParams.z / i.ray.z);
+                float4 viewPosition = float4(i.ray * depth, 1);
+                float4 existingWorldPosition = mul(unity_CameraToWorld, viewPosition);
+                float4 newWorldPosition = i.worldPos;
+
+                float waterDepthFactor = saturate(pow(abs(existingWorldPosition.y - newWorldPosition.y) / 10, .5) + .1);
+                //return waterDepthFactor;
+                if (length(existingWorldPosition - newWorldPosition) / (2 + sin(_Time.y + i.worldPos.x)) < .5)
+                {
+                    return fixed4(1, 1, 1, 1);
+                }
+                
+                // From grab pass manual.
+                float grabDepthFactor = saturate(pow(abs(existingWorldPosition.y - newWorldPosition.y) / 10, 2));
+                //return grabDepthFactor;
+                float4 grabPosOffset = float4(sin(_Time.y + i.worldPos.x * .5) * grabDepthFactor * .3,
+                                              sin(_Time.y * .7 + i.worldPos.z * .8) * grabDepthFactor * .3,
+                                              0,
+                                              0);
+                float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos + grabPosOffset);
+                //return existingColor;
+
                 /*float sunAngle = 0;
                 //if (_WorldSpaceLightPos0.w < 0.5)
                 //{
@@ -103,10 +127,22 @@ Shader "Custom/StillWater"
 
                 //had to have in light mode forward base
 
-                float fresnelAngle = saturate(pow(AngleBetween(alteredNormal, viewDir) / 3.151592 * 2.2, 3.5));
+                //float fresnelAngle = saturate(pow(AngleBetween(alteredNormal, viewDir) / 3.151592 * 2.2, 3.5));
+                float fresnelAngle = saturate(pow(AngleBetween(alteredNormal, viewDir) / 3.151592 * 2.2, 6.5));
                 //return fixed4(fresnelAngle, fresnelAngle, fresnelAngle, 1);
-                
-                return color * (fresnelAngle) + _WaterBedColor * (1 - fresnelAngle);
+                //return waterDepthFactor;
+                float2 horizontalPosition = float2(newWorldPosition.x, newWorldPosition.z);
+                float horizontalWaterDepthFactor = pow(length(_WorldSpaceCameraPos.xz - horizontalPosition) / 25, .5);
+                //return waterDepthFactor;
+                //return waterDepthFactor;
+                float4 waterBedCompositeColor =
+                    existingColor * (1 - waterDepthFactor) + _WaterBedColor * waterDepthFactor;
+                //return waterDepthFactor;
+                //return waterDepthFactor * (1 - horizontalWaterDepthFactor);
+                //fresnelAngle -= waterDepthFactor * (1 - horizontalWaterDepthFactor) * 1;
+                float4 finalColor = color * (fresnelAngle) + waterBedCompositeColor * (1 - fresnelAngle);
+                return finalColor;
+                //return _WaterBedColor * existingColor;
             }
             ENDCG
         }
