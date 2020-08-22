@@ -7,6 +7,7 @@ Shader "Custom/StillWater"
         _MainTex ("Texture", 2D) = "white" {}
         _ReflectionMap ("ReflectionMap", 2D) = "white" {}
         _WaterBedColor ("WaterBedColor", Color) = (0,0,0,0)
+        _WaterLineThreshold ("WaterLineThreshold", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -49,6 +50,7 @@ Shader "Custom/StillWater"
             float4 _WaterBedColor;
             sampler2D _CameraDepthTexture;
             sampler2D _GrabTexture;
+            float _WaterLineThreshold;
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
@@ -93,7 +95,7 @@ Shader "Custom/StillWater"
 
                 float waterDepthFactor = saturate(pow(abs(existingWorldPosition.y - newWorldPosition.y) / 10, .5) + .1);
                 //return waterDepthFactor;
-                if (length(existingWorldPosition - newWorldPosition) / (2 + sin(_Time.y + i.worldPos.x)) < .5)
+                if (length(existingWorldPosition - newWorldPosition) / (2 + sin(_Time.y + i.worldPos.x)) < _WaterLineThreshold)//.5
                 {
                     return fixed4(1, 1, 1, 1);
                 }

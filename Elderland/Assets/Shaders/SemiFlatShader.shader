@@ -11,6 +11,7 @@ Shader "Custom/SemiFlatShader"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _BumpMap ("BumpMap", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
@@ -190,9 +191,10 @@ Shader "Custom/SemiFlatShader"
                 float4 pos : SV_POSITION;
                 float3 normal : TEXCOORD2;
                 float3 worldPos : TEXCOORD3;
+                float3 tangent : TEXCOORD4;
             };
 
-            v2f vert (appdata v, float3 normal : NORMAL)
+            v2f vert (appdata v, float3 normal : NORMAL, float3 tangent : TANGENT)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
@@ -201,6 +203,7 @@ Shader "Custom/SemiFlatShader"
                 o.uv = v.uv;
                 // Via Vertex and fragment shader examples docs.
                 o.normal = UnityObjectToWorldNormal(normal);
+                o.tangent = UnityObjectToWorldNormal(tangent);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 return o;
             }
@@ -218,12 +221,21 @@ Shader "Custom/SemiFlatShader"
             float4 _MidFogColor;
             float4 _EndFogColor;
             float _HighlightStrength;
+            sampler2D _BumpMap;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
                 //Terrain texture:
-                
+                // Normal from terrain texture (From rendering systems project character helper):
+                float3 unpackedNormal = UnpackNormal(tex2D(_BumpMap, i.uv));//fixed4(mixedDiffuse.rgb, weight)
+                float3 orthogonalTangent = -cross(i.normal, i.tangent.xyz);
+                float3x3 tangentMatrix =
+                    float3x3(i.tangent.x, orthogonalTangent.x, i.normal.x,
+                             i.tangent.y, orthogonalTangent.y, i.normal.y,
+                             i.tangent.z, orthogonalTangent.z, i.normal.z
+                    );
+                float3 worldUnpackedNormal = mul(tangentMatrix, unpackedNormal);
 
                 float4 screenPos = ComputeScreenPos(i.pos);
                 //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
@@ -320,6 +332,7 @@ Shader "Custom/SemiFlatShader"
 
                 float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
                 float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
+                //return float4(worldUnpackedNormal, 1);
                 float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
                 //return fixed4(f,f,f,1);
                 if (f > .9f)

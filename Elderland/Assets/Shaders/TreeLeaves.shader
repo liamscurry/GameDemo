@@ -15,8 +15,8 @@ Shader "Custom/TreeLeaves"
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
         _FringeIntensity ("FringeIntensity", Range(0, 1)) = 1
-        _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
-        _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
+        _HorizontalColorTint ("HorizontalColorTint", Color) = (1,1,1,1)
+        _VerticalColorTint ("VerticalColorTint", Color) = (1,1,1,1)
     }
     SubShader
     {
@@ -199,8 +199,8 @@ Shader "Custom/TreeLeaves"
             float _Threshold;
             float _CrossFade;
             float _FringeIntensity;
-            float4 _MidFogColor;
-            float4 _EndFogColor;
+            float4 _HorizontalColorTint;
+            float4 _VerticalColorTint;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -280,11 +280,12 @@ Shader "Custom/TreeLeaves"
                 float verticalProduct = sin(i.worldPos.y * .25) * (1 - _FringeIntensity * 1.3) * .5;
                 if (verticalProduct < 0)
                     verticalProduct = 0;
-                float horizontalProduct = abs(sin(i.worldPos.x * .125)) * (1 - _FringeIntensity * .1);
-                finalColor = finalColor + float4(.1, .1, 0  , 1) * 2.6 * horizontalProduct;
-                finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct;
+                float horizontalProduct = abs(sin(i.worldPos.x * .125));//* (1 - _FringeIntensity * .1
+                finalColor = finalColor * _HorizontalColorTint * horizontalProduct + finalColor * (1 - horizontalProduct);//float4(.1, .1, 0  , 1)
+                finalColor = finalColor * _VerticalColorTint * verticalProduct + finalColor * (1 - verticalProduct);
+                //finalColor = finalColor * _VerticalColorTint * verticalProduct;//float4(.2, .2, 0, 1)
                 //finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct + float4(.1, 0, .1, 1) * horizontalProduct;
-                finalColor = float4(HSLToRGB(RGBHue(finalColor), RGBSat(finalColor) - 0.3, RGBLightness(finalColor)), finalColor.a);
+                finalColor = float4(HSLToRGB(RGBHue(finalColor), RGBSat(finalColor), RGBLightness(finalColor)), finalColor.a);//sat - 0.3
 
                 //float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 //float inShadowSide = shadowProduct > 0.5;

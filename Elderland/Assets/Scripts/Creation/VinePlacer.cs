@@ -20,7 +20,7 @@ namespace UnityEditor
         [Range(1, 3)]
         private int selectedPrefab;
         [SerializeField]
-        [Range(0, 5)]
+        [Range(0, 10)]
         private float scaleMultiplier = 1;
         [SerializeField]
         private float scaleRandom = 0;

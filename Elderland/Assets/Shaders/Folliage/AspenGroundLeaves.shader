@@ -283,7 +283,7 @@ Shader "Custom/AspenLeavesGround"
                 if (verticalProduct < 0)
                     verticalProduct = 0;
                 float horizontalProduct = abs(sin(i.worldPos.x * .125)) * (1 - _FringeIntensity * .1);
-                //finalColor = finalColor + float4(.1, .1, 0  , 1) * 2.6 * horizontalProduct;
+                finalColor = finalColor + float4(.1, .1, 0  , 1) * 2.6 * horizontalProduct;
                 //finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct;
                 //finalColor = finalColor + float4(.2, .2, 0, 1) * verticalProduct + float4(.1, 0, .1, 1) * horizontalProduct;
                 finalColor = float4(HSLToRGB(RGBHue(finalColor), RGBSat(finalColor) - 0.3, RGBLightness(finalColor)), finalColor.a);
