@@ -250,13 +250,16 @@ Shader "Custom/TerrainSemiFlatShader"
                 //float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
                 //finalColor * inShadow;//(1 - _ShadowStrength)
 
+                float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;//i.normal
+                float inShadowSide = shadowProduct > 0.4; //was 0.5
+
                 // Learned in AutoLight.cginc
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
                 float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, i.normal) / (PI));
-                finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
+                //finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
 
                 float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
                 float3 horizontalViewDir = normalize(float3(viewDir.x, 0, viewDir.z));
@@ -267,29 +270,62 @@ Shader "Custom/TerrainSemiFlatShader"
                 
                 float inShadowBool = inShadow < 0.6;
 
-                if (inShadow)
+                //return fadeValue;
+                //return inShadowSide;
+                //return inShadow * (1 - fadeValue);
+                //finalColor = float4(1,0,0,1);
+                float strechedShadowProduct = saturate(shadowProduct * 2);
+                float4 shadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct +
+                                     finalColor * (1 - strechedShadowProduct);
+                //return shadowColor;
+
+                //if (!inShadowSide)
                 {
+                    //finalColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;
                     
                     if (!inShadowBool)
                     {
-                        finalColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;
+                        //return float4(1,0,0,1);
+                        
                         //return finalColor;
+                        //shadowColor = shadowColor + float4(0.9, .9, 1, 0) * f * 2;
+                        STANDARD_FOG(shadowColor + float4(0.9, .9, 1, 0) * f * 1);
                         STANDARD_FOG(finalColor);
                     }
                     else
                     {
+                        //return strechedShadowProduct;
+                        //return float4(0,1,0,1);
+                        //return fadeValue;
+                        float stretchedInShadow = saturate(inShadow * 2);
+                        float shadowMerge = _LightShadowStrength * (1 - stretchedInShadow) + 1 * (stretchedInShadow);
+                        float4 shadowSideColor = (shadowColor * float4(shadowMerge, shadowMerge, shadowMerge, 1));
+                        
+                        strechedShadowProduct = saturate(1 * 2);
+                        float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
+                        //flatShadowColor = flatShadowColor + float4(0.9, .9, 1, 0) * f * 1;
+                        //STANDARD_FOG(shadowColor);
+                        STANDARD_FOG((flatShadowColor * (1 - fadeValue) + shadowColor * fadeValue) + float4(0.9, .9, 1, 0) * f * 1);
+                        STANDARD_FOG(shadowSideColor * (1 - fadeValue) + shadowColor * fadeValue);
+                        //return float4(1,0,0,1) * float4(.5,0,0,1) * (1 - fadeValue) + float4(1,0,0,1) * (fadeValue);
                         //return inShadow;
-                        float4 mergeColor = finalColor * (inShadow) + 
-                        (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
-                        STANDARD_FOG(mergeColor);
+                        float4 mergeColor = finalColor * (_LightShadowStrength) + 
+                        (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - _LightShadowStrength);
+                        //return fadeValue;
+                        //STANDARD_FOG(finalColor * (fadeValue) + (finalColor * fixed4(.5, .5, .5, 1)) * (1 - fadeValue));
+                        STANDARD_FOG(shadowColor * (1 - fadeValue) + finalColor * (fadeValue));
+                        //STANDARD_FOG(mergeColor);
                     }
                 }
-                else
+                /*else
                 {
+                    STANDARD_FOG(shadowColor);
+                    //return float4(1,0,0,1) * float4(.5,0,0,1);
+                    //return fadeValue;
                     //return finalColor * fixed4(.5, .5, .5, 1);
                     //return finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue);
-                    STANDARD_FOG(finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue));
-                }
+                    STANDARD_FOG(shadowColor * (1 - fadeValue) + finalColor * (fadeValue));
+                }*/
             }
             ENDCG
         }

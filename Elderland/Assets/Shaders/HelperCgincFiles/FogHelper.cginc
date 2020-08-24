@@ -28,6 +28,7 @@ float4 WarmShadowColor(float4 startColor, float3 worldNormal, float isInShadowSi
 
 float4 HaloColor(float4 startColor, float distance, float3 worldPos)
 {
+    //return startColor;
     float3 sunDirection = _WorldSpaceLightPos0.xyz;
 
     // Learned in vertex/fragment shader examples in unity docs.
@@ -80,7 +81,7 @@ fixed4 ApplyFog(
 
         if (distance < startDistance + midDuration)
         {
-            float percentageMid = saturate((distance - startDistance) / (midDuration)) * 1.2f;
+            float percentageMid = saturate((distance - startDistance) / (midDuration) * 1.2f);
             returnColor = MultiplyColor(percentageMid, lightness, startColor, midColor);
         }
         else
