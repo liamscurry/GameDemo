@@ -278,7 +278,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 float4 shadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct +
                                      finalColor * (1 - strechedShadowProduct);
                 //return shadowColor;
-
+                //return finalColor;
                 //if (!inShadowSide)
                 {
                     //finalColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;

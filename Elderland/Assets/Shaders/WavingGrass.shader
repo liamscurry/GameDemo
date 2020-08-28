@@ -314,7 +314,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //o.normal actually is based on surface :>
                 //return _WorldSpaceLightPos0;
                 float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, i.normal) / (PI));
-                finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
+                //finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
                 //return fixed4(groundAngle, groundAngle, groundAngle, 1);
                 //return finalColor;
                 float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
@@ -327,25 +327,34 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 
                 //float viewUpAngle = AngleBetween(viewDir, float3(0, 1, 0)); //working here rn
 
+                float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
+
+                float strechedShadowProduct = saturate(shadowProduct * 2);
+                float _LightShadowStrength = 0.25;
+                float4 shadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct +
+                                     finalColor * (1 - strechedShadowProduct);
+
                 float inShadowBool = inShadow < 0.6;
-                //return inShadow;
+                //return finalColor;
+
                 if (inShadow)
                 {
                     if (!inShadowBool)
                     {
-                        
-                        return finalColor + float4(0.9, .9, 1, 0) * f * 2;
-                        //return finalColor;
-                        //STANDARD_FOG(finalColor);
+                        //return finalColor + float4(0.9, .9, 1, 0) * f * 2;
+                        return shadowColor + float4(0.9, .9, 1, 0) * f * 1;
                     }
                     else
                     {
+                        strechedShadowProduct = saturate(1 * 2);
+                        float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
+                        return (flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1;
                         //return inShadow;
                         //float4 mergeColor = finalColor * (inShadow) + 
                         //(finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
                         float4 lightColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;
-                        float4 shadowColor = finalColor * float4(.5, .5, .5, 1);
-                        float4 compositeColor = shadowColor * (1 - inShadow) + lightColor * (inShadow);
+                        float4 shadowColor2 = finalColor * float4(.5, .5, .5, 1);
+                        float4 compositeColor = shadowColor2 * (1 - inShadow) + lightColor * (inShadow);
                         //return inShadow;
                         return compositeColor;
                         //return (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
@@ -354,7 +363,10 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 }
                 else
                 {
-                    return finalColor * fixed4(.5, .5, .5, 1);
+                    strechedShadowProduct = saturate(1 * 2);
+                    float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
+                    return (flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1;
+                    //return finalColor * fixed4(.5, .5, .5, 1);
                 }
             }
             ENDCG
