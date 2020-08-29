@@ -36,9 +36,13 @@ Shader "Custom/TerrainSemiFlatShader"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_shadowcaster
+            #pragma multi_compile_local __ _ALPHATEST_ON
 
             #include "UnityCG.cginc"
+            #include "Lighting.cginc"
+            #include "Color.cginc"
             #include "AutoLight.cginc"
+            #include "TerrainSplatmapCommon.cginc"
 
             struct appdata
             {
@@ -53,6 +57,8 @@ Shader "Custom/TerrainSemiFlatShader"
                 //float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 V2F_SHADOW_CASTER; //float4 pos : SV_POSITION thats it
+                float4 tc : TEXCOORD1;
+                float3 normal : TEXCOORD2;
                 //float4 screenPos : TEXCOORD1;
             };
 
@@ -60,19 +66,33 @@ Shader "Custom/TerrainSemiFlatShader"
             float _CrossFade;
             float _Threshold;
 
-            v2f vert (appdata v)
+            v2f vert (appdata_full v, float3 normal : NORMAL)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
+                o.uv = v.texcoord;
                 TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
                 //UNITY_TRANSFER_LIGHTING(o, v.uv1); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
                 //o.screenPos = ComputeScreenPos(o.pos);
+                Input data;
+                SplatmapVert(v, data);
+                o.tc = data.tc;
+
+                o.normal = normal;
+
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
+                Input data;
+                data.tc = i.tc;
+                // Based on built in FirstPass shader terrain diffuse.
+                half4 splatControl;
+                half weight;
+                fixed4 splatColor;
+                SplatmapMix(data, splatColor, weight, splatColor, i.normal);
+
                 float4 screenPos = ComputeScreenPos(i.pos);
                 float2 screenPercentagePos = screenPos.xy / screenPos.w;
                 float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
