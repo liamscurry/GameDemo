@@ -275,9 +275,11 @@ Shader "Custom/TreeLeaves"
                 if (_FringeIntensity < 0.75)
                 {
                     finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5 * (1 - _FringeIntensity)), 2) * 0.45;
-                    finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75 * (1 - 6 * _FringeIntensity);
+                    //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75 * (1 - 6 * _FringeIntensity);
+                    //return fixed4(1,0,0,1);
                 }
-                float verticalProduct = sin(i.worldPos.y * .25) * (1 - _FringeIntensity * 1.3) * .5;
+                //return _FringeIntensity;
+                float verticalProduct = sin(i.worldPos.y * .25) * .1;// * (1 - _FringeIntensity * 1.3)
                 if (verticalProduct < 0)
                     verticalProduct = 0;
                 float horizontalProduct = abs(sin(i.worldPos.x * .125));//* (1 - _FringeIntensity * .1
