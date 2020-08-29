@@ -11811,6 +11811,7 @@ Transform:
   - {fileID: 4557455998154862921}
   - {fileID: 4159740366029676603}
   - {fileID: 7400472908686598190}
+  - {fileID: 3138998150597880247}
   m_Father: {fileID: 3032261956653569515}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -11822,8 +11823,8 @@ LODGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5132630652133648900}
   serializedVersion: 2
-  m_LocalReferencePoint: {x: -0.04673481, y: 3.228507, z: 0.24696326}
-  m_Size: 6.574583
+  m_LocalReferencePoint: {x: 0, y: 3.0164344, z: 0.24696326}
+  m_Size: 6.9987283
   m_FadeMode: 1
   m_AnimateCrossFading: 0
   m_LastLODIsBillboard: 0
@@ -11842,13 +11843,17 @@ LODGroup:
     - renderer: {fileID: 3637498901274414805}
     - renderer: {fileID: 2566584999274564095}
     - renderer: {fileID: 2208091650542691900}
-  - screenRelativeHeight: 0.18912333
+  - screenRelativeHeight: 0.1517006
     fadeTransitionWidth: 0.094
     renderers:
     - renderer: {fileID: 8791525793403145595}
     - renderer: {fileID: 4427835187784989509}
     - renderer: {fileID: 6613216680874979387}
     - renderer: {fileID: 4635788587815250494}
+  - screenRelativeHeight: 0.08725207
+    fadeTransitionWidth: 0.094
+    renderers:
+    - renderer: {fileID: 975118058384978850}
   m_Enabled: 1
 --- !u!1 &5159241567941169836
 GameObject:
@@ -16528,6 +16533,98 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1 &7250251863709294694
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3138998150597880247}
+  - component: {fileID: 4682039171225942840}
+  - component: {fileID: 975118058384978850}
+  - component: {fileID: 3459862972219765443}
+  m_Layer: 0
+  m_Name: Tree Billboard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3138998150597880247
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7250251863709294694}
+  m_LocalRotation: {x: -0.7030794, y: -0.07536185, z: -0.07536185, w: 0.7030794}
+  m_LocalPosition: {x: 0, y: 2.36, z: 0}
+  m_LocalScale: {x: 0.646586, y: 0.646586, z: -0.646586}
+  m_Children: []
+  m_Father: {fileID: 7166554293388673709}
+  m_RootOrder: 13
+  m_LocalEulerAnglesHint: {x: 90.00001, y: 0, z: 0}
+--- !u!33 &4682039171225942840
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7250251863709294694}
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &975118058384978850
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7250251863709294694}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 59768f857a7fc9f4a928f0134aae699e, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!114 &3459862972219765443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7250251863709294694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01e73e395b40a4a49beceddce82b68cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7258501385577163792
 GameObject:
   m_ObjectHideFlags: 0
