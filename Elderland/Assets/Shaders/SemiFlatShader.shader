@@ -174,6 +174,7 @@ Shader "Custom/SemiFlatShader"
             #include "TerrainSplatmapCommon.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
+            #include "/HelperCgincFiles/LODHelper.cginc"
             #include "TerrainSplatmapCommon.cginc"
 
             struct appdata
@@ -192,13 +193,14 @@ Shader "Custom/SemiFlatShader"
                 float3 normal : TEXCOORD2;
                 float3 worldPos : TEXCOORD3;
                 float3 tangent : TEXCOORD4;
+                float4 screenPos : TEXCOORD5;
             };
 
             v2f vert (appdata v, float3 normal : NORMAL, float3 tangent : TANGENT)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                //o._ShadowCoord = ComputeScreenPos(o.pos);
+                o.screenPos = ComputeScreenPos(o.pos);
                 TRANSFER_SHADOW(o)
                 o.uv = v.uv;
                 // Via Vertex and fragment shader examples docs.
@@ -237,7 +239,7 @@ Shader "Custom/SemiFlatShader"
                     );
                 float3 worldUnpackedNormal = mul(tangentMatrix, unpackedNormal);
 
-                float4 screenPos = ComputeScreenPos(i.pos);
+                
                 //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
                 float4 textureColor = tex2D(_MainTex, i.uv);
                 if (textureColor.a < _Threshold)
@@ -246,66 +248,10 @@ Shader "Custom/SemiFlatShader"
                 
                 //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
                 //return fixed4(depth,depth,depth,1);
-
-                float2 screenPercentagePos = screenPos.xy / screenPos.w;
-                float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
-                                             sin(screenPercentagePos.y * 2 * 3.151592 * _CrossFade * 9));
-                float checkboardClip = checkerboard.x > 0 ^ checkerboard.y > 0; 
-
-                //#ifdef LOD_FADE_CROSSFADE
-                //    return fixed4(1,0,0,1);
-                //#endif
-
-                float flipLOD = abs(unity_LODFade.x);
-                if (unity_LODFade.x > 0)
-                    flipLOD = 1 - flipLOD;
-                flipLOD = 1 - flipLOD;
-
-                //return fixed4(abs(unity_LODFade.x), abs(unity_LODFade.x), abs(unity_LODFade.x), 1);
-
-                //unity_LODFade.x at 1 is off.
-                //unity_LODFade.x at 0 is on.
-
-                //unity_LODFade.x at 1 is off.
-                //unity_LODFade.x at 0 is on.
-
-                int fadeSign = 1;
-                if (unity_LODFade.x < 0)
-                    fadeSign = -1;
-
-                if ((checkboardClip * -1 < 0 && fadeSign == 1) || (checkboardClip * -1 >= 0 && fadeSign == -1))
-                {
-                    //clip(-1);
-                    float rightLOD = (flipLOD - 0.5) * 2;
-                    if (rightLOD < 0)
-                        rightLOD = 0;
-
-                    float evenClip = 0;
-                    if (fadeSign == 1)
-                    {    
-                        evenClip = abs(checkerboard.x) > rightLOD && abs(checkerboard.y) > rightLOD;
-                    }
-                    else
-                    {
-                        evenClip = !(abs(checkerboard.x) > (1 - rightLOD) && abs(checkerboard.y) > (1 - rightLOD));
-                    }
-                    clip(evenClip * -1);
-                }
-                else
-                {
-                    //clip(-1);
-                    float leftLOD = flipLOD * 2;
-                    float oddClip = 0;
-                    if (fadeSign == 1)
-                    {
-                        oddClip = abs(checkerboard.x) > leftLOD && abs(checkerboard.y) > leftLOD;
-                    }
-                    else
-                    {
-                        oddClip = !(abs(checkerboard.x) > (1 - leftLOD) && abs(checkerboard.y) > (1 - leftLOD));
-                    }
-                    clip(oddClip * -1);
-                }
+                //float4 screenPos = ComputeScreenPos(i.pos);
+                //float2 screenPercentagePos = i.screenPos.xy / i.screenPos.w;
+                //return screenPercentagePos.x;
+                ApplyDither(i.screenPos, _CrossFade);
                 //clip(checkboardClip * -1);
 
                 float inShadow = SHADOW_ATTENUATION(i);
