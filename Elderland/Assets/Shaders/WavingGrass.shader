@@ -112,6 +112,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             #include "Lighting.cginc"
             #include "Color.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
+            #include "/HelperCgincFiles/FogHelper.cginc"
             #include "FolliageHelper.cginc"
             
             //float4 _MainTex_ST;
@@ -342,12 +343,14 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                     if (!inShadowBool)
                     {
                         //return finalColor + float4(0.9, .9, 1, 0) * f * 2;
+                        STANDARD_FOG(shadowColor + float4(0.9, .9, 1, 0) * f * 1);
                         return shadowColor + float4(0.9, .9, 1, 0) * f * 1;
                     }
                     else
                     {
                         strechedShadowProduct = saturate(1 * 2);
                         float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
+                        STANDARD_FOG((flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1);
                         return (flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1;
                         //return inShadow;
                         //float4 mergeColor = finalColor * (inShadow) + 
@@ -356,7 +359,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                         float4 shadowColor2 = finalColor * float4(.5, .5, .5, 1);
                         float4 compositeColor = shadowColor2 * (1 - inShadow) + lightColor * (inShadow);
                         //return inShadow;
-                        return compositeColor;
+                        //return compositeColor;
                         //return (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
                         //STANDARD_FOG(mergeColor);
                     }
@@ -365,6 +368,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 {
                     strechedShadowProduct = saturate(1 * 2);
                     float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
+                    STANDARD_FOG((flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1);
                     return (flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1;
                     //return finalColor * fixed4(.5, .5, .5, 1);
                 }

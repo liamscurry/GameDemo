@@ -38,7 +38,11 @@ float4 HaloColor(float4 startColor, float distance, float3 worldPos)
     distance -= 40;
     if (distance < 0)
         distance = 0;
-    float distanceFactor = 1 - saturate((100.0 - distance) / 100.0);
+    float distanceFactor = saturate((300.0 - (distance + 20)) / 50);
+    if (distance < 30)
+        distanceFactor = saturate(distanceFactor - saturate(1 - (distance / 30)));
+    //return distanceFactor;
+    //return distanceFactor;
     //return startColor;
     float4 haloAddonColor = 
         float4(
@@ -46,8 +50,16 @@ float4 HaloColor(float4 startColor, float distance, float3 worldPos)
             distanceFactor * viewSunAngle,
             distanceFactor * viewSunAngle,
             1);
+    float haloFactor = distanceFactor * viewSunAngle;
     //return haloAddonColor;
-    return startColor + haloAddonColor * .5 * fixed4(235.0 / 255, 195.0 / 255, 52.0 / 255, 1);
+    // + haloAddonColor * .75 * fixed4(235.0 / 255, 195.0 / 255, 52.0 / 255, 1)
+    // * fixed4(1, 0.7, 0.3, 1)
+    //startColor + fixed4(1, 0.7, 0.3, 0) * haloAddonColor
+    //fixed4(253.0 / 255, 255.0 / 255, 222.0 / 255, 0)
+    //return haloAddonColor;
+    //float4(153.0 / 255, 195.0 / 255, 231.0 / 255, 1)
+    return (fixed4(253.0 / 255, 255.0 / 255, 222.0 / 255, 0) * float4(.9, .9, .9, 1)) * haloFactor + 
+           startColor * (1 - haloFactor);
 }
 
 fixed4 ApplyFog(
@@ -79,24 +91,28 @@ fixed4 ApplyFog(
         
         float4 returnColor = float4(0,0,0,0);
 
-        if (distance < startDistance + midDuration)
-        {
-            float percentageMid = saturate((distance - startDistance) / (midDuration) * 1.2f);
-            returnColor = MultiplyColor(percentageMid, lightness, startColor, midColor);
-        }
-        else
-        {
-            float percentageMid = 1;
-            float4 finalMidColor = MultiplyColor(percentageMid, lightness, startColor, midColor);
-
-            float percentage = saturate((distance - (startDistance + midDuration)) / (endDuration));
-            returnColor = finalMidColor * (1 - percentage) + 
-                   endColor * percentage;
-        }
-
+        float percentageMid = saturate((distance - startDistance) / (midDuration));
+        returnColor = MultiplyColor(percentageMid, lightness, startColor, midColor);
+        
+        float percentage = saturate((distance - startDistance) / (endDuration));
+        //return fixed4(percentage,percentage,percentage,1);
+        float clampedHeight = worldPos.y + 20;
+        if (clampedHeight < 0)
+            clampedHeight = 0;
+        percentage = saturate(percentage - clampedHeight / 100.0);
+        returnColor = returnColor * (1 - percentage) + 
+                      endColor * percentage;
+        //return saturate((distance - startDistance) / 100);
+        //float4 verticalFog = float4(1,1,1,0) * 1 * saturate((distance - startDistance) / 175) * (1 - saturate((worldPos.y + 10.0) / 20));
+        //return verticalFog * .2;
+        //returnColor = startColor + verticalFog * .1;
+        //return returnColor;
         return HaloColor(returnColor, length(cameraPos - worldPos), worldPos);
     }
 }
-
-#define STANDARD_FOG(color) return ApplyFog(color, float4(49.0 / 255, 82.0 / 255, 171.0 / 255, 255.0 / 255), float4(181.0 / 255, 215.0 / 255, 244.0 / 255, 255.0 / 255) * float4(.95, .95, .95, 1), i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 40, 350, 300, i.normal, 0);
-#define STANDARD_SHADOWSIDE_FOG(color) return ApplyFog(color, float4(49.0 / 255, 82.0 / 255, 171.0 / 255, 255.0 / 255), float4(181.0 / 255, 215.0 / 255, 244.0 / 255, 255.0 / 255) * float4(.95, .95, .95, 1), i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 40, 350, 300, i.normal, 1);
+#define FOGCOLOR fixed4(201.0 / 255, 223.0 / 255, 255.0 / 255, 0)
+#define FOGTINTCOLOR fixed4(63.0 / 255, 132.0 / 255, 235.0 / 255, 0)
+//float4(49.0 / 255, 82.0 / 255, 171.0 / 255, 255.0 / 255)
+//float4(181.0 / 255, 215.0 / 255, 244.0 / 255, 255.0 / 255) * float4(.95, .95, .95, 1)
+#define STANDARD_FOG(color) return ApplyFog(color, FOGTINTCOLOR, FOGCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 120, 200, 200, i.normal, 0);
+#define STANDARD_SHADOWSIDE_FOG(color) return ApplyFog(color, FOGTINTCOLOR, FOGCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 120, 200, 200, i.normal, 1);
