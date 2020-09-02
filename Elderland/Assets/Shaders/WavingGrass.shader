@@ -298,17 +298,22 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //return localHueTint;
 
                 //return lerpFactorBottom;
-
+                //return localHueTint;
+                //return hueFactor;
                 fixed4 finalColor =
                         (fixed4(1, 1, 1, 1) * localHueTint * lerpFactorTop +
                         fixed4(1, 1, 1, 1) * hueTint * lerpFactorBottom);
                 //return finalColor;
+                //return finalColor;
+                //return finalColor;
                 //return hueTint;
-                //return localHueTint;
-                float tipHighlight = 0.8;
+                //return fixed4(i.color.xyz, 1);
+                float tipHighlight = 0.1;
+                //return i.color.a;
                 if (i.color.a > tipHighlight)
                 {
-                    finalColor += float4(1,1,1,1) * (i.color.a - tipHighlight) / (1 - tipHighlight) * .05;
+                    //return float4(1,0,0,1);
+                    finalColor += float4(1,1,1,1) * (i.color.a - tipHighlight) / (1 - tipHighlight) * .1;
                 }
                 
                 
@@ -337,6 +342,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
                 float inShadowBool = inShadow < 0.6;
                 //return finalColor;
+                //return shadowColor;
 
                 if (inShadow)
                 {
