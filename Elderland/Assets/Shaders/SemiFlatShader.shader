@@ -255,6 +255,7 @@ Shader "Custom/SemiFlatShader"
                 //clip(checkboardClip * -1);
 
                 float inShadow = SHADOW_ATTENUATION(i);
+                //return inShadow;
                 float4 finalColor = _Color;
                 finalColor *= tex2D(_MainTex, i.uv);
 
@@ -269,7 +270,9 @@ Shader "Custom/SemiFlatShader"
                 float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 float inShadowSide = shadowProduct > 0.5;
 
-                float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35, .35, .35, 1);
+                //return shadowProduct;
+                float baseShadowGradient = pow(saturate((1 - shadowProduct) * 2), 2);
+                float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35 * baseShadowGradient, .35 * baseShadowGradient, .35 * baseShadowGradient, 1);
                 float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
                            finalColor * inShadow;//(1 - _ShadowStrength)
                 
@@ -291,11 +294,11 @@ Shader "Custom/SemiFlatShader"
                 //return baseShadowColor;
                 float4 lightColor = lightShadowColor * _LightShadowStrength +
                     finalColor * (1 - _LightShadowStrength) + f * .4 * _HighlightStrength;
-
+                //return fadeValue;
                 if (!inShadowSide)
                 {    
-                    if (!inShadowBool)
-                    {
+                    //if (!inShadowBool)
+                    //{
                         //return lightColor;
                         /*return ApplyFog(
                             lightColor,
@@ -306,13 +309,19 @@ Shader "Custom/SemiFlatShader"
                             20,
                             120,
                             120);*/
-                        STANDARD_FOG(lightColor)
-                    }
-                    else
-                    {
+                        //STANDARD_FOG(lightColor)
+                    //}
+                    //else
+                    //{
+                        //return lightColor;
+                        //return shadowColor;
+                        //return fixed4(1,0,0,1);
                         //return shadowColor * (1 - fadeValue) + lightColor * fadeValue;
-                        STANDARD_FOG(shadowColor * (1 - fadeValue) + lightColor * fadeValue);
-                    }
+                        float shadeFade = inShadow;
+
+                        float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
+                        STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade);
+                    //}
                 }
                 else
                 {

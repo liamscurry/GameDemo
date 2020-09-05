@@ -331,29 +331,44 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 f = f * 1;
                 //return f;
                 
+                // Learned in AutoLight.cginc
+                float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
+                float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
+                float fadeValue = UnityComputeShadowFade(fadeDistance);
+
                 //float viewUpAngle = AngleBetween(viewDir, float3(0, 1, 0)); //working here rn
 
                 float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
+                float inShadowSide = shadowProduct > 0.5; //0.4
 
                 float strechedShadowProduct = saturate(shadowProduct * 2);
                 float _LightShadowStrength = 0.25;
-                float4 shadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct +
-                                     finalColor * (1 - strechedShadowProduct);
+                float4 shadowColor = finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1);
+                float4 lightColor = shadowColor * strechedShadowProduct +
+                                    finalColor * (1 - strechedShadowProduct);
+                lightColor = lightColor + float4(0.9, .9, 1, 0) * f * 1;
 
                 float inShadowBool = inShadow < 0.6;
                 //return finalColor;
                 //return shadowColor;
 
-                if (inShadow)
+                if (!inShadowSide)
                 {
-                    if (!inShadowBool)
-                    {
+                    //if (!inShadowBool)
+                    //{
                         //return finalColor + float4(0.9, .9, 1, 0) * f * 2;
+                        float shadeFade = inShadow;
+                        //return shadeFade;
+                        //return fixed4(1,0,0,1);
+                        float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
+                        //return fadedShadowColor;
+                        STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * (shadeFade));
+
                         STANDARD_FOG(shadowColor + float4(0.9, .9, 1, 0) * f * 1);
                         return shadowColor + float4(0.9, .9, 1, 0) * f * 1;
-                    }
-                    else
-                    {
+                    //}
+                    //else
+                    /*{
                         strechedShadowProduct = saturate(1 * 2);
                         float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
                         STANDARD_FOG((flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1);
@@ -368,10 +383,11 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                         //return compositeColor;
                         //return (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
                         //STANDARD_FOG(mergeColor);
-                    }
+                    }*/
                 }
                 else
                 {
+                    STANDARD_FOG(shadowColor);
                     strechedShadowProduct = saturate(1 * 2);
                     float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
                     STANDARD_FOG((flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1);
