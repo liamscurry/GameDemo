@@ -69,7 +69,7 @@ public class GameSettings : MonoBehaviour
         DashAbilityKey = KeyCode.Joystick1Button5;
 
         //Misc
-        JumpKey = KeyCode.Joystick1Button3;
+        JumpKey = KeyCode.Joystick1Button1;
         SprintKey = KeyCode.Joystick1Button8;
         UseKey = KeyCode.Joystick1Button0;
     }
