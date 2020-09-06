@@ -12,6 +12,7 @@ Shader "Custom/SemiFlatShader"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _BumpMap ("BumpMap", 2D) = "white" {}
+        _CutoutTex ("CutoutTex", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
@@ -60,6 +61,7 @@ Shader "Custom/SemiFlatShader"
             sampler2D _MainTex;
             float _CrossFade;
             float _Threshold;
+            sampler2D _CutoutTex;
 
             v2f vert (appdata v)
             {
@@ -139,6 +141,10 @@ Shader "Custom/SemiFlatShader"
                     //return fixed4(1,0,0,1);
                     clip(textureColor.a - _Threshold);
                 }
+
+                float4 cutoutColor = tex2D(_CutoutTex, i.uv);
+                float underThreshold = _Threshold > cutoutColor;
+                clip(-underThreshold);
 
                 SHADOW_CASTER_FRAGMENT(i)
                 //return 0;
@@ -224,6 +230,7 @@ Shader "Custom/SemiFlatShader"
             float4 _EndFogColor;
             float _HighlightStrength;
             sampler2D _BumpMap;
+            sampler2D _CutoutTex;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -244,7 +251,9 @@ Shader "Custom/SemiFlatShader"
                 float4 textureColor = tex2D(_MainTex, i.uv);
                 if (textureColor.a < _Threshold)
                     clip(textureColor.a - _Threshold);
-
+                float4 cutoutColor = tex2D(_CutoutTex, i.uv);
+                float underThreshold = _Threshold > cutoutColor;
+                clip(-underThreshold);
                 
                 //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
                 //return fixed4(depth,depth,depth,1);
@@ -329,6 +338,28 @@ Shader "Custom/SemiFlatShader"
                     STANDARD_SHADOWSIDE_FOG(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
                 }
             }
+            ENDCG
+        }
+
+        Pass
+        {
+            //Based on AutodeskInteractive additive forward pass structure in built in shaders.
+            Tags
+            {
+                "LightMode"="ForwardAdd"
+            }
+
+            Blend One One
+            ZWrite Off
+            ZTest LEqual
+            
+            CGPROGRAM
+
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_fwdadd_fullshadows
+            #pragma multi_compile_shadowcaster
+            #include "/HelperCgincFiles/LightHelper.cginc"
             ENDCG
         }
     }

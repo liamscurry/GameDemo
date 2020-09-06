@@ -427,5 +427,27 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             }
             ENDCG
         }
+
+        Pass
+        {
+            //Based on AutodeskInteractive additive forward pass structure in built in shaders.
+            Tags
+            {
+                "LightMode"="ForwardAdd"
+            }
+
+            Blend One One
+            ZWrite Off
+            ZTest LEqual
+            
+            CGPROGRAM
+
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_fwdadd_fullshadows
+            #pragma multi_compile_shadowcaster
+            #include "/HelperCgincFiles/LightHelper.cginc"
+            ENDCG
+        }
     }
 }
