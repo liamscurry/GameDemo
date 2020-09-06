@@ -195,7 +195,8 @@ Shader "Custom/FlatShader"
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
                 //o._ShadowCoord = ComputeScreenPos(o.pos);
-                TRANSFER_SHADOW(o);
+                //TRANSFER_SHADOW(o);
+                TRANSFER_SHADOW(o)
                 //TRANSFER_SHADOW(o)
                 o.uv = v.uv;
                 // Via Vertex and fragment shader examples docs.
@@ -334,24 +335,26 @@ Shader "Custom/FlatShader"
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
                 //return fadeValue;
-
+                //return inShadow;
                 if (!inShadowSide)
                 {
-                    //if (!inShadowBool)
-                    //{
+                    if (!inShadowBool)
+                    {
                         //return finalColor;
-                        //STANDARD_FOG(finalColor);
-                    //}
-                    //else
-                    //{
+                        STANDARD_FOG(finalColor);
+                    }
+                    else
+                    {
                         //return shadowColor * (1 - fadeValue) + finalColor * fadeValue;
                         //STANDARD_FOG(shadowColor * (1 - fadeValue) + finalColor * fadeValue);
                         //float shadeFade = (1 - fadeValue) * inShadow;
                         float shadeFade = inShadow;
-
+                        //STANDARD_FOG(finalColor);
+                        
                         float4 fadedShadowColor = shadowColor * (1 - fadeValue) + finalColor * (fadeValue);
-                        STANDARD_SHADOWSIDE_FOG(fadedShadowColor * (1 - shadeFade) + finalColor * shadeFade);
-                    //}
+                        STANDARD_SHADOWSIDE_FOG(shadowColor);
+                        STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + finalColor * shadeFade);
+                    }
                 }
                 else
                 {

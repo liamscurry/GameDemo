@@ -33,6 +33,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normal : NORMAL;
+                float4 color : COLOR0;
             };
 
             struct v2f
@@ -48,7 +49,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             {
                 v2f o;  
                
-                float3 alteredObjectVertex = WarpGrass(v.vertex, v.uv, normal);
+                //float3 alteredObjectVertex = WarpGrass(v.vertex, v.uv, normal);
+                float3 alteredObjectVertex = WarpGrass(v.vertex, v.color.a, normal);
                 //o.depth = length(UnityObjectToViewPos(alteredObjectVertex)) / 35;
 
                 float4 worldPos = mul(unity_ObjectToWorld, float4(alteredObjectVertex, 1));
@@ -62,8 +64,10 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 else
                 {
                     float limitedDepth = saturate((worldDistance - 40) / 35);
-                    o.pos = UnityObjectToClipPos(alteredObjectVertex - fixed4(0, limitedDepth, 0, 0));
-                    alteredObjectVertex = alteredObjectVertex - fixed4(0, limitedDepth, 0, 0);
+                    //o.pos = UnityObjectToClipPos(alteredObjectVertex - fixed4(0, limitedDepth, 0, 0));
+                    o.pos = UnityObjectToClipPos(alteredObjectVertex - fixed4(0, limitedDepth * 1.75, 0, 0));
+                    //alteredObjectVertex = alteredObjectVertex - fixed4(0, limitedDepth, 0, 0);
+                    alteredObjectVertex = alteredObjectVertex - fixed4(0, limitedDepth * 1.75, 0, 0);
                     //
                     //o.pos = UnityObjectToClipPos(v.vertex * float4(1, worldDistance / 30,1,1));
                 }
