@@ -3,6 +3,8 @@
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _Color ("Color", Color) = (1,1,1,1)
+        _Threshold ("Threshold", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -43,13 +45,16 @@
 
             sampler2D _MainTex;
             float _Stencil;
+            float4 _Color;
+            float _Threshold;
 
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv) * i.color;
                 // just invert the colors
                 //col.rgb = 1 - col.rgb;
-                return col;
+                clip(-(col.a < _Threshold));
+                return col * _Color;
             }
             ENDCG
         }
