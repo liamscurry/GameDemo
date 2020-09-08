@@ -118,6 +118,13 @@ MonoBehaviour:
   positionWeight: {x: 1, y: 1, z: 1}
   targetRotation: {x: 0, y: 0, z: 1}
   rotationWeight: 1
+  reusable: 0
+  disableOnStart: 0
+  type: 0
+  holdDuration: 0
+  holdEvent:
+    m_PersistentCalls:
+      m_Calls: []
   endEvent:
     m_PersistentCalls:
       m_Calls:
@@ -240,20 +247,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a3b08fb34905a449ae50950ee9840bc, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.5
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a3b08fb34905a449ae50950ee9840bc, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a3b08fb34905a449ae50950ee9840bc, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.5
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 2300000, guid: 1a3b08fb34905a449ae50950ee9840bc, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: d5019168f81bcbd47933355f95abae58, type: 2}
+    - target: {fileID: 2300000, guid: 1a3b08fb34905a449ae50950ee9840bc, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2300000, guid: 1a3b08fb34905a449ae50950ee9840bc, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1a3b08fb34905a449ae50950ee9840bc, type: 3}
 --- !u!1 &1095377037210014134 stripped
