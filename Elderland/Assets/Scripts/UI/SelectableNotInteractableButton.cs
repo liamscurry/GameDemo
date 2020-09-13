@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SelectableNotInteractableButton : MonoBehaviour
+public class SelectableNotInteractableButton : MonoBehaviour, ISelectHandler
 {
     [SerializeField]
     private UnityEvent onValidClick;
+    [SerializeField]
+    private GameObject selectedTeleporter;
     [SerializeField]
     private bool interactable;
 
@@ -20,6 +23,11 @@ public class SelectableNotInteractableButton : MonoBehaviour
     private void Awake()
     {
         TryInitialize();
+    }
+
+    public void OnSelect(BaseEventData eventData)
+    {
+        selectedTeleporter.transform.position = transform.position;
     }
 
     private void TryInitialize()
@@ -48,11 +56,11 @@ public class SelectableNotInteractableButton : MonoBehaviour
         {
             interactable = false;
             nonInteractableColorBlock.normalColor =
-                NeutralizeColor(interactableColorBlock.normalColor);
+                interactableColorBlock.disabledColor; //DimColor(interactableColorBlock.normalColor)
             nonInteractableColorBlock.pressedColor =
-                NeutralizeColor(interactableColorBlock.pressedColor);
+                interactableColorBlock.disabledColor;
             nonInteractableColorBlock.selectedColor =
-                NeutralizeColor(interactableColorBlock.selectedColor);
+                interactableColorBlock.disabledColor;
             nonInteractableColorBlock.disabledColor =
                 interactableColorBlock.disabledColor;
             nonInteractableColorBlock.colorMultiplier =
@@ -85,6 +93,17 @@ public class SelectableNotInteractableButton : MonoBehaviour
     private Color NeutralizeColor(Color input)
     {
         float average = (input.r + input.g + input.b) / 3f;
-        return new Color(average, average, average, input.a);
+        average *= 0.15f;
+        return new Color(average, average, average, input.a * .15f);
+    }
+
+    private Color DimColor(Color input)
+    {
+        return 
+            new Color(
+                input.r * 0.15f,
+                input.g * 0.15f,
+                input.b * 0.15f,
+                input.a);
     }
 }

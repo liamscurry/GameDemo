@@ -74,6 +74,7 @@ fixed4 ApplyFog(
     float3 worldNormal,
     float isInShadowSide)
 {
+    //return startColor;
     startColor = WarmShadowColor(startColor, worldNormal, isInShadowSide);
 
     float2 horizontalDisplacement = 

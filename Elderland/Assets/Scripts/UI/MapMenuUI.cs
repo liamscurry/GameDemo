@@ -19,6 +19,8 @@ public sealed class MapMenuUI : StartMenuUI
     private Transform worldPoint1Transform;
     [SerializeField]
     private Transform worldPoint2Transform;
+    [SerializeField]
+    private GameObject selectedTeleporter;
 
     private Button[] teleporterButtons;
 
@@ -60,6 +62,7 @@ public sealed class MapMenuUI : StartMenuUI
             button.interactable = false;
         }
         tabSwapEnabled = true;
+        selectedTeleporter.SetActive(false);
     }
 
     public void EnableTeleporters()
@@ -71,6 +74,7 @@ public sealed class MapMenuUI : StartMenuUI
         }
 
         tabSwapEnabled = false;
+        selectedTeleporter.SetActive(true);
     }
 
     public override void DisableMenu()
