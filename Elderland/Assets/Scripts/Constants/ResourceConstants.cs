@@ -37,6 +37,8 @@ public static class ResourceConstants
             public const string FireChargeSegment = "Player/Hitboxes/FireChargeSegment";
             public const string BurningFireChargeSegment = "Player/Hitboxes/BurningFireChargeSegment";
             public const string BurningFireChargeDebuffHitbox = "Player/Hitboxes/BurningFireChargeDebuffHitbox";
+
+            public const string SwordParticles = "Player/Hitboxes/PlayerSwordParticles";
         }
 
         public static class Pickups

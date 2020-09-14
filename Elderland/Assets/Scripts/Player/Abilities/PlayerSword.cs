@@ -20,6 +20,9 @@ public sealed class PlayerSword : PlayerAbility
     private float strength = 18;
     private PlayerSingleDamageHitbox hitbox;
     private Vector3 hitboxScale = new Vector3(1.5f, 2, 2);
+    private ParticleSystem hitboxParticles;
+    private Gradient hitboxParticlesNormalGradient;
+    private ParticleSystem.ColorOverLifetimeModule hitboxParticlesColors;
 
     private AbilityProcess chargeProcess;
     private AbilityProcess actProcess;
@@ -84,6 +87,16 @@ public sealed class PlayerSword : PlayerAbility
 
         hitbox = hitboxObject.GetComponent<PlayerSingleDamageHitbox>();
         hitbox.gameObject.transform.localScale = hitboxScale;
+
+        GameObject hitboxParticlesObject =
+            Instantiate(
+                Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.SwordParticles),
+                transform.position,
+                Quaternion.identity);
+        hitboxParticlesObject.transform.parent = PlayerInfo.MeleeObjects.transform;
+        hitboxParticles = hitboxParticlesObject.GetComponent<ParticleSystem>();
+        hitboxParticlesNormalGradient = hitboxParticles.colorOverLifetime.color.gradient;
+        hitboxParticlesColors = hitboxParticles.colorOverLifetime;
 
         scanRotation = Quaternion.identity;   
 
@@ -389,6 +402,7 @@ public sealed class PlayerSword : PlayerAbility
             hitbox.Invoke(this);
         }
         hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position;
+        hitboxParticles.transform.position = hitbox.transform.position;
 
         Quaternion horizontalRotation = Quaternion.identity;
 
@@ -396,6 +410,29 @@ public sealed class PlayerSword : PlayerAbility
 
         Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
         hitbox.transform.rotation = normalRotation * horizontalRotation;
+
+        float verticalSign = Random.value;
+        verticalSign = (verticalSign > 0.5) ? 1 : -1;
+
+        float rotationSign = Random.value;
+        rotationSign = (rotationSign > 0.5) ? 0.5f : 1;
+
+        float flipSign = Random.value;
+        flipSign = (flipSign > 0.5) ? 1 : 0;
+
+        // * Mathf.Clamp((Random.value * 2f - 1), -1, 1)
+        Quaternion tiltRotation =
+            Quaternion.Euler(
+                180 * flipSign,
+                180 * flipSign,
+                30 * verticalSign * rotationSign);
+        hitboxParticles.transform.rotation = normalRotation * horizontalRotation * tiltRotation;
+        hitboxParticles.transform.localScale = Vector3.one;
+        hitboxParticlesColors.color = hitboxParticlesNormalGradient;
+
+        //hitboxParticles.transform.localScale = new Vector3(flipSign, 1, 1);
+
+        hitboxParticles.Play();
     }
 
     public void DuringAct()
@@ -468,6 +505,24 @@ public sealed class PlayerSword : PlayerAbility
                     -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 2);
                 enemy.ConsumeResolve();
                 //Debug.Log(enemy.PhysicsSystem.Animating);
+                hitboxParticles.transform.localScale = Vector3.one * 1.5f;
+                
+                // Based on Particle System manual API.
+                Gradient newGradient = new Gradient();
+                newGradient.SetKeys(
+                    new GradientColorKey[] 
+                        { new GradientColorKey(Color.blue, 0),
+                          new GradientColorKey(Color.magenta, 1)} ,
+                    new GradientAlphaKey[] 
+                        { new GradientAlphaKey(0, 0),
+                          new GradientAlphaKey(1, 0.1f),
+                          new GradientAlphaKey(1, 0.9f),
+                          new GradientAlphaKey(1, 1) }
+                );
+
+                hitboxParticlesColors.color = newGradient;
+                //hitboxParticles.colorOverLifetime = newColors;
+                hitboxParticles.Play();
             }
             else
             {
