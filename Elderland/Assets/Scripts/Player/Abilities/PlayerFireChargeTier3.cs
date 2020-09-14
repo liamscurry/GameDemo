@@ -8,8 +8,8 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
 {
     //Fields
     private Vector2 direction;
-    private float speed = 20f;
-    private const float lifeDurationPercentage = 0.25f;
+    private float speed = 30f;
+    private const float lifeDurationPercentage = 0.25f * (2f / 3f);
     private const float damage = 2f;
     private const float damageModifier = 2f;
 
