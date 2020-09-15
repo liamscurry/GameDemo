@@ -39,6 +39,7 @@ public static class ResourceConstants
             public const string BurningFireChargeDebuffHitbox = "Player/Hitboxes/BurningFireChargeDebuffHitbox";
 
             public const string SwordParticles = "Player/Hitboxes/PlayerSwordParticles";
+            public const string DashParticles = "Player/Hitboxes/PlayerDashParticles";
         }
 
         public static class Pickups

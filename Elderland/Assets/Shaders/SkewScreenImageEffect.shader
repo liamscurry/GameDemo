@@ -8,6 +8,8 @@ Shader "Custom/SkewScreenImageEffect"
         _RefractionMap ("RefractionMap", 2D) = "white" {}
         _WaterBedColor ("WaterBedColor", Color) = (0,0,0,0)
         _Threshold ("Threshold", Range(0, 1)) = 0
+        _SizeWarpStrength ("SizeWarpStrength", Range(0,2)) = 1
+        _WarpXOffset ("WarpXOffset", float) = 0
     }
     SubShader
     {
@@ -54,6 +56,8 @@ Shader "Custom/SkewScreenImageEffect"
             sampler2D _CameraDepthTexture;
             sampler2D _GrabTexture;
             float _Threshold;
+            float _SizeWarpStrength;
+            float _WarpXOffset;
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
@@ -86,11 +90,16 @@ Shader "Custom/SkewScreenImageEffect"
                 float4 existingWorldPosition = mul(unity_CameraToWorld, viewPosition);
                 
                 // From grab pass manual.
-                float4 grabPosOffset = float4(0.0 * sin(uv.x * 23),
-                                              -0.0 * sin(uv.y * 23),
+                float4 grabPosOffset = float4(_WarpXOffset,
+                                              0,
                                               0,
                                               0);
-                float4 grabPosScale = float4(1 + sin(uv.x * 20) * .1, 1 + sin(uv.y * 20) * .1, 1, 1);
+                float4 grabPosScale =
+                    float4(
+                        1 + sin(uv.x * 20) * .1 * _SizeWarpStrength,
+                        1 + sin(uv.y * 20) * .1 * _SizeWarpStrength,
+                        1,
+                        1);
                 //float refraction
                 //float4 grabPosScale = float4(1 + sin(uv.x * 45) * .1, 1 + sin(uv.x * 45) * .1, 1, 1);
                 float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos * grabPosScale + grabPosOffset);

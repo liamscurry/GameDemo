@@ -10,6 +10,8 @@ public sealed class PlayerDash : PlayerAbility
     private Vector2 direction;
     private float speed = 18f;
 
+    private ParticleSystem dashParticles;
+
     private AbilitySegment act;
     private AbilityProcess actProcess;
     private const float staminaCost = 1f;
@@ -29,6 +31,14 @@ public sealed class PlayerDash : PlayerAbility
         segments.AddSegment(act);
         segments.NormalizeSegments();
 
+        GameObject dashParticlesObject =
+            Instantiate(
+                Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.DashParticles),
+                transform.position,
+                Quaternion.identity);
+        dashParticlesObject.transform.parent = PlayerInfo.Player.transform;
+        dashParticles = dashParticlesObject.GetComponent<ParticleSystem>();
+
         coolDownDuration = 1f;
     }
 
@@ -46,6 +56,8 @@ public sealed class PlayerDash : PlayerAbility
         system.Physics.GravityStrength = 0;
         system.Movement.ExitEnabled = false;
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+
+        dashParticles.Play();
     }
 
     private void DuringAct()
@@ -77,6 +89,8 @@ public sealed class PlayerDash : PlayerAbility
         PlayerInfo.MovementManager.SnapSpeed();
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
         system.Movement.ExitEnabled = true;
+
+        dashParticles.Stop();
     }
 
     public override bool OnHit(GameObject character)
