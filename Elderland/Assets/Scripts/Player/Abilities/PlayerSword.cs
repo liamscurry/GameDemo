@@ -511,13 +511,13 @@ public sealed class PlayerSword : PlayerAbility
                 Gradient newGradient = new Gradient();
                 newGradient.SetKeys(
                     new GradientColorKey[] 
-                        { new GradientColorKey(Color.blue, 0),
-                          new GradientColorKey(Color.magenta, 1)} ,
+                        { new GradientColorKey(new Color(1,1,1,1), 0),
+                          new GradientColorKey(new Color(1,1,1,1), 1)},
                     new GradientAlphaKey[] 
                         { new GradientAlphaKey(0, 0),
-                          new GradientAlphaKey(1, 0.1f),
-                          new GradientAlphaKey(1, 0.9f),
-                          new GradientAlphaKey(1, 1) }
+                          new GradientAlphaKey(.5f, 0.1f),
+                          new GradientAlphaKey(.5f, 0.9f),
+                          new GradientAlphaKey(0, 1) }
                 );
 
                 hitboxParticlesColors.color = newGradient;

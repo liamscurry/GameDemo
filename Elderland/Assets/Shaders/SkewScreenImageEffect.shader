@@ -31,6 +31,7 @@ Shader "Custom/SkewScreenImageEffect"
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                float4 color : COLOR0;
             };
 
             struct v2f
@@ -44,6 +45,7 @@ Shader "Custom/SkewScreenImageEffect"
                 float4 screenPos : TEXCOORD5;
                 float4 grabPos : TEXCOORD6;
                 float2 uvOriginal : TEXCOORD7;
+                float4 color : COLOR0;
             };
 
             sampler2D _MainTex;
@@ -67,6 +69,7 @@ Shader "Custom/SkewScreenImageEffect"
                 // From grab pass manual.
                 o.grabPos = ComputeGrabScreenPos(o.vertex);
                 o.uvOriginal = v.uv;
+                o.color = v.color;
                 return o;
             }
 
@@ -92,7 +95,8 @@ Shader "Custom/SkewScreenImageEffect"
                 //float4 grabPosScale = float4(1 + sin(uv.x * 45) * .1, 1 + sin(uv.x * 45) * .1, 1, 1);
                 float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos * grabPosScale + grabPosOffset);
                 
-                return existingColor * float4(0.9, 0.9, 0.9, 1);// * 
+                float lightnessMultiplier = 0.9 + i.color.r * .5;
+                return existingColor * float4(lightnessMultiplier, lightnessMultiplier, lightnessMultiplier, 1);
                 //return _WaterBedColor * existingColor;
             }
             ENDCG
