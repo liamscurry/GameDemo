@@ -11,6 +11,8 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
     private EnemyDamageHitbox hitbox;
     [SerializeField]
     private BoxCollider hitboxTrigger;
+    [SerializeField]
+    private GameObject hitboxPredictor;
 
     [SerializeField]
     private AnimationClip leftRotate;
@@ -48,7 +50,7 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
     {
         //Segment setup
         rotateProcess = new AbilityProcess(null, DuringRotate, null, 1);
-        pauseProcess = new AbilityProcess(null, null, null, 1);
+        pauseProcess = new AbilityProcess(PauseBegin, null, PauseEnd, 1);
         attackProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.25f);
         rotate = new AbilitySegment(null, rotateProcess);
         pause = new AbilitySegment(null, pauseProcess);
@@ -97,11 +99,13 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
         localPosition.x = 0.75f;
         localPosition.z = 0.75f;
         hitbox.transform.localPosition = localPosition;
+        hitboxPredictor.transform.localPosition = localPosition;
 
         Vector3 localScale = hitbox.transform.localScale;
         localScale.x = 3.5f;
         localScale.z = 2.5f;
         hitbox.transform.localScale = localScale;
+        hitboxPredictor.transform.localScale = localScale;
     }
 
     private void PrimeCenter()
@@ -114,11 +118,13 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
         localPosition.x = 0f;
         localPosition.z = 1.125f;
         hitbox.transform.localPosition = localPosition;
+        hitboxPredictor.transform.localPosition = localPosition;
 
         Vector3 localScale = hitbox.transform.localScale;
         localScale.x = 2f;
         localScale.z = 3.25f;
         hitbox.transform.localScale = localScale;
+        hitboxPredictor.transform.localScale = localScale;
     }
 
     private void PrimeRight()
@@ -131,11 +137,13 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
         localPosition.x = -0.75f;
         localPosition.z = 0.75f;
         hitbox.transform.localPosition = localPosition;
+        hitboxPredictor.transform.localPosition = localPosition;
 
         Vector3 localScale = hitbox.transform.localScale;
         localScale.x = 3.5f;
         localScale.z = 2.5f;
         hitbox.transform.localScale = localScale;
+        hitboxPredictor.transform.localScale = localScale;
     }
 
     public override void GlobalUpdate()
@@ -153,13 +161,24 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
         }
     }
 
+    private void PauseBegin()
+    {
+        hitboxPredictor.SetActive(true);
+
+        SetHitboxRotation(hitboxPredictor);
+    }
+
+    private void PauseEnd()
+    {
+        hitboxPredictor.SetActive(false);
+    }
+
     private void ActBegin()
     {
         hitbox.gameObject.SetActive(true);
         hitbox.Invoke(this);
 
-        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, ((EnemyAbilityManager) system).Manager.GetGroundNormal());
-        hitbox.transform.rotation = normalRotation * transform.rotation;
+        SetHitboxRotation(this.hitbox.gameObject);
     }
 
     private void ActEnd()
@@ -176,5 +195,11 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
     public override void ShortCircuitLogic()
     {
         ActEnd();
+    }
+
+    private void SetHitboxRotation(GameObject hitbox)
+    {
+        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, ((EnemyAbilityManager) system).Manager.GetGroundNormal());
+        hitbox.transform.rotation = normalRotation * transform.rotation;
     }
 }

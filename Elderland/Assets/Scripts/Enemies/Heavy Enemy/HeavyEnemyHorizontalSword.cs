@@ -11,6 +11,8 @@ public sealed class HeavyEnemyHorizontalSword : EnemyAbility
     private EnemyDamageHitbox hitbox;
     [SerializeField]
     private BoxCollider hitboxTrigger;
+    [SerializeField]
+    private GameObject hitboxPredictor;
 
     [SerializeField]
     private AnimationClip rotateClip;
@@ -32,7 +34,7 @@ public sealed class HeavyEnemyHorizontalSword : EnemyAbility
     {
         //Segment setup
         rotateProcess = new AbilityProcess(null, DuringRotate, null, 1);
-        pauseProcess = new AbilityProcess(null, null, null, 1);
+        pauseProcess = new AbilityProcess(PauseBegin, null, PauseEnd, 1);
         attackProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.25f);
         rotate = new AbilitySegment(rotateClip, rotateProcess);
         pause = new AbilitySegment(pauseClip, pauseProcess);
@@ -66,13 +68,24 @@ public sealed class HeavyEnemyHorizontalSword : EnemyAbility
         }
     }
 
+    private void PauseBegin()
+    {
+        hitboxPredictor.SetActive(true);
+
+        SetHitboxRotation(hitboxPredictor);
+    }
+
+    private void PauseEnd()
+    {
+        hitboxPredictor.SetActive(false);
+    }
+
     private void ActBegin()
     {
         hitbox.gameObject.SetActive(true);
         hitbox.Invoke(this);
 
-        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, ((EnemyAbilityManager) system).Manager.GetGroundNormal());
-        hitbox.transform.rotation = normalRotation * transform.rotation;
+        SetHitboxRotation(this.hitbox.gameObject);
     }
 
     private void ActEnd()
@@ -89,5 +102,11 @@ public sealed class HeavyEnemyHorizontalSword : EnemyAbility
     public override void ShortCircuitLogic()
     {
         ActEnd();
+    }
+
+    private void SetHitboxRotation(GameObject hitbox)
+    {
+        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, ((EnemyAbilityManager) system).Manager.GetGroundNormal());
+        hitbox.transform.rotation = normalRotation * transform.rotation;
     }
 }
