@@ -5,6 +5,7 @@ Shader "Custom/DefaultUnlitShader"
     {
         _Color("Color", Color) = (1,1,1,1)
         _MainTex ("Texture", 2D) = "white" {}
+        _Threshold ("Threshold", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -37,6 +38,7 @@ Shader "Custom/DefaultUnlitShader"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float4 _Color;
+            float _Threshold;
 
             v2f vert (appdata v)
             {
@@ -51,6 +53,7 @@ Shader "Custom/DefaultUnlitShader"
             {
                 // sample the texture
                 fixed4 color = tex2D(_MainTex, i.uv) * _Color;
+                clip(color.a - _Threshold);
                 return color;
             }
             ENDCG

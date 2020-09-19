@@ -9,8 +9,13 @@
     SubShader
     {
         // No culling or depth
-        Cull Off ZWrite On ZTest Always
+        Cull Off
+        ZWrite Off
+        ZTest Always
+        Blend SrcAlpha OneMinusSrcAlpha
         // Via unity manual on stencils.
+
+        Tags { "Queue" = "Transparent" "RenderType" = "Transparent" }
 
         Pass
         {
@@ -53,7 +58,8 @@
                 fixed4 col = tex2D(_MainTex, i.uv) * i.color;
                 // just invert the colors
                 //col.rgb = 1 - col.rgb;
-                clip(-(col.a < _Threshold));
+                //clip(-(col.a < _Threshold));
+                //return _Color * i.color;
                 return col * _Color;
             }
             ENDCG
