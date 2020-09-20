@@ -57,6 +57,7 @@
             {
                 fixed alpha = tex2D(_MainTex, i.uv).a;
                 // just invert the colors
+                //return fixed4(1,0,0,1);
                 //col.rgb = 1 - col.rgb;
                 //clip(-(col.a < _Threshold));
                 //return _Color * i.color;
