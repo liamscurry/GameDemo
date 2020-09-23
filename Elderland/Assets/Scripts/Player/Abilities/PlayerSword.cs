@@ -66,7 +66,7 @@ public sealed class PlayerSword : PlayerAbility
         chargeNoTargetClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeNoTargetLightAttack");
         actNoTargetClip = Resources.Load<AnimationClip>("Player/Abilities/ActNoTargetLightAttack");
 
-        chargeProcess = new AbilityProcess(ChargeBegin, null, ChargeEnd, 1);
+        chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1);
         charge = new AbilitySegment(null, chargeProcess);
         charge.Type = AbilitySegmentType.RootMotion;
@@ -380,6 +380,20 @@ public sealed class PlayerSword : PlayerAbility
             PlayerInfo.AnimationManager.StartTarget(matchTarget);
 
             dashPosition = targetPosition;
+        }
+    }
+
+    public void DuringCharge()
+    {
+        //Debug.Log("being called");
+        if (Physics.OverlapSphere(
+            PlayerInfo.Player.transform.position,
+            PlayerInfo.Capsule.radius * 1.75f,
+            LayerConstants.Enemy).Length != 0)
+        {
+            Debug.Log("advanced");
+            PlayerInfo.Animator.InterruptMatchTarget(false);
+            ForceAdvanceSegment();
         }
     }
 
