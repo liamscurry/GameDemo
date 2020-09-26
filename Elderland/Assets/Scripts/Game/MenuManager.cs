@@ -29,7 +29,7 @@ public class MenuManager : MonoBehaviour
     {
         if (!pausedLastFrame)
         {
-            PauseMenu();
+            //PauseMenu();
             StartMenu();
             ObjectiveMenu();
         }
