@@ -7,11 +7,13 @@ Shader "Custom/StampParticle"
         _Color ("Color", Color) = (1,1,1,1)
         _TimeOffset ("TimeOffset", float) = 0
         _Threshold ("Threshold", Range(0,1)) = 0
+        _HeightMultiplier ("HeightMultiplier", float) = 1
     }
     SubShader
     {
         // No culling or depth
         ZWrite Off ZTest Always Cull Off
+        Blend SrcAlpha OneMinusSrcAlpha
         Tags { "Queue"="Geometry+10"}
 
         Pass
@@ -76,6 +78,7 @@ Shader "Custom/StampParticle"
             float4 _Color;
             float _TimeOffset;
             float _Threshold;
+            float _HeightMultiplier;
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -109,7 +112,16 @@ Shader "Custom/StampParticle"
                 float underThreshold = _Threshold > thresholdTextureValue;
                 float inRange = distanceBetween >= radius;
                 clip(-float2(inRange, underThreshold));
-                return fixed4(_Color.xyz, 1 - _Threshold);
+                //return (abs(worldPosition.y - worldCenter.y) > _HeightMultiplier);
+                clip(-(abs(worldPosition.y - worldCenter.y) > _HeightMultiplier));
+                float heightPercentage = (worldPosition.y - worldCenter.y) / _HeightMultiplier;
+                if (heightPercentage < 0)
+                    heightPercentage = 0;
+                heightPercentage = 1 - heightPercentage;
+                heightPercentage = pow(heightPercentage, 3);
+                //return heightPercentage;
+                //return fixed4(1,0,0,.5);
+                return fixed4(_Color.xyz, heightPercentage);
             }
             ENDCG
         }

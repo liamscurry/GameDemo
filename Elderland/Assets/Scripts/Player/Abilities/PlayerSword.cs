@@ -391,7 +391,6 @@ public sealed class PlayerSword : PlayerAbility
             PlayerInfo.Capsule.radius * 1.75f,
             LayerConstants.Enemy).Length != 0)
         {
-            Debug.Log("advanced");
             PlayerInfo.Animator.InterruptMatchTarget(false);
             ForceAdvanceSegment();
         }
