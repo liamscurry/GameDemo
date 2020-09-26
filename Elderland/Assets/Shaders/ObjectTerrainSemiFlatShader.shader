@@ -30,6 +30,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
         _LightShadowStrength ("LightShadowStrength", Range(0, 1)) = 0
         _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
         _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
+        _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -269,6 +270,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             float _LightShadowStrength;
             float4 _MidFogColor;
             float4 _EndFogColor;
+            float _WarmColorStrength;
             //sampler2D _Splat0, _Splat1, _Splat2, _Splat3;
             //float4 _Splat0_ST, _Splat1_ST, _Splat2_ST, _Splat3_ST;
             //float3 _WorldSpaceLightPos0;
@@ -379,6 +381,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                  float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35, .35, .35, 1);
                 float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
                            finalColor * inShadow;//(1 - _ShadowStrength)
+                //return shadowColor;
                 
                 float inShadowBool = inShadow < 0.6;
 
@@ -402,6 +405,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                 float4 lightColor = lightShadowColor * _LightShadowStrength +
                     finalColor * (1 - _LightShadowStrength) + f * .4;
 
+                i.normal = worldUnpackedNormal;
                 if (!inShadowSide)
                 {    
                     //if (!inShadowBool)
@@ -414,15 +418,17 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                         //return shadowColor * (1 - fadeValue) + lightColor * fadeValue;
                         //float shadeFade = (1 - fadeValue) * inShadow;
                         float shadeFade = inShadow;
-
+                        
                         float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
-                        STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade);
+                        //return shadeFade;
+                        STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
                     //}
                 }
                 else
                 {
                     //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
-                    STANDARD_FOG(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
+                    //return fixed4(1,0,0,1);
+                    STANDARD_SHADOWSIDE_FOG_TEMPERATURE(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength), _WarmColorStrength);
                 }
             }
             ENDCG

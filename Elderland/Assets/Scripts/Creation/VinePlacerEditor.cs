@@ -5,6 +5,7 @@ using UnityEditor;
 
 namespace UnityEditor
 {
+    #if (UNITY_EDITOR)
     [ExecuteInEditMode]
     [CustomEditor(typeof(VinePlacer))]
     public class VinePlacerEditor : Editor
@@ -124,4 +125,5 @@ namespace UnityEditor
             }
         }
     }
+    #endif
 }

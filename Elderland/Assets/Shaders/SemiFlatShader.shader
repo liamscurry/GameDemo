@@ -23,6 +23,7 @@ Shader "Custom/SemiFlatShader"
         _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
         _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
+        _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -231,6 +232,7 @@ Shader "Custom/SemiFlatShader"
             float _HighlightStrength;
             sampler2D _BumpMap;
             sampler2D _CutoutTex;
+            float _WarmColorStrength;
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -329,13 +331,13 @@ Shader "Custom/SemiFlatShader"
                         float shadeFade = inShadow;
 
                         float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
-                        STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade);
+                        STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
                     //}
                 }
                 else
                 {
                     //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
-                    STANDARD_SHADOWSIDE_FOG(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
+                    STANDARD_SHADOWSIDE_FOG_TEMPERATURE(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength), _WarmColorStrength);
                 }
             }
             ENDCG

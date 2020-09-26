@@ -5,12 +5,12 @@ float4 MultiplyColor(float percentage, float lightness, float4 startColor, float
            multipliedColor * percentage;
 }
 
-float4 WarmShadowColor(float4 startColor, float3 worldNormal, float isInShadowSide)
+float4 WarmShadowColor(float4 startColor, float3 worldNormal, float isInShadowSide, float percentage)
 {
     float normalVerticalAngle = AngleBetween(worldNormal, float3(0, 1, 0)) / PI;
     float normalWarmPercentage = (normalVerticalAngle - 0.5) * 2;
-    if (isInShadowSide)
-    {
+    //if (isInShadowSide)
+    //{
         float warmLightness = RGBLightness(startColor) * 1.2;
         
         float4 warmModifier =
@@ -20,10 +20,12 @@ float4 WarmShadowColor(float4 startColor, float3 worldNormal, float isInShadowSi
         float4 newColor = startColor *
                 (warmModifier * (1 - warmLightness) +
                 float4(1,1,1,1) * (warmLightness));
-    
-        return newColor;
-    }
-    return startColor;
+
+        float4 blendedColor = newColor * (1 - isInShadowSide) + startColor * (isInShadowSide);
+        
+        return blendedColor * percentage + startColor * (1 - percentage);
+    //}
+    //return startColor;
 }
 
 float4 HaloColor(float4 startColor, float distance, float3 worldPos)
@@ -72,10 +74,12 @@ fixed4 ApplyFog(
     float midDuration,
     float endDuration,
     float3 worldNormal,
-    float isInShadowSide)
+    float isInShadowSide,
+    float temperaturePercentage)
 {
     //return startColor;
-    startColor = WarmShadowColor(startColor, worldNormal, isInShadowSide);
+    startColor = WarmShadowColor(startColor, worldNormal, isInShadowSide, temperaturePercentage);
+    //return startColor;
 
     float2 horizontalDisplacement = 
         (cameraPos - worldPos).xz;
@@ -115,5 +119,7 @@ fixed4 ApplyFog(
 #define FOGTINTCOLOR fixed4(63.0 / 255, 132.0 / 255, 235.0 / 255, 0)
 //float4(49.0 / 255, 82.0 / 255, 171.0 / 255, 255.0 / 255)
 //float4(181.0 / 255, 215.0 / 255, 244.0 / 255, 255.0 / 255) * float4(.95, .95, .95, 1)
-#define STANDARD_FOG(color) return ApplyFog(color, FOGTINTCOLOR, FOGCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 120, 200, 200, i.normal, 0);
-#define STANDARD_SHADOWSIDE_FOG(color) return ApplyFog(color, FOGTINTCOLOR, FOGCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 120, 200, 200, i.normal, 1);
+#define STANDARD_FOG(color) return ApplyFog(color, FOGTINTCOLOR, FOGCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 120, 200, 200, i.normal, inShadow, 1);
+#define STANDARD_FOG_TEMPERATURE(color, temperature) return ApplyFog(color, FOGTINTCOLOR, FOGCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 120, 200, 200, i.normal, inShadow, temperature);
+#define STANDARD_SHADOWSIDE_FOG(color) return ApplyFog(color, FOGTINTCOLOR, FOGCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 120, 200, 200, i.normal, 1, 1);
+#define STANDARD_SHADOWSIDE_FOG_TEMPERATURE(color, temperature) return ApplyFog(color, FOGTINTCOLOR, FOGCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 120, 200, 200, i.normal, 1, temperature);
