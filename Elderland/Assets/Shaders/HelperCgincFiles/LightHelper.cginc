@@ -25,6 +25,7 @@
     #include "Color.cginc"
     #include "AutoLight.cginc"
     #include "LODHelper.cginc"
+    #include "/HelperCgincFiles/MathHelper.cginc"
     
     struct appdata
     {
@@ -39,6 +40,8 @@
         float4 pos : SV_POSITION;
         float3 worldPos : TEXCOORD3;
         float4 screenPos : TEXCOORD4;
+        float3 normal : TEXCOORD5;
+        float3 objectPos : TEXCOORD6;
     };
 
     v2f vert (appdata_full v)
@@ -48,6 +51,8 @@
         o.screenPos = ComputeScreenPos(o.pos);
         UNITY_TRANSFER_LIGHTING(o, v.uv1);
         o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+        o.normal = UnityObjectToWorldNormal(v.normal);
+        o.objectPos = v.vertex;
         return o;
     }
 
@@ -55,8 +60,22 @@
 
     fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
     {
+        float3 fragWorldPosition = mul(unity_ObjectToWorld, i.objectPos);
         ApplyDither(i.screenPos, _CrossFade);
         UNITY_LIGHT_ATTENUATION(attenuation, i, i.worldPos.xyz);
+        float3 localLightDirection = normalize(i.worldPos - _WorldSpaceLightPos0.xyz);
+        float shadowProduct = AngleBetween(i.normal, localLightDirection) / 3.151592;
+        //return length(i.worldPos - _WorldSpaceLightPos0.xyz) / 20;
+        if (shadowProduct > 0.5)
+        {
+            // in light
+            return attenuation * _LightColor0;
+        }
+        else
+        {
+            return fixed4(0,0,0,0);
+        }
+        return shadowProduct;
         return attenuation * _LightColor0;
     }
 

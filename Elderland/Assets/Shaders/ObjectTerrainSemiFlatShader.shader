@@ -391,7 +391,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
                 float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
+                float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, worldUnpackedNormal);//i.normal
                 float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
                 //return fixed4(f,f,f,1);
                 if (f > .9f)
