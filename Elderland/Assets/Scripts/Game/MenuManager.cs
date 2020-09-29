@@ -27,7 +27,8 @@ public class MenuManager : MonoBehaviour
     //Calls menu toggles
     private void UpdateMenuInput()
     {
-        if (!pausedLastFrame)
+        if (!pausedLastFrame &&
+            GameInfo.CameraController.CameraState == CameraController.State.Gameplay)
         {
             //PauseMenu();
             StartMenu();
