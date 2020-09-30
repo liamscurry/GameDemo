@@ -284,21 +284,28 @@ Shader "Custom/TreeTrunk"
                 float inShadowSide = shadowProduct > 0.5;
                 //return fixed4(inShadowSide, inShadowSide, inShadowSide, 1);
 
+                float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
+                float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
+                float fadeValue = UnityComputeShadowFade(fadeDistance);
+
                 if (inShadow)
                 {
                     if (!inShadowSide)
                     {
                         //return finalColor;
+                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
                         STANDARD_FOG(finalColor);
                     }
                     else
                     {
+                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
                         STANDARD_FOG(finalColor * fixed4(.85, .75, .75, 1) * fixed4(.7, .7, .7, 1));
                     }
                 }
                 else
                 {
                     //return finalColor * fixed4(.85, .75, .75, 1) * fixed4(.7, .7, .7, 1);
+                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
                     STANDARD_SHADOWSIDE_FOG(finalColor * fixed4(.85, .75, .75, 1) * fixed4(.7, .7, .7, 1));
                 }
             }

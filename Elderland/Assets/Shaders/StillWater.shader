@@ -8,6 +8,8 @@ Shader "Custom/StillWater"
         _ReflectionMap ("ReflectionMap", 2D) = "white" {}
         _WaterBedColor ("WaterBedColor", Color) = (0,0,0,0)
         _WaterLineThreshold ("WaterLineThreshold", Range(0, 1)) = 0
+        _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 0
+        _EnableFog ("EnableFog", Range(0.0, 1.0)) = 0.0
     }
     SubShader
     {
@@ -25,7 +27,10 @@ Shader "Custom/StillWater"
             //#pragma multi_compile_fwdbase
 
             #include "UnityCG.cginc"
+            #include "Color.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
+            #include "/HelperCgincFiles/FogHelper.cginc"
+            #include "/HelperCgincFiles/LODHelper.cginc"
 
             struct appdata
             {
@@ -51,6 +56,8 @@ Shader "Custom/StillWater"
             sampler2D _CameraDepthTexture;
             sampler2D _GrabTexture;
             float _WaterLineThreshold;
+            float _WarmColorStrength;
+            float _EnableFog;
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
@@ -70,6 +77,7 @@ Shader "Custom/StillWater"
 
             fixed4 frag (v2f i, float3 normal : NORMAL) : SV_Target
             {
+                float inShadow = 0;
                 float3 calculatedNormal = UnityObjectToWorldNormal(normal);//1.4// * .6
                 float3 alteredNormal = normalize(
                     i.normal * 1 +
@@ -97,7 +105,14 @@ Shader "Custom/StillWater"
                 //return waterDepthFactor;
                 if (length(existingWorldPosition - newWorldPosition) / (2 + sin(_Time.y + i.worldPos.x)) < _WaterLineThreshold)//.5
                 {
-                    return fixed4(1, 1, 1, 1);
+                    if (_EnableFog)
+                    {
+                        STANDARD_FOG_TEMPERATURE(float4(1, 1, 1, 1), _WarmColorStrength);
+                    }
+                    else
+                    {
+                        return float4(1, 1, 1, 1);
+                    }
                 }
                 
                 // From grab pass manual.
@@ -143,7 +158,14 @@ Shader "Custom/StillWater"
                 //return waterDepthFactor * (1 - horizontalWaterDepthFactor);
                 //fresnelAngle -= waterDepthFactor * (1 - horizontalWaterDepthFactor) * 1;
                 float4 finalColor = color * (fresnelAngle) + waterBedCompositeColor * (1 - fresnelAngle);
-                return finalColor;
+                if (_EnableFog)
+                {
+                    STANDARD_FOG_TEMPERATURE(finalColor, _WarmColorStrength);
+                }
+                else
+                {
+                    return finalColor;
+                }
                 //return _WaterBedColor * existingColor;
             }
             ENDCG

@@ -366,6 +366,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                         //return fixed4(1,0,0,1);
                         float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
                         //return fadedShadowColor;
+                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
                         STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * (shadeFade));
 
                         STANDARD_FOG(shadowColor + float4(0.9, .9, 1, 0) * f * 1);
@@ -391,6 +392,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 }
                 else
                 {
+                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
                     STANDARD_FOG(shadowColor);
                     strechedShadowProduct = saturate(1 * 2);
                     float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;

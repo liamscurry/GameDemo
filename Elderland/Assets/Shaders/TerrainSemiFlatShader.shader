@@ -317,6 +317,8 @@ Shader "Custom/TerrainSemiFlatShader"
                         //return fixed4(1,0,0,1);
                         float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
                         //return fadedShadowColor;
+                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
+                        //return inShadow;
                         STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * (shadeFade));
                         STANDARD_FOG(finalColor);
                     }
@@ -337,6 +339,7 @@ Shader "Custom/TerrainSemiFlatShader"
                         
                         //return shadeFade;
                         float shadeFade = (1 - fadeValue) * inShadow;
+                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
                         STANDARD_FOG(shadowColor);
                         STANDARD_FOG(shadowSideColor * (1 - fadeValue) + lightColor * fadeValue);
                         //return float4(1,0,0,1) * float4(.5,0,0,1) * (1 - fadeValue) + float4(1,0,0,1) * (fadeValue);
