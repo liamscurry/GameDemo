@@ -7,6 +7,8 @@ public class MenuManager : MonoBehaviour
     [SerializeField]
     private GameObject startMenuUI;
     [SerializeField]
+    private GameObject pauseMenuUI;
+    [SerializeField]
     private GameObject gameplayUI;
     [SerializeField]
     private ObjectiveUIManager objectiveUIManager;
@@ -28,9 +30,10 @@ public class MenuManager : MonoBehaviour
     private void UpdateMenuInput()
     {
         if (!pausedLastFrame &&
-            GameInfo.CameraController.CameraState == CameraController.State.Gameplay)
+            GameInfo.CameraController.CameraState == CameraController.State.Gameplay &&
+            !GameInfo.Manager.Respawning)
         {
-            //PauseMenu();
+            PauseMenu();
             StartMenu();
             ObjectiveMenu();
         }
@@ -41,6 +44,7 @@ public class MenuManager : MonoBehaviour
     //Menu Functionality
     private void PauseMenu()
     {
+        /*
         if (Input.GetKeyDown(KeyCode.Escape))
         {      
             //If not paused
@@ -57,6 +61,11 @@ public class MenuManager : MonoBehaviour
                 Time.timeScale = 1;
                 GameInfo.Manager.OverlayUnfreezeInput();
             }
+        }*/
+
+        if (Input.GetKeyDown(KeyCode.Joystick1Button6))
+        {
+            OpenPauseMenu();
         }
     }
 
@@ -72,6 +81,16 @@ public class MenuManager : MonoBehaviour
     {
         startMenuUI.SetActive(true);
         gameplayUI.SetActive(false);
+
+        GameInfo.Paused = true;
+        Time.timeScale = 0;
+        GameInfo.Manager.OverlayFreezeInput();
+    }
+
+    public void OpenPauseMenu()
+    {
+        pauseMenuUI.SetActive(true);
+        //gameplayUI.SetActive(false);
 
         GameInfo.Paused = true;
         Time.timeScale = 0;

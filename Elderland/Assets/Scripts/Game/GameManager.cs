@@ -30,7 +30,10 @@ public class GameManager : MonoBehaviour
     private static bool previousReceivingInput;
     private static object receivingInputSetter;
 
+    private bool respawning;
+
     public bool ReceivingInput { get { return receivingInput; } }
+    public bool Respawning { get { return respawning; } }
 
     public event EventHandler OnRespawn;
 
@@ -40,6 +43,7 @@ public class GameManager : MonoBehaviour
         GetComponent<GameInitializer>().Initialize();
         receivingInput = false;
         Application.targetFrameRate = 300;
+        respawning = false;
 	}
 
     private void Update()
@@ -177,6 +181,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator FadeRespawn(float duration)
     {
         Time.timeScale = 0;
+        respawning = true;
 
         yield return new WaitForSecondsRealtime(2);
 
@@ -218,6 +223,7 @@ public class GameManager : MonoBehaviour
         PlayerInfo.Manager.Respawn();
 
         Time.timeScale = 1;
+        respawning = false;
     }
 
     private IEnumerator Fade(float duration, float value)
