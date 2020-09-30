@@ -60,6 +60,11 @@
 
     fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
     {
+        if (_ApplyLight < 0.5)
+        {
+            return fixed4(0,0,0,0);
+        }
+
         float3 fragWorldPosition = mul(unity_ObjectToWorld, i.objectPos);
         ApplyDither(i.screenPos, _CrossFade);
         UNITY_LIGHT_ATTENUATION(attenuation, i, i.worldPos.xyz);

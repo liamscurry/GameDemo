@@ -31,6 +31,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
         _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
         _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
+        _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
     }
     SubShader
     {
@@ -449,6 +450,8 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             ZTest LEqual
             
             CGPROGRAM
+
+            float _ApplyLight;
 
             #pragma vertex vert
             #pragma fragment frag
