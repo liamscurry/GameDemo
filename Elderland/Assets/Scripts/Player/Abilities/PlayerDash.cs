@@ -102,4 +102,9 @@ public sealed class PlayerDash : PlayerAbility
     {
         ActEnd();
     }
+
+    public override void DeleteResources()
+    {
+        GameObject.Destroy(dashParticles);
+    }
 }

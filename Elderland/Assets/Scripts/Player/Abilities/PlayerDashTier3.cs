@@ -10,6 +10,8 @@ public sealed class PlayerDashTier3 : PlayerAbility
     private Vector2 direction;
     private float speed = 18f;
 
+    private ParticleSystem dashParticles;
+
     private AbilitySegment act;
     private AbilityProcess actProcess;
     private const float staminaCost = 1f;
@@ -29,6 +31,14 @@ public sealed class PlayerDashTier3 : PlayerAbility
         segments.AddSegment(act);
         segments.NormalizeSegments();
 
+        GameObject dashParticlesObject =
+            Instantiate(
+                Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.DashParticles),
+                transform.position,
+                Quaternion.identity);
+        dashParticlesObject.transform.parent = PlayerInfo.Player.transform;
+        dashParticles = dashParticlesObject.GetComponent<ParticleSystem>();
+
         continous = true;
     }
 
@@ -47,6 +57,8 @@ public sealed class PlayerDashTier3 : PlayerAbility
         system.Physics.GravityStrength = 0;
         system.Movement.ExitEnabled = false;
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost * PlayerInfo.StatsManager.DashCostMultiplier.Value);
+
+        dashParticles.Play();
     }
 
     private void DuringAct()
@@ -100,6 +112,8 @@ public sealed class PlayerDashTier3 : PlayerAbility
             PlayerInfo.BuffManager.Apply<PlayerDashTier3Buff>(
                 new PlayerDashTier3Buff(PlayerInfo.BuffManager, BuffType.Buff, 5f));
         }
+
+        dashParticles.Stop();
     }
 
     public override bool OnHit(GameObject character)
@@ -110,5 +124,10 @@ public sealed class PlayerDashTier3 : PlayerAbility
     public override void ShortCircuitLogic()
     {
         ActEnd();
+    }
+
+    public override void DeleteResources()
+    {
+        GameObject.Destroy(dashParticles);
     }
 }
