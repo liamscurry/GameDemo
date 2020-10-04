@@ -75,7 +75,8 @@ public class FallingDoor : MonoBehaviour
 
     public void CloseInstantly()
     {
-        body.position = closedPosition;
+        //body.position = closedPosition;
+        transform.position = closedPosition;
     }
 
     public void OnRespawn(object sender, EventArgs e)
