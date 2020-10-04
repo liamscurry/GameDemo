@@ -28,9 +28,13 @@ public class StandardInteraction : MonoBehaviour
 	[Header("For hold until release or complete interactions")]
 	[SerializeField]
 	protected float holdDuration;
+	[SerializeField]
+	protected float minimumHoldDuration;
 	[Header("For hold interactions")]
 	[SerializeField]
 	protected UnityEvent holdEvent;
+	[SerializeField]
+	protected UnityEvent holdStartEvent;
 	[Header("For all interactions")]
 	[SerializeField]
 	protected UnityEvent endEvent;
@@ -41,6 +45,7 @@ public class StandardInteraction : MonoBehaviour
 	public Type InteractionType { get { return type; } }
 	public float HoldNormalizedTime { get; set; }
 	public float HoldDuration { get { return holdDuration; } }
+	public float MinimumHoldDuration { get { return minimumHoldDuration; } }
 	public bool Reusable { get { return reusable; } }
 
 	private Vector3 GeneratedTargetPosition
@@ -119,7 +124,8 @@ public class StandardInteraction : MonoBehaviour
 	protected IEnumerator UITimer()
 	{
 		yield return new WaitForSeconds(1);
-		ui.SetActive(false);
+		if (type == Type.press)
+			ui.SetActive(false);
 	}
 
 	public void EndEvent()
@@ -129,7 +135,14 @@ public class StandardInteraction : MonoBehaviour
 
 	public void HoldEvent()
 	{
-		holdEvent.Invoke();
+		if (holdEvent != null)
+			holdEvent.Invoke();
+	}
+
+	public void StartEvent()
+	{
+		if (holdStartEvent != null)
+			holdStartEvent.Invoke();
 	}
 
 	//protected IEnumerator EndTimer()

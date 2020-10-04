@@ -9,21 +9,23 @@ public class InteractionHoldEventBehaviour : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         exiting = false;
+        PlayerInfo.Manager.Interaction.StartEvent();
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (!exiting)
         {
-            float percentage = (stateInfo.normalizedTime < 1) ? stateInfo.normalizedTime : 1;
+            float percentage =
+                Mathf.Clamp01(stateInfo.normalizedTime * stateInfo.length / PlayerInfo.Manager.Interaction.HoldDuration);
             PlayerInfo.Manager.Interaction.HoldNormalizedTime = percentage;
             PlayerInfo.Manager.Interaction.HoldEvent();
 
-            if (!Input.GetKey(GameInfo.Settings.UseKey) ||
-                (PlayerInfo.Manager.Interaction.InteractionType == StandardInteraction.Type.holdUntilReleaseOrComplete &&
-                stateInfo.normalizedTime >= PlayerInfo.Manager.Interaction.HoldDuration))
+            if ((!Input.GetKey(GameInfo.Settings.UseKey) &&
+                stateInfo.normalizedTime * stateInfo.length >= PlayerInfo.Manager.Interaction.MinimumHoldDuration) ||
+                stateInfo.normalizedTime * stateInfo.length >= PlayerInfo.Manager.Interaction.HoldDuration)
             {
-                if (stateInfo.normalizedTime * stateInfo.length > 0.4f)
+                //if (stateInfo.normalizedTime * stateInfo.length > 1.25f)
                 {
                     animator.SetTrigger("exitInteraction");
                     GameInfo.CameraController.AllowZoom = true;
