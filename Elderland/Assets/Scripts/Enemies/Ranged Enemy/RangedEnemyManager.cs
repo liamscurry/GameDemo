@@ -21,8 +21,8 @@ public sealed class RangedEnemyManager : EnemyManager
     private const float defensiveRangeMargin = 2f;
 
     public const float WalkSpeed = 2.5f;
-    public const float RunAwaySpeed = 3.5f;
-    public const float LimpAwaySpeed = 0.75f;
+    public const float RunAwaySpeed = 1.5f;
+    public const float LimpAwaySpeed = 0.25f;
 
     protected override void DeclareAbilities()
     {

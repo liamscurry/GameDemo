@@ -22,14 +22,16 @@ public class RangedEnemyDefensive : StateMachineBehaviour
         exiting = false;
 
         manager.TurnOnAgent();
-
+        
         if (manager.DefensiveAttackSuccessful)
         {
-            manager.Agent.speed = RangedEnemyManager.RunAwaySpeed;
+            manager.StatsManager.MovespeedMultiplier.AddModifier(RangedEnemyManager.RunAwaySpeed);
+            //manager.Agent.speed = RangedEnemyManager.RunAwaySpeed;
         }
         else
         {
-            manager.Agent.speed = RangedEnemyManager.LimpAwaySpeed;
+            manager.StatsManager.MovespeedMultiplier.AddModifier(RangedEnemyManager.LimpAwaySpeed);
+            //manager.Agent.speed = RangedEnemyManager.LimpAwaySpeed;
         }
     }
 
@@ -88,6 +90,17 @@ public class RangedEnemyDefensive : StateMachineBehaviour
             manager.Animator.SetBool("defensive", false);
             manager.Agent.speed = RangedEnemyManager.WalkSpeed;
             exiting = true;
+
+            if (manager.DefensiveAttackSuccessful)
+        {
+            manager.StatsManager.MovespeedMultiplier.RemoveModifier(RangedEnemyManager.RunAwaySpeed);
+            //manager.Agent.speed = RangedEnemyManager.RunAwaySpeed;
+        }
+        else
+        {
+            manager.StatsManager.MovespeedMultiplier.RemoveModifier(RangedEnemyManager.LimpAwaySpeed);
+            //manager.Agent.speed = RangedEnemyManager.LimpAwaySpeed;
+        }
         }
     }
 }

@@ -52,8 +52,8 @@ public class PlayerStatsManager
 		MovespeedModifier = 1;
 		JumpspeedModifier = 1;
 
-		UpgradePoints = 0;
-		VitalityPoints = 0;
+		UpgradePoints = 200;
+		VitalityPoints = 200;
 
 		HealthTier = 0;
 		StaminaTier = 0;

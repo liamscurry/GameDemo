@@ -217,7 +217,7 @@ public class RangedEnemyAttackSearch : StateMachineBehaviour
         
         manager.NextAttack = manager.Slow;
         manager.Slow.Queue(EnemyAbilityType.First);
-        manager.Slow.Queue(EnemyAbilityType.Middle);
+        //manager.Slow.Queue(EnemyAbilityType.Middle);
         manager.Slow.Queue(EnemyAbilityType.Last);
         manager.AbilityManager.StartQueue();
 

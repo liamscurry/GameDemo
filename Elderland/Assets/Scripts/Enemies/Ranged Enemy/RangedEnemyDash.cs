@@ -101,7 +101,7 @@ public sealed class RangedEnemyDash : EnemyAbility
 
         manager.NextAttack = manager.Slow;
         manager.Slow.Queue(EnemyAbilityType.First);
-        manager.Slow.Queue(EnemyAbilityType.Middle);
+        //manager.Slow.Queue(EnemyAbilityType.Middle);
         manager.Slow.Queue(EnemyAbilityType.Last);
         manager.Animator.SetBool("defensive", true);
         manager.Animator.ResetTrigger("runAbility");
