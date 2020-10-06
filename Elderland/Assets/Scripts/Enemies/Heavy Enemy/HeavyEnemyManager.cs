@@ -15,7 +15,7 @@ public sealed class HeavyEnemyManager : EnemyManager
         VerticalSword = GetComponent<HeavyEnemyVerticalSword>();
         AbilityManager.ApplyAbility(VerticalSword);
 
-        MaxHealth = 6;
+        MaxHealth = 8;
         Health = MaxHealth;
     }
 
@@ -94,7 +94,7 @@ public sealed class HeavyEnemyManager : EnemyManager
     {
         NextAttack = VerticalSword;
         VerticalSword.Queue(EnemyAbilityType.First);
-        HorizontalSword.Queue(EnemyAbilityType.Middle);
-        VerticalSword.Queue(EnemyAbilityType.Last);
+        HorizontalSword.Queue(EnemyAbilityType.Last);
+        //VerticalSword.Queue(EnemyAbilityType.Last);
     }
 }

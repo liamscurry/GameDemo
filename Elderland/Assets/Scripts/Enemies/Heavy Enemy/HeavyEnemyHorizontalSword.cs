@@ -66,10 +66,16 @@ public sealed class HeavyEnemyHorizontalSword : EnemyAbility
             Vector3 forward = Vector3.RotateTowards(transform.forward, targetForward, 3f * Time.deltaTime, 0f);
             transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
         }
+        else
+        {
+            abilitySpeed = 3;
+        }
     }
 
     private void PauseBegin()
     {
+        abilitySpeed = 1;
+
         hitboxPredictor.SetActive(true);
 
         SetHitboxRotation(hitboxPredictor);
@@ -86,6 +92,8 @@ public sealed class HeavyEnemyHorizontalSword : EnemyAbility
         hitbox.Invoke(this);
 
         SetHitboxRotation(this.hitbox.gameObject);
+
+        ((EnemyAbilityManager) system).Manager.Push(transform.forward * 2f);
     }
 
     private void ActEnd()

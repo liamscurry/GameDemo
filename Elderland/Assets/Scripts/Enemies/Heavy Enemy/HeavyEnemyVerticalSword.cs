@@ -97,13 +97,13 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
 
         Vector3 localPosition = hitbox.transform.localPosition;
         localPosition.x = 0.75f;
-        localPosition.z = 0.75f;
+        localPosition.z = 1.5f;
         hitbox.transform.localPosition = localPosition;
         hitboxPredictor.transform.localPosition = localPosition;
 
         Vector3 localScale = hitbox.transform.localScale;
         localScale.x = 3.5f;
-        localScale.z = 2.5f;
+        localScale.z = 3.75f;
         hitbox.transform.localScale = localScale;
         hitboxPredictor.transform.localScale = localScale;
     }
@@ -116,13 +116,13 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
 
         Vector3 localPosition = hitbox.transform.localPosition;
         localPosition.x = 0f;
-        localPosition.z = 1.125f;
+        localPosition.z = 1.5f;
         hitbox.transform.localPosition = localPosition;
         hitboxPredictor.transform.localPosition = localPosition;
 
         Vector3 localScale = hitbox.transform.localScale;
         localScale.x = 2f;
-        localScale.z = 3.25f;
+        localScale.z = 3.75f;
         hitbox.transform.localScale = localScale;
         hitboxPredictor.transform.localScale = localScale;
     }
@@ -135,13 +135,13 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
 
         Vector3 localPosition = hitbox.transform.localPosition;
         localPosition.x = -0.75f;
-        localPosition.z = 0.75f;
+        localPosition.z = 1.5f;
         hitbox.transform.localPosition = localPosition;
         hitboxPredictor.transform.localPosition = localPosition;
 
         Vector3 localScale = hitbox.transform.localScale;
         localScale.x = 3.5f;
-        localScale.z = 2.5f;
+        localScale.z = 3.75f;
         hitbox.transform.localScale = localScale;
         hitboxPredictor.transform.localScale = localScale;
     }
@@ -159,10 +159,16 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
             Vector3 forward = Vector3.RotateTowards(transform.forward, targetForward, 6f * Time.deltaTime, 0f);
             transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
         }
+        else
+        {
+            abilitySpeed = 3;
+        }
     }
 
     private void PauseBegin()
     {
+        abilitySpeed = 1;
+        
         hitboxPredictor.SetActive(true);
 
         SetHitboxRotation(hitboxPredictor);
@@ -179,6 +185,8 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
         hitbox.Invoke(this);
 
         SetHitboxRotation(this.hitbox.gameObject);
+
+        ((EnemyAbilityManager) system).Manager.Push(transform.forward * 8f);
     }
 
     private void ActEnd()
