@@ -18,7 +18,7 @@ public class PlayerMovementManager
     private float directionSpeed = 500;
 
     private float speedVelocity;
-    private float speedGradation = 0.2f;
+    private float speedGradation = 0.15f; // 0.2f
 
     private bool sprintAvailable;
 
@@ -65,7 +65,7 @@ public class PlayerMovementManager
         CurrentDirection = Matho.RotateTowards(CurrentDirection, TargetDirection, directionSpeed * Time.deltaTime);
 
         CurrentPercentileSpeed = Mathf.SmoothDamp(CurrentPercentileSpeed, TargetPercentileSpeed, ref speedVelocity, speedGradation);
-        CurrentPercentileSpeed *= 1 - Matho.AngleBetween(TargetDirection, CurrentDirection) / 180f;
+        CurrentPercentileSpeed *= 1 - Matho.AngleBetween(TargetDirection, CurrentDirection) / 180f * 0.7f;
 
         if (PlayerInfo.PhysicsSystem.ExitedFloor && !PlayerInfo.MovementSystem.Jumping)
         {

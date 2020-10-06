@@ -102,7 +102,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 382873053286909441}
   m_LocalRotation: {x: 0.5, y: 0.50000024, z: 0.5, w: -0.49999982}
-  m_LocalPosition: {x: 0.356, y: 0.127, z: -0.6}
+  m_LocalPosition: {x: 0, y: 0.127, z: -0.6}
   m_LocalScale: {x: 0.27677497, y: 0.27677497, z: 0.27677497}
   m_Children:
   - {fileID: 5755653607412790514}
@@ -1170,8 +1170,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9177388232668068275}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalScale: {x: 1.5229294, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9177388233208114945}
   m_RootOrder: 2
@@ -1187,8 +1187,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.5, y: 1, z: 3}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.4999986, y: 1, z: 2.131463}
+  m_Center: {x: 0, y: 0, z: -0.43426847}
 --- !u!1 &9177388233055664133
 GameObject:
   m_ObjectHideFlags: 0
@@ -1216,8 +1216,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9177388233055664133}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.125, y: -0.25, z: -0}
-  m_LocalScale: {x: 1.75, y: 1.5, z: 1}
+  m_LocalPosition: {x: 0, y: -0.25, z: -0}
+  m_LocalScale: {x: 1, y: 1.5, z: 1}
   m_Children: []
   m_Father: {fileID: 9177388233208114945}
   m_RootOrder: 0
@@ -1331,7 +1331,7 @@ MonoBehaviour:
   animationClip: {fileID: 0}
   ui: {fileID: 382873053286909441}
   target: 1
-  targetPosition: {x: -0.55, y: 0, z: -1.13}
+  targetPosition: {x: 0, y: 0, z: -1.13}
   positionWeight: {x: 1, y: 1, z: 1}
   targetRotation: {x: 0, y: 0, z: 1}
   rotationWeight: 1

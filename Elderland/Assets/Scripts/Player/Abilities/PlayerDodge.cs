@@ -34,7 +34,8 @@ public sealed class PlayerDodge : PlayerAbility
 
     protected override bool WaitCondition()
     {
-        return GameInfo.Settings.LeftDirectionalInput.magnitude >= 0.25f;
+        return GameInfo.Settings.LeftDirectionalInput.magnitude >= 0.25f &&
+               PlayerInfo.Sensor.Interaction == null;
     }
 
     protected override void GlobalStart()

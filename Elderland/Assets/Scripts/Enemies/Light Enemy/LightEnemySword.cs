@@ -9,6 +9,8 @@ public sealed class LightEnemySword : EnemyAbility
     [SerializeField]
     private BoxCollider hitboxTrigger;
     [SerializeField]
+    private GameObject hitboxPredictor;
+    [SerializeField]
     private AnimationClip rotateClip;
     [SerializeField]
     private AnimationClip pauseClip;
@@ -29,7 +31,7 @@ public sealed class LightEnemySword : EnemyAbility
     {
         //Segment setup
         rotateProcess = new AbilityProcess(null, DuringRotate, null, 1);
-        pauseProcess = new AbilityProcess(null, null, null, 1);
+        pauseProcess = new AbilityProcess(PauseBegin, null, PauseEnd, 1);
         attackProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.25f);
         rotate = new AbilitySegment(rotateClip, rotateProcess);
         pause = new AbilitySegment(pauseClip, pauseProcess);
@@ -64,13 +66,24 @@ public sealed class LightEnemySword : EnemyAbility
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
 
+    private void PauseBegin()
+    {
+        hitboxPredictor.SetActive(true);
+
+        SetHitboxRotation(hitboxPredictor);
+    }
+
+    private void PauseEnd()
+    {
+        hitboxPredictor.SetActive(false);
+    }
+
     public void ActBegin()
     {
         hitbox.gameObject.SetActive(true);
         hitbox.Invoke(this);
 
-        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, ((EnemyAbilityManager) system).Manager.GetGroundNormal());
-        hitbox.transform.rotation = normalRotation * transform.rotation;
+        SetHitboxRotation(this.hitbox.gameObject);
     }
 
     public void ActEnd()
@@ -87,5 +100,11 @@ public sealed class LightEnemySword : EnemyAbility
     public override void ShortCircuitLogic()
     {
         ActEnd();
+    }
+
+    private void SetHitboxRotation(GameObject hitbox)
+    {
+        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, ((EnemyAbilityManager) system).Manager.GetGroundNormal());
+        hitbox.transform.rotation = normalRotation * transform.rotation;
     }
 }
