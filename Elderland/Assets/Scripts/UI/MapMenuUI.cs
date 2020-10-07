@@ -94,6 +94,30 @@ public sealed class MapMenuUI : StartMenuUI
         ResetCurrentLocationButton();
     }
 
+    public void DelayDisableMenu()
+    {
+        StartCoroutine(DelayDisableMenu(1f));
+    }
+
+    private IEnumerator DelayDisableMenu(float duration)
+    {
+        // Deselect active button to have highlight by default when turning on
+        eventSystem.SetSelectedGameObject(null);
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        transform.parent.gameObject.SetActive(false);
+
+        GameInfo.Paused = false;
+        Time.timeScale = 1;
+        //GameInfo.Manager.OverlayUnfreezeInput();
+
+        gameplayUI.SetActive(true);
+
+        DisableTeleporters();
+        ResetCurrentLocationButton();
+    }
+
     protected override void TabSwap()
     {
         if (tabSwapEnabled)

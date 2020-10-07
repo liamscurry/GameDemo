@@ -154,6 +154,34 @@ public class GameManager : MonoBehaviour
         UnfreezeGame();
     }
 
+    public void FadeTeleport()
+    {
+        StartCoroutine(FadeTeleportCoroutine(1.5f, 1f));
+    }
+
+    private IEnumerator FadeTeleportCoroutine(float duration, float waitTime)
+    {
+        OverlayFreezeInput();
+
+        //yield return new WaitForSecondsRealtime(2.25f);
+
+        //if (onFadeOutroIn != null)
+        //    onFadeOutroIn.Invoke();
+
+        //Fade in
+        yield return Fade(0.5f, 1);
+
+        yield return new WaitForSecondsRealtime(waitTime);
+
+        //if (onFadeOutroOut != null)
+        //    onFadeOutroOut.Invoke();
+
+        //Fade out
+        yield return Fade(duration, 0);
+
+        OverlayUnfreezeInput();
+    }
+
     public void FadeOutro()
     {
         StartCoroutine(FadeOutroCoroutine(3.5f, 10f));

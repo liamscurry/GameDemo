@@ -233,7 +233,10 @@ public class CameraController : MonoBehaviour
 
     private void AdjustZoom()
     {
-        if (Input.GetAxis("Left Trigger") != 0 && AllowZoom && PlayerInfo.AbilityManager.RangedAvailable)
+        if (Input.GetAxis("Left Trigger") != 0 &&
+            AllowZoom &&
+            PlayerInfo.AbilityManager.RangedAvailable &&
+            GameInfo.Manager.ReceivingInput)
         {
             targetFov = 40;
             zoomModifier = .4f;
@@ -290,9 +293,10 @@ public class CameraController : MonoBehaviour
 
     private void AdjustOrientation()
     {
-        HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
+        if (GameInfo.Manager.ReceivingInput)
+            HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
         orientationDelta = Mathf.Sign(GameInfo.Settings.RightDirectionalInput.x);
-        if (GameInfo.Settings.RightDirectionalInput.magnitude < 0.25f)
+        if (GameInfo.Settings.RightDirectionalInput.magnitude < 0.25f || !GameInfo.Manager.ReceivingInput)
             orientationDelta = 0;
 
         if (orientationDelta != 0)
@@ -315,9 +319,8 @@ public class CameraController : MonoBehaviour
         {
             orientationPercentage = Mathf.MoveTowards(orientationPercentage, 0, 3 * Time.deltaTime);
         }
-        
 
-        if (GameInfo.Settings.RightDirectionalInput.magnitude != 0)
+        if (GameInfo.Settings.RightDirectionalInput.magnitude != 0 && GameInfo.Manager.ReceivingInput)
         {
             HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
             VerticalAngle += GameInfo.Settings.RightDirectionalInput.y * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
