@@ -13,6 +13,8 @@ public class SelectableNotInteractableButton : MonoBehaviour, ISelectHandler
     private GameObject selectedTeleporter;
     [SerializeField]
     private bool interactable;
+    [SerializeField]
+    private MapMenuUI mapMenu;
 
     private Button button;
     private ColorBlock interactableColorBlock;
@@ -83,7 +85,7 @@ public class SelectableNotInteractableButton : MonoBehaviour, ISelectHandler
 
     public void Invoke()
     {
-        if (interactable)
+        if (interactable && mapMenu.CurrentLocationButton != button)
         {
             if (onValidClick != null)
                 onValidClick.Invoke();

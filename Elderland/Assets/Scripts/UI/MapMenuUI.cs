@@ -33,6 +33,8 @@ public sealed class MapMenuUI : StartMenuUI
 
     private bool initialized;
 
+    public Button CurrentLocationButton { get { return currentLocationButton; } }
+
     private void Initialize()
     {
         if (!initialized)
