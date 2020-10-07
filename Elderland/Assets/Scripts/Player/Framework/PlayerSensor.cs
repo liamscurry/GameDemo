@@ -34,6 +34,18 @@ public class PlayerSensor : MonoBehaviour
 		}
 	}
 
+	private void OnTriggerStay(Collider other)
+	{
+		if (other.tag == TagConstants.MantleTop && MantleTop == null)
+			MantleTop = other.transform.parent.GetComponent<Mantle>();
+
+		if (other.tag == TagConstants.MantleBottom && MantleBottom == null)
+			MantleBottom = other.transform.parent.GetComponent<Mantle>();
+
+		if (other.tag == TagConstants.Interactive && other.gameObject.activeInHierarchy && Interaction == null)
+			Interaction = other.transform.parent.GetComponent<StandardInteraction>();
+	}
+
 	private void OnTriggerExit(Collider other)
 	{
 		if (other.tag == TagConstants.LadderTop)
