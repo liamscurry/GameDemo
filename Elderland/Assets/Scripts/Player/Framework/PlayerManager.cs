@@ -27,6 +27,12 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     private Slider staminaSlider3;
     [SerializeField]
     private Slider staminaSlider4;
+    [SerializeField]
+    private AbilityMenuButton fireballTierOneButton;
+    [SerializeField]
+    private AbilityMenuButton firechargeTierOneButton;
+    [SerializeField]
+    private AbilityMenuButton dashTierOneButton;
 
     public Slider StaminaSlider1 { get { return staminaSlider1; } }
     public Slider StaminaSlider2 { get { return staminaSlider2; } }
@@ -410,16 +416,22 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     public void UnlockDash()
     {
         PlayerInfo.AbilityManager.DashAvailable = true;
+        dashTierOneButton.Unlock(false);
+        dashTierOneButton.TryAcquire();
     }
 
     public void UnlockRanged()
     {
         PlayerInfo.AbilityManager.RangedAvailable = true;
+        fireballTierOneButton.Unlock(false);
+        fireballTierOneButton.TryAcquire();
     }
 
     public void UnlockHeal()
     {
         PlayerInfo.AbilityManager.HealAvailable = true;
+        firechargeTierOneButton.Unlock(false);
+        firechargeTierOneButton.TryAcquire();
     }
 
     public void LockMelee()

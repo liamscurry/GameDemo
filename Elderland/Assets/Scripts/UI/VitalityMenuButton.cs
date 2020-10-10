@@ -47,7 +47,7 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
     private void OnDisable()
     {
         vitalityAvailableText.text =
-            "Available: " + PlayerInfo.StatsManager.VitalityPoints;
+            "Available:      " + PlayerInfo.StatsManager.VitalityPoints;
 
         vitalityCostText.text = "";
         vitalityCostIcon.gameObject.SetActive(false);
@@ -56,7 +56,7 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
     private void OnEnable()
     {
         vitalityAvailableText.text =
-            "Available: " + PlayerInfo.StatsManager.VitalityPoints;
+            "Available:      " + PlayerInfo.StatsManager.VitalityPoints;
 
         vitalityCostText.text = "";
         vitalityCostIcon.gameObject.SetActive(false);

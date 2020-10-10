@@ -35,6 +35,8 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
     [SerializeField]
     private AbilityMenuButton prerequisite;
     [SerializeField]
+    private AbilityMenuButton preceding;
+    [SerializeField]
     private bool acquiredInitially;
     [SerializeField]
     private bool unlocked;
@@ -47,11 +49,11 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
 
     private ColorBlock unlockedColorBlock;
     private Button button;
+    private bool initialized;
 
     private void Awake()
     {
-        button = GetComponent<Button>();
-        unlockedColorBlock = button.colors;
+        TryInitialize();
 
         if (!unlocked)
         {
@@ -66,6 +68,16 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
         Acquired = acquiredInitially;
     }
 
+    private void TryInitialize()
+    {
+        if (!initialized)
+        {
+            button = GetComponent<Button>();
+            unlockedColorBlock = button.colors;
+            initialized = true;
+        }
+    }
+
     public virtual void OnSelect(BaseEventData eventData)
     {
         previewPlayer.clip = abilityVideo;
@@ -77,9 +89,10 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
         vitalityCostText.text = "";
     }
 
-    public void Unlock()
+    public void Unlock(bool setColors = true)
     {
-        SetToUnlockedColor();
+        if (setColors)
+            SetToUnlockedColor();
         unlocked = true;
     }
 
@@ -100,11 +113,16 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
                 onAcquire.Invoke();
 
             UpdateAbilityStatus();
+
+            if (preceding != null)
+                preceding.Unlock();
         }
     }
 
     private void SetToLockedColor()
     {
+        TryInitialize();
+
         ColorBlock colorBlock = unlockedColorBlock;
             
         Color dimmedLockedColor = 
@@ -121,11 +139,14 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
 
     private void SetToUnlockedColor()
     {
+        TryInitialize();
         button.colors = unlockedColorBlock;
     }
 
     private void SetToAcquiredColor()
     {
+        TryInitialize();
+
         ColorBlock colorBlock = unlockedColorBlock;
             
         Color dimmedAcquiredColor = 
