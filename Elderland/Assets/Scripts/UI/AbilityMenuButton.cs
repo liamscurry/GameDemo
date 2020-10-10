@@ -15,6 +15,8 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
     [SerializeField]
     private Color acquiredColor;
     [SerializeField]
+    private Color lockedColor;
+    [SerializeField]
     private VideoPlayer previewPlayer;
     [SerializeField]
     private Text previewText;
@@ -35,14 +37,28 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
     [SerializeField]
     private bool acquiredInitially;
     [SerializeField]
+    private bool unlocked;
+    [SerializeField]
     private UnityEvent onAcquire;
 
-    private const float dimPercentage = 0.5f;
+    private const float dimPercentage = 1f;
 
     public bool Acquired { get; set; }
 
+    private ColorBlock unlockedColorBlock;
+    private Button button;
+
     private void Awake()
     {
+        button = GetComponent<Button>();
+        unlockedColorBlock = button.colors;
+
+        if (!unlocked)
+        {
+            acquiredInitially = false;
+            SetToLockedColor();
+        }
+
         if (acquiredInitially)
         {
             TryAcquire();
@@ -61,26 +77,21 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
         vitalityCostText.text = "";
     }
 
+    public void Unlock()
+    {
+        SetToUnlockedColor();
+        unlocked = true;
+    }
+
     public void TryAcquire()
     {
         if (!Acquired &&
             (prerequisite == null || prerequisite.Acquired) &&
-            PlayerInfo.StatsManager.UpgradePoints >= abilityCost)
+            PlayerInfo.StatsManager.UpgradePoints >= abilityCost &&
+            unlocked)
         {
-            Button button = GetComponent<Button>();
-            ColorBlock colorBlock = button.colors;
-            
-            Color dimmedAcquiredColor = 
-                new Color(acquiredColor.r * dimPercentage,
-                          acquiredColor.g * dimPercentage,
-                          acquiredColor.b * dimPercentage,
-                          1);
+            SetToAcquiredColor();
 
-            colorBlock.normalColor = dimmedAcquiredColor;
-            colorBlock.pressedColor = acquiredColor;
-            colorBlock.selectedColor = acquiredColor;
-                
-            button.colors = colorBlock;
             Acquired = true;
 
             PlayerInfo.StatsManager.UpgradePoints -= abilityCost;
@@ -92,20 +103,63 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
         }
     }
 
+    private void SetToLockedColor()
+    {
+        ColorBlock colorBlock = unlockedColorBlock;
+            
+        Color dimmedLockedColor = 
+            new Color(lockedColor.r * dimPercentage,
+                      lockedColor.g * dimPercentage,
+                      lockedColor.b * dimPercentage,
+                      1);
+
+        colorBlock.normalColor = dimmedLockedColor;
+        colorBlock.pressedColor = lockedColor;
+        colorBlock.selectedColor = lockedColor;
+        button.colors = colorBlock;
+    }
+
+    private void SetToUnlockedColor()
+    {
+        button.colors = unlockedColorBlock;
+    }
+
+    private void SetToAcquiredColor()
+    {
+        ColorBlock colorBlock = unlockedColorBlock;
+            
+        Color dimmedAcquiredColor = 
+            new Color(acquiredColor.r * dimPercentage,
+                      acquiredColor.g * dimPercentage,
+                      acquiredColor.b * dimPercentage,
+                      1);
+
+        colorBlock.normalColor = dimmedAcquiredColor;
+        colorBlock.pressedColor = acquiredColor;
+        colorBlock.selectedColor = acquiredColor;
+
+        button.colors = colorBlock;
+    }
+
     protected virtual void UpdateAbilityStatus()
     {
         abilityAvailableText.text =
-            "Available: " + PlayerInfo.StatsManager.UpgradePoints;
+            "Available:      " + PlayerInfo.StatsManager.UpgradePoints;
 
         if (Acquired)
         {
-            abilityCostText.text = "";
+            abilityCostText.text = "Acquired";
+            abilityCostIcon.gameObject.SetActive(false);
+        }
+        else if (!unlocked)
+        {
+            abilityCostText.text = "Not unlocked";
             abilityCostIcon.gameObject.SetActive(false);
         }
         else
         {
             abilityCostText.text =
-                "Cost: " + abilityCost;
+                "Cost:      " + abilityCost;
             abilityCostIcon.gameObject.SetActive(true);
         }
     }

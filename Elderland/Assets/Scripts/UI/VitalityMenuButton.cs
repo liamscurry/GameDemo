@@ -40,7 +40,7 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
 
     private enum Type { Health, Stamina };
 
-    private const float dimPercentage = 0.5f;
+    private const float dimPercentage = 1f;
 
     private int tier;
 
@@ -121,7 +121,7 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
         tier = 0;
 
         vitalityAvailableText.text =
-            "Available: " + PlayerInfo.StatsManager.VitalityPoints;
+            "Available:      " + PlayerInfo.StatsManager.VitalityPoints;
 
         vitalityCostText.text = "";
         vitalityCostIcon.gameObject.SetActive(false);
@@ -135,17 +135,17 @@ public class VitalityMenuButton : MonoBehaviour, ISelectHandler
     protected virtual void UpdateVitalityStatus()
     {
         vitalityAvailableText.text =
-            "Available: " + PlayerInfo.StatsManager.VitalityPoints;
+            "Available:      " + PlayerInfo.StatsManager.VitalityPoints;
 
         if (tier < maxTier)
         {
             vitalityCostText.text =
-                "Cost: " + vitalityCost;
+                "Cost:      " + vitalityCost;
             vitalityCostIcon.gameObject.SetActive(true);
         }
         else
         {
-            vitalityCostText.text = "";
+            vitalityCostText.text = "Fully upgraded";
             vitalityCostIcon.gameObject.SetActive(false);
         }
     }

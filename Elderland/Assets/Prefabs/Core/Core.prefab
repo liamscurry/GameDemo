@@ -699,6 +699,7 @@ MonoBehaviour:
         m_CallState: 2
   selectedTeleporter: {fileID: 4652652131730402392}
   interactable: 0
+  mapMenu: {fileID: 0}
 --- !u!114 &4142224659938609492
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1285,6 +1286,7 @@ MonoBehaviour:
         m_CallState: 2
   selectedTeleporter: {fileID: 4652652131730402392}
   interactable: 0
+  mapMenu: {fileID: 0}
 --- !u!114 &5752739277001405576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2379,6 +2381,7 @@ MonoBehaviour:
         m_CallState: 2
   selectedTeleporter: {fileID: 4652652131730402392}
   interactable: 0
+  mapMenu: {fileID: 0}
 --- !u!114 &4226396978115965184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2663,6 +2666,7 @@ MonoBehaviour:
         m_CallState: 2
   selectedTeleporter: {fileID: 4652652131730402392}
   interactable: 0
+  mapMenu: {fileID: 0}
 --- !u!114 &3070469222643542620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4081,6 +4085,7 @@ MonoBehaviour:
         m_CallState: 2
   selectedTeleporter: {fileID: 4652652131730402392}
   interactable: 0
+  mapMenu: {fileID: 0}
 --- !u!114 &339531064793672158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4940,6 +4945,7 @@ MonoBehaviour:
         m_CallState: 2
   selectedTeleporter: {fileID: 4652652131730402392}
   interactable: 0
+  mapMenu: {fileID: 0}
 --- !u!114 &4130868709683836353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5580,6 +5586,7 @@ MonoBehaviour:
         m_CallState: 2
   selectedTeleporter: {fileID: 4652652131730402392}
   interactable: 0
+  mapMenu: {fileID: 0}
 --- !u!114 &8534237017090004499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6813,6 +6820,7 @@ MonoBehaviour:
         m_CallState: 2
   selectedTeleporter: {fileID: 4652652131730402392}
   interactable: 0
+  mapMenu: {fileID: 0}
 --- !u!114 &4606464839968286385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11814,6 +11822,80 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 2c022de965e1dea4ca12352e74b97acc, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &253483765144379211
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5261361169869774543}
+  - component: {fileID: 742338463052230371}
+  - component: {fileID: 4673411596547509412}
+  m_Layer: 5
+  m_Name: Selected Indicator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5261361169869774543
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253483765144379211}
+  m_LocalRotation: {x: -0, y: -0, z: 0.38268343, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.1092, y: 1.1092, z: 1.1092}
+  m_Children: []
+  m_Father: {fileID: 1774390298036139352}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -200, y: 199.9999}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &742338463052230371
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253483765144379211}
+  m_CullTransparentMesh: 0
+--- !u!114 &4673411596547509412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253483765144379211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.31764707}
+  m_RaycastTarget: 1
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 98d15705701378746bfe81700f908482, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -18154,7 +18236,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1774390298036139352}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -18579,7 +18661,7 @@ RectTransform:
   m_LocalScale: {x: 1.4999998, y: 1.4999998, z: 1}
   m_Children: []
   m_Father: {fileID: 1774390298036139352}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -18788,6 +18870,7 @@ GameObject:
   - component: {fileID: 1774390297678273029}
   - component: {fileID: 1774390297678273030}
   - component: {fileID: 1774390297678273027}
+  - component: {fileID: 7424977395939081927}
   m_Layer: 5
   m_Name: Tier 1 Fireball
   m_TagString: Untagged
@@ -18921,6 +19004,7 @@ MonoBehaviour:
   abilityDescription: 'Firebolt Ability (1): A ranged firebolt ability that damages
     enemies on hit. Also activates certain power sources.'
   acquiredColor: {r: 0, g: 0.909804, b: 1, a: 1}
+  lockedColor: {r: 0, g: 0, b: 0, a: 0}
   previewPlayer: {fileID: 1774390299015053490}
   previewText: {fileID: 1774390298756280735}
   abilityAvailableText: {fileID: 1774390297404538890}
@@ -18931,9 +19015,30 @@ MonoBehaviour:
   abilityCost: 0
   prerequisite: {fileID: 0}
   acquiredInitially: 1
+  unlocked: 0
   onAcquire:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7424977395939081927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774390297678273048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26016af9a832bd4397ff843f46cc7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  indicatorObject: {fileID: 253483765144379211}
+  parentIndicator: 1
 --- !u!1 &1774390297737220117
 GameObject:
   m_ObjectHideFlags: 0
@@ -19075,7 +19180,7 @@ RectTransform:
   - {fileID: 1774390298066787179}
   - {fileID: 1774390297833268838}
   m_Father: {fileID: 1774390298036139352}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -19095,6 +19200,7 @@ GameObject:
   - component: {fileID: 1774390297764687301}
   - component: {fileID: 1774390297764687302}
   - component: {fileID: 1774390297764687299}
+  - component: {fileID: 3808650730439212339}
   m_Layer: 5
   m_Name: Tier 3 Fireball
   m_TagString: Untagged
@@ -19228,6 +19334,7 @@ MonoBehaviour:
   abilityDescription: 'Firebolt Ability (3): + Shoots two projectiles instead of
     one that home in on enemies. Increased damage.'
   acquiredColor: {r: 0, g: 0.9098039, b: 1, a: 1}
+  lockedColor: {r: 0, g: 0, b: 0, a: 0}
   previewPlayer: {fileID: 1774390299015053490}
   previewText: {fileID: 1774390298756280735}
   abilityAvailableText: {fileID: 1774390297404538890}
@@ -19238,6 +19345,7 @@ MonoBehaviour:
   abilityCost: 3
   prerequisite: {fileID: 1774390299248242365}
   acquiredInitially: 0
+  unlocked: 0
   onAcquire:
     m_PersistentCalls:
       m_Calls:
@@ -19252,6 +19360,26 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3808650730439212339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774390297764687320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26016af9a832bd4397ff843f46cc7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  indicatorObject: {fileID: 253483765144379211}
+  parentIndicator: 1
 --- !u!1 &1774390297794149871
 GameObject:
   m_ObjectHideFlags: 0
@@ -19283,7 +19411,7 @@ RectTransform:
   - {fileID: 1774390299248242353}
   - {fileID: 1774390297764687303}
   m_Father: {fileID: 1774390298036139352}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -19380,6 +19508,7 @@ GameObject:
   - component: {fileID: 1774390297833268836}
   - component: {fileID: 1774390297833268837}
   - component: {fileID: 1774390297833268834}
+  - component: {fileID: 6259731539364353836}
   m_Layer: 5
   m_Name: Tier 3 Firewall
   m_TagString: Untagged
@@ -19514,6 +19643,7 @@ MonoBehaviour:
     slows enemies and applies a debuff that doubles damage delt to them. Increased
     width.'
   acquiredColor: {r: 0, g: 0.9098039, b: 1, a: 1}
+  lockedColor: {r: 0, g: 0, b: 0, a: 0}
   previewPlayer: {fileID: 1774390299015053490}
   previewText: {fileID: 1774390298756280735}
   abilityAvailableText: {fileID: 1774390297404538890}
@@ -19524,6 +19654,7 @@ MonoBehaviour:
   abilityCost: 3
   prerequisite: {fileID: 1774390298066787095}
   acquiredInitially: 0
+  unlocked: 0
   onAcquire:
     m_PersistentCalls:
       m_Calls:
@@ -19538,6 +19669,26 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &6259731539364353836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774390297833268839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26016af9a832bd4397ff843f46cc7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  indicatorObject: {fileID: 253483765144379211}
+  parentIndicator: 1
 --- !u!1 &1774390297859154960
 GameObject:
   m_ObjectHideFlags: 0
@@ -20326,6 +20477,7 @@ RectTransform:
   - {fileID: 8413572094138081744}
   - {fileID: 3716889461279684454}
   - {fileID: 5749575683163253946}
+  - {fileID: 5261361169869774543}
   - {fileID: 1774390297794149870}
   - {fileID: 1774390297761448933}
   - {fileID: 1774390298842645558}
@@ -20356,6 +20508,7 @@ GameObject:
   - component: {fileID: 1774390298066787177}
   - component: {fileID: 1774390298066787178}
   - component: {fileID: 1774390298066787095}
+  - component: {fileID: 2397206282723902103}
   m_Layer: 5
   m_Name: Tier 2 Firewall
   m_TagString: Untagged
@@ -20488,6 +20641,7 @@ MonoBehaviour:
   abilityVideo: {fileID: 32900000, guid: 3b3c4ac2e36cf114ba6d92282c1e507d, type: 3}
   abilityDescription: 'Firecharge Ability (2): + Increased width and damage.'
   acquiredColor: {r: 0, g: 0.9098039, b: 1, a: 1}
+  lockedColor: {r: 0, g: 0, b: 0, a: 0}
   previewPlayer: {fileID: 1774390299015053490}
   previewText: {fileID: 1774390298756280735}
   abilityAvailableText: {fileID: 1774390297404538890}
@@ -20498,6 +20652,7 @@ MonoBehaviour:
   abilityCost: 1
   prerequisite: {fileID: 1774390298339712389}
   acquiredInitially: 0
+  unlocked: 0
   onAcquire:
     m_PersistentCalls:
       m_Calls:
@@ -20512,6 +20667,26 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &2397206282723902103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774390298066787180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26016af9a832bd4397ff843f46cc7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  indicatorObject: {fileID: 253483765144379211}
+  parentIndicator: 1
 --- !u!1 &1774390298157369428
 GameObject:
   m_ObjectHideFlags: 0
@@ -20753,6 +20928,7 @@ GameObject:
   - component: {fileID: 1774390298339712391}
   - component: {fileID: 1774390298339712408}
   - component: {fileID: 1774390298339712389}
+  - component: {fileID: 3226727796699974182}
   m_Layer: 5
   m_Name: Tier 1 Firewall
   m_TagString: Untagged
@@ -20886,6 +21062,7 @@ MonoBehaviour:
   abilityDescription: 'Firecharge Ability (1): Casts a wall of flame that charge
     toward and damage enemies on hit. Can clear destructable debris on hit.'
   acquiredColor: {r: 0, g: 0.9098039, b: 1, a: 1}
+  lockedColor: {r: 0, g: 0, b: 0, a: 0}
   previewPlayer: {fileID: 1774390299015053490}
   previewText: {fileID: 1774390298756280735}
   abilityAvailableText: {fileID: 1774390297404538890}
@@ -20896,9 +21073,30 @@ MonoBehaviour:
   abilityCost: 0
   prerequisite: {fileID: 0}
   acquiredInitially: 1
+  unlocked: 0
   onAcquire:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3226727796699974182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774390298339712410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26016af9a832bd4397ff843f46cc7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  indicatorObject: {fileID: 253483765144379211}
+  parentIndicator: 1
 --- !u!1 &1774390298357987377
 GameObject:
   m_ObjectHideFlags: 0
@@ -21170,7 +21368,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1774390298036139352}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -21946,6 +22144,7 @@ GameObject:
   - component: {fileID: 1774390298839417966}
   - component: {fileID: 1774390298839417967}
   - component: {fileID: 1774390298839417964}
+  - component: {fileID: 4261407459489634750}
   m_Layer: 5
   m_Name: Tier 2 Dash
   m_TagString: Untagged
@@ -22079,6 +22278,7 @@ MonoBehaviour:
   abilityDescription: 'Dash Ability (2): + After dashing, damage dealt to enemies
     is increased by 100% for five seconds.'
   acquiredColor: {r: 0, g: 0.9098039, b: 1, a: 1}
+  lockedColor: {r: 0, g: 0, b: 0, a: 0}
   previewPlayer: {fileID: 1774390299015053490}
   previewText: {fileID: 1774390298756280735}
   abilityAvailableText: {fileID: 1774390297404538890}
@@ -22089,6 +22289,7 @@ MonoBehaviour:
   abilityCost: 1
   prerequisite: {fileID: 1774390299069448647}
   acquiredInitially: 0
+  unlocked: 0
   onAcquire:
     m_PersistentCalls:
       m_Calls:
@@ -22103,6 +22304,26 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &4261407459489634750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774390298839417953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26016af9a832bd4397ff843f46cc7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  indicatorObject: {fileID: 253483765144379211}
+  parentIndicator: 1
 --- !u!1 &1774390298842498009
 GameObject:
   m_ObjectHideFlags: 0
@@ -22116,6 +22337,7 @@ GameObject:
   - component: {fileID: 1774390298842497990}
   - component: {fileID: 1774390298842497991}
   - component: {fileID: 1774390298842497988}
+  - component: {fileID: 3414238377416291476}
   m_Layer: 5
   m_Name: Tier 3 Dash
   m_TagString: Untagged
@@ -22250,6 +22472,7 @@ MonoBehaviour:
     stamina. Effect is consumed after five seconds or if dashing a second time. Resets
     increased damage buff.'
   acquiredColor: {r: 0, g: 0.9098039, b: 1, a: 1}
+  lockedColor: {r: 0, g: 0, b: 0, a: 0}
   previewPlayer: {fileID: 1774390299015053490}
   previewText: {fileID: 1774390298756280735}
   abilityAvailableText: {fileID: 1774390297404538890}
@@ -22260,6 +22483,7 @@ MonoBehaviour:
   abilityCost: 3
   prerequisite: {fileID: 1774390298839417964}
   acquiredInitially: 0
+  unlocked: 0
   onAcquire:
     m_PersistentCalls:
       m_Calls:
@@ -22274,6 +22498,26 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3414238377416291476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774390298842498009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26016af9a832bd4397ff843f46cc7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  indicatorObject: {fileID: 253483765144379211}
+  parentIndicator: 1
 --- !u!1 &1774390298842645559
 GameObject:
   m_ObjectHideFlags: 0
@@ -22305,7 +22549,7 @@ RectTransform:
   - {fileID: 1774390298839417952}
   - {fileID: 1774390298842498008}
   m_Father: {fileID: 1774390298036139352}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -22615,7 +22859,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1774390298036139352}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -22693,7 +22937,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1774390298036139352}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -23130,6 +23374,7 @@ GameObject:
   - component: {fileID: 1774390299069448665}
   - component: {fileID: 1774390299069448666}
   - component: {fileID: 1774390299069448647}
+  - component: {fileID: 7848986591305877448}
   m_Layer: 5
   m_Name: Tier 1 Dash
   m_TagString: Untagged
@@ -23263,6 +23508,7 @@ MonoBehaviour:
   abilityDescription: 'Dash Ability (1): Grants increased movement speed briefly.
     Useful for closing distances between enemies and passing falling doors.'
   acquiredColor: {r: 0, g: 0.9098039, b: 1, a: 1}
+  lockedColor: {r: 0, g: 0, b: 0, a: 0}
   previewPlayer: {fileID: 1774390299015053490}
   previewText: {fileID: 1774390298756280735}
   abilityAvailableText: {fileID: 1774390297404538890}
@@ -23273,9 +23519,30 @@ MonoBehaviour:
   abilityCost: 0
   prerequisite: {fileID: 0}
   acquiredInitially: 1
+  unlocked: 0
   onAcquire:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7848986591305877448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774390299069448668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26016af9a832bd4397ff843f46cc7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  indicatorObject: {fileID: 253483765144379211}
+  parentIndicator: 1
 --- !u!1 &1774390299071851715
 GameObject:
   m_ObjectHideFlags: 0
@@ -23468,7 +23735,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1774390298036139352}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -23525,6 +23792,7 @@ GameObject:
   - component: {fileID: 1774390299248242367}
   - component: {fileID: 1774390299248242352}
   - component: {fileID: 1774390299248242365}
+  - component: {fileID: 3644366618616437903}
   m_Layer: 5
   m_Name: Tier 2 Fireball
   m_TagString: Untagged
@@ -23657,6 +23925,7 @@ MonoBehaviour:
   abilityVideo: {fileID: 32900000, guid: db417cc06a3839d4fb979bc1f6954024, type: 3}
   abilityDescription: 'Firebolt Ability (2): + Double fire rate and increased damage. '
   acquiredColor: {r: 0, g: 0.9098039, b: 1, a: 1}
+  lockedColor: {r: 0, g: 0, b: 0, a: 0}
   previewPlayer: {fileID: 1774390299015053490}
   previewText: {fileID: 1774390298756280735}
   abilityAvailableText: {fileID: 1774390297404538890}
@@ -23667,6 +23936,7 @@ MonoBehaviour:
   abilityCost: 1
   prerequisite: {fileID: 1774390297678273027}
   acquiredInitially: 0
+  unlocked: 0
   onAcquire:
     m_PersistentCalls:
       m_Calls:
@@ -23681,6 +23951,26 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3644366618616437903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774390299248242354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26016af9a832bd4397ff843f46cc7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  indicatorObject: {fileID: 253483765144379211}
+  parentIndicator: 1
 --- !u!1 &1774390299324187165
 GameObject:
   m_ObjectHideFlags: 0

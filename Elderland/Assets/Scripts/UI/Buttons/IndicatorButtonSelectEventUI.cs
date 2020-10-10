@@ -9,12 +9,19 @@ public class IndicatorButtonSelectEventUI : ButtonSelectEventUI
 {
     [SerializeField]
     private GameObject indicatorObject;
+    [SerializeField]
+    private bool parentIndicator;
 
     public override void OnSelect(BaseEventData eventData)
     {
         if (onSelect != null)
             onSelect.Invoke();
         indicatorObject.SetActive(true);
+        if (parentIndicator)
+        {
+            indicatorObject.transform.parent = transform;
+            indicatorObject.transform.localPosition = Vector3.zero;
+        }
     }
 
     public override void OnDeselect(BaseEventData eventData)
