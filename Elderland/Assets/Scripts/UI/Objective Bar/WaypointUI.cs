@@ -43,21 +43,33 @@ public class WaypointUI : MonoBehaviour
                 new Vector3(screenSize.x / 2, screenSize.y / 2, 0) + 
                 new Vector3(projectedWaypointCameraDirection.x * radius, projectedWaypointCameraDirection.y * radius, 0);
 
+            float x1 = .2f;
+            float offsetAngle = 1 - Matho.AngleBetween(waypointCameraDirection, Vector3.forward) / 180f;
+            float shiftedRadiusPercentage = Mathf.Clamp01((1f / (1 - x1)) * (offsetAngle - x1));
+            //if (waypointScreenPosition.x < 0 || waypointScreenPosition.y < 0)
+            //    shiftedRadiusPercentage = 1;
+
+            UpdateDirectionIndicator(projectedWaypointCameraDirection, 25f * shiftedRadiusPercentage);
+            directionIndicator.color =
+            new Color(directionIndicator.color.r,
+                        directionIndicator.color.g,
+                        directionIndicator.color.b,
+                        shiftedRadiusPercentage);
+
+
             if ((new Vector2(waypointScreenPosition.x, waypointScreenPosition.y) -
                 new Vector2(screenSize.x / 2f, screenSize.y / 2f)).magnitude > radius ||
                 waypointCameraPosition.z > 0)
-            {
+            {   
                 waypointScreenPosition = waypointClampDirection;
-
-                if (!directionIndicator.IsActive())
-                    directionIndicator.gameObject.SetActive(true);
-
-                UpdateDirectionIndicator(projectedWaypointCameraDirection, 25f);
             }
             else
             {
-                if (directionIndicator.IsActive())
-                    directionIndicator.gameObject.SetActive(false);
+                directionIndicator.color =
+                    new Color(directionIndicator.color.r,
+                              directionIndicator.color.g,
+                              directionIndicator.color.b,
+                              0);
             }
 
             ((RectTransform) transform).anchoredPosition = waypointScreenPosition;
