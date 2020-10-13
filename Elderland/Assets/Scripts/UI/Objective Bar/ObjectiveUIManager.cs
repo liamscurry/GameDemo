@@ -12,6 +12,8 @@ public class ObjectiveUIManager : MonoBehaviour
     private GameObject sideObjectiveContainer;
     [SerializeField]
     private float sideObjectiveSpacing;
+    [SerializeField]
+    private WaypointUI MainObjectiveWaypoint;
 
     private Vector3 outPosition;
     private RectTransform rectTransform;
@@ -78,6 +80,19 @@ public class ObjectiveUIManager : MonoBehaviour
         newMainObjective.SetActive(true);
         StopAllCoroutines();
         StartCoroutine(TransitionMainObjectiveCoroutine(0.5f, 7, 0.5f, rectTransform, 0, outPosition.x, null));
+        
+        WaypointUIInfo waypointInfo =
+            newMainObjective.GetComponent<WaypointUIInfo>();
+        if (waypointInfo != null)
+        {
+            MainObjectiveWaypoint.gameObject.SetActive(true);
+            MainObjectiveWaypoint.WorldPosition =
+                newMainObjective.GetComponent<WaypointUIInfo>().WorldPosition;
+        }
+        else
+        {
+            MainObjectiveWaypoint.gameObject.SetActive(false);
+        }
     }
 
     public void ClearMainObjective()

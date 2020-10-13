@@ -14,6 +14,9 @@ public class WaypointUI : MonoBehaviour
     private Text distanceText;
     private CanvasScaler canvasScaler;
 
+    public Vector3 WorldPosition 
+        { get { return worldPosition; } set { worldPosition = value; } }
+
     private void Awake()
     {
         distanceText = GetComponentInChildren<Text>();
@@ -43,13 +46,14 @@ public class WaypointUI : MonoBehaviour
                 new Vector3(screenSize.x / 2, screenSize.y / 2, 0) + 
                 new Vector3(projectedWaypointCameraDirection.x * radius, projectedWaypointCameraDirection.y * radius, 0);
 
-            float x1 = .2f;
+            float x1 = .1f;
             float offsetAngle = 1 - Matho.AngleBetween(waypointCameraDirection, Vector3.forward) / 180f;
-            float shiftedRadiusPercentage = Mathf.Clamp01((1f / (1 - x1)) * (offsetAngle - x1));
+            float shiftedRadiusPercentage =
+                Mathf.Clamp01(Mathf.Clamp01((1f / (1 - x1)) * (offsetAngle - x1)) + 0.1f);
             //if (waypointScreenPosition.x < 0 || waypointScreenPosition.y < 0)
             //    shiftedRadiusPercentage = 1;
 
-            UpdateDirectionIndicator(projectedWaypointCameraDirection, 25f * shiftedRadiusPercentage);
+            UpdateDirectionIndicator(projectedWaypointCameraDirection, 18f * shiftedRadiusPercentage + 7);
             directionIndicator.color =
             new Color(directionIndicator.color.r,
                         directionIndicator.color.g,
@@ -89,6 +93,9 @@ public class WaypointUI : MonoBehaviour
     private void UpdateDirectionIndicator(Vector2 direction, float radius)
     {
         ((RectTransform) directionIndicator.transform).anchoredPosition = direction * radius;
+        float directionAngle = Matho.Angle(direction);
+        Quaternion newRotation = Quaternion.Euler(0, 0, directionAngle - 90);
+        directionIndicator.transform.rotation = newRotation;
     }
 
     private void OnDrawGizmosSelected()
