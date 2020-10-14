@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class GameInitializer : MonoBehaviour 
 {
+    [SerializeField]
+    private GameObject menuManager;
+
     [Header("Player")]
     [SerializeField]
     private GameObject player;
@@ -23,7 +26,7 @@ public class GameInitializer : MonoBehaviour
     public void Initialize()
     {
         //Reference initialization
-        GameInfo.Initialize(gameObject, projectilePool, pickupPool);
+        GameInfo.Initialize(menuManager, gameObject, projectilePool, pickupPool);
         PlayerInfo.Initialize(player, sensor, playerObjects, meleeObjects);
         EnemyInfo.Initialize();
         GetComponent<GameSettings>().Initialize();

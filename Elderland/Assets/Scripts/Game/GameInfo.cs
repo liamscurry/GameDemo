@@ -25,13 +25,14 @@ public static class GameInfo
 
     //Initializes references, called from GameInitializer.
     public static void Initialize(
+        GameObject menuManager,
         GameObject manager,
         ProjectilePool projectilePool,
         PickupPool pickupPool)
     {
         //Systems
         Manager = manager.GetComponent<GameManager>();
-        Menu = manager.GetComponent<MenuManager>();
+        Menu = menuManager.GetComponent<MenuManager>();
         Settings = manager.GetComponent<GameSettings>();
 
         //References

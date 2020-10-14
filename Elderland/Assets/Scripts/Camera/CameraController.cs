@@ -180,6 +180,7 @@ public class CameraController : MonoBehaviour
         sprintTimer = 0;
         sprintPercentage = 0;
         orientationPercentage = 0;
+        GameInfo.Menu.ObjectiveManager.ObjectiveWaypoints.gameObject.SetActive(true);
     }
 
     public void StartCutscene(CameraCutscene cameraCutscene)
@@ -188,11 +189,13 @@ public class CameraController : MonoBehaviour
         cutscene = cameraCutscene;
         cutscene.Start();
         targetFov = 60;
+        GameInfo.Menu.ObjectiveManager.ObjectiveWaypoints.gameObject.SetActive(false);
     }
 
     public void StartIdle()
     {
         state = State.Idle;
+        GameInfo.Menu.ObjectiveManager.ObjectiveWaypoints.gameObject.SetActive(false);
     }
 
     public Vector2 StandardToCameraDirection(Vector2 v)

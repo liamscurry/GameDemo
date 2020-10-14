@@ -14,6 +14,8 @@ public class ObjectiveUIManager : MonoBehaviour
     private float sideObjectiveSpacing;
     [SerializeField]
     private WaypointUI MainObjectiveWaypoint;
+    [SerializeField]
+    private GameObject objectiveWaypoints;
 
     private Vector3 outPosition;
     private RectTransform rectTransform;
@@ -23,6 +25,8 @@ public class ObjectiveUIManager : MonoBehaviour
     private bool transitioning;
 
     private List<RectTransform> sideObjectives;
+
+    public GameObject ObjectiveWaypoints { get { return objectiveWaypoints; } }
 
     private void Awake()
     {

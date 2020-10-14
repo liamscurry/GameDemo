@@ -15,6 +15,8 @@ public class MenuManager : MonoBehaviour
 
     private bool pausedLastFrame;
 
+    public ObjectiveUIManager ObjectiveManager { get { return objectiveUIManager; } }
+
     private void Start()
     {
         pausedLastFrame = false;
