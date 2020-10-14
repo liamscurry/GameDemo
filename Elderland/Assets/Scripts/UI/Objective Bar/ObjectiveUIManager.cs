@@ -73,6 +73,11 @@ public class ObjectiveUIManager : MonoBehaviour
         GameObject.Destroy(newSideObjectivesParent);
     }
 
+    public void UpdateMainMissionWaypoint(WaypointUIInfo info)
+    {
+        MainObjectiveWaypoint.WorldPosition = info.WorldPosition; 
+    }
+
     public void SetMainObjective(GameObject newMainObjective)
     {
         oldMainObjective = mainObjective;
