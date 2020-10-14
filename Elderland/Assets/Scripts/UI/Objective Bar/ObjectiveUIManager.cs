@@ -42,6 +42,19 @@ public class ObjectiveUIManager : MonoBehaviour
         mainObjective.transform.SetParent(mainObjectiveContainer.transform);
         ((RectTransform) mainObjective.transform).anchoredPosition = new Vector2(0, 0);
         newMainObjective.SetActive(true);
+
+        WaypointUIInfo waypointInfo =
+            newMainObjective.GetComponent<WaypointUIInfo>();
+        if (waypointInfo != null)
+        {
+            MainObjectiveWaypoint.gameObject.SetActive(true);
+            MainObjectiveWaypoint.WorldPosition =
+                newMainObjective.GetComponent<WaypointUIInfo>().WorldPosition;
+        }
+        else
+        {
+            MainObjectiveWaypoint.gameObject.SetActive(false);
+        }
     }
 
     public void AddSideObjectives(GameObject newSideObjectivesParent)
@@ -66,6 +79,13 @@ public class ObjectiveUIManager : MonoBehaviour
                 sideObjective.transform.SetParent(sideObjectiveContainer.transform);
                 sideObjective.anchoredPosition = new Vector2(0, 0);
                 sideObjectives.Add(sideObjective);
+
+                WaypointUIInfo waypointInfo =
+                sideObjective.GetComponent<WaypointUIInfo>();
+                if (waypointInfo != null)
+                {
+                    waypointInfo.Waypoint.gameObject.SetActive(true);
+                }
             }
         }
 
@@ -145,6 +165,10 @@ public class ObjectiveUIManager : MonoBehaviour
         else
         {
             StartCoroutine(RemoveSideObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, sideObjective, 0, outPosition.x, null));
+            WaypointUIInfo waypointInfo = 
+                sideObjective.GetComponent<WaypointUIInfo>();
+            if (waypointInfo != null)
+                GameObject.Destroy(waypointInfo.Waypoint.transform.parent.gameObject);
         }
     }
 

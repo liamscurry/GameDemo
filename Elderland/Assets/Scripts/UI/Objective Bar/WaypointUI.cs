@@ -82,6 +82,11 @@ public class WaypointUI : MonoBehaviour
         }
     }
 
+    public void UpdateInfo(WaypointUIInfo info)
+    {
+        worldPosition = info.WorldPosition;
+    }
+
     private void UpdateDistanceText()
     {
         float distance =
