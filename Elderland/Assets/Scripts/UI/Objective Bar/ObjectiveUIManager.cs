@@ -120,12 +120,16 @@ public class ObjectiveUIManager : MonoBehaviour
         }
     }
 
-    public void ClearMainObjective()
+    public void ClearMainObjective(bool transitionUI = true)
     {
         oldMainObjective = mainObjective;
         mainObjective = null;
-        StopAllCoroutines();
-        StartCoroutine(TransitionMainObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
+        if (transitionUI)
+        {
+            StopAllCoroutines();
+            StartCoroutine(TransitionMainObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
+        }
+        MainObjectiveWaypoint.gameObject.SetActive(false);
     }
     
     public void PingObjectives()
