@@ -26,7 +26,10 @@ public class ObjectiveUIManager : MonoBehaviour
 
     private List<RectTransform> sideObjectives;
 
-    public GameObject ObjectiveWaypoints { get { return objectiveWaypoints; } }
+    private object waypointsEnabledSetter;
+    private bool waypointsEnabled;
+
+    //public GameObject ObjectiveWaypoints { get { return objectiveWaypoints; } }
 
     private void Awake()
     {
@@ -34,6 +37,23 @@ public class ObjectiveUIManager : MonoBehaviour
         outPosition = rectTransform.anchoredPosition;
         transitioning = false;
         sideObjectives = new List<RectTransform>();
+    }
+
+    public void DisableWaypoints(object setter)
+    {
+        waypointsEnabledSetter = setter;
+        waypointsEnabled = false;
+        objectiveWaypoints.gameObject.SetActive(false);
+    }
+
+    public void EnableWaypoints(object setter)
+    {
+        if (waypointsEnabledSetter == setter)
+        {
+            waypointsEnabledSetter = null;
+            waypointsEnabled = true;
+            objectiveWaypoints.gameObject.SetActive(true);
+        }
     }
 
     public void SetMainObjectiveNoTransition(GameObject newMainObjective)

@@ -66,7 +66,9 @@ public class EnemyLevel : MonoBehaviour
         PlayerInfo.Manager.SaveHealth();
         PlayerInfo.Manager.SaveStamina();
         if (!keepWaypointsOnFight)
-            GameInfo.Menu.ObjectiveManager.ObjectiveWaypoints.gameObject.SetActive(false);
+            GameInfo.Menu.ObjectiveManager.DisableWaypoints(this);
+        
+        //GameInfo.Menu.ObjectiveManager.ObjectiveWaypoints.gameObject.SetActive(false);
     }
 
     private void StartWaves()
@@ -86,7 +88,7 @@ public class EnemyLevel : MonoBehaviour
     {
         if (started && !completed)
         {
-            GameInfo.Menu.ObjectiveManager.ObjectiveWaypoints.gameObject.SetActive(true);
+            GameInfo.Menu.ObjectiveManager.EnableWaypoints(this);
             StopCoroutine("WatchWave");
             
             if (!instant)
@@ -136,7 +138,7 @@ public class EnemyLevel : MonoBehaviour
         {
             completed = true;
             endEvent.Invoke();
-            GameInfo.Menu.ObjectiveManager.ObjectiveWaypoints.gameObject.SetActive(true);
+            GameInfo.Menu.ObjectiveManager.EnableWaypoints(this);
         }
     }
 
