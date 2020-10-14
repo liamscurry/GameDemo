@@ -15,6 +15,8 @@ public class ObjectiveUIManager : MonoBehaviour
     [SerializeField]
     private WaypointUI MainObjectiveWaypoint;
     [SerializeField]
+    private GameObject mainObjectiveMapWaypoint;
+    [SerializeField]
     private GameObject objectiveWaypoints;
 
     private Vector3 outPosition;
@@ -79,6 +81,9 @@ public class ObjectiveUIManager : MonoBehaviour
         {
             MainObjectiveWaypoint.gameObject.SetActive(false);
         }
+
+        if (mainObjectiveMapWaypoint != null)
+            mainObjectiveMapWaypoint.transform.gameObject.SetActive(true);
     }
 
     public void AddSideObjectives(GameObject newSideObjectivesParent)
@@ -132,6 +137,10 @@ public class ObjectiveUIManager : MonoBehaviour
         
         WaypointUIInfo waypointInfo =
             newMainObjective.GetComponent<WaypointUIInfo>();
+
+        if (mainObjectiveMapWaypoint != null)
+            mainObjectiveMapWaypoint.transform.gameObject.SetActive(true);
+
         if (waypointInfo != null)
         {
             MainObjectiveWaypoint.gameObject.SetActive(true);
@@ -154,6 +163,8 @@ public class ObjectiveUIManager : MonoBehaviour
             StartCoroutine(TransitionMainObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
         }
         MainObjectiveWaypoint.gameObject.SetActive(false);
+        if (mainObjectiveMapWaypoint != null)
+            mainObjectiveMapWaypoint.transform.gameObject.SetActive(false);
     }
     
     public void PingObjectives()

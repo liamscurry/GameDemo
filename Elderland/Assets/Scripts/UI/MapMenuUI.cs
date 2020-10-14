@@ -164,7 +164,7 @@ public sealed class MapMenuUI : StartMenuUI
         }
     }
 
-    private void CalculateCoordinateConversion()
+    public void CalculateCoordinateConversion()
     {
         worldToUIFactors =
             new Vector2(
@@ -175,7 +175,7 @@ public sealed class MapMenuUI : StartMenuUI
             );
     }
 
-    private Vector2 WorldToUIPosition(Vector3 worldPosition)
+    public Vector2 WorldToUIPosition(Vector3 worldPosition)
     {
         Vector2 deltaPosition =
             new Vector2(
