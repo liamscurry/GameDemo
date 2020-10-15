@@ -11,11 +11,14 @@ public class MenuManager : MonoBehaviour
     [SerializeField]
     private GameObject gameplayUI;
     [SerializeField]
+    private GameObject puzzleUI;
+    [SerializeField]
     private ObjectiveUIManager objectiveUIManager;
 
     private bool pausedLastFrame;
 
     public ObjectiveUIManager ObjectiveManager { get { return objectiveUIManager; } }
+    public GameObject PuzzleUI { get { return puzzleUI; } }
 
     private void Start()
     {

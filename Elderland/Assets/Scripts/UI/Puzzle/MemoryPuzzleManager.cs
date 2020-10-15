@@ -74,6 +74,8 @@ public sealed class MemoryPuzzleManager : PuzzleManager
             initializedIndicators = true;
         }
 
+        GameInfo.Menu.PuzzleUI.gameObject.SetActive(true);
+
         Reset();
     }
 

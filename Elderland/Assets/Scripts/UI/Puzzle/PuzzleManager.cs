@@ -91,6 +91,8 @@ public class PuzzleManager : MonoBehaviour
     {
         enabled = true;
         Reset();
+
+        GameInfo.Menu.PuzzleUI.gameObject.SetActive(true);
     }
 
     public void Disable()
@@ -151,6 +153,7 @@ public class PuzzleManager : MonoBehaviour
         if (Input.GetKeyDown(exitKeycode))
         {
             ExitPuzzle();
+            GameInfo.Menu.PuzzleUI.gameObject.SetActive(false);
         }
     }
 
@@ -175,6 +178,9 @@ public class PuzzleManager : MonoBehaviour
             
             if (onSolve != null)
                 onSolve.Invoke();
+
+            GameInfo.Menu.PuzzleUI.gameObject.SetActive(false);
+
             Disable();
             
             UpdateSelected(deactivatedColors);
