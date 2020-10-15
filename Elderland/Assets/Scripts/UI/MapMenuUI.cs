@@ -54,6 +54,10 @@ public sealed class MapMenuUI : StartMenuUI
         CalculateCoordinateConversion();
         playerPosition.anchoredPosition =
             WorldToUIPosition(PlayerInfo.Player.transform.position);
+        Vector3 playerEulerAngles =
+            PlayerInfo.Player.transform.rotation.eulerAngles;
+        playerPosition.localRotation =
+            Quaternion.Euler(0, 0, -playerEulerAngles.y);
     }
 
     public void DisableTeleporters()
