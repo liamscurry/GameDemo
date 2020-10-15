@@ -10,12 +10,18 @@ public class WaypointUI : MonoBehaviour
     private Vector3 worldPosition;
     [SerializeField]
     private Image directionIndicator;
+    [Header("For side objectives")]
+    [SerializeField]
+    private GameObject mapUI;
 
     private Text distanceText;
     private CanvasScaler canvasScaler;
 
     public Vector3 WorldPosition 
         { get { return worldPosition; } set { worldPosition = value; } }
+
+    public GameObject MapUI
+        { get { return mapUI; } }
 
     private void Awake()
     {

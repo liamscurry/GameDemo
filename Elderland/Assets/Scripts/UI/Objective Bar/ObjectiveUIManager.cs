@@ -110,10 +110,14 @@ public class ObjectiveUIManager : MonoBehaviour
                 sideObjectives.Add(sideObjective);
 
                 WaypointUIInfo waypointInfo =
-                sideObjective.GetComponent<WaypointUIInfo>();
+                    sideObjective.GetComponent<WaypointUIInfo>();
                 if (waypointInfo != null)
                 {
                     waypointInfo.Waypoint.gameObject.SetActive(true);
+
+                    WaypointUI waypoint =
+                        waypointInfo.Waypoint.GetComponent<WaypointUI>();
+                    waypoint.MapUI.gameObject.SetActive(true);
                 }
             }
         }
@@ -192,6 +196,15 @@ public class ObjectiveUIManager : MonoBehaviour
             sideObjective.anchoredPosition = new Vector2(500, 0);
             sideObjectives.Add(sideObjective);
             StartCoroutine(AddSideObjectiveCoroutine(0.5f, 4, 0.5f, rectTransform, 0, outPosition.x, null));
+
+            WaypointUIInfo waypointInfo =
+                sideObjective.GetComponent<WaypointUIInfo>();
+            if (waypointInfo != null)
+            {
+                WaypointUI waypoint =
+                    waypointInfo.Waypoint.GetComponent<WaypointUI>();
+                waypoint.MapUI.gameObject.SetActive(true);
+            }
         }
     }
 
@@ -207,7 +220,12 @@ public class ObjectiveUIManager : MonoBehaviour
             WaypointUIInfo waypointInfo = 
                 sideObjective.GetComponent<WaypointUIInfo>();
             if (waypointInfo != null)
+            {
+                WaypointUI waypoint =
+                    waypointInfo.Waypoint.GetComponent<WaypointUI>();
+                GameObject.Destroy(waypoint.MapUI.gameObject);
                 GameObject.Destroy(waypointInfo.Waypoint.transform.parent.gameObject);
+            }
         }
     }
 
