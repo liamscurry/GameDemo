@@ -13,8 +13,9 @@ Shader "Custom/SkewScreenImageEffect"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" "LightMode"="ForwardBase" }
+        Tags { "RenderType"="Transparent" }// "LightMode"="ForwardBase"
         GrabPass { }
+        Blend SrcAlpha OneMinusSrcAlpha
         //LOD 100
 
         Pass
@@ -103,9 +104,19 @@ Shader "Custom/SkewScreenImageEffect"
                 //float refraction
                 //float4 grabPosScale = float4(1 + sin(uv.x * 45) * .1, 1 + sin(uv.x * 45) * .1, 1, 1);
                 float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos * grabPosScale + grabPosOffset);
+                //Skybox sample
+                //return existingColor;
                 
-                float lightnessMultiplier = 0.9 + i.color.r * .5;
-                return existingColor * float4(lightnessMultiplier, lightnessMultiplier, lightnessMultiplier, 1);
+                float lightnessMultiplier = 0.9;//0.9 + i.color.r * .5, 1 works fine, 0.9 does not
+                //return lightnessMultiplier;
+                //return i.color.r; // both existing color and lightness multiplier fine, but result not
+                // has nothing to do with i.color.r, removed it and it was still having the bug.
+                existingColor = 
+                    float4(existingColor.r * lightnessMultiplier,
+                           existingColor.g * lightnessMultiplier,
+                           existingColor.b * lightnessMultiplier,
+                           1);
+                return existingColor;
                 //return _WaterBedColor * existingColor;
             }
             ENDCG
