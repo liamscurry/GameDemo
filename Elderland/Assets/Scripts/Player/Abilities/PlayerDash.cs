@@ -14,7 +14,6 @@ public sealed class PlayerDash : PlayerAbility
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
-    private const float staminaCost = 1f;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -41,7 +40,8 @@ public sealed class PlayerDash : PlayerAbility
 
         coolDownDuration = 1f;
 
-        GenerateCoolDownIcon();
+        staminaCost = 1f;
+        GenerateCoolDownIcon(staminaCost);
     }
 
     protected override bool WaitCondition()

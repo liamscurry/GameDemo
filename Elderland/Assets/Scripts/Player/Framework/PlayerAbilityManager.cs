@@ -210,6 +210,17 @@ public class PlayerAbilityManager : AbilitySystem
             PlayerInfo.Manager.StaminaSlider3.value = 1;
             PlayerInfo.Manager.StaminaSlider4.value = (percentage - (3 / 4f)) * 4f;
         }
+
+        if (melee != null)
+            melee.UpdateStaminaCostIcons();
+        if (dodge != null)
+            dodge.UpdateStaminaCostIcons();
+        if (dash != null)
+            dash.UpdateStaminaCostIcons();
+        if (ranged != null)
+            ranged.UpdateStaminaCostIcons();
+        if (aoe != null)
+            aoe.UpdateStaminaCostIcons();
     }
 
     public void ResetCooldowns()

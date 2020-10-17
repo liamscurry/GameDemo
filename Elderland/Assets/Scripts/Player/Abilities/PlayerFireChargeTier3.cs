@@ -16,8 +16,6 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
     private AbilitySegment act;
     private AbilityProcess actProcess;
 
-    private const float staminaCost = 1.5f;
-
     private List<BurningFireChargeManager> charges;
     private List<PlayerMultiDamageHitbox> hitboxes; 
 
@@ -56,6 +54,8 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
        
         invokeID = 0;
         enemyHits = new List<EnemyHit>();
+
+        staminaCost = 1.5f;
     }
 
     protected override bool WaitCondition()

@@ -16,8 +16,6 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
     private AbilitySegment act;
     private AbilityProcess actProcess;
 
-    private const float staminaCost = 1.5f;
-
     private FireChargeManager segment1;
     private PlayerMultiDamageHitbox hitbox1;
     private FireChargeManager segment2;
@@ -59,7 +57,8 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
         invokeID = 0;
         enemyHits = new List<EnemyHit>();
 
-        GenerateCoolDownIcon();
+        staminaCost = 1.5f;    
+        GenerateCoolDownIcon(staminaCost);
     }
 
     protected override bool WaitCondition()

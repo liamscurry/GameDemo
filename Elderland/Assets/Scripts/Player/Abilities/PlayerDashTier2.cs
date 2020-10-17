@@ -14,7 +14,6 @@ public sealed class PlayerDashTier2 : PlayerAbility
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
-    private const float staminaCost = 1f;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -40,6 +39,8 @@ public sealed class PlayerDashTier2 : PlayerAbility
         dashParticles = dashParticlesObject.GetComponent<ParticleSystem>();
 
         coolDownDuration = 1f;
+
+        staminaCost = 1f;
     }
 
     protected override bool WaitCondition()

@@ -10,7 +10,6 @@ public sealed class PlayerFireball : PlayerAbility
     private AbilityProcess shootProcess;
 
     private const float damage = 0.75f;
-    private const float staminaCost = 1f;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
@@ -30,6 +29,8 @@ public sealed class PlayerFireball : PlayerAbility
 
         //Durations
         continous = true;
+
+        staminaCost = 1f;
     }
 
     protected override bool WaitCondition()

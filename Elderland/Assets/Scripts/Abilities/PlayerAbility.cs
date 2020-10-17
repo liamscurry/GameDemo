@@ -15,6 +15,9 @@ public abstract class PlayerAbility : Ability
     private bool fallUponFinish;
 
     private Slider slider;
+    private List<Image> cooldownStaminaIcons;
+    private Color cooldownReadyColor;
+    protected float staminaCost = 0;
 
     public bool Continous { get { return continous; } }
 
@@ -203,17 +206,53 @@ public abstract class PlayerAbility : Ability
 
     public virtual void GlobalConstantUpdate() { }
 
-    protected void GenerateCoolDownIcon()
+    protected void GenerateCoolDownIcon(float staminaCost)
     {
         GameObject cooldownUIObject =
             GameObject.Instantiate(
                 Resources.Load(ResourceConstants.Player.UI.CooldownUI),
                 GameInfo.Menu.FightingUI.transform,
                 false) as GameObject;
+
+        int remainingStaminaInt = (int) staminaCost;
+        float xStart = 9;
+        float xDelta = 4;
+
+        cooldownStaminaIcons = new List<Image>();
+
+        for (int i = 0; i < remainingStaminaInt; i++)
+        {
+            GameObject cooldownStaminaUIObject =
+            GameObject.Instantiate(
+                Resources.Load(ResourceConstants.Player.UI.CooldownStaminaUI),
+                cooldownUIObject.transform,
+                false) as GameObject;
+
+            ((RectTransform) cooldownStaminaUIObject.transform).anchoredPosition =
+                new Vector2(xStart + xDelta * i, 0);
+
+            cooldownStaminaIcons.Add(cooldownStaminaUIObject.GetComponent<Image>());
+        }
+
+        float tolerance = 0.25f;
+        if (staminaCost - remainingStaminaInt > 0.0f + tolerance)
+        {
+            GameObject cooldownStaminaUIObject =
+            GameObject.Instantiate(
+                Resources.Load(ResourceConstants.Player.UI.CooldownHalfStaminaUI),
+                cooldownUIObject.transform,
+                false) as GameObject;
+
+            ((RectTransform) cooldownStaminaUIObject.transform).anchoredPosition =
+                new Vector2(xStart + xDelta * (remainingStaminaInt), 0);
+            
+            cooldownStaminaIcons.Add(cooldownStaminaUIObject.GetComponent<Image>());
+        }
+
+        cooldownReadyColor = cooldownStaminaIcons[0].color;
         
         slider =
             cooldownUIObject.GetComponentInChildren<Slider>();
-        Debug.Log(slider);
     }
     
     protected void DeleteCoolDownIcon()
@@ -234,5 +273,20 @@ public abstract class PlayerAbility : Ability
     private void ZeroCoolDownIcon()
     {
         slider.value = 0;
+    }
+
+    public void UpdateStaminaCostIcons()
+    {
+        if (slider != null)
+        {
+            Color colorIndicator =
+                ((system as PlayerAbilityManager).Stamina >= staminaCost) ?
+                cooldownReadyColor : new Color(0.25f, 0.25f, 0.25f, 1);
+
+            foreach (Image i in cooldownStaminaIcons)
+            {
+                i.color = colorIndicator;
+            }
+        }
     }
 }
