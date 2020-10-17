@@ -31,6 +31,10 @@ public sealed class PlayerFireball : PlayerAbility
         continous = true;
 
         staminaCost = 1f;
+
+        GenerateCoolDownIcon(
+            staminaCost,
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FireballTier1Icon));
     }
 
     protected override bool WaitCondition()
@@ -158,5 +162,10 @@ public sealed class PlayerFireball : PlayerAbility
     public override void ShortCircuitLogic()
     {
         
+    }
+
+    public override void DeleteResources()
+    {
+        DeleteAbilityIcon();
     }
 }

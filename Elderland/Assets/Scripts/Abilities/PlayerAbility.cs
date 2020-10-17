@@ -255,25 +255,28 @@ public abstract class PlayerAbility : Ability
             cooldownUIObject.GetComponentInChildren<Slider>();
         slider.fillRect.GetComponent<Image>().sprite = icon;
     }
-    
-    protected void DeleteCoolDownIcon()
+
+    protected void DeleteAbilityIcon()
     {
         GameObject.Destroy(slider.transform.parent.gameObject);
     }
 
     private void UpdateCoolDownIcon()
     {
-        slider.value = coolDownTimer / coolDownDuration;
+        if (!continous)
+            slider.value = coolDownTimer / coolDownDuration;
     }
 
     private void ReadyCoolDownIcon()
     {
-        slider.value = 1;
+        if (!continous)
+            slider.value = 1;
     }
 
     private void ZeroCoolDownIcon()
     {
-        slider.value = 0;
+        if (!continous)
+            slider.value = 0;
     }
 
     public void UpdateStaminaCostIcons()
@@ -281,8 +284,8 @@ public abstract class PlayerAbility : Ability
         if (slider != null)
         {
             Color colorIndicator =
-                ((system as PlayerAbilityManager).Stamina >= staminaCost) ?
-                cooldownReadyColor : new Color(0.25f, 0.25f, 0.25f, 1);
+            ((system as PlayerAbilityManager).Stamina >= staminaCost) ?
+            cooldownReadyColor : new Color(0.25f, 0.25f, 0.25f, 1);
 
             foreach (Image i in cooldownStaminaIcons)
             {

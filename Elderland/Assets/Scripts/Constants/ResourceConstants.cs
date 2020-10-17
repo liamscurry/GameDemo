@@ -58,6 +58,7 @@ public static class ResourceConstants
 
         public static class UI
         {
+            public const string ContinuousUI = "Player/Abilities/ContinuousUI";
             public const string CooldownUI = "Player/Abilities/CooldownUI";
             public const string CooldownStaminaUI = "Player/Abilities/CooldownStaminaUI";
             public const string CooldownHalfStaminaUI = "Player/Abilities/CooldownHalfStaminaUI";
@@ -66,6 +67,7 @@ public static class ResourceConstants
             {
                 public const string DashTier1Icon = "Player/Abilities/Icons/DashTier1Icon";
                 public const string FirechargeTier1Icon = "Player/Abilities/Icons/FirechargeTier1Icon";
+                public const string FireballTier1Icon = "Player/Abilities/Icons/FireballTier1Icon";
             }
         }
     }

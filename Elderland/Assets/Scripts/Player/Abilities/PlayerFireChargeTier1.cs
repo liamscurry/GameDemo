@@ -152,7 +152,7 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
 
     public override void DeleteResources()
     {
-        DeleteCoolDownIcon();
+        DeleteAbilityIcon();
 
         segment1.DeleteResource();
         Destroy(segment1.gameObject);

@@ -149,6 +149,7 @@ public class PlayerAbilityManager : AbilitySystem
         var cooldownIconOrder = new List<PlayerAbility>();
         cooldownIconOrder.Add(aoe);
         cooldownIconOrder.Add(dash);
+        cooldownIconOrder.Add(ranged);
         //cooldownIconOrder.Add(aoe);
 
         float heightOffset = 0;
