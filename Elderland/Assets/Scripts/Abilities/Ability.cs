@@ -50,7 +50,7 @@ public abstract class Ability : MonoBehaviour
     protected virtual void GlobalStart() {}
     public virtual void GlobalUpdate() {}
 
-    protected void CoolDown()
+    protected virtual void CoolDown()
     {
         coolDownTimer += Time.deltaTime;
         if (coolDownTimer >= coolDownDuration)

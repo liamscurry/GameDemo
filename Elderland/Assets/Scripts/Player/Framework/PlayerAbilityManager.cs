@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 //Manages adding/removing abilities(equiping) and updates each ability every frame. When weapon abilities are active (primary and secondary abilities) other abilities and skills can override them.
 
@@ -11,6 +14,9 @@ public class PlayerAbilityManager : AbilitySystem
     public PlayerAbility dash;
     public PlayerAbility ranged;
     public PlayerAbility aoe;
+
+    private Transform cooldownOriginTransform;
+    private float cooldownHeightDelta;
 
     //Ability Properties
     public PlayerAbility Melee { get { return melee; } }
@@ -32,8 +38,16 @@ public class PlayerAbilityManager : AbilitySystem
     public float Stamina { get; private set; }
     public float SavedStamina { get; set; }
 
-    public PlayerAbilityManager(Animator animator, PhysicsSystem physics, MovementSystem movement, GameObject parent) : base(animator, physics, movement, parent)
+    public PlayerAbilityManager(
+        Animator animator,
+        PhysicsSystem physics,
+        MovementSystem movement,
+        GameObject parent,
+        Transform cooldownOriginTransform,
+        float cooldownHeightDelta) : base(animator, physics, movement, parent)
     { 
+        this.cooldownOriginTransform = cooldownOriginTransform;
+        this.cooldownHeightDelta = cooldownHeightDelta;
         InitializePreferences();
         
         MeleeAvailable = true;
@@ -44,6 +58,7 @@ public class PlayerAbilityManager : AbilitySystem
         AbilitiesAvailable = true;
         
         AbilitiesAvailable = true;
+
         //Stamina = 0;
     }
 
@@ -104,6 +119,7 @@ public class PlayerAbilityManager : AbilitySystem
         T t = PlayerInfo.Player.AddComponent<T>();
         t.Initialize(this);
         abilitySlot = t;
+        UpdateCooldownIconPositions();
     }
 
     //Clear an ability slot.
@@ -115,6 +131,7 @@ public class PlayerAbilityManager : AbilitySystem
         temp.DeleteResources();
         GameObject.Destroy(temp);
         slot = null;
+        UpdateCooldownIconPositions();
     }
 
     //Initializes equiped abilities. Implementation is temporary, will load from file.
@@ -125,6 +142,27 @@ public class PlayerAbilityManager : AbilitySystem
         EquipAbility<PlayerDash>(ref dash);
         EquipAbility<PlayerFireball>(ref ranged);
         EquipAbility<PlayerFireChargeTier1>(ref aoe);
+    }
+
+    private void UpdateCooldownIconPositions()
+    {
+        var cooldownIconOrder = new List<PlayerAbility>();
+        cooldownIconOrder.Add(aoe);
+        cooldownIconOrder.Add(dash);
+        //cooldownIconOrder.Add(aoe);
+
+        for (int i = 0; i < cooldownIconOrder.Count; i++)
+        {
+            PlayerAbility a = cooldownIconOrder[i];
+            if (a != null)
+            {
+                if (a.CooldownSlider != null)
+                {
+                    ((RectTransform) a.CooldownSlider.transform.parent).anchoredPosition =
+                        ((RectTransform) cooldownOriginTransform).anchoredPosition + new Vector2(0, i * cooldownHeightDelta);
+                }
+            }
+        }
     }
 
     public void ChangeStamina(float value)

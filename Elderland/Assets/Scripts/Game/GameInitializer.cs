@@ -22,12 +22,14 @@ public class GameInitializer : MonoBehaviour
     private ProjectilePool projectilePool;
     [SerializeField]
     private PickupPool pickupPool;
+    [SerializeField]
+    private Transform cooldownOriginTransform;
 
     public void Initialize()
     {
         //Reference initialization
         GameInfo.Initialize(menuManager, gameObject, projectilePool, pickupPool);
-        PlayerInfo.Initialize(player, sensor, playerObjects, meleeObjects);
+        PlayerInfo.Initialize(player, sensor, playerObjects, meleeObjects, cooldownOriginTransform);
         EnemyInfo.Initialize();
         GetComponent<GameSettings>().Initialize();
     }

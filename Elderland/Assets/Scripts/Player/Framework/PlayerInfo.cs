@@ -41,7 +41,8 @@ public static class PlayerInfo
         GameObject player,
         GameObject sensor,
         GameObject objects,
-        GameObject meleeObjects)
+        GameObject meleeObjects,
+        Transform cooldownOriginTransform)
     {
         //Object References
         Player = player;
@@ -62,7 +63,7 @@ public static class PlayerInfo
         MovementSystem = new AdvancedMovementSystem(Player, Capsule, PhysicsSystem);
 
         //Manager subpart initializations
-        AbilityManager = new PlayerAbilityManager(Animator, PhysicsSystem, MovementSystem, Player);
+        AbilityManager = new PlayerAbilityManager(Animator, PhysicsSystem, MovementSystem, Player, cooldownOriginTransform, 75);
         AnimationManager = new PlayerAnimationManager();
         BuffManager = new BuffManager<PlayerManager>(Manager);
         InteractionManager = new PlayerInteractionManager();

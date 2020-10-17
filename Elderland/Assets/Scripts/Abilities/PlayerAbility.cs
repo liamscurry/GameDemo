@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 //Ability structure that supports any amount of states and substates. Has an optional cooldown period.
 public abstract class PlayerAbility : Ability
@@ -13,7 +14,11 @@ public abstract class PlayerAbility : Ability
 
     private bool fallUponFinish;
 
+    private Slider slider;
+
     public bool Continous { get { return continous; } }
+
+    public Slider CooldownSlider { get { return slider; } }
 
     public virtual void Initialize(PlayerAbilityManager abilitySystem)
     {
@@ -60,6 +65,9 @@ public abstract class PlayerAbility : Ability
             ActiveSegment = segments.Start;
             system.SetNextSegmentClip(segments.Start.Clip);
             fallUponFinish = false;
+   
+            if (slider != null)
+                ZeroCoolDownIcon();
 
             return true;
         }
@@ -178,5 +186,48 @@ public abstract class PlayerAbility : Ability
         coolDownTimer = 0;
     }
 
+    protected sealed override void CoolDown()
+    {
+        coolDownTimer += Time.deltaTime;
+        Debug.Log(slider);
+        if (slider != null)
+            UpdateCoolDownIcon();
+
+        if (coolDownTimer >= coolDownDuration)
+		{			
+            if (slider != null)
+                ReadyCoolDownIcon();
+            state = AbilityState.Waiting;
+		}
+    }
+
     public virtual void GlobalConstantUpdate() { }
+
+    protected void GenerateCoolDownIcon()
+    {
+        GameObject cooldownUIObject =
+            GameObject.Instantiate(
+                Resources.Load(ResourceConstants.Player.UI.CooldownUI),
+                GameInfo.Menu.FightingUI.transform,
+                false) as GameObject;
+        
+        slider =
+            cooldownUIObject.GetComponentInChildren<Slider>();
+        Debug.Log(slider);
+    }
+
+    private void UpdateCoolDownIcon()
+    {
+        slider.value = coolDownTimer / coolDownDuration;
+    }
+
+    private void ReadyCoolDownIcon()
+    {
+        slider.value = 1;
+    }
+
+    private void ZeroCoolDownIcon()
+    {
+        slider.value = 0;
+    }
 }

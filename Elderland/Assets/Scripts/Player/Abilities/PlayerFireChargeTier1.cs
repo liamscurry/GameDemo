@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 //The Dash skill allows the player to travel long distances in a short amount of time.
 
@@ -57,6 +58,8 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
 
         invokeID = 0;
         enemyHits = new List<EnemyHit>();
+
+        GenerateCoolDownIcon();
     }
 
     protected override bool WaitCondition()

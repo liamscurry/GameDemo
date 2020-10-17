@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 //Weapon ability that casts Fireball projectiles.
 

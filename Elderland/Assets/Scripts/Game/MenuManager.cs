@@ -9,7 +9,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField]
     private GameObject pauseMenuUI;
     [SerializeField]
-    private GameObject gameplayUI;
+    private GameObject fightingUI;
     [SerializeField]
     private GameObject puzzleUI;
     [SerializeField]
@@ -19,6 +19,7 @@ public class MenuManager : MonoBehaviour
 
     public ObjectiveUIManager ObjectiveManager { get { return objectiveUIManager; } }
     public GameObject PuzzleUI { get { return puzzleUI; } }
+    public GameObject FightingUI { get { return fightingUI; } }
 
     private void Start()
     {
@@ -85,7 +86,7 @@ public class MenuManager : MonoBehaviour
     public void OpenStartMenu()
     {
         startMenuUI.SetActive(true);
-        gameplayUI.SetActive(false);
+        fightingUI.SetActive(false);
 
         GameInfo.Paused = true;
         Time.timeScale = 0;

@@ -55,5 +55,10 @@ public static class ResourceConstants
             public const string MultishotParent = "Player/Projectiles/PlayerMultishotParent";
             public const string Nullify = "Player/Projectiles/PlayerNullify";
         }
+
+        public static class UI
+        {
+            public const string CooldownUI = "Player/Abilities/CooldownUI";
+        }
     }
 }

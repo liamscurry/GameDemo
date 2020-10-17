@@ -40,6 +40,8 @@ public sealed class PlayerDash : PlayerAbility
         dashParticles = dashParticlesObject.GetComponent<ParticleSystem>();
 
         coolDownDuration = 1f;
+
+        GenerateCoolDownIcon();
     }
 
     protected override bool WaitCondition()
