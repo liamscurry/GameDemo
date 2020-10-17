@@ -107,6 +107,8 @@ public sealed class PlayerDash : PlayerAbility
 
     public override void DeleteResources()
     {
+        DeleteCoolDownIcon();
+        
         GameObject.Destroy(dashParticles);
     }
 }

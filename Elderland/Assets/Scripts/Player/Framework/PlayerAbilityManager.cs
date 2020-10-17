@@ -151,6 +151,8 @@ public class PlayerAbilityManager : AbilitySystem
         cooldownIconOrder.Add(dash);
         //cooldownIconOrder.Add(aoe);
 
+        float heightOffset = 0;
+
         for (int i = 0; i < cooldownIconOrder.Count; i++)
         {
             PlayerAbility a = cooldownIconOrder[i];
@@ -159,7 +161,9 @@ public class PlayerAbilityManager : AbilitySystem
                 if (a.CooldownSlider != null)
                 {
                     ((RectTransform) a.CooldownSlider.transform.parent).anchoredPosition =
-                        ((RectTransform) cooldownOriginTransform).anchoredPosition + new Vector2(0, i * cooldownHeightDelta);
+                        ((RectTransform) cooldownOriginTransform).anchoredPosition + new Vector2(0, heightOffset);
+                    
+                    heightOffset += cooldownHeightDelta;
                 }
             }
         }

@@ -215,6 +215,11 @@ public abstract class PlayerAbility : Ability
             cooldownUIObject.GetComponentInChildren<Slider>();
         Debug.Log(slider);
     }
+    
+    protected void DeleteCoolDownIcon()
+    {
+        GameObject.Destroy(slider.transform.parent.gameObject);
+    }
 
     private void UpdateCoolDownIcon()
     {
