@@ -41,7 +41,9 @@ public sealed class PlayerDash : PlayerAbility
         coolDownDuration = 1f;
 
         staminaCost = 1f;
-        GenerateCoolDownIcon(staminaCost);
+        GenerateCoolDownIcon(
+            staminaCost,
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.DashTier1Icon));
     }
 
     protected override bool WaitCondition()

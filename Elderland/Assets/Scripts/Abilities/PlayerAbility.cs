@@ -192,7 +192,7 @@ public abstract class PlayerAbility : Ability
     protected sealed override void CoolDown()
     {
         coolDownTimer += Time.deltaTime;
-        Debug.Log(slider);
+
         if (slider != null)
             UpdateCoolDownIcon();
 
@@ -206,7 +206,7 @@ public abstract class PlayerAbility : Ability
 
     public virtual void GlobalConstantUpdate() { }
 
-    protected void GenerateCoolDownIcon(float staminaCost)
+    protected void GenerateCoolDownIcon(float staminaCost, Sprite icon)
     {
         GameObject cooldownUIObject =
             GameObject.Instantiate(
@@ -253,6 +253,7 @@ public abstract class PlayerAbility : Ability
         
         slider =
             cooldownUIObject.GetComponentInChildren<Slider>();
+        slider.fillRect.GetComponent<Image>().sprite = icon;
     }
     
     protected void DeleteCoolDownIcon()

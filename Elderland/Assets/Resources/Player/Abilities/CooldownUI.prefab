@@ -250,19 +250,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 6deecf543a7d9cc4eaa4b7c16fef59de, type: 2}
-  m_Color: {r: 0.66, g: 0.66, b: 0.66, a: 1}
+  m_Material: {fileID: 2100000, guid: 8cf45595771ae414b989bff9b33061d2, type: 2}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5738e969b2552484dbee57fecf90d3b3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98d15705701378746bfe81700f908482, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 1
+  m_FillAmount: 0.701
   m_FillClockwise: 1
   m_FillOrigin: 2
   m_UseSpriteMesh: 0
@@ -350,6 +350,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4970766985916207884}
+  - component: {fileID: 357256272392271513}
   m_Layer: 5
   m_Name: Fill Area
   m_TagString: Untagged
@@ -377,6 +378,14 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &357256272392271513
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4970766985916207887}
+  m_CullTransparentMesh: 0
 --- !u!1 &4970766986212851617
 GameObject:
   m_ObjectHideFlags: 0
@@ -499,7 +508,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 1
+  m_Value: 0.701
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
