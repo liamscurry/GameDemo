@@ -37,7 +37,7 @@ public class PlayerStatsManager
 	public StatMultiplier StaminaYieldMultiplier { get; }
 
 	public StatMultiplier DamageMultiplier { get; }
-	public StatMultiplier DashCostMultiplier { get; }
+	public StatMultiplier AttackSpeedMultiplier { get; }
 
 	public bool Sprinting { get; set; }
 
@@ -60,6 +60,6 @@ public class PlayerStatsManager
 
 		StaminaYieldMultiplier = new StatMultiplier(1);
 		DamageMultiplier = new StatMultiplier(1);
-		DashCostMultiplier = new StatMultiplier(1);
+		AttackSpeedMultiplier = new StatMultiplier(1);
 	}
 }

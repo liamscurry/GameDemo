@@ -50,6 +50,11 @@ public sealed class PlayerDodge : PlayerAbility
             swordSpeedModifier = 1;
             abilitySpeed = 1;
         }
+
+        if (PlayerInfo.StatsManager.AttackSpeedMultiplier.ModifierCount != 0)
+        {
+            abilitySpeed = 1 / (PlayerInfo.StatsManager.AttackSpeedMultiplier.Value);
+        }
     }
 
     private void ActBegin()
@@ -65,7 +70,7 @@ public sealed class PlayerDodge : PlayerAbility
     {
         if (system.Physics.TouchingFloor)
         {
-            actVelocity = system.Movement.Move(direction, speed * swordSpeedModifier, false);
+            actVelocity = system.Movement.Move(direction, speed * (1 / abilitySpeed), false);
         }
         else
         {

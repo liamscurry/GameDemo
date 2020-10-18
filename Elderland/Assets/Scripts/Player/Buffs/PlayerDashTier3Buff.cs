@@ -12,11 +12,13 @@ public sealed class PlayerDashTier3Buff : Buff<PlayerManager>
 
     public override void ApplyBuff()
     {
-        PlayerInfo.StatsManager.DashCostMultiplier.AddModifier(0);
+        PlayerInfo.StatsManager.AttackSpeedMultiplier.AddModifier(2);
+        PlayerInfo.StatsManager.DamageMultiplier.AddModifier(2f);
     }
 
     public override void ReverseBuff()
     {
-        PlayerInfo.StatsManager.DashCostMultiplier.RemoveModifier(0);
+        PlayerInfo.StatsManager.AttackSpeedMultiplier.RemoveModifier(2);
+        PlayerInfo.StatsManager.DamageMultiplier.AddModifier(2f);
     }
 }

@@ -20,6 +20,8 @@ public class StatMultiplier
             return value;
         }
     }
+    
+    public int ModifierCount { get { return modifiers.Count; } }
 
     public StatMultiplier(float baseValue)
     {

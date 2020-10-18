@@ -4,21 +4,17 @@ using UnityEngine;
 
 public sealed class PlayerDashTier2Buff : Buff<PlayerManager>
 {
-    private float damageMultiplier;
-
-    public PlayerDashTier2Buff(float damageMultiplier, BuffManager<PlayerManager> manager, BuffType type, float duration)
+    public PlayerDashTier2Buff(BuffManager<PlayerManager> manager, BuffType type, float duration)
         : base(manager, type, duration)
-    {
-        this.damageMultiplier = damageMultiplier;
-    }
+    {}
 
     public override void ApplyBuff()
     {
-        PlayerInfo.StatsManager.DamageMultiplier.AddModifier(damageMultiplier);
+        PlayerInfo.StatsManager.DamageMultiplier.AddModifier(1.5f);
     }
 
     public override void ReverseBuff()
     {
-        PlayerInfo.StatsManager.DamageMultiplier.RemoveModifier(damageMultiplier);
+        PlayerInfo.StatsManager.DamageMultiplier.RemoveModifier(1.5f);
     }
 }

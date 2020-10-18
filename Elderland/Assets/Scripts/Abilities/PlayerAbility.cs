@@ -267,6 +267,8 @@ public abstract class PlayerAbility : Ability
         slider =
             cooldownUIObject.GetComponentInChildren<Slider>();
         slider.fillRect.GetComponent<Image>().sprite = icon;
+
+        UpdateStaminaCostIcons();
     }
 
     protected void DeleteAbilityIcon()

@@ -31,7 +31,7 @@ public abstract class Ability : MonoBehaviour
     public AbilityProcess ActiveProcess { get; protected set; }
     public AbilitySegment ActiveSegment { get; protected set; }
 
-    public float AbilitySpeed { get { return abilitySpeed; } }
+    public virtual float AbilitySpeed { get { return abilitySpeed; } }
 
     public void FixedUpdateAbility()
     {

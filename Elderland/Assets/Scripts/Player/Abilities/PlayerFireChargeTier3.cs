@@ -58,7 +58,7 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
         staminaCost = 1.5f;
         GenerateCoolDownIcon(
             staminaCost,
-            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FirechargeTier1Icon),
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FirechargeTier3Icon),
             "III");
     }
 

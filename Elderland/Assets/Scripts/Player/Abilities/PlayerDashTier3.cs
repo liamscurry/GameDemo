@@ -38,12 +38,13 @@ public sealed class PlayerDashTier3 : PlayerAbility
         dashParticlesObject.transform.parent = PlayerInfo.Player.transform;
         dashParticles = dashParticlesObject.GetComponent<ParticleSystem>();
 
-        continous = true;
+        //continous = true;
+        coolDownDuration = 1;
 
-        staminaCost = 1f;
+        staminaCost = 0.5f;
         GenerateCoolDownIcon(
             staminaCost,
-            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.DashTier1Icon),
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.DashTier3Icon),
             "III");
     }
 
@@ -51,7 +52,7 @@ public sealed class PlayerDashTier3 : PlayerAbility
     {
         return GameInfo.Settings.LeftDirectionalInput.magnitude >= 0.25f &&
                PlayerInfo.AbilityManager.Stamina >=
-                staminaCost * PlayerInfo.StatsManager.DashCostMultiplier.Value;
+                staminaCost;
     }
 
     private void ActBegin()
@@ -61,7 +62,7 @@ public sealed class PlayerDashTier3 : PlayerAbility
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;
         system.Movement.ExitEnabled = false;
-        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost * PlayerInfo.StatsManager.DashCostMultiplier.Value);
+        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
 
         dashParticles.Play();
     }
@@ -96,7 +97,8 @@ public sealed class PlayerDashTier3 : PlayerAbility
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
         system.Movement.ExitEnabled = true;
         
-        bool alreadyHasDashBuff = false;
+        //bool alreadyHasDashBuff = false;
+        /*
         for (int i = PlayerInfo.BuffManager.Buffs.Count - 1;
              i >= 0; i--)
         {
@@ -107,16 +109,16 @@ public sealed class PlayerDashTier3 : PlayerAbility
                 PlayerInfo.BuffManager.Clear(buff);
                 break;
             }
-        }
+        }*/
 
-        PlayerInfo.BuffManager.Apply<PlayerDashTier2Buff>(
-            new PlayerDashTier2Buff(2f, PlayerInfo.BuffManager, BuffType.Buff, 5f));
+        //PlayerInfo.BuffManager.Apply<PlayerDashTier2Buff>(
+        //    new PlayerDashTier2Buff(2f, PlayerInfo.BuffManager, BuffType.Buff, 5f));
 
-        if (!alreadyHasDashBuff)
-        {
-            PlayerInfo.BuffManager.Apply<PlayerDashTier3Buff>(
-                new PlayerDashTier3Buff(PlayerInfo.BuffManager, BuffType.Buff, 5f));
-        }
+        //if (!alreadyHasDashBuff)
+        //{
+        PlayerInfo.BuffManager.Apply<PlayerDashTier3Buff>(
+            new PlayerDashTier3Buff(PlayerInfo.BuffManager, BuffType.Buff, 5f));
+        //}
 
         dashParticles.Stop();
     }

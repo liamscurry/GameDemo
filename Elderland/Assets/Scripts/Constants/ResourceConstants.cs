@@ -67,7 +67,11 @@ public static class ResourceConstants
             public static class Abilities
             {
                 public const string DashTier1Icon = "Player/Abilities/Icons/DashTier1Icon";
+                public const string DashTier2Icon = "Player/Abilities/Icons/DashTier2Icon";
+                public const string DashTier3Icon = "Player/Abilities/Icons/DashTier3Icon";
                 public const string FirechargeTier1Icon = "Player/Abilities/Icons/FirechargeTier1Icon";
+                public const string FirechargeTier2Icon = "Player/Abilities/Icons/FirechargeTier2Icon";
+                public const string FirechargeTier3Icon = "Player/Abilities/Icons/FirechargeTier3Icon";
                 public const string FireballTier1Icon = "Player/Abilities/Icons/FireballTier1Icon";
                 public const string FireballTier2Icon = "Player/Abilities/Icons/FireballTier2Icon";
                 public const string FireballTier3Icon = "Player/Abilities/Icons/FireballTier3Icon";

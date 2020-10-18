@@ -294,6 +294,11 @@ public sealed class PlayerSword : PlayerAbility
         {
             abilitySpeed = baseSpeed;
         }
+
+        if (PlayerInfo.StatsManager.AttackSpeedMultiplier.ModifierCount != 0)
+        {
+            abilitySpeed = PlayerInfo.StatsManager.AttackSpeedMultiplier.Value;
+        }
     }
 
     public void ChargeBegin()
@@ -554,6 +559,11 @@ public sealed class PlayerSword : PlayerAbility
         else
         {
             abilitySpeed = baseSpeed;
+        }
+
+        if (PlayerInfo.StatsManager.AttackSpeedMultiplier.ModifierCount != 0)
+        {
+            abilitySpeed = PlayerInfo.StatsManager.AttackSpeedMultiplier.Value;
         }
 
         hitTime = Time.time;

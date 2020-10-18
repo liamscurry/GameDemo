@@ -40,10 +40,10 @@ public sealed class PlayerDashTier2 : PlayerAbility
 
         coolDownDuration = 1f;
 
-        staminaCost = 1f;
+        staminaCost = 0.5f;
         GenerateCoolDownIcon(
             staminaCost,
-            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.DashTier1Icon),
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.DashTier2Icon),
             "II");
     }
 
@@ -95,7 +95,7 @@ public sealed class PlayerDashTier2 : PlayerAbility
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
         system.Movement.ExitEnabled = true;
         PlayerInfo.BuffManager.Apply<PlayerDashTier2Buff>(
-            new PlayerDashTier2Buff(2f, PlayerInfo.BuffManager, BuffType.Buff, 5f));
+            new PlayerDashTier2Buff(PlayerInfo.BuffManager, BuffType.Buff, 5f));
 
         dashParticles.Stop();
     }
