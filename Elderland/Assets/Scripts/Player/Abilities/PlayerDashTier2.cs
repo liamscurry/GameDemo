@@ -41,6 +41,10 @@ public sealed class PlayerDashTier2 : PlayerAbility
         coolDownDuration = 1f;
 
         staminaCost = 1f;
+        GenerateCoolDownIcon(
+            staminaCost,
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.DashTier1Icon),
+            "II");
     }
 
     protected override bool WaitCondition()
@@ -108,6 +112,8 @@ public sealed class PlayerDashTier2 : PlayerAbility
 
     public override void DeleteResources()
     {
+        DeleteAbilityIcon();
+
         GameObject.Destroy(dashParticles);
     }
 }

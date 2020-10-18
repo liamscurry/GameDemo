@@ -41,6 +41,10 @@ public sealed class PlayerDashTier3 : PlayerAbility
         continous = true;
 
         staminaCost = 1f;
+        GenerateCoolDownIcon(
+            staminaCost,
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.DashTier1Icon),
+            "III");
     }
 
     protected override bool WaitCondition()
@@ -129,6 +133,8 @@ public sealed class PlayerDashTier3 : PlayerAbility
 
     public override void DeleteResources()
     {
+        DeleteAbilityIcon();
+
         GameObject.Destroy(dashParticles);
     }
 }

@@ -34,7 +34,8 @@ public sealed class PlayerFireball : PlayerAbility
 
         GenerateCoolDownIcon(
             staminaCost,
-            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FireballTier1Icon));
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FireballTier1Icon),
+            "I");
     }
 
     protected override bool WaitCondition()

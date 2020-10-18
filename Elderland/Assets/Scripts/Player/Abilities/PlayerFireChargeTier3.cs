@@ -56,6 +56,10 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
         enemyHits = new List<EnemyHit>();
 
         staminaCost = 1.5f;
+        GenerateCoolDownIcon(
+            staminaCost,
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FirechargeTier1Icon),
+            "III");
     }
 
     protected override bool WaitCondition()

@@ -60,7 +60,8 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
         staminaCost = 1.5f;    
         GenerateCoolDownIcon(
             staminaCost,
-            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FirechargeTier1Icon));
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FirechargeTier1Icon),
+            "I");
     }
 
     protected override bool WaitCondition()

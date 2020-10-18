@@ -55,6 +55,10 @@ public sealed class PlayerFireChargeTier2 : PlayerAbility
         enemyHits = new List<EnemyHit>();
 
         staminaCost = 1.5f;
+        GenerateCoolDownIcon(
+            staminaCost,
+            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FirechargeTier1Icon),
+            "II");
     }
 
     protected override bool WaitCondition()
@@ -143,6 +147,8 @@ public sealed class PlayerFireChargeTier2 : PlayerAbility
 
     public override void DeleteResources()
     {
+        DeleteAbilityIcon();
+
         for (int i = charges.Count - 1; i >= 0; i--)
         {
             charges[i].DeleteResource();

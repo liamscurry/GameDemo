@@ -206,7 +206,7 @@ public abstract class PlayerAbility : Ability
 
     public virtual void GlobalConstantUpdate() { }
 
-    protected void GenerateCoolDownIcon(float staminaCost, Sprite icon)
+    protected void GenerateCoolDownIcon(float staminaCost, Sprite icon, string level)
     {
         GameObject cooldownUIObject =
             GameObject.Instantiate(
@@ -250,6 +250,19 @@ public abstract class PlayerAbility : Ability
         }
 
         cooldownReadyColor = cooldownStaminaIcons[0].color;
+
+        GameObject levelUIObject =
+            GameObject.Instantiate(
+                Resources.Load(ResourceConstants.Player.UI.CooldownLevelUI),
+                cooldownUIObject.transform,
+                false) as GameObject;
+
+        float levelHeightOffset = -5.35f;
+
+        ((RectTransform) levelUIObject.transform).anchoredPosition =
+                new Vector2(0, levelHeightOffset);
+
+        levelUIObject.GetComponentInChildren<Text>().text = level;
         
         slider =
             cooldownUIObject.GetComponentInChildren<Slider>();

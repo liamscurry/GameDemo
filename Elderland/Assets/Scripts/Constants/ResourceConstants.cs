@@ -62,6 +62,7 @@ public static class ResourceConstants
             public const string CooldownUI = "Player/Abilities/CooldownUI";
             public const string CooldownStaminaUI = "Player/Abilities/CooldownStaminaUI";
             public const string CooldownHalfStaminaUI = "Player/Abilities/CooldownHalfStaminaUI";
+            public const string CooldownLevelUI = "Player/Abilities/CooldownLevelUI";
             
             public static class Abilities
             {
