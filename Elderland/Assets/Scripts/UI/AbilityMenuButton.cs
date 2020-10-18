@@ -129,7 +129,7 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
             new Color(lockedColor.r * dimPercentage,
                       lockedColor.g * dimPercentage,
                       lockedColor.b * dimPercentage,
-                      1);
+                      lockedColor.a);
 
         colorBlock.normalColor = dimmedLockedColor;
         colorBlock.pressedColor = lockedColor;
@@ -153,7 +153,7 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
             new Color(acquiredColor.r * dimPercentage,
                       acquiredColor.g * dimPercentage,
                       acquiredColor.b * dimPercentage,
-                      1);
+                      0);
 
         colorBlock.normalColor = dimmedAcquiredColor;
         colorBlock.pressedColor = acquiredColor;

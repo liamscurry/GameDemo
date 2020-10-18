@@ -69,6 +69,8 @@ public static class ResourceConstants
                 public const string DashTier1Icon = "Player/Abilities/Icons/DashTier1Icon";
                 public const string FirechargeTier1Icon = "Player/Abilities/Icons/FirechargeTier1Icon";
                 public const string FireballTier1Icon = "Player/Abilities/Icons/FireballTier1Icon";
+                public const string FireballTier2Icon = "Player/Abilities/Icons/FireballTier2Icon";
+                public const string FireballTier3Icon = "Player/Abilities/Icons/FireballTier3Icon";
             }
         }
     }
