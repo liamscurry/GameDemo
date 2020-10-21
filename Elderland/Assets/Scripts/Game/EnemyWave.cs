@@ -1,10 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class EnemyWave : MonoBehaviour
 {
+    [SerializeField]
+    private UnityEvent completionEvent;
+
     private EnemyWaveSpawner[] spawners;
+
+    public UnityEvent CompletionEvent { get { return completionEvent; } }
 
     public int Count
     {

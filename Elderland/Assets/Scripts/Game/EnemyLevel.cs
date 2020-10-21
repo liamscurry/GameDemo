@@ -126,6 +126,9 @@ public class EnemyLevel : MonoBehaviour
 
     private void AdvanceWave()
     {
+        if (currentWave >= 0 && waves[currentWave].CompletionEvent != null)
+            waves[currentWave].CompletionEvent.Invoke();
+
         currentWave++;
 
         if (currentWave <= waves.Length - 1)
