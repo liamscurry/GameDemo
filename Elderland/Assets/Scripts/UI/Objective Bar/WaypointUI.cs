@@ -18,7 +18,7 @@ public class WaypointUI : MonoBehaviour
     private CanvasScaler canvasScaler;
 
     public Vector3 WorldPosition 
-        { get { return worldPosition; } set { worldPosition = value; } }
+        { get { return worldPosition; } set { worldPosition = value; CalculateDetails(); } }
 
     public GameObject MapUI
         { get { return mapUI; } }
@@ -102,6 +102,7 @@ public class WaypointUI : MonoBehaviour
     public void UpdateInfo(WaypointUIInfo info)
     {
         worldPosition = info.WorldPosition;
+        CalculateDetails();
     }
 
     private void UpdateDistanceText()
