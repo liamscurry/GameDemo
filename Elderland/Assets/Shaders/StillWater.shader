@@ -7,6 +7,7 @@ Shader "Custom/StillWater"
         _MainTex ("Texture", 2D) = "white" {}
         _ReflectionMap ("ReflectionMap", 2D) = "white" {}
         _WaterBedColor ("WaterBedColor", Color) = (0,0,0,0)
+        _SkyboxColor ("SkyboxColor", Color) = (0,0,0,0)
         _WaterLineThreshold ("WaterLineThreshold", Range(0, 1)) = 0
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 0
         _EnableFog ("EnableFog", Range(0.0, 1.0)) = 0.0
@@ -58,6 +59,7 @@ Shader "Custom/StillWater"
             float _WaterLineThreshold;
             float _WarmColorStrength;
             float _EnableFog;
+            float4 _SkyboxColor;
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
@@ -123,6 +125,10 @@ Shader "Custom/StillWater"
                                               0,
                                               0);
                 float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos + grabPosOffset);
+                if (depth > 0.99)
+                {
+                    existingColor = _SkyboxColor;
+                }
                 //return existingColor;
 
                 /*float sunAngle = 0;
