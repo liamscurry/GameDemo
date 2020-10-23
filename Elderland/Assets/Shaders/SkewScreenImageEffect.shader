@@ -5,8 +5,9 @@ Shader "Custom/SkewScreenImageEffect"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _RefractionMap ("RefractionMap", 2D) = "white" {}
+        _Skybox ("Skybox", 2D) = "white" {}
         _WaterBedColor ("WaterBedColor", Color) = (0,0,0,0)
+        
         _Threshold ("Threshold", Range(0, 1)) = 0
         _SizeWarpStrength ("SizeWarpStrength", Range(0,2)) = 1
         _WarpXOffset ("WarpXOffset", float) = 0
@@ -59,6 +60,7 @@ Shader "Custom/SkewScreenImageEffect"
             float _Threshold;
             float _SizeWarpStrength;
             float _WarpXOffset;
+            sampler2D _Skybox;
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
@@ -103,7 +105,9 @@ Shader "Custom/SkewScreenImageEffect"
                         1);
                 //float refraction
                 //float4 grabPosScale = float4(1 + sin(uv.x * 45) * .1, 1 + sin(uv.x * 45) * .1, 1, 1);
-                float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos * grabPosScale + grabPosOffset);
+                float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos * grabPosScale + grabPosOffset);// 
+                //    existingColor = tex2Dproj(_Skybox, ((i.grabPos + float4(0,2,0,0)) * float4(0.5,0.5,1,1)));
+                //return tex2Dproj(_Skybox, i.grabPos * float4(2,2,1,1) + float4(.25,.25,0,0));
                 //Skybox sample
                 //return existingColor;
                 
@@ -111,11 +115,27 @@ Shader "Custom/SkewScreenImageEffect"
                 //return lightnessMultiplier;
                 //return i.color.r; // both existing color and lightness multiplier fine, but result not
                 // has nothing to do with i.color.r, removed it and it was still having the bug.
-                existingColor = 
-                    float4(existingColor.r * lightnessMultiplier,
-                           existingColor.g * lightnessMultiplier,
-                           existingColor.b * lightnessMultiplier,
-                           1);
+                //existingColor = 
+                //    float4(existingColor.r * lightnessMultiplier,
+                //           existingColor.g * lightnessMultiplier,
+                //           existingColor.b * lightnessMultiplier,
+                //           1);
+                lightnessMultiplier = 0.075;
+                existingColor = existingColor - 
+                    float4(lightnessMultiplier,
+                           lightnessMultiplier,
+                           lightnessMultiplier,
+                           0);
+
+                if (depth > 0.99)
+                {
+                    existingColor = _WaterBedColor -
+                        float4(lightnessMultiplier,
+                           lightnessMultiplier,
+                           lightnessMultiplier,
+                           .5);  
+                }
+
                 return existingColor;
                 //return _WaterBedColor * existingColor;
             }
