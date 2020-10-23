@@ -302,6 +302,23 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         }
     }
 
+    private void EquipTier1Fireball()
+    {
+        PlayerInfo.AbilityManager.
+            EquipAbility<PlayerFireball>(ref PlayerInfo.AbilityManager.ranged);
+    }
+
+    private void EquipTier1Firecharge()
+    {
+        PlayerInfo.AbilityManager.
+            EquipAbility<PlayerFireChargeTier1>(ref PlayerInfo.AbilityManager.aoe);
+    }
+
+    private void EquipTier1Dash()
+    {
+        PlayerInfo.AbilityManager.EquipAbility<PlayerDash>(ref PlayerInfo.AbilityManager.dash);
+    }
+
     public void EquipTier2Fireball()
     {
         PlayerInfo.AbilityManager.
@@ -416,6 +433,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     public void UnlockDash()
     {
         PlayerInfo.AbilityManager.DashAvailable = true;
+        EquipTier1Dash();
         dashTierOneButton.Unlock(false);
         dashTierOneButton.TryAcquire();
     }
@@ -423,6 +441,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     public void UnlockRanged()
     {
         PlayerInfo.AbilityManager.RangedAvailable = true;
+        EquipTier1Fireball();
         fireballTierOneButton.Unlock(false);
         fireballTierOneButton.TryAcquire();
     }
@@ -430,6 +449,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     public void UnlockHeal()
     {
         PlayerInfo.AbilityManager.HealAvailable = true;
+        EquipTier1Firecharge();
         firechargeTierOneButton.Unlock(false);
         firechargeTierOneButton.TryAcquire();
     }

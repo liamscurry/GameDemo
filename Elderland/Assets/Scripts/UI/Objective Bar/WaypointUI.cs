@@ -27,9 +27,20 @@ public class WaypointUI : MonoBehaviour
     {
         distanceText = GetComponentInChildren<Text>();
         canvasScaler = GetComponentInParent<CanvasScaler>();
+        CalculateDetails();
+    }
+
+    private void OnEnable()
+    {
+        CalculateDetails();
     }
 
     private void Update()
+    {
+        CalculateDetails();
+    }
+
+    private void CalculateDetails()
     {
         if (Camera.current != null)
         {

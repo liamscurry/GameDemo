@@ -49,14 +49,14 @@ public class PlayerAbilityManager : AbilitySystem
         this.cooldownOriginTransform = cooldownOriginTransform;
         this.cooldownHeightDelta = cooldownHeightDelta;
         InitializePreferences();
-        
+        /*
         MeleeAvailable = true;
         RangedAvailable = true;
         HealAvailable = true;
         DodgeAvailable = true;
         DashAvailable = true;
         AbilitiesAvailable = true;
-        
+        */
         AbilitiesAvailable = true;
 
         //Stamina = 0;
@@ -139,9 +139,9 @@ public class PlayerAbilityManager : AbilitySystem
     {  
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
-        EquipAbility<PlayerDash>(ref dash);
-        EquipAbility<PlayerFireball>(ref ranged);
-        EquipAbility<PlayerFireChargeTier1>(ref aoe);
+        //EquipAbility<PlayerDash>(ref dash);
+        //EquipAbility<PlayerFireball>(ref ranged);
+        //EquipAbility<PlayerFireChargeTier1>(ref aoe);
     }
 
     private void UpdateCooldownIconPositions()

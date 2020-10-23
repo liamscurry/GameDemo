@@ -333,6 +333,14 @@ Shader "Custom/SemiFlatShader"
 
                         float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
                         inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
+                        float flipLOD = abs(unity_LODFade.x);
+                        if (unity_LODFade.x > 0)
+                            flipLOD = 1 - flipLOD;
+                        flipLOD = 1 - flipLOD;
+                        //return flipLOD;
+                        shadeFade = (pow(flipLOD,9)) * inShadow + (1 - pow(flipLOD,9)) * 1;
+                        //return flipLOD;
+                        //inShadow = 0;
                         STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
                     //}
                 }
