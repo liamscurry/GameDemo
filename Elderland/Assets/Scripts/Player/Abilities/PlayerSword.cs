@@ -126,7 +126,7 @@ public sealed class PlayerSword : PlayerAbility
 
             if (!interuptedTarget && PlayerInfo.Animator.isMatchingTarget)
             {
-                if (!CheckForGround())
+                if (CheckForGround())
                 {
                     interuptedTarget = true;
                     PlayerInfo.Animator.InterruptMatchTarget(false);
@@ -149,10 +149,11 @@ public sealed class PlayerSword : PlayerAbility
 
     private bool CheckForGround()
     {
-        RaycastHit predictLedgeCastClose;
-        RaycastHit predictLedgeCastFar;
-        Vector3 interuptDirection = Matho.StandardProjection3D(dashPosition - PlayerInfo.Player.transform.position).normalized;
-
+        //RaycastHit predictLedgeCastClose;
+        //RaycastHit predictLedgeCastFar;
+        Vector3 interuptDirection = (dashPosition - PlayerInfo.Player.transform.position).normalized;
+        //Debug.DrawLine(dashPosition, PlayerInfo.Player.transform.position, Color.black, 5);
+        /*
         bool hitLedgeClose = UnityEngine.Physics.Raycast(
             PlayerInfo.Player.transform.position + interuptDirection * 0.6f,
             Vector3.down,
@@ -166,14 +167,14 @@ public sealed class PlayerSword : PlayerAbility
             out predictLedgeCastFar,
             (PlayerInfo.Capsule.height / 2) + PlayerInfo.Capsule.radius * 0.5f,
             LayerConstants.GroundCollision | LayerConstants.Destructable);
-
-        if (!hitLedgeClose || !hitLedgeFar)
+        */
+        //if (!hitLedgeClose || !hitLedgeFar)
         {
             Collider[] overlapColliders = UnityEngine.Physics.OverlapSphere(
-                PlayerInfo.Player.transform.position + PlayerInfo.Capsule.BottomSphereOffset() + interuptDirection * 0.6f,
+                PlayerInfo.Player.transform.position + PlayerInfo.Capsule.BottomSphereOffset() + Vector3.up * 0.2f + interuptDirection * 0.3f,
                 PlayerInfo.Capsule.radius,
                 LayerConstants.GroundCollision | LayerConstants.Destructable);
-
+            
             if (overlapColliders.Length == 0)
             {
                 return false;
@@ -335,7 +336,7 @@ public sealed class PlayerSword : PlayerAbility
 
             dashPosition = targetPosition;
 
-            if (!CheckForGround())
+            if (CheckForGround())
                 matchTarget.positionWeight = Vector3.zero;
                 
             PlayerInfo.AnimationManager.StartTarget(matchTarget);
