@@ -23,11 +23,22 @@ public class WaypointUI : MonoBehaviour
     public GameObject MapUI
         { get { return mapUI; } }
 
+    private bool initialized;
+
     private void Awake()
     {
-        distanceText = GetComponentInChildren<Text>();
-        canvasScaler = GetComponentInParent<CanvasScaler>();
+        TryInitialize();
         CalculateDetails();
+    }
+
+    private void TryInitialize()
+    {
+        if (!initialized)
+        {
+            initialized = true;
+            distanceText = transform.parent.gameObject.GetComponentInChildren<Text>();
+            canvasScaler = transform.parent.gameObject.GetComponentInParent<CanvasScaler>();
+        }
     }
 
     private void OnEnable()
@@ -42,7 +53,7 @@ public class WaypointUI : MonoBehaviour
 
     private void CalculateDetails()
     {
-        if (Camera.current != null)
+        if (Camera.current != null && canvasScaler != null && distanceText != null)
         {
             Vector3 waypointScreenPosition =
                 Camera.current.WorldToViewportPoint(worldPosition);
