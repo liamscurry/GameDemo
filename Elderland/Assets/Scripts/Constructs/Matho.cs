@@ -246,6 +246,15 @@ public static class Matho
 		return ((int) f) + 1;
     }
 
+    public static float ReduceAngle(float a)
+    {
+        while (a > 360 || a < -360)
+        {
+            a = a % 360;
+        }
+        return a;
+    }
+
     /*
     //Returns a positive angle given two components
     public static float Angle(float x, float y)

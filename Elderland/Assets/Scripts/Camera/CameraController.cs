@@ -165,7 +165,7 @@ public class CameraController : MonoBehaviour
         TargetSpeed = defaultSpeed;
         TargetZoom = defaultZoom;
         TargetLinearMultiplier = defaultLinearMultiplier;
-        TargetDirection = defaultDirection;
+        TargetDirection = Vector3.zero;
 
         SpeedGradation = defaultSpeedGradation;
         ZoomGradation = defaultZoomGradation;
@@ -298,39 +298,59 @@ public class CameraController : MonoBehaviour
 
     private void AdjustOrientation()
     {
-        if (GameInfo.Manager.ReceivingInput)
-            HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
-        orientationDelta = Mathf.Sign(GameInfo.Settings.RightDirectionalInput.x);
-        if (GameInfo.Settings.RightDirectionalInput.magnitude < 0.25f || !GameInfo.Manager.ReceivingInput)
-            orientationDelta = 0;
+        if (TargetDirection.magnitude > 0.25)
+        {
+            float targetHorizontalAngle =
+                Matho.Angle(Matho.StandardProjection2D(targetDirection)) + HorizontalOffset;
+            float reducedHorizontalAngle = 
+                Matho.ReduceAngle(HorizontalAngle);
+            float reducedTargetHorizontalAngle = 
+                Matho.ReduceAngle(targetHorizontalAngle);
+            HorizontalAngle =
+                Mathf.MoveTowardsAngle(reducedHorizontalAngle, reducedTargetHorizontalAngle, 100f * Time.deltaTime);
 
-        if (orientationDelta != 0)
-        {
-            orientationTimer += Time.deltaTime;
-        }
-        else
-        {
-            orientationTimer = 0;
-        }
-        
-        if (orientationDelta != 0 &&
-            PlayerInfo.StatsManager.Sprinting &&
-            orientationTimer > 0.35f &&
-            Matho.AngleBetween(GameInfo.Settings.LeftDirectionalInput, Vector2.up) < 45f)
-        {
+            VerticalAngle =
+                Mathf.MoveTowardsAngle(VerticalAngle, 90, 60f * Time.deltaTime);
+
+            orientationDelta = 0;
             orientationPercentage = Mathf.MoveTowards(orientationPercentage, orientationDelta, 1.8f * Time.deltaTime);
         }
         else
         {
-            orientationPercentage = Mathf.MoveTowards(orientationPercentage, 0, 3 * Time.deltaTime);
-        }
+            if (GameInfo.Manager.ReceivingInput)
+                HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
+            orientationDelta = Mathf.Sign(GameInfo.Settings.RightDirectionalInput.x);
+            if (GameInfo.Settings.RightDirectionalInput.magnitude < 0.25f || !GameInfo.Manager.ReceivingInput)
+                orientationDelta = 0;
 
-        if (GameInfo.Settings.RightDirectionalInput.magnitude != 0 && GameInfo.Manager.ReceivingInput)
-        {
-            HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
-            VerticalAngle += GameInfo.Settings.RightDirectionalInput.y * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
-            VerticalAngle = Mathf.Clamp(VerticalAngle, 45, 135);
-        }
+            if (orientationDelta != 0)
+            {
+                orientationTimer += Time.deltaTime;
+            }
+            else
+            {
+                orientationTimer = 0;
+            }
+            
+            if (orientationDelta != 0 &&
+                PlayerInfo.StatsManager.Sprinting &&
+                orientationTimer > 0.35f &&
+                Matho.AngleBetween(GameInfo.Settings.LeftDirectionalInput, Vector2.up) < 45f)
+            {
+                orientationPercentage = Mathf.MoveTowards(orientationPercentage, orientationDelta, 1.8f * Time.deltaTime);
+            }
+            else
+            {
+                orientationPercentage = Mathf.MoveTowards(orientationPercentage, 0, 3 * Time.deltaTime);
+            }
+
+            if (GameInfo.Settings.RightDirectionalInput.magnitude != 0 && GameInfo.Manager.ReceivingInput)
+            {
+                HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
+                VerticalAngle += GameInfo.Settings.RightDirectionalInput.y * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
+                VerticalAngle = Mathf.Clamp(VerticalAngle, 45, 135);
+            }
+        }    
     }
 
     public Vector3 GeneratePosition(Vector3 targetPosition)

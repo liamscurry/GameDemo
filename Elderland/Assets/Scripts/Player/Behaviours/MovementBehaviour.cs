@@ -307,6 +307,7 @@ public class MovementBehaviour : StateMachineBehaviour
             PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
             GameInfo.CameraController.AllowZoom = false;
             PlayerInfo.AnimationManager.Interuptable = false;
+            GameInfo.CameraController.TargetDirection = mantle.Normal;
             exiting = true;
         }
     }
@@ -366,6 +367,7 @@ public class MovementBehaviour : StateMachineBehaviour
             PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
             GameInfo.CameraController.AllowZoom = false;
             PlayerInfo.AnimationManager.Interuptable = false;
+            GameInfo.CameraController.TargetDirection = mantle.Normal;
             exiting = true;
         }
     }
