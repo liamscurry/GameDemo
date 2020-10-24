@@ -136,7 +136,11 @@ MonoBehaviour:
   disableOnStart: 0
   type: 0
   holdDuration: 0
+  minimumHoldDuration: 0
   holdEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  holdStartEvent:
     m_PersistentCalls:
       m_Calls: []
   endEvent:
@@ -473,7 +477,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: +5 AP
+  m_Text: +4 AP
 --- !u!1001 &1004581538802471668
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -54,18 +54,6 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
     private void Awake()
     {
         TryInitialize();
-
-        if (!unlocked)
-        {
-            acquiredInitially = false;
-            SetToLockedColor();
-        }
-
-        if (acquiredInitially)
-        {
-            TryAcquire();
-        }
-        Acquired = acquiredInitially;
     }
 
     private void TryInitialize()
@@ -75,6 +63,18 @@ public class AbilityMenuButton : MonoBehaviour, ISelectHandler
             button = GetComponent<Button>();
             unlockedColorBlock = button.colors;
             initialized = true;
+
+            if (!unlocked)
+            {
+                acquiredInitially = false;
+                SetToLockedColor();
+            }
+
+            if (acquiredInitially)
+            {
+                TryAcquire();
+            }
+            Acquired = acquiredInitially;
         }
     }
 
