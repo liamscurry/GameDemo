@@ -180,7 +180,8 @@ public class CameraController : MonoBehaviour
         sprintTimer = 0;
         sprintPercentage = 0;
         orientationPercentage = 0;
-        GameInfo.Menu.ObjectiveManager.EnableWaypoints(this);
+        if (!cutscene.TurnWaypointUIOffOnEnd)
+            GameInfo.Menu.ObjectiveManager.EnableWaypoints(this);
     }
 
     public void StartCutscene(CameraCutscene cameraCutscene)
@@ -189,7 +190,8 @@ public class CameraController : MonoBehaviour
         cutscene = cameraCutscene;
         cutscene.Start();
         targetFov = 60;
-        GameInfo.Menu.ObjectiveManager.DisableWaypoints(this);
+        if (!cameraCutscene.TurnWaypointUIOffOnEnd)
+            GameInfo.Menu.ObjectiveManager.DisableWaypoints(this);
     }
 
     public void StartIdle()

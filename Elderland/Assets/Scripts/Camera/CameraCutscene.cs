@@ -18,12 +18,14 @@ public class CameraCutscene
 	private bool makeLastWaypoint;
 	private bool transitionToGameplayUponFinish;
 	private bool unfreezeInputUponFinish;
+	private bool turnWaypointUIOffOnEnd;
 	private UnityEvent endEvent;
 
 	public LinkedListNode<CameraCutsceneWaypoint> CurrentWaypointNode { get; private set; }
 	public LinkedListNode<CameraCutsceneWaypoint> TargetWaypointNode { get; private set; }
 	public float Timer { get; private set; }
 	public float WaitTimer { get; private set; }
+	public bool TurnWaypointUIOffOnEnd { get { return turnWaypointUIOffOnEnd; } }
 
 	public CameraCutscene(
 		LinkedList<CameraCutsceneWaypoint> waypoints,
@@ -37,6 +39,7 @@ public class CameraCutscene
 		bool makeLastWaypoint,
 		bool transitionToGameplayUponFinish,
 		bool unfreezeInputUponFinish,
+		bool turnWaypointUIOffOnEnd,
 		UnityEvent endEvent)
 	{
 		this.waypoints = waypoints;
@@ -50,6 +53,7 @@ public class CameraCutscene
 		this.makeLastWaypoint = makeLastWaypoint;
 		this.transitionToGameplayUponFinish = transitionToGameplayUponFinish;
 		this.unfreezeInputUponFinish = unfreezeInputUponFinish;
+		this.turnWaypointUIOffOnEnd = turnWaypointUIOffOnEnd;
 		this.endEvent = endEvent;
 	}
 
