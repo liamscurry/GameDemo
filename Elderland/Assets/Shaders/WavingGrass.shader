@@ -87,7 +87,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                     _Threshold = 0.2;
                 float4 textureColor = (tex2D(_MainTex, i.uv));
                 clip(textureColor.w - _Threshold);
-                return 0;
+                SHADOW_CASTER_FRAGMENT(i)
+                //return 0;
             }
             ENDCG
         }
@@ -111,10 +112,12 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fwdbase
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "Color.cginc"
+            #include "AutoLight.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
             #include "FolliageHelper.cginc"
@@ -130,7 +133,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             struct v2f
             {
-                float4 _ShadowCoord : TEXCOORD1;
+                SHADOW_COORDS(1)
+                //float4 _ShadowCoord : TEXCOORD1;
                 float4 uv : TEXCOORD0;
                 float4 pos : SV_POSITION;
                 float4 color : COLOR0; //messing with multiple grass textures.
@@ -142,7 +146,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             };  
              
             float4 _ShadowColor;
-            sampler2D _ShadowMapTexture; 
+            //sampler2D _ShadowMapTexture; 
             sampler2D _CameraDepthTexture;
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -177,7 +181,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //o.color = float4(1,0,0,1);
                 o.color = v.color;
                
-                o._ShadowCoord = ComputeScreenPos(o.pos);
+                //o._ShadowCoord = ComputeScreenPos(o.pos);
+                TRANSFER_SHADOW(o)
                 o.objectPos = v.vertex;
                 o.normal = UnityObjectToWorldNormal(normal);
                 return o;
@@ -195,7 +200,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //return fixed4(tex2D(_MainTex, screenPercentagePos).xyz * tex2D(_MainTex, screenPercentagePos).w, 1);
 
                 //return fixed4(i.worldDistance / 50,0,0,1);
-                float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
+                //float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
+                float inShadow = SHADOW_ATTENUATION(i);
                 //return inShadow;
 
                 float _Threshold = 1;//0.675
