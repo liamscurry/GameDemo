@@ -29,6 +29,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private GameObject leftWeakDirectionIndicator;
     [SerializeField]
     private GameObject rightWeakDirectionIndicator;
+    [SerializeField]
+    private GameObject glitchRenderersParent;
 
     private int currentResolve;
     private float resolveTimer;
@@ -58,6 +60,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public bool completedWaypoints { get; private set; }
     public int waypointsLength { get; set; }
     
+    private SkinnedMeshRenderer[] glitchRenderers;
+
     public float NextAttackMax
     {
         get { return NextAttack.AttackDistance + NextAttack.AttackDistanceMargin; }
@@ -118,6 +122,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         resolvebarShadowPivot.Zero();
 
         ScrambleWeakDirection();
+
+        glitchRenderers = glitchRenderersParent.GetComponentsInChildren<SkinnedMeshRenderer>();
     }
 
     private void Update()
@@ -281,6 +287,38 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         else if (preHealth == 0 && Health != 0)
         {
             healthbarPivot.SetActive(true);
+        }
+
+        if (value < 0)
+        {
+            StopCoroutine("GlitchMaterial");
+            StartCoroutine("GlitchMaterial", 0.75f);
+        }
+    }
+
+    private IEnumerator GlitchMaterial(float duration)
+    {
+        float timer = 0;
+        
+        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        {
+            glitch.material.SetFloat("_Glitch", 1);
+        }
+
+        while (timer < duration)
+        {
+            yield return new WaitForEndOfFrame();
+
+            timer += Time.deltaTime;
+            foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+            {
+                glitch.material.SetFloat("_Glitch", 1 - timer / duration);
+            }
+        }
+
+        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        {
+            glitch.material.SetFloat("_Glitch", 0);
         }
     }
 

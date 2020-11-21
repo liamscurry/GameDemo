@@ -34,6 +34,7 @@ Shader "Custom/SemiFlatShader"
         // Via SpeedTree.shader
         Pass
         {
+            Name "SemiFlatShaderShadow"
             Tags { "LightMode"="ShadowCaster" }
 
             CGPROGRAM
@@ -158,6 +159,7 @@ Shader "Custom/SemiFlatShader"
 
         Pass
         {
+            Name "SemiFlatShader"
             Tags 
             { 
                 "LightMode"="ForwardBase"
