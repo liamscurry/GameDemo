@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DevMode
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -49,14 +51,16 @@ public class PlayerAbilityManager : AbilitySystem
         this.cooldownOriginTransform = cooldownOriginTransform;
         this.cooldownHeightDelta = cooldownHeightDelta;
         InitializePreferences();
-        /*
+
+        #if DevMode
         MeleeAvailable = true;
         RangedAvailable = true;
         HealAvailable = true;
         DodgeAvailable = true;
         DashAvailable = true;
         AbilitiesAvailable = true;
-        */
+        #endif
+        
         AbilitiesAvailable = true;
 
         //Stamina = 0;
@@ -139,9 +143,11 @@ public class PlayerAbilityManager : AbilitySystem
     {  
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
-        //EquipAbility<PlayerDash>(ref dash);
-        //EquipAbility<PlayerFireball>(ref ranged);
-        //EquipAbility<PlayerFireChargeTier1>(ref aoe);
+        #if DevMode
+        EquipAbility<PlayerDash>(ref dash);
+        EquipAbility<PlayerFireball>(ref ranged);
+        EquipAbility<PlayerFireChargeTier1>(ref aoe);
+        #endif
     }
 
     private void UpdateCooldownIconPositions()

@@ -10,7 +10,7 @@ public class HeavyEnemyAttackPivot : StateMachineBehaviour
     {
         if (manager == null)
         {
-            manager = animator.GetComponent<HeavyEnemyManager>();
+            manager = animator.GetComponentInParent<HeavyEnemyManager>();
         }
 
         manager.ChooseNextAbility();

@@ -22,7 +22,7 @@ public class HeavyEnemyAttackFollow : StateMachineBehaviour
     {
         if (manager == null)
         {
-            manager = animator.GetComponent<HeavyEnemyManager>();
+            manager = animator.GetComponentInParent<HeavyEnemyManager>();
         }
 
         checkTimer = checkDuration;

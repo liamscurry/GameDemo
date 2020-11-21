@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#define DevMode
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -110,9 +112,12 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {   
-        //StartGameplay();
-        //GameInfo.Manager.UnfreezeInput(null);
+        #if DevMode
+        StartGameplay();
+        GameInfo.Manager.UnfreezeInput(null);
+        #else
         StartIdle();
+        #endif
 
         //Default values
         DefaultGameplaySettings();
@@ -180,7 +185,7 @@ public class CameraController : MonoBehaviour
         sprintTimer = 0;
         sprintPercentage = 0;
         orientationPercentage = 0;
-        if (!cutscene.TurnWaypointUIOffOnEnd)
+        if (cutscene != null && !cutscene.TurnWaypointUIOffOnEnd)
             GameInfo.Menu.ObjectiveManager.EnableWaypoints(this);
     }
 

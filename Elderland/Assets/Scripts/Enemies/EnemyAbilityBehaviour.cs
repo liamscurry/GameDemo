@@ -11,7 +11,7 @@ public class EnemyAbilityBehaviour : StateMachineBehaviour
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
         if (abilityManager == null)
-		    abilityManager = animator.gameObject.GetComponent<EnemyManager>().AbilityManager;
+		    abilityManager = animator.transform.parent.GetComponentInParent<EnemyManager>().AbilityManager;
 
         ability = abilityManager.CurrentAbility;
 		ability.StartSegmentCoroutine();

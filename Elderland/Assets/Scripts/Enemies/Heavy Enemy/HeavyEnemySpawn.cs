@@ -9,7 +9,7 @@ public class HeavyEnemySpawn : StateMachineBehaviour
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-        manager = animator.GetComponent<HeavyEnemyManager>();
+        manager = animator.GetComponentInParent<HeavyEnemyManager>();
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 

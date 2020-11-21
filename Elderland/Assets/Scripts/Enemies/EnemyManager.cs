@@ -93,7 +93,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     {
         HealthBarColor = healthBarColor;
 
-        Animator = GetComponent<Animator>();
+        Animator = GetComponentInChildren<Animator>();
         Capsule = GetComponent<CapsuleCollider>();
         Body = GetComponent<Rigidbody>();
         Agent = GetComponent<NavMeshAgent>();
