@@ -36,6 +36,9 @@ public sealed class HeavyEnemyManager : EnemyManager
 
     public override void ChooseNextAbility()
     {
+        VCombo();
+        return;
+
         int chance = EnemyInfo.AbilityRandomizer.Next(10) + 1;
 
         if (chance <= 5)

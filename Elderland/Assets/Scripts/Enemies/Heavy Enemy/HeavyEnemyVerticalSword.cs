@@ -74,6 +74,7 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
     protected override void GlobalStart()
     {
         int swingType = (random.Next() % 3) - 1;
+        swingType = -1;
 
         switch (swingType)
         {
