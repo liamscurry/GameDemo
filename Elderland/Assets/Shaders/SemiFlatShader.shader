@@ -359,6 +359,7 @@ Shader "Custom/SemiFlatShader"
         Pass
         {
             //Based on AutodeskInteractive additive forward pass structure in built in shaders.
+            Name "PointLights"
             Tags
             {
                 "LightMode"="ForwardAdd"

@@ -23,6 +23,7 @@
     {
         UsePass "Custom/SemiFlatShader/SemiFlatShaderShadow"
         UsePass "Custom/SemiFlatShader/SemiFlatShader"
+        UsePass "Custom/SemiFlatShader/PointLights"
 
         Pass
         {
