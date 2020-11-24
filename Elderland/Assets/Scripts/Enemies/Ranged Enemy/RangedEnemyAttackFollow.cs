@@ -21,7 +21,7 @@ public class RangedEnemyAttackFollow : StateMachineBehaviour
     {
         if (manager == null)
         {
-            manager = animator.GetComponent<RangedEnemyManager>();
+            manager = animator.GetComponentInParent<RangedEnemyManager>();
             //manager.direction = EnemyInfo.AbilityRandomizer.Next() % 2;
             //if (manager.direction == 0)   
             //    manager.direction = -1;

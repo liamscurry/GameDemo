@@ -11,7 +11,7 @@ public class RangedEnemyAttackPivot : StateMachineBehaviour
     {
         if (manager == null)
         {
-            manager = animator.GetComponent<RangedEnemyManager>();
+            manager = animator.GetComponentInParent<RangedEnemyManager>();
         }
 
         manager.ChooseNextAbility();    

@@ -27,8 +27,8 @@ public sealed class RangedEnemyShoot : EnemyAbility
         //Specifications
         this.system = abilityManger;
 
-        shootProcess = new AbilityProcess(null, DuringShoot, ShootEnd, 0.25f);
-        checkProcess = new AbilityProcess(null, null, CheckEnd, 0.75f);
+        shootProcess = new AbilityProcess(null, DuringShoot, ShootEnd, 0.75f);
+        checkProcess = new AbilityProcess(null, null, CheckEnd, 0.25f);
         shoot = new AbilitySegment(shootClip, shootProcess, checkProcess);
 
         segments = new AbilitySegmentList();
@@ -74,10 +74,13 @@ public sealed class RangedEnemyShoot : EnemyAbility
                 TagConstants.PlayerHitbox,
                 OnHit,
                 null);
+
+        Debug.Log("shoot end");
     }
 
     public void CheckEnd()
     {
+        Debug.Log("check end");
         OffseniveCheck();
         if (!exiting) 
             DefensiveCheck();

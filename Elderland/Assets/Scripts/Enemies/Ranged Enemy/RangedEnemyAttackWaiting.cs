@@ -19,7 +19,7 @@ public class RangedEnemyAttackWaiting : StateMachineBehaviour
     {
         if (manager == null)
         {
-            manager = animator.GetComponent<RangedEnemyManager>();
+            manager = animator.GetComponentInParent<RangedEnemyManager>();
         }
 
         checkTimer = checkDuration;

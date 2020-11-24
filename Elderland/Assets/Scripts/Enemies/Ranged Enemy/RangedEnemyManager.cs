@@ -75,8 +75,8 @@ public sealed class RangedEnemyManager : EnemyManager
     {
         NextAttack = Shoot;
         Shoot.Queue(EnemyAbilityType.First);
-        Shoot.Queue(EnemyAbilityType.Last);
-        Dash.Queue(EnemyAbilityType.Last);
+        //Shoot.Queue(EnemyAbilityType.Middle);
+        //Dash.Queue(EnemyAbilityType.Last);
     }
     
     public bool IsInDefensiveRange()

@@ -64,6 +64,7 @@ public abstract class EnemyAbility : Ability
 
     protected sealed override void AdvanceSegment()
     {
+        Debug.Log("called advance");
         if (ActiveSegment.Next != null)
         {
             ActiveSegment = ActiveSegment.Next;

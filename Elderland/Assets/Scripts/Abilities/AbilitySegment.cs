@@ -47,7 +47,7 @@ public class AbilitySegment
 		float netDuration = 0;
 		for (int i = 0; i < Processes.Length; i++)
 		{
-			netDuration += Processes[i].Duration;	
+			netDuration += Processes[i].Duration;
 		}
 		return netDuration;
 	}

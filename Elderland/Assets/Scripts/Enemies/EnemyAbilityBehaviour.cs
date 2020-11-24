@@ -10,6 +10,7 @@ public class EnemyAbilityBehaviour : StateMachineBehaviour
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
+		Debug.Log("entered");
         if (abilityManager == null)
 		    abilityManager = animator.transform.parent.GetComponentInParent<EnemyManager>().AbilityManager;
 

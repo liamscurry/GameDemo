@@ -18,7 +18,7 @@ public class RangedEnemyAttackStationary : StateMachineBehaviour
     {
         if (manager == null)
         {
-            manager = animator.GetComponent<RangedEnemyManager>();
+            manager = animator.GetComponentInParent<RangedEnemyManager>();
         }
 
         lastDistanceToPlayer = DistanceToPlayer();

@@ -84,6 +84,7 @@ public abstract class Ability : MonoBehaviour
     {
         SetAnimatorSettings();
         ActiveSegment.Finished = false;
+        Debug.Log("before timing");
 
         switch(ActiveSegment.Type)
         {
@@ -139,7 +140,7 @@ public abstract class Ability : MonoBehaviour
                 if (ActiveProcess.Begin != null)
                     ActiveProcess.Begin();
 
-                yield return TimeProcess(scaledDuration);
+                yield return TimeProcess(scaledDuration, ActiveSegment.LoopFactor);
 
                 if (ActiveProcess.End != null)
                     ActiveProcess.End();
@@ -205,17 +206,23 @@ public abstract class Ability : MonoBehaviour
         }
     }
 
-    protected IEnumerator TimeProcess(float scaledDuration)
+    protected IEnumerator TimeProcess(float scaledDuration, float maxNormalizedTime)
     {
+        float durationNormalizedTime = scaledDuration;
+
         if (system.Animator.IsInTransition(0))
         {
             AnimatorStateInfo nextStateInfo = system.Animator.GetNextAnimatorStateInfo(0);
-            yield return new WaitForSeconds(nextStateInfo.length / system.Animator.speed * (scaledDuration - nextStateInfo.normalizedTime));
+            if (maxNormalizedTime - nextStateInfo.normalizedTime < scaledDuration)
+                durationNormalizedTime = maxNormalizedTime - nextStateInfo.normalizedTime;
+            yield return new WaitForSeconds(nextStateInfo.length / system.Animator.speed * durationNormalizedTime);
         }
         else
         {
             AnimatorStateInfo stateInfo = system.Animator.GetCurrentAnimatorStateInfo(0);
-            yield return new WaitForSeconds(stateInfo.length / system.Animator.speed * (scaledDuration - stateInfo.normalizedTime));
+            if (maxNormalizedTime - stateInfo.normalizedTime < scaledDuration)
+                durationNormalizedTime = maxNormalizedTime - stateInfo.normalizedTime;
+            yield return new WaitForSeconds(stateInfo.length / system.Animator.speed * durationNormalizedTime);
         }
     }
 

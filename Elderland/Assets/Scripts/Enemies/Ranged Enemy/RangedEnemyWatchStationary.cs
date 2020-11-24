@@ -11,7 +11,7 @@ public class RangedEnemyWatchStationary : StateMachineBehaviour
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        manager = animator.GetComponent<RangedEnemyManager>();
+        manager = animator.GetComponentInParent<RangedEnemyManager>();
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
