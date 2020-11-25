@@ -27,8 +27,8 @@ public sealed class RangedEnemyShoot : EnemyAbility
         //Specifications
         this.system = abilityManger;
 
-        shootProcess = new AbilityProcess(null, DuringShoot, ShootEnd, 0.75f);
-        checkProcess = new AbilityProcess(null, null, CheckEnd, 0.25f);
+        shootProcess = new AbilityProcess(null, DuringShoot, ShootEnd, 0.8f);
+        checkProcess = new AbilityProcess(null, null, CheckEnd, 0.2f);
         shoot = new AbilitySegment(shootClip, shootProcess, checkProcess);
 
         segments = new AbilitySegmentList();
