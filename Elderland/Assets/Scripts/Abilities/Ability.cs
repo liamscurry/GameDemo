@@ -84,7 +84,6 @@ public abstract class Ability : MonoBehaviour
     {
         SetAnimatorSettings();
         ActiveSegment.Finished = false;
-        Debug.Log("before timing");
 
         switch(ActiveSegment.Type)
         {

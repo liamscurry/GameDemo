@@ -74,13 +74,10 @@ public sealed class RangedEnemyShoot : EnemyAbility
                 TagConstants.PlayerHitbox,
                 OnHit,
                 null);
-
-        Debug.Log("shoot end");
     }
 
     public void CheckEnd()
     {
-        Debug.Log("check end");
         OffseniveCheck();
         if (!exiting) 
             DefensiveCheck();
