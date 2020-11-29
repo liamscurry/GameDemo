@@ -11,7 +11,7 @@ public class LightEnemyFalling : StateMachineBehaviour
     {
         if (manager == null)
         {
-            manager = animator.GetComponent<LightEnemyManager>();
+            manager = animator.GetComponentInParent<LightEnemyManager>();
         }
     }
 

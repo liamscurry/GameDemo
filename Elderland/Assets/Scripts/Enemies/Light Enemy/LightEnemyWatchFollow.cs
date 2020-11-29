@@ -11,7 +11,7 @@ public class LightEnemyWatchFollow : StateMachineBehaviour
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        manager = animator.GetComponent<LightEnemyManager>();
+        manager = animator.GetComponentInParent<LightEnemyManager>();
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
