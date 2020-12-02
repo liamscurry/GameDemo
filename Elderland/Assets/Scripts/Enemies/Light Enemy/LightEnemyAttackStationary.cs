@@ -11,6 +11,11 @@ public class LightEnemyAttackStationary : StateMachineBehaviour
 
     private bool exiting;
 
+    private Vector3 previousForward;
+    private bool animatingRotation;
+    private float animatingRotationSmooth;
+    private float animatingRotationSmoothVelocity;
+
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (manager == null)
@@ -20,6 +25,9 @@ public class LightEnemyAttackStationary : StateMachineBehaviour
 
         checkTimer = checkDuration;
         exiting = false;
+        previousForward = manager.transform.forward;
+        animatingRotation = false;
+        animatingRotationSmooth = 0;
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -36,8 +44,8 @@ public class LightEnemyAttackStationary : StateMachineBehaviour
             RotateTowardsPlayer();
             manager.ClampToGround();
             
-            FollowTransition();
-            AttackTransition();
+            //FollowTransition();
+            //AttackTransition();
             
             if (checkTimer >= checkDuration)
                 checkTimer = 0;
@@ -47,8 +55,42 @@ public class LightEnemyAttackStationary : StateMachineBehaviour
     private void RotateTowardsPlayer()
     {
         Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
-        Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 3f * Time.deltaTime, 0f);
+        Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 2f * Time.deltaTime, 0f);
         manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+
+        float previousAngle = Matho.AngleBetween(previousForward, forward);
+        if (!animatingRotation && previousAngle > 0.5f)
+        {
+            animatingRotation = true;
+        }
+        else if (animatingRotation && previousAngle < 0.1f)
+        {
+            previousForward = forward;
+            animatingRotation = false;
+        }
+
+        int targetRotation = 0;
+        int targetSign = 1;
+        if (animatingRotation)
+        {
+            previousForward = Vector3.RotateTowards(previousForward, forward, 2f * Time.deltaTime, 0f);
+
+            float forwardAxisAngle = Matho.Angle(Matho.StandardProjection2D(forward));
+            float previousAxisAngle = Matho.Angle(Matho.StandardProjection2D(previousForward));
+            if (forwardAxisAngle < previousAxisAngle ||
+                (forwardAxisAngle < 90f && previousAxisAngle > 270f))
+            {
+                targetSign = -1;
+            }
+
+            targetRotation = 1;
+        } 
+
+        targetRotation *= targetSign * -1;
+
+        animatingRotationSmooth =
+            Mathf.SmoothDamp(animatingRotationSmooth, targetRotation, ref animatingRotationSmoothVelocity, 0.3f, 100f);
+        manager.Animator.SetFloat("turning", animatingRotationSmooth);
     }
 
     private void FollowTransition()

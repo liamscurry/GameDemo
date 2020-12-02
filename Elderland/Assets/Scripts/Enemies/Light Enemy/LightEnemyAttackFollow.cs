@@ -115,6 +115,18 @@ public class LightEnemyAttackFollow : StateMachineBehaviour
                     Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
                     Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 1f * Time.deltaTime, 0f);
                     manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+
+                    float rotationAmount =
+                        Matho.AngleBetween(targetForward, forward) / 180f;
+                    manager.Animator.SetFloat("turning", Mathf.Clamp01(rotationAmount * 2f));
+                }
+                else
+                {
+                    Vector3 offset = Matho.StandardProjection3D(manager.Agent.steeringTarget - manager.transform.position).normalized;
+                    Vector3 projectedVelocity = Matho.StandardProjection3D(manager.Agent.velocity).normalized;
+                    float rotationAmount =
+                        Matho.AngleBetween(offset, projectedVelocity) / 180f;
+                    manager.Animator.SetFloat("turning", Mathf.Clamp01(rotationAmount * 2f));
                 }
             }
             else
@@ -152,7 +164,7 @@ public class LightEnemyAttackFollow : StateMachineBehaviour
 
             if (playerEnemyAngle < manager.NextAttack.AttackAngleMargin)
             {
-                AttackExit();
+                //AttackExit();
             }
             else
             {
