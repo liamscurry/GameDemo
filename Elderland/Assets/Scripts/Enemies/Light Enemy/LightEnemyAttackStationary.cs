@@ -55,42 +55,69 @@ public class LightEnemyAttackStationary : StateMachineBehaviour
     private void RotateTowardsPlayer()
     {
         Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
-        Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 2f * Time.deltaTime, 0f);
-        manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
-
-        float previousAngle = Matho.AngleBetween(previousForward, forward);
-        if (!animatingRotation && previousAngle > 0.5f)
+        
+        float rotationAngle = Matho.AngleBetween(manager.transform.forward, targetForward);
+        if (rotationAngle > 10)
         {
-            animatingRotation = true;
+            //rotate
+            float currentRightAxisAngle =
+                Matho.AngleBetween(manager.transform.right, targetForward);
+
+            Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 1.5f * Time.deltaTime, 0f);
+            manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+
+            int rotationSign = 1;
+            if (currentRightAxisAngle < 90f) // condition on 360 mark is not working, rest
+                //of sign is working and the general turning works great, no hiccups from there.
+            {
+                rotationSign = -1;
+            }
+
+            animatingRotationSmooth =
+            Mathf.SmoothDamp(animatingRotationSmooth,
+                             -1 * rotationSign,
+                             ref animatingRotationSmoothVelocity,
+                             0.15f,
+                             100f);
+
+            manager.Animator.SetFloat("turning", animatingRotationSmooth);
         }
-        else if (animatingRotation && previousAngle < 0.1f)
+        else
         {
-            previousForward = forward;
-            animatingRotation = false;
+            //slow rotate
+            Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 0.5f * Time.deltaTime, 0f);
+            manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+
+            animatingRotationSmooth =
+            Mathf.SmoothDamp(animatingRotationSmooth,
+                             0,
+                             ref animatingRotationSmoothVelocity,
+                             0.15f,
+                             100f);
+
+            manager.Animator.SetFloat("turning", animatingRotationSmooth);
         }
 
+        /*
         int targetRotation = 0;
         int targetSign = 1;
+        float dampSpeedModifier = 1f;
         if (animatingRotation)
         {
-            previousForward = Vector3.RotateTowards(previousForward, forward, 2f * Time.deltaTime, 0f);
-
-            float forwardAxisAngle = Matho.Angle(Matho.StandardProjection2D(forward));
             float previousAxisAngle = Matho.Angle(Matho.StandardProjection2D(previousForward));
+            previousForward = Vector3.RotateTowards(previousForward, manager.transform.forward, 2f * Time.deltaTime, 0f);
+            float forwardAxisAngle = Matho.Angle(Matho.StandardProjection2D(previousForward));
+            
             if (forwardAxisAngle < previousAxisAngle ||
-                (forwardAxisAngle < 90f && previousAxisAngle > 270f))
+                (previousAxisAngle < 90f && forwardAxisAngle > 270f))
             {
                 targetSign = -1;
+                Debug.Log("flipped: " + forwardAxisAngle + ", " + previousAxisAngle);
             }
 
             targetRotation = 1;
-        } 
-
-        targetRotation *= targetSign * -1;
-
-        animatingRotationSmooth =
-            Mathf.SmoothDamp(animatingRotationSmooth, targetRotation, ref animatingRotationSmoothVelocity, 0.3f, 100f);
-        manager.Animator.SetFloat("turning", animatingRotationSmooth);
+            dampSpeedModifier = 1;
+        } */
     }
 
     private void FollowTransition()
