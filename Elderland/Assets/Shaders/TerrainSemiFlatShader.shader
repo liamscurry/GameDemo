@@ -255,7 +255,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 half4 splatControl;
                 half weight;
                 fixed4 splatColor;
-                SplatmapMix(data, splatColor, weight, splatColor, i.normal);
+                SplatmapMix(data, splatControl, weight, splatColor, i.normal);
 
                 //return splatColor;
                 //Terrain texture:
@@ -294,10 +294,12 @@ Shader "Custom/TerrainSemiFlatShader"
                 //return inShadowSide;
                 //return inShadow * (1 - fadeValue);
                 //finalColor = float4(1,0,0,1);
-                float strechedShadowProduct = saturate(shadowProduct * 2);
+                //saturate(1 - (1 - shadowProduct) * 2)
+                float strechedShadowProduct = 1 - (1 - shadowProduct) * 1.2;
                 float4 shadowColor = finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1);
                 float4 lightColor = shadowColor * strechedShadowProduct +
                                     finalColor * (1 - strechedShadowProduct);
+
                 lightColor = lightColor + float4(0.9, .9, 1, 0) * f * 1;
                 //return lightColor;
                 //return finalColor;

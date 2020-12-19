@@ -204,7 +204,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //return inShadow;
 
                 float _Threshold = 1;//0.675
-                _Threshold -= i.worldDistance * 0.02;
+                _Threshold -= i.worldDistance * 0.1;
                 if (_Threshold < 0.2)
                     _Threshold = 0.2;
                 //_Threshold = 0.5;
@@ -322,7 +322,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 if (i.color.a > tipHighlight)
                 {
                     //return float4(1,0,0,1);
-                    finalColor += float4(1,1,1,1) * (i.color.a - tipHighlight) / (1 - tipHighlight) * .1;
+                    finalColor += float4(1,1,1,1) * (i.color.a - tipHighlight) / (1 - tipHighlight) * .01;
                 }
                 
                 
@@ -350,7 +350,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 float inShadowSide = shadowProduct > 0.5; //0.4
 
-                float strechedShadowProduct = saturate(shadowProduct * 2);
+                float strechedShadowProduct = 1 - (1 - shadowProduct) * 1.2;
                 float _LightShadowStrength = 0.4;
                 float4 shadowColor = finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1);
                 float4 lightColor = shadowColor * strechedShadowProduct +
