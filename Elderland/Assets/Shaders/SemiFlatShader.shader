@@ -340,7 +340,8 @@ Shader "Custom/SemiFlatShader"
                             flipLOD = 1 - flipLOD;
                         flipLOD = 1 - flipLOD;
                         //return flipLOD;
-                        shadeFade = (pow(flipLOD,9)) * inShadow + (1 - pow(flipLOD,9)) * 1;
+                        //shadeFade = (pow(flipLOD,9)) * inShadow + (1 - pow(flipLOD,9)) * 1;
+                        shadeFade = inShadow;
                         //return flipLOD;
                         //inShadow = 0;
                         STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);

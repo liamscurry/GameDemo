@@ -158,7 +158,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
                 float4 worldPos = mul(unity_ObjectToWorld, float4(alteredObjectVertex, 1));
                 o.worldPos = worldPos.xyz;
-                float worldDistance = length(_WorldSpaceCameraPos.xz - worldPos.xz);
+                float worldDistance = length(_WorldSpaceCameraPos.xyz - worldPos.xyz);
                 //o.pos = UnityObjectToClipPos(v.vertex);
                 if (worldDistance < 100)
                 {
