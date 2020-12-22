@@ -6,11 +6,18 @@
 //can only have one object hierarchy per detail or else it is not drawn.
 
 //Based on built in grass shaders.
+
+// References
+// - Environment reflection with a normal map example shader in VertexFragmentShaderExamples Unity manual page.
+//   for normal mapping.
+// - Standard-FirstPass/TerrainSplatmapCommon.cginc
+
 Shader "Custom/TerrainSemiFlatShader"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        //_NormalMap("NormalMap", 2D) = "bump" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
@@ -78,7 +85,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 SplatmapVert(v, data);
                 o.tc = data.tc;
 
-                o.normal = normal;
+                o.normal = v.normal;
 
                 return o;
             }
@@ -92,64 +99,6 @@ Shader "Custom/TerrainSemiFlatShader"
                 half weight;
                 fixed4 splatColor;
                 SplatmapMix(data, splatColor, weight, splatColor, i.normal);
-
-                float4 screenPos = ComputeScreenPos(i.pos);
-                float2 screenPercentagePos = screenPos.xy / screenPos.w;
-                float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
-                                             sin(screenPercentagePos.y * 2 * 3.151592 * _CrossFade * 9));
-                float checkboardClip = checkerboard.x > 0 ^ checkerboard.y > 0; 
-
-                //return fixed4(screenPercentagePos.x, screenPercentagePos.x, screenPercentagePos.x, 1);
-
-                float flipLOD = abs(unity_LODFade.x);
-                if (unity_LODFade.x > 0)
-                    flipLOD = 1 - flipLOD;
-                flipLOD = 1 - flipLOD;
-
-                //unity_LODFade.x at 1 is off.
-                //unity_LODFade.x at 0 is on.
-
-                //unity_LODFade.x at 1 is off.
-                //unity_LODFade.x at 0 is on.
-
-                
-                int fadeSign = 1;
-                if (unity_LODFade.x < 0)
-                    fadeSign = -1;
-
-                if ((checkboardClip * -1 < 0 && fadeSign == 1) || (checkboardClip * -1 >= 0 && fadeSign == -1))
-                {
-                    //clip(-1);
-                    float rightLOD = (flipLOD - 0.5) * 2;
-                    if (rightLOD < 0)
-                        rightLOD = 0;
-
-                    float evenClip = 0;
-                    if (fadeSign == 1)
-                    {    
-                        evenClip = abs(checkerboard.x) > rightLOD && abs(checkerboard.y) > rightLOD;
-                    }
-                    else
-                    {
-                        evenClip = !(abs(checkerboard.x) > (1 - rightLOD) && abs(checkerboard.y) > (1 - rightLOD));
-                    }
-                    clip(evenClip * -1);
-                }
-                else
-                {
-                    //clip(-1);
-                    float leftLOD = flipLOD * 2;
-                    float oddClip = 0;
-                    if (fadeSign == 1)
-                    {
-                        oddClip = abs(checkerboard.x) > leftLOD && abs(checkerboard.y) > leftLOD;
-                    }
-                    else
-                    {
-                        oddClip = !(abs(checkerboard.x) > (1 - leftLOD) && abs(checkerboard.y) > (1 - leftLOD));
-                    }
-                    clip(oddClip * -1);
-                }
   
                 float4 textureColor = (tex2D(_MainTex, i.uv));
                 //clip(textureColor.w - .1);
@@ -184,15 +133,25 @@ Shader "Custom/TerrainSemiFlatShader"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            //#pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap forwardadd
             #pragma multi_compile_fwdbase
             // In Specular-Base.shader and other terrain shaders.
+
+            //#pragma multi_compile_instancing
             #pragma multi_compile_local __ _ALPHATEST_ON
+            #pragma multi_compile_local __ _NORMALMAP
+
+            #define TERRAIN_STANDARD_SHADER
+            #define TERRAIN_INSTANCED_PERPIXEL_NORMAL
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "Color.cginc"
             #include "AutoLight.cginc"
+
             #include "TerrainSplatmapCommon.cginc"
+            #include "UnityPBSLighting.cginc"
+
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
 
@@ -212,9 +171,13 @@ Shader "Custom/TerrainSemiFlatShader"
                 float3 normal : TEXCOORD2;
                 float3 worldPos : TEXCOORD3;
                 float4 tc : TEXCOORD4;
+                half3 tanX1 : TEXCOORD5;
+                half3 tanX2 : TEXCOORD6;
+                half3 tanX3 : TEXCOORD7;
+                float3 worldNormal : TEXCOORD8;
             };
 
-            v2f vert (appdata_full v, float3 normal : NORMAL)
+            v2f vert (appdata_full v, float3 normal : NORMAL, float4 tangent : TANGENT)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
@@ -222,12 +185,24 @@ Shader "Custom/TerrainSemiFlatShader"
                 TRANSFER_SHADOW(o)
                 o.uv = v.texcoord;//v.uv
                 // Via Vertex and fragment shader examples docs.
-                o.normal = UnityObjectToWorldNormal(normal);
+                o.worldNormal = UnityObjectToWorldNormal(normal);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+
+                // Normal space matrix computation
+                half3 worldNormal = UnityObjectToWorldNormal(normal);
+                half3 worldTangent = UnityObjectToWorldDir(tangent.xyz);
+                half crossSign = tangent.w * unity_WorldTransformParams.w;
+                half3 worldCross = -1 * cross(worldNormal, worldTangent) * crossSign;
+                o.tanX1 = half3(worldTangent.x, worldCross.x, worldNormal.x);
+                o.tanX2 = half3(worldTangent.y, worldCross.y, worldNormal.y);
+                o.tanX3 = half3(worldTangent.z, worldCross.z, worldNormal.z);
 
                 Input data;
                 SplatmapVert(v, data);
                 o.tc = data.tc;
+                o.normal = v.normal;
+                //o.normal = UnityObjectToWorldNormal(v.normal);
+                //float3 worldNormal = normalize(tex2D(_TerrainNormalmapTexture, o.tc.zw).xyz * 2 - 1).xzy;
 
                 return o;
             }
@@ -235,6 +210,7 @@ Shader "Custom/TerrainSemiFlatShader"
             float4 _Color;
             //sampler2D _ShadowMapTexture; 
             sampler2D _MainTex;
+            //sampler2D _NormalMap;
             float _Threshold;
             float _CrossFade;
             float _EvenFade;
@@ -253,16 +229,20 @@ Shader "Custom/TerrainSemiFlatShader"
                 data.tc = i.tc;
                 // Based on built in FirstPass shader terrain diffuse.
                 half4 splatControl;
-                half weight;
+                half weight; 
                 fixed4 splatColor;
-                SplatmapMix(data, splatControl, weight, splatColor, i.normal);
+                half4 defaultSmoothness = half4(0,0,0,0);
+                SplatmapMix(data, defaultSmoothness, splatControl, weight, splatColor, i.normal); // normal output is in 
+                // tangent space
+                //i.normal = float3(-i.normal.x, -i.normal.y, i.normal.z);
+                //float3 worldNormal = UnityObjectToWorldNormal(i.normal);
 
-                //return splatColor;
-                //Terrain texture:
-                
-                //float4 textureColor = tex2D(_MainTex, i.uv);
-                //if (textureColor.a < _Threshold)
-                //    clip(textureColor.a - _Threshold);
+                // Normal mapping
+                //half3 tangentNormal = UnpackNormal(tex2D(_NormalMap, i.uv));
+                half3 worldNormal;
+                worldNormal.x = dot(i.tanX1, i.normal);
+                worldNormal.y = dot(i.tanX2, i.normal);
+                worldNormal.z = dot(i.tanX3, i.normal);
 
                 float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color * splatColor;
@@ -270,15 +250,17 @@ Shader "Custom/TerrainSemiFlatShader"
                 //float4 lightColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
                 //finalColor * inShadow;//(1 - _ShadowStrength)
 
-                float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
-                float inShadowSide = shadowProduct > 0.5; //0.4
+                float shadowProduct = AngleBetween(worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
+                float originalShadowProduct = AngleBetween(i.worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
+                float inShadowSide = originalShadowProduct > 0.5; //0.4
+                //return float4(worldNormal, 1);
 
                 // Learned in AutoLight.cginc
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
-                float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, i.normal) / (PI));
+                float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, worldNormal) / (PI));
                 //finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
 
                 float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
@@ -290,9 +272,6 @@ Shader "Custom/TerrainSemiFlatShader"
                 
                 float inShadowBool = inShadow < 0.6;
 
-                //return fadeValue;
-                //return inShadowSide;
-                //return inShadow * (1 - fadeValue);
                 //finalColor = float4(1,0,0,1);
                 //saturate(1 - (1 - shadowProduct) * 2)
                 float strechedShadowProduct = 1 - (1 - shadowProduct) * 1.2;
@@ -301,68 +280,44 @@ Shader "Custom/TerrainSemiFlatShader"
                                     finalColor * (1 - strechedShadowProduct);
 
                 lightColor = lightColor + float4(0.9, .9, 1, 0) * f * 1;
-                //return lightColor;
-                //return finalColor;
-                //if (!inShadowSide)
+                //finalColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;
+                
+                if (!inShadowSide)
                 {
-                    //finalColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;
+                    //return float4(1,0,0,1);
                     
-                    if (!inShadowSide)
-                    {
-                        //return float4(1,0,0,1);
-                        
-                        //return finalColor;
-                        //lightColor = lightColor + float4(0.9, .9, 1, 0) * f * 2;
-                        
-                        float shadeFade = inShadow;
-                        //return shadeFade;
-                        //return fixed4(1,0,0,1);
-                        float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
-                        //return fadedShadowColor;
-                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                        //return inShadow;
-                        STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * (shadeFade));
-                        STANDARD_FOG(finalColor);
-                    }
-                    else
-                    {
-                        //return strechedShadowProduct;
-                        //return float4(0,1,0,1);
-                        //return fadeValue;
-                        //return fixed4(0,0,1,1);
-                        float stretchedInShadow = saturate(inShadow * 2);
-                        float shadowMerge = _LightShadowStrength * (1 - stretchedInShadow) + 1 * (stretchedInShadow);
-                        float4 shadowSideColor = (lightColor * float4(shadowMerge, shadowMerge, shadowMerge, 1));
-                        
-                        strechedShadowProduct = saturate(1 * 2);
-                        //float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
-                        //flatShadowColor = flatShadowColor + float4(0.9, .9, 1, 0) * f * 1;
-                        //STANDARD_FOG(lightColor);
-                        
-                        //return shadeFade;
-                        float shadeFade = (1 - fadeValue) * inShadow;
-                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                        STANDARD_FOG(shadowColor);
-                        STANDARD_FOG(shadowSideColor * (1 - fadeValue) + lightColor * fadeValue);
-                        //return float4(1,0,0,1) * float4(.5,0,0,1) * (1 - fadeValue) + float4(1,0,0,1) * (fadeValue);
-                        //return inShadow;
-                        float4 mergeColor = finalColor * (_LightShadowStrength) + 
-                        (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - _LightShadowStrength);
-                        //return fadeValue;
-                        //STANDARD_FOG(finalColor * (fadeValue) + (finalColor * fixed4(.5, .5, .5, 1)) * (1 - fadeValue));
-                        //STANDARD_FOG(lightColor * (1 - fadeValue) + finalColor * (fadeValue));
-                        //STANDARD_FOG(mergeColor);
-                    }
+                    //return finalColor;
+                    //lightColor = lightColor + float4(0.9, .9, 1, 0) * f * 2;
+                    
+                    float shadeFade = inShadow;
+                    //return shadeFade;
+                    //return fixed4(1,0,0,1);
+                    float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
+                    //return fadedShadowColor;
+                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
+                    //return inShadow;
+                    STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * (shadeFade));
                 }
-                /*else
+                else
                 {
-                    STANDARD_FOG(lightColor);
-                    //return float4(1,0,0,1) * float4(.5,0,0,1);
+                    //return strechedShadowProduct;
+                    //return float4(0,1,0,1);
                     //return fadeValue;
-                    //return finalColor * fixed4(.5, .5, .5, 1);
-                    //return finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue);
-                    STANDARD_FOG(lightColor * (1 - fadeValue) + finalColor * (fadeValue));
-                }*/
+                    //return fixed4(0,0,1,1);
+                    float stretchedInShadow = saturate(inShadow * 2);
+                    float shadowMerge = _LightShadowStrength * (1 - stretchedInShadow) + 1 * (stretchedInShadow);
+                    float4 shadowSideColor = (lightColor * float4(shadowMerge, shadowMerge, shadowMerge, 1));
+                    
+                    strechedShadowProduct = saturate(1 * 2);
+                    //float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
+                    //flatShadowColor = flatShadowColor + float4(0.9, .9, 1, 0) * f * 1;
+                    //STANDARD_FOG(lightColor);
+                    
+                    //return shadeFade;
+                    float shadeFade = (1 - fadeValue) * inShadow;
+                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
+                    STANDARD_FOG(shadowColor);
+                }
             }
             ENDCG
         }
