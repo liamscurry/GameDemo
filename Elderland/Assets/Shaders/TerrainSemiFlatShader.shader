@@ -133,11 +133,9 @@ Shader "Custom/TerrainSemiFlatShader"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            //#pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap forwardadd
             #pragma multi_compile_fwdbase
-            // In Specular-Base.shader and other terrain shaders.
 
-            //#pragma multi_compile_instancing
+            // Default included in NormalMapHelper.cginc
             #pragma multi_compile_local __ _ALPHATEST_ON
             #pragma multi_compile_local __ _NORMALMAP
 
@@ -149,9 +147,7 @@ Shader "Custom/TerrainSemiFlatShader"
             #include "Color.cginc"
             #include "AutoLight.cginc"
 
-            #include "TerrainSplatmapCommon.cginc"
-            #include "UnityPBSLighting.cginc"
-
+            #include "/HelperCgincFiles/NormalMapHelper.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
 
@@ -171,9 +167,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 float3 normal : TEXCOORD2;
                 float3 worldPos : TEXCOORD3;
                 float4 tc : TEXCOORD4;
-                half3 tanX1 : TEXCOORD5;
-                half3 tanX2 : TEXCOORD6;
-                half3 tanX3 : TEXCOORD7;
+                DECLARE_TANGENT_SPACE(5, 6, 7)
                 float3 worldNormal : TEXCOORD8;
             };
 
@@ -189,13 +183,7 @@ Shader "Custom/TerrainSemiFlatShader"
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 
                 // Normal space matrix computation
-                half3 worldNormal = UnityObjectToWorldNormal(normal);
-                half3 worldTangent = UnityObjectToWorldDir(tangent.xyz);
-                half crossSign = tangent.w * unity_WorldTransformParams.w;
-                half3 worldCross = -1 * cross(worldNormal, worldTangent) * crossSign;
-                o.tanX1 = half3(worldTangent.x, worldCross.x, worldNormal.x);
-                o.tanX2 = half3(worldTangent.y, worldCross.y, worldNormal.y);
-                o.tanX3 = half3(worldTangent.z, worldCross.z, worldNormal.z);
+                ComputeTangentSpace(normal, tangent, o.tanX1, o.tanX2, o.tanX3);
 
                 Input data;
                 SplatmapVert(v, data);
@@ -239,10 +227,8 @@ Shader "Custom/TerrainSemiFlatShader"
 
                 // Normal mapping
                 //half3 tangentNormal = UnpackNormal(tex2D(_NormalMap, i.uv));
-                half3 worldNormal;
-                worldNormal.x = dot(i.tanX1, i.normal);
-                worldNormal.y = dot(i.tanX2, i.normal);
-                worldNormal.z = dot(i.tanX3, i.normal);
+                half3 worldNormal =
+                    TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, i.normal);
 
                 float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = _Color * splatColor;
