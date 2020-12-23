@@ -11,18 +11,26 @@ Shader "Custom/SemiFlatShader"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _BumpMap ("BumpMap", 2D) = "white" {}
+        _BumpMap ("BumpMap", 2D) = "bump" {}
+        _BumpMapIntensity ("BumpMapIntensity", Range(0, 1)) = 0
         _CutoutTex ("CutoutTex", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
         _EvenFade ("EvenFade", Range(0, 1)) = 0
         _OddFade ("EvenFade", Range(0, 1)) = 0
+
+
         _ShadowStrength ("ShadowStrength", Range(0, 2)) = 0
         _LightShadowStrength ("LightShadowStrength", Range(0, 1)) = 0
+
+
         _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
         _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
+
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
+        _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
+
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
     }
@@ -177,15 +185,22 @@ Shader "Custom/SemiFlatShader"
             #pragma fragment frag
             #pragma multi_compile_fwdbase
 
+            #pragma multi_compile_local __ _ALPHATEST_ON
+            #pragma multi_compile_local __ _NORMALMAP
+
+            #define TERRAIN_STANDARD_SHADER
+            #define TERRAIN_INSTANCED_PERPIXEL_NORMAL
+
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "Color.cginc"
             #include "AutoLight.cginc"
             #include "TerrainSplatmapCommon.cginc"
+
+            #include "/HelperCgincFiles/NormalMapHelper.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
             #include "/HelperCgincFiles/LODHelper.cginc"
-            #include "TerrainSplatmapCommon.cginc"
 
             struct appdata
             {
@@ -204,9 +219,10 @@ Shader "Custom/SemiFlatShader"
                 float3 worldPos : TEXCOORD3;
                 float3 tangent : TEXCOORD4;
                 float4 screenPos : TEXCOORD5;
+                DECLARE_TANGENT_SPACE(6, 7, 8)
             };
 
-            v2f vert (appdata v, float3 normal : NORMAL, float3 tangent : TANGENT)
+            v2f vert (appdata v, float3 normal : NORMAL, float4 tangent : TANGENT)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
@@ -214,9 +230,10 @@ Shader "Custom/SemiFlatShader"
                 TRANSFER_SHADOW(o)
                 o.uv = v.uv;
                 // Via Vertex and fragment shader examples docs.
-                o.normal = UnityObjectToWorldNormal(normal);
-                o.tangent = UnityObjectToWorldNormal(tangent);
+                o.normal = float3(0,0,1);
+                o.tangent = tangent;
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                ComputeTangentSpace(normal, tangent, o.tanX1, o.tanX2, o.tanX3);
                 return o;
             }
             
@@ -232,8 +249,12 @@ Shader "Custom/SemiFlatShader"
             float _LightShadowStrength;
             float4 _MidFogColor;
             float4 _EndFogColor;
+
             float _HighlightStrength;
+            float _HighlightIntensity;
+
             sampler2D _BumpMap;
+            float _BumpMapIntensity;
             sampler2D _CutoutTex;
             float _WarmColorStrength;
             //float3 _WorldSpaceLightPos0;
@@ -242,15 +263,13 @@ Shader "Custom/SemiFlatShader"
             {
                 //Terrain texture:
                 // Normal from terrain texture (From rendering systems project character helper):
-                float3 unpackedNormal = UnpackNormal(tex2D(_BumpMap, i.uv));//fixed4(mixedDiffuse.rgb, weight)
-                float3 orthogonalTangent = -cross(i.normal, i.tangent.xyz);
-                float3x3 tangentMatrix =
-                    float3x3(i.tangent.x, orthogonalTangent.x, i.normal.x,
-                             i.tangent.y, orthogonalTangent.y, i.normal.y,
-                             i.tangent.z, orthogonalTangent.z, i.normal.z
-                    );
-                float3 worldUnpackedNormal = mul(tangentMatrix, unpackedNormal);
-
+                half3 tangentNormal = UnpackNormal(tex2D(_BumpMap, i.uv));
+                tangentNormal.y *= -1;
+                half3 worldNormal = 
+                    TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, tangentNormal);
+                half3 originalWorldNormal = 
+                    TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, half3(0,0,1));
+                worldNormal = worldNormal * _BumpMapIntensity + originalWorldNormal * (1 - _BumpMapIntensity);
                 
                 //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
                 float4 textureColor = tex2D(_MainTex, i.uv);
@@ -281,7 +300,7 @@ Shader "Custom/SemiFlatShader"
                 //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
                 //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
 
-                float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
+                float shadowProduct = AngleBetween(worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
                 float inShadowSide = shadowProduct > 0.5;
 
                 //return shadowProduct;
@@ -294,9 +313,9 @@ Shader "Custom/SemiFlatShader"
 
 
                 float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, i.normal);
+                float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, worldNormal);
                 //return float4(worldUnpackedNormal, 1);
-                float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
+                float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2 * _HighlightIntensity);
                 //return fixed4(f,f,f,1);
                 if (f > .9f)
                 {

@@ -7,6 +7,13 @@
 
 #include "/HelperCgincFiles/NormalMapHelper.cginc"
 */
+
+/*
+For non terrain based normal mapping:
+half3 tangentNormal = UnpackNormal(tex2D(_BumpMap, i.uv));
+tangentNormal.y *= -1;
+pass tangentNormal into TangentToWorldSpace function.
+*/
 #ifndef NORMALMAP_HELPER
 #define NORMALMAP_HELPER
 
