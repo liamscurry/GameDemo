@@ -1,4 +1,4 @@
-﻿                                     //Right now casts shadows and receives shadows correctly. In normal scene casts shadows on surfaces but unity must
+﻿//Right now casts shadows and receives shadows correctly. In normal scene casts shadows on surfaces but unity must
 //disable this somehow. Fine for now as you dont need grass to project shadows but would be nice to know for if
 //I develop a terrain system in the future.
 
@@ -20,6 +20,7 @@ Shader "Custom/SemiFlatShader"
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
 
+        // Properties from Shading Helper
         _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
 
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
@@ -194,6 +195,7 @@ Shader "Custom/SemiFlatShader"
             #include "TerrainSplatmapCommon.cginc"
 
             #include "/HelperCgincFiles/NormalMapHelper.cginc"
+            #include "/HelperCgincFiles/ShadingHelper.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
             #include "/HelperCgincFiles/LODHelper.cginc"
@@ -242,13 +244,6 @@ Shader "Custom/SemiFlatShader"
             float _Threshold;
 
             float _CrossFade;
-
-            float _ShadowStrength;
-
-            float _HighlightStrength;
-            float _HighlightIntensity;
-
-            float _ReflectedIntensity;
             
             float _WarmColorStrength;
 
@@ -285,82 +280,7 @@ Shader "Custom/SemiFlatShader"
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
-                float normalIncidence = AngleBetween(worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
-
-                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, worldNormal);
-
-                // Light side color calculation
-                float activeHighlight =
-                    1 - AngleBetween(reflectedDir, viewDir) / (3.141592 * .5);
-                activeHighlight = pow(activeHighlight, 2 * _HighlightIntensity);
-                activeHighlight = activeHighlight * _HighlightStrength;
-                activeHighlight = saturate(activeHighlight);
-
-                float4 localShadowColor =
-                    localColor *
-                    fixed4(1 - _ShadowStrength, 1 - _ShadowStrength, 1 - _ShadowStrength, 1);
-
-                float lightIncidence = pow(saturate(normalIncidence * 2), 2);
-                float4 lightColor =
-                    localShadowColor * lightIncidence +
-                    localColor * (1 - lightIncidence);
-                lightColor =
-                    lightColor + activeHighlight * float4(1, 1, 1, 0);
-
-                // Dark side color calculation
-                //float4 localShadowColor = localColor * fixed4(.75, .75, .85, 1) * fixed4(.35 * baseShadowGradient, .35 * baseShadowGradient, .35 * baseShadowGradient, 1);
-                float shadowIncidenceBounced =
-                    saturate(normalIncidence - 0.6);
-                shadowIncidenceBounced = 
-                    pow(shadowIncidenceBounced, 0.75) * 0.2 * _ReflectedIntensity;
-
-                float shadowIncidenceAmbient =
-                    saturate(0.6 - normalIncidence);
-                shadowIncidenceAmbient = 
-                    pow(shadowIncidenceAmbient, 1.3) * 0.1;
-
-                float shadowIncidence =
-                    shadowIncidenceBounced + shadowIncidenceAmbient;
-                shadowIncidence = shadowIncidence * 2;
-
-                float4 localReflectedColor =
-                    localColor *
-                    fixed4(1 - _ShadowStrength * 0.5, 1 - _ShadowStrength * 0.5, 1 - _ShadowStrength * 0.5, 1);
-
-                float4 darkColor =
-                    localShadowColor * (1 - shadowIncidence) +
-                    localReflectedColor * (shadowIncidence);
-
-                // Light and Dark Blending
-                float lightCutoff = 0.4;
-                float darkCutoff = 0.5;
-                float lightDarkPercentage;
-                if (normalIncidence < lightCutoff)
-                {
-                    lightDarkPercentage = 1;
-                }
-                else if (normalIncidence > darkCutoff)
-                {
-                    lightDarkPercentage = 0;
-                }
-                else
-                {
-                    float percentage =
-                        (normalIncidence - lightCutoff) / (darkCutoff - lightCutoff);
-                    lightDarkPercentage = 1 - percentage;
-                }
-
-                // Include shadows in blend (occlude with more dark color)
-                float fadedInShadow = inShadow * (1 - fadeValue) + 1 * (fadeValue);
-                lightDarkPercentage =
-                    min(fadedInShadow, lightDarkPercentage);
-
-                float4 compositeColor =
-                    lightColor * (lightDarkPercentage) +
-                    darkColor * (1 - lightDarkPercentage);
-                
-                return compositeColor;
+                return Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
 
                 //STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
                 //inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;

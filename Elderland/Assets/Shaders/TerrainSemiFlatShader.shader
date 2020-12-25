@@ -21,13 +21,14 @@ Shader "Custom/TerrainSemiFlatShader"
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
-        _EvenFade ("EvenFade", Range(0, 1)) = 0
-        _OddFade ("EvenFade", Range(0, 1)) = 0
-        _ShadowStrength ("ShadowStrength", Range(0, 2)) = 0
-        _LightShadowStrength ("LightShadowStrength", Range(0, 1)) = 0
-        _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
-        _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
+        
+        // Properties from Shading Helper
+        _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
+
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
+        _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
+
+        _ReflectedIntensity ("ReflectedIntensity", Range(0, 3)) = 1
     }
     SubShader
     {
@@ -148,6 +149,7 @@ Shader "Custom/TerrainSemiFlatShader"
             #include "AutoLight.cginc"
 
             #include "/HelperCgincFiles/NormalMapHelper.cginc"
+            #include "/HelperCgincFiles/ShadingHelper.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
 
@@ -204,11 +206,7 @@ Shader "Custom/TerrainSemiFlatShader"
             float _EvenFade;
             float _OddFade;
             sampler2D _CameraDepthTexture;
-            float _ShadowStrength;
-            float _LightShadowStrength;
-            float4 _MidFogColor;
-            float4 _EndFogColor;
-            float _HighlightStrength;
+
             //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -231,79 +229,16 @@ Shader "Custom/TerrainSemiFlatShader"
                     TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, i.normal);
 
                 float inShadow = SHADOW_ATTENUATION(i);
-                float4 finalColor = _Color * splatColor;
-
-                //float4 lightColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
-                //finalColor * inShadow;//(1 - _ShadowStrength)
-
-                float shadowProduct = AngleBetween(worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
-                float originalShadowProduct = AngleBetween(i.worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
-                float inShadowSide = originalShadowProduct > 0.5; //0.4
-                //return float4(worldNormal, 1);
+                float4 localColor = _Color;
+                localColor *= splatColor;
 
                 // Learned in AutoLight.cginc
+                // Shadow Fade
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
-                float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, worldNormal) / (PI));
-                //finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
-
-                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                float3 horizontalViewDir = normalize(float3(viewDir.x, 0, viewDir.z));
-                float3 horizontalReflectedDir = normalize(float3(-_WorldSpaceLightPos0.x, 0, -_WorldSpaceLightPos0.z));
-                float f = 1 - saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, viewDir) / (PI / 2));
-                f = pow(f, 2);
-                f = f * 1;
-                
-                float inShadowBool = inShadow < 0.6;
-
-                //finalColor = float4(1,0,0,1);
-                //saturate(1 - (1 - shadowProduct) * 2)
-                float strechedShadowProduct = 1 - (1 - shadowProduct) * 1.2;
-                float4 shadowColor = finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1);
-                float4 lightColor = shadowColor * strechedShadowProduct +
-                                    finalColor * (1 - strechedShadowProduct);
-
-                lightColor = lightColor + float4(0.9, .9, 1, 0) * f * 1;
-                //finalColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;
-                
-                if (!inShadowSide)
-                {
-                    //return float4(1,0,0,1);
-                    
-                    //return finalColor;
-                    //lightColor = lightColor + float4(0.9, .9, 1, 0) * f * 2;
-                    
-                    float shadeFade = inShadow;
-                    //return shadeFade;
-                    //return fixed4(1,0,0,1);
-                    float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
-                    //return fadedShadowColor;
-                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                    //return inShadow;
-                    STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * (shadeFade));
-                }
-                else
-                {
-                    //return strechedShadowProduct;
-                    //return float4(0,1,0,1);
-                    //return fadeValue;
-                    //return fixed4(0,0,1,1);
-                    float stretchedInShadow = saturate(inShadow * 2);
-                    float shadowMerge = _LightShadowStrength * (1 - stretchedInShadow) + 1 * (stretchedInShadow);
-                    float4 shadowSideColor = (lightColor * float4(shadowMerge, shadowMerge, shadowMerge, 1));
-                    
-                    strechedShadowProduct = saturate(1 * 2);
-                    //float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
-                    //flatShadowColor = flatShadowColor + float4(0.9, .9, 1, 0) * f * 1;
-                    //STANDARD_FOG(lightColor);
-                    
-                    //return shadeFade;
-                    float shadeFade = (1 - fadeValue) * inShadow;
-                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                    STANDARD_FOG(shadowColor);
-                }
+                return Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
             }
             ENDCG
         }

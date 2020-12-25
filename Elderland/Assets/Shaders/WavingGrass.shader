@@ -23,6 +23,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_shadowcaster
 
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -88,7 +89,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                     _Threshold = 0.2;
                 float4 textureColor = (tex2D(_MainTex, i.uv));
                 clip(textureColor.w - _Threshold);
-                return 0;
+                SHADOW_CASTER_FRAGMENT(i)
             }
             ENDCG
         }
@@ -112,10 +113,14 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fwdbase
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "Color.cginc"
+            #include "AutoLight.cginc"
+
+            #include "/HelperCgincFiles/ShadingHelper.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
             #include "FolliageHelper.cginc"
@@ -131,7 +136,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             struct v2f
             {
-                float4 _ShadowCoord : TEXCOORD1;
+                SHADOW_COORDS(1)
                 float4 uv : TEXCOORD0;
                 float4 pos : SV_POSITION;
                 float4 color : COLOR0; //messing with multiple grass textures.
@@ -143,7 +148,6 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
             };  
              
             float4 _ShadowColor;
-            sampler2D _ShadowMapTexture; 
             sampler2D _CameraDepthTexture;
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -182,7 +186,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //o.color = float4(1,0,0,1);
                 o.color = v.color;
                
-                o._ShadowCoord = ComputeScreenPos(o.pos);
+                TRANSFER_SHADOW(o)
                 o.objectPos = v.vertex;
                 o.normal = UnityObjectToWorldNormal(normal);
                 return o;
@@ -190,53 +194,14 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
-                //return _WavingTint;
-                //return i.color;
-                //return fixed4(1,1,1,1)
-                //return fixed4(i.color.xyz, 1);
-                //float2 screenPercentagePos = i.screenPos.xy / i.screenPos.w;
-                //return fixed4(screenPercentagePos.y, screenPercentagePos.y, screenPercentagePos.y, 1);
-                //return i.color.a;
-                //return fixed4(tex2D(_MainTex, screenPercentagePos).xyz * tex2D(_MainTex, screenPercentagePos).w, 1);
-
-                //return fixed4(i.worldDistance / 50,0,0,1);
-                float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
-                //return inShadow;
-
                 float _Threshold = 1;//0.675
                 _Threshold -= i.worldDistance * 0.1;
                 if (_Threshold < 0.2)
                     _Threshold = 0.2;
-                //_Threshold = 0.5;
-                //_Threshold = 0;
-                //_Threshold -= i.worldDistance * .04;
-                /*if (i.depth * 35 > 40)
-                {
-                    _Threshold = saturate(_Threshold + i.depth);   
-                }*/
-                //return fixed4(i.depth * 35 / 50, 0, 0, 1);
                 
                 float4 textureColor = (tex2D(_MainTex, i.uv));
-                //return textureColor.r;
-                /*if (textureColor.a > _Threshold)
-                {
-                    if (textureColor.r > 0.5)
-                    {
-                        textureColor = float4(121.0 / 255, 152.0 / 255, 44.0 / 255, textureColor.a);
-                    }
-                    else
-                    {
-                        textureColor = float4(230.0 / 255, 181.0 / 255, 96.0 / 255, textureColor.a);
-                    }
-                }*/
-                
-                
-                //float4(169.0 / 255, 223.0 / 255, 32.0 / 255, 1) original saturated
-                //return textureColor;
+
                 clip(textureColor.w - _Threshold);
-                //return textureColor;
-                //textureColor.w = 1;
-                //return textureColor;
 
                 // Hue
                 float lightness = RGBLightness(textureColor);
@@ -245,9 +210,6 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float saturation = RGBSat(textureColor.r, textureColor.g, textureColor.b);
                 float4 hueTint = float4(HSLToRGB(hue, 0.7, .35), 1);//0.6
                 hueTint = _WavingTint;
-                //return float4(textureColor.rgb, 1);
-                //return hueTint;
-                //return hueTint;
 
                 // Local hue
                 //i.color.xyz,
@@ -255,28 +217,20 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float localHue = RGBHue(color.r, color.g, color.b);
                 float4 localHueTint = fixed4(HSLToRGB(localHue, 0.4, lightness), 1);//0.5
                 localHueTint = float4(i.color.xyz, 1);
-                //return localHueTint;
-                //return localHueTint;
-                //localHueTint = float4(1,1,1,1);
 
                 // Gradient factors
                 float hueFactor = saturate(1 - i.objectPos.y + 0.25);//i.uv.y, i.objectPos.y
                 
                 
                 hueFactor = 1 - saturate(1 - i.color.a * 1);
-                //return hueFactor;
-                //return i.uv.y;
-                //return textureColor;
-                //hueFactor = 0;
-                //return hue / 360;// HUE is distance issue.
-                //hueFactor = 1;
+
                 if (i.worldDistance > 20)
                 {
                     float limitedDepth = ((i.worldDistance - 20) / 20);
-                    //hueFactor += limitedDepth;
+  
                     if (hueFactor > 1)
                         hueFactor = 1;
-                    //return fixed4(limitedDepth,limitedDepth,limitedDepth,1);
+               
                 }
 
                 float lerpFactorTop = 
@@ -295,116 +249,37 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 //via boglus in unity forums. "get the scale of object related to worldspace"
                 float scaledUV = (i.uv.y * _MainTex_ST.y) + _MainTex_ST.w;
                 scaledUV = i.objectPos.y;
-                //caledUV = abs(unity_ObjectToWorld[2].x);//scale of y
-                //scaledUV = abs(_MainTex_ST.w);
-                //scaledUV = i.uv.y;
-                //scaledUV = _MainTex_ST.w;
-                //return fixed4(hueFactor, hueFactor, hueFactor, 1);
-                //return fixed4(1 - i.uv.y, 1 - i.uv.y, 1 - i.uv.y, 1);
-                //return fixed4(hue, hue, hue, 1);
-                //return hueTint;
 
-                //return localHueTint;
-
-                //return lerpFactorBottom;
-                //return localHueTint;
-                //return hueFactor;
                 fixed4 finalColor =
                         (fixed4(1, 1, 1, 1) * localHueTint * lerpFactorTop +
                         fixed4(1, 1, 1, 1) * hueTint * lerpFactorBottom);
-                //return finalColor;
-                //return finalColor;
-                //return finalColor;
-                //return hueTint;
-                //return fixed4(i.color.xyz, 1);
+
                 float tipHighlight = 0.1;
-                //return i.color.a;
+        
                 if (i.color.a > tipHighlight)
                 {
-                    //return float4(1,0,0,1);
                     finalColor += float4(1,1,1,1) * (i.color.a - tipHighlight) / (1 - tipHighlight) * .01;
                 }
-                
-                
-                //o.normal actually is based on surface :>
-                //return _WorldSpaceLightPos0;
-                float groundAngle = saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, i.normal) / (PI));
-                //finalColor *= float4(float3(groundAngle, groundAngle, groundAngle), 1);
-                //return fixed4(groundAngle, groundAngle, groundAngle, 1);
-                //return finalColor;
-                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                float3 horizontalViewDir = normalize(float3(viewDir.x, 0, viewDir.z));
-                float3 horizontalReflectedDir = normalize(float3(-_WorldSpaceLightPos0.x, 0, -_WorldSpaceLightPos0.z));
-                float f = 1 - saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, viewDir) / (PI / 2));
-                f = pow(f, 2);
-                f = f * 1;
-                //return f;
-                
+
+                float inShadow = SHADOW_ATTENUATION(i);
+                float4 localColor = finalColor;
+                localColor *= tex2D(_MainTex, i.uv);
+
+                // Properties from Shading Helper (explicit)
+                _ShadowStrength = 0.578;
+
+                _HighlightStrength = 0.09;
+                _HighlightIntensity = 0.26;
+
+                _ReflectedIntensity = 1.09;
+
                 // Learned in AutoLight.cginc
+                // Shadow Fade
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
-                //float viewUpAngle = AngleBetween(viewDir, float3(0, 1, 0)); //working here rn
-
-                float shadowProduct = AngleBetween(i.normal, _WorldSpaceLightPos0.xyz) / 3.151592;
-                float inShadowSide = shadowProduct > 0.5; //0.4
-
-                float strechedShadowProduct = 1 - (1 - shadowProduct) * 1.2;
-                float _LightShadowStrength = 0.4;
-                float4 shadowColor = finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1);
-                float4 lightColor = shadowColor * strechedShadowProduct +
-                                    finalColor * (1 - strechedShadowProduct);
-                lightColor = lightColor + float4(0.9, .9, 1, 0) * f * 1;
-
-                float inShadowBool = inShadow < 0.6;
-                //return finalColor;
-                //return shadowColor;
-
-                if (!inShadowSide)
-                {
-                    //if (!inShadowBool)
-                    //{
-                        //return finalColor + float4(0.9, .9, 1, 0) * f * 2;
-                        float shadeFade = inShadow;
-                        //return shadeFade;
-                        //return fixed4(1,0,0,1);
-                        float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
-                        //return fadedShadowColor;
-                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                        STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + lightColor * (shadeFade));
-
-                        STANDARD_FOG(shadowColor + float4(0.9, .9, 1, 0) * f * 1);
-                        return shadowColor + float4(0.9, .9, 1, 0) * f * 1;
-                    //}
-                    //else
-                    /*{
-                        strechedShadowProduct = saturate(1 * 2);
-                        float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
-                        STANDARD_FOG((flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1);
-                        return (flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1;
-                        //return inShadow;
-                        //float4 mergeColor = finalColor * (inShadow) + 
-                        //(finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
-                        float4 lightColor = finalColor + float4(0.9, .9, 1, 0) * f * 2;
-                        float4 shadowColor2 = finalColor * float4(.5, .5, .5, 1);
-                        float4 compositeColor = shadowColor2 * (1 - inShadow) + lightColor * (inShadow);
-                        //return inShadow;
-                        //return compositeColor;
-                        //return (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
-                        //STANDARD_FOG(mergeColor);
-                    }*/
-                }
-                else
-                {
-                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                    STANDARD_FOG(shadowColor);
-                    strechedShadowProduct = saturate(1 * 2);
-                    float4 flatShadowColor = (finalColor * float4(_LightShadowStrength, _LightShadowStrength, _LightShadowStrength, 1)) * strechedShadowProduct;
-                    STANDARD_FOG((flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1);
-                    return (flatShadowColor) + float4(0.9, .9, 1, 0) * f * 1;
-                    //return finalColor * fixed4(.5, .5, .5, 1);
-                }
+                return Shade(i.normal, i.worldPos, localColor, inShadow, fadeValue);
             }
             ENDCG
         }
