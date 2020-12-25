@@ -1,4 +1,4 @@
-﻿//Right now casts shadows and receives shadows correctly. In normal scene casts shadows on surfaces but unity must
+﻿                                     //Right now casts shadows and receives shadows correctly. In normal scene casts shadows on surfaces but unity must
 //disable this somehow. Fine for now as you dont need grass to project shadows but would be nice to know for if
 //I develop a terrain system in the future.
 
@@ -13,23 +13,19 @@ Shader "Custom/SemiFlatShader"
         _MainTex ("Texture", 2D) = "white" {}
         _BumpMap ("BumpMap", 2D) = "bump" {}
         _BumpMapIntensity ("BumpMapIntensity", Range(0, 1)) = 0
+
         _CutoutTex ("CutoutTex", 2D) = "white" {}
+
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
-        _EvenFade ("EvenFade", Range(0, 1)) = 0
-        _OddFade ("EvenFade", Range(0, 1)) = 0
 
-
-        _ShadowStrength ("ShadowStrength", Range(0, 2)) = 0
-        _LightShadowStrength ("LightShadowStrength", Range(0, 1)) = 0
-
-
-        _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
-        _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
+        _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
 
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
         _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
+
+        _ReflectedIntensity ("ReflectedIntensity", Range(0, 3)) = 1
 
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
@@ -238,26 +234,23 @@ Shader "Custom/SemiFlatShader"
             }
             
             float4 _Color;
-            //sampler2D _ShadowMapTexture; 
             sampler2D _MainTex;
+            sampler2D _BumpMap;
+            float _BumpMapIntensity;
+
+            sampler2D _CutoutTex;
             float _Threshold;
+
             float _CrossFade;
-            float _EvenFade;
-            float _OddFade;
-            sampler2D _CameraDepthTexture;
+
             float _ShadowStrength;
-            float _LightShadowStrength;
-            float4 _MidFogColor;
-            float4 _EndFogColor;
 
             float _HighlightStrength;
             float _HighlightIntensity;
 
-            sampler2D _BumpMap;
-            float _BumpMapIntensity;
-            sampler2D _CutoutTex;
+            float _ReflectedIntensity;
+            
             float _WarmColorStrength;
-            //float3 _WorldSpaceLightPos0;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
@@ -271,107 +264,107 @@ Shader "Custom/SemiFlatShader"
                     TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, half3(0,0,1));
                 worldNormal = worldNormal * _BumpMapIntensity + originalWorldNormal * (1 - _BumpMapIntensity);
                 
-                //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
                 float4 textureColor = tex2D(_MainTex, i.uv);
                 if (textureColor.a < _Threshold)
                     clip(textureColor.a - _Threshold);
+
+                //Remove later? Not used?
                 float4 cutoutColor = tex2D(_CutoutTex, i.uv);
                 float underThreshold = _Threshold > cutoutColor;
                 clip(-underThreshold);
                 
-                //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
-                //return fixed4(depth,depth,depth,1);
-                //float4 screenPos = ComputeScreenPos(i.pos);
-                //float2 screenPercentagePos = i.screenPos.xy / i.screenPos.w;
-                //return screenPercentagePos.x;
                 ApplyDither(i.screenPos, _CrossFade);
-                //clip(checkboardClip * -1);
 
                 float inShadow = SHADOW_ATTENUATION(i);
-                //return inShadow;
-                float4 finalColor = _Color;
-                finalColor *= tex2D(_MainTex, i.uv);
+                float4 localColor = _Color;
+                localColor *= tex2D(_MainTex, i.uv);
 
                 // Learned in AutoLight.cginc
+                // Shadow Fade
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
-                
-                //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
-                //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
 
-                float shadowProduct = AngleBetween(worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
-                float inShadowSide = shadowProduct > 0.5;
-
-                //return shadowProduct;
-                float baseShadowGradient = pow(saturate((1 - shadowProduct) * 2), 2);
-                float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35 * baseShadowGradient, .35 * baseShadowGradient, .35 * baseShadowGradient, 1);
-                float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
-                           finalColor * inShadow;//(1 - _ShadowStrength)
-                
-                float inShadowBool = inShadow < 0.6;
-
+                float normalIncidence = AngleBetween(worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
 
                 float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
                 float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, worldNormal);
-                //return float4(worldUnpackedNormal, 1);
-                float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2 * _HighlightIntensity);
-                //return fixed4(f,f,f,1);
-                if (f > .9f)
-                {
-                    //return fixed4(f,f,f,1);
-                }
-                float scaledShadowProduct = pow(saturate(shadowProduct * 2),3);
-                float4 lightShadowColor = baseShadowColor * scaledShadowProduct +
-                                    finalColor * (1 - scaledShadowProduct);
-                //return baseShadowColor;
-                float4 lightColor = lightShadowColor * _LightShadowStrength +
-                    finalColor * (1 - _LightShadowStrength) + f * .4 * _HighlightStrength;
-                //return fadeValue;
-                if (!inShadowSide)
-                {    
-                    //if (!inShadowBool)
-                    //{
-                        //return lightColor;
-                        /*return ApplyFog(
-                            lightColor,
-                            _MidFogColor,
-                            _EndFogColor,
-                            i.worldPos.xyzx,
-                            _WorldSpaceCameraPos.xyz,
-                            20,
-                            120,
-                            120);*/
-                        //STANDARD_FOG(lightColor)
-                    //}
-                    //else
-                    //{
-                        //return lightColor;
-                        //return shadowColor;
-                        //return fixed4(1,0,0,1);
-                        //return shadowColor * (1 - fadeValue) + lightColor * fadeValue;
-                        float shadeFade = inShadow;
 
-                        float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
-                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                        float flipLOD = abs(unity_LODFade.x);
-                        if (unity_LODFade.x > 0)
-                            flipLOD = 1 - flipLOD;
-                        flipLOD = 1 - flipLOD;
-                        //return flipLOD;
-                        //shadeFade = (pow(flipLOD,9)) * inShadow + (1 - pow(flipLOD,9)) * 1;
-                        shadeFade = inShadow;
-                        //return flipLOD;
-                        //inShadow = 0;
-                        STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
-                    //}
+                // Light side color calculation
+                float activeHighlight =
+                    1 - AngleBetween(reflectedDir, viewDir) / (3.141592 * .5);
+                activeHighlight = pow(activeHighlight, 2 * _HighlightIntensity);
+                activeHighlight = activeHighlight * _HighlightStrength;
+                activeHighlight = saturate(activeHighlight);
+
+                float4 localShadowColor =
+                    localColor *
+                    fixed4(1 - _ShadowStrength, 1 - _ShadowStrength, 1 - _ShadowStrength, 1);
+
+                float lightIncidence = pow(saturate(normalIncidence * 2), 2);
+                float4 lightColor =
+                    localShadowColor * lightIncidence +
+                    localColor * (1 - lightIncidence);
+                lightColor =
+                    lightColor + activeHighlight * float4(1, 1, 1, 0);
+
+                // Dark side color calculation
+                //float4 localShadowColor = localColor * fixed4(.75, .75, .85, 1) * fixed4(.35 * baseShadowGradient, .35 * baseShadowGradient, .35 * baseShadowGradient, 1);
+                float shadowIncidenceBounced =
+                    saturate(normalIncidence - 0.6);
+                shadowIncidenceBounced = 
+                    pow(shadowIncidenceBounced, 0.75) * 0.2 * _ReflectedIntensity;
+
+                float shadowIncidenceAmbient =
+                    saturate(0.6 - normalIncidence);
+                shadowIncidenceAmbient = 
+                    pow(shadowIncidenceAmbient, 1.3) * 0.1;
+
+                float shadowIncidence =
+                    shadowIncidenceBounced + shadowIncidenceAmbient;
+                shadowIncidence = shadowIncidence * 2;
+
+                float4 localReflectedColor =
+                    localColor *
+                    fixed4(1 - _ShadowStrength * 0.5, 1 - _ShadowStrength * 0.5, 1 - _ShadowStrength * 0.5, 1);
+
+                float4 darkColor =
+                    localShadowColor * (1 - shadowIncidence) +
+                    localReflectedColor * (shadowIncidence);
+
+                // Light and Dark Blending
+                float lightCutoff = 0.4;
+                float darkCutoff = 0.5;
+                float lightDarkPercentage;
+                if (normalIncidence < lightCutoff)
+                {
+                    lightDarkPercentage = 1;
+                }
+                else if (normalIncidence > darkCutoff)
+                {
+                    lightDarkPercentage = 0;
                 }
                 else
                 {
-                    //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
-                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                    STANDARD_SHADOWSIDE_FOG_TEMPERATURE(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength), _WarmColorStrength);
+                    float percentage =
+                        (normalIncidence - lightCutoff) / (darkCutoff - lightCutoff);
+                    lightDarkPercentage = 1 - percentage;
                 }
+
+                // Include shadows in blend (occlude with more dark color)
+                float fadedInShadow = inShadow * (1 - fadeValue) + 1 * (fadeValue);
+                lightDarkPercentage =
+                    min(fadedInShadow, lightDarkPercentage);
+
+                float4 compositeColor =
+                    lightColor * (lightDarkPercentage) +
+                    darkColor * (1 - lightDarkPercentage);
+                
+                return compositeColor;
+
+                //STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
+                //inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
+                //STANDARD_SHADOWSIDE_FOG_TEMPERATURE(localShadowColor * _ShadowStrength + localColor * (1 - _ShadowStrength), _WarmColorStrength);
             }
             ENDCG
         }
