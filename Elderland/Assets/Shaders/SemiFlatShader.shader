@@ -249,8 +249,7 @@ Shader "Custom/SemiFlatShader"
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
-                //Terrain texture:
-                // Normal from terrain texture (From rendering systems project character helper):
+                // Normal mapping
                 half3 tangentNormal = UnpackNormal(tex2D(_BumpMap, i.uv));
                 tangentNormal.y *= -1;
                 half3 worldNormal = 

@@ -87,7 +87,7 @@ inline float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, floa
     }
 
     // Include shadows in blend (occlude with more dark color)
-    float fadedInShadow = inShadow * (1 - fadeValue) + 1 * (fadeValue);
+    float fadedInShadow = inShadow * (1 - fadeValue) + 0 * (fadeValue);
     lightDarkPercentage =
         min(fadedInShadow, lightDarkPercentage);
 

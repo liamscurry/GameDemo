@@ -10,33 +10,36 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
-        _BumpMap ("BumpMap", 2D) = "white" {}
-        _SecondaryBumpMap ("SecondaryBumpMap", 2D) = "white" {}
-        _BlendMap ("BlendMap", 2D) = "white" {}
-        _ColorMap ("ColorMap", 2D) = "white" {}
+        _RepeatedTexture1 ("RepeatedTexture1", 2D) = "white" {}
+        _RepeatedTexture1Scale ("RepeatedTexture1Scale", Range(0.1, 10)) = 1
+        _RepeatedTexture1OffsetX ("RepeatedTexture1OffsetX", Range(0, 1)) = 0 
+        _RepeatedTexture1OffsetY ("RepeatedTexture1OffsetY", Range(0, 1)) = 0 
+
+        _RepeatedTexture2 ("RepeatedTexture2", 2D) = "white" {}
+        _RepeatedTexture2Scale ("RepeatedTexture2Scale", Range(0.1, 10)) = 1
+        _RepeatedTexture2OffsetX ("RepeatedTexture2OffsetX", Range(0, 1)) = 0 
+        _RepeatedTexture2OffsetY ("RepeatedTexture2OffsetY", Range(0, 1)) = 0 
+
+        _RepeatedTextureBlend ("RepeatedFlatBlend", 2D) = "white" {}
+        
+        _BumpMap ("BumpMap", 2D) = "bump" {}
+        _BumpMapIntensity ("BumpMapIntensity", Range(0, 1)) = 1
+
         _Color ("Color", Color) = (1,1,1,1)
-        _BumpMapScale ("BumpMapScale", float) = 1
-        _ColorMapType ("ColorMapType", Range(0,1)) = 0
-        _ColorMapUpperThreshold ("ColorMapUpperThreshold", Range(0, 2)) = 1
-        _ColorMapLowerThreshold ("ColorMapLowerThreshold", Range(0, 2)) = 0
-        _UVOffsetX ("UVOffsetX", Range(0, 1)) = 0 
-        _UVOffsetY ("UVOffsetY", Range(0, 1)) = 0 
-        _Threshold ("Threshold", Range(0, 1)) = 0.1
+        _ColorMap ("ColorMap", 2D) = "white" {}
+
         _CrossFade ("CrossFade", float) = 0
-        _EvenFade ("EvenFade", Range(0, 1)) = 0
-        _OddFade ("EvenFade", Range(0, 1)) = 0
-        _ShadowStrength ("ShadowStrength", Range(0, 2)) = 0
-        _LightShadowStrength ("LightShadowStrength", Range(0, 1)) = 0
-        _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
-        _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
+        
+        _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
+        _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
+        _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
+        _ReflectedIntensity ("ReflectedIntensity", Range(0, 3)) = 1
+
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
     }
     SubShader
     {
-        //Cull off
-
         Pass
         {
             Tags { "LightMode"="ShadowCaster" }
@@ -52,28 +55,26 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             struct appdata
             {
                 float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
+                float2 repeatedUV1 : TEXCOORD0;
                 float3 normal : NORMAL;
             };
 
             struct v2f
             {
                 float4 pos : SV_POSITION;
-                float2 uv : TEXCOORD0;
-                SHADOW_COORDS(1) //float4 pos : SV_POSITION thats it
-                //float4 screenPos : TEXCOORD1;
+                float2 repeatedUV1 : TEXCOORD0;
+                SHADOW_COORDS(1)
             };
 
-            sampler2D _MainTex;
+            sampler2D _RepeatedTexture1;
             float _CrossFade;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
-                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o) //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
-                //o.screenPos = ComputeScreenPos(o.pos);
+                o.repeatedUV1 = v.repeatedUV1;
+                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
                 return o;
             }
 
@@ -85,8 +86,6 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                                              sin(screenPercentagePos.y * 2 * 3.151592 * _CrossFade * 9));
                 float checkboardClip = checkerboard.x > 0 ^ checkerboard.y > 0; 
 
-                //return fixed4(screenPercentagePos.x, screenPercentagePos.x, screenPercentagePos.x, 1);
-
                 float flipLOD = abs(unity_LODFade.x);
                 if (unity_LODFade.x > 0)
                     flipLOD = 1 - flipLOD;
@@ -97,7 +96,6 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
 
                 //unity_LODFade.x at 1 is off.
                 //unity_LODFade.x at 0 is on.
-
                 
                 int fadeSign = 1;
                 if (unity_LODFade.x < 0)
@@ -138,15 +136,13 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                 }
 
 
-                float4 textureColor = (tex2D(_MainTex, i.uv));
+                float4 textureColor = (tex2D(_RepeatedTexture1, i.repeatedUV1));
                 clip(textureColor.w - 1);
-                //return 0;
+
                 SHADOW_CASTER_FRAGMENT(i)
             }
             ENDCG
         }
-
-        //Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -154,17 +150,9 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             { 
                 "LightMode"="ForwardBase"
                 "RenderType"="Geometry+20"
-                //"RenderType"="Transparent"    
-                //"Queue"="Transparent"    
             }
 
-            //ZWrite Off
-
-            //Blend SrcAlpha OneMinusSrcAlpha
-
             CGPROGRAM
-            //#pragma vertex vert
-            //#pragma fragment frag
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_fwdbase
@@ -173,9 +161,16 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             #include "Lighting.cginc"
             #include "Color.cginc"
             #include "AutoLight.cginc"
+            
+            #pragma multi_compile_local __ _ALPHATEST_ON
+            #pragma multi_compile_local __ _NORMALMAP
+
             #define TERRAIN_STANDARD_SHADER
             #define TERRAIN_INSTANCED_PERPIXEL_NORMAL
+
             #include "TerrainSplatmapCommon.cginc"
+            #include "/HelperCgincFiles/NormalMapHelper.cginc"
+            #include "/HelperCgincFiles/ShadingHelper.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
             #include "/HelperCgincFiles/LODHelper.cginc"
@@ -183,104 +178,100 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             struct appdata
             {
                 float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
+                float2 repeatedUV1 : TEXCOORD0;
                 float4 color : COLOR;
             };
 
             struct v2f
             {
-                float2 uv : TEXCOORD0;
-                //float4 _ShadowCoord : TEXCOORD1;
+                float2 repeatedUV1 : TEXCOORD0;
                 SHADOW_COORDS(1)
                 float4 pos : SV_POSITION;
                 float3 normal : TEXCOORD2;
-                
                 float3 worldPos : TEXCOORD3;
             };
 
             struct v2fInput
             {
-                //float2 uv : TEXCOORD0;
                 float4 pos : SV_POSITION;
-                float3 normal : TEXCOORD2;
+                float3 normal : TEXCOORD3;
                 float4 tc : TEXCOORD1;
-                float4 uv : TEXCOORD0;
-                float3 worldPos : TEXCOORD3;
-                SHADOW_COORDS(4)
+                float4 repeatedUV1 : TEXCOORD0;
+                float4 repeatedUV2 : TEXCOORD2;
+                float3 worldPos : TEXCOORD4;
+                SHADOW_COORDS(10)
                 float4 tangent : COLOR0;
                 float4 originalUV : TEXCOORD5;
                 float2 planeScale : COLOR1;
                 float4 screenPos : TEXCOORD6;
+                DECLARE_TANGENT_SPACE(7, 8, 9)
             };
 
-            float _BumpMapScale;
-            float _UVOffsetX;
-            float _UVOffsetY;
+            float _RepeatedTexture1Scale;
+            float _RepeatedTexture1OffsetX;
+            float _RepeatedTexture1OffsetY;
 
-            //v2f vert (appdata v, float3 normal : NORMAL)
-            v2fInput vert (appdata_full v)
+            float _RepeatedTexture2Scale;
+            float _RepeatedTexture2OffsetX;
+            float _RepeatedTexture2OffsetY;
+
+            v2fInput vert (appdata_full v, float3 normal : NORMAL, float4 tangent : TANGENT)
             {
-                /*v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
-                //o._ShadowCoord = ComputeScreenPos(o.pos);
-                TRANSFER_SHADOW(o)
-                o.uv = v.uv;
-                // Via Vertex and fragment shader examples docs.
-                o.normal = UnityObjectToWorldNormal(normal);
-                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
-                */
-                v.texcoord += float4(_UVOffsetX, _UVOffsetY, 0, 0);
                 v2fInput o;
-                o.originalUV = v.texcoord;
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.screenPos = ComputeScreenPos(o.pos);
+
+                // UV calculation
+                o.originalUV = v.texcoord;
+                
                 float tangentScale = length(mul(unity_ObjectToWorld, float3(0,0,0)) - mul(unity_ObjectToWorld, v.tangent.xyz));
                 float3 orthoTangent = cross(v.tangent.xyz, v.normal);
                 float orthoTangentScale = length(mul(unity_ObjectToWorld, float3(0,0,0)) - mul(unity_ObjectToWorld, orthoTangent));
-                o.uv = v.texcoord * float4(tangentScale * _BumpMapScale, orthoTangentScale * _BumpMapScale, 1, 1);//float4(unity_ObjectToWorld[0].x, unity_ObjectToWorld[1].y, unity_ObjectToWorld[2].z, 1); 
+                o.repeatedUV1 = 
+                    (v.texcoord + float4(_RepeatedTexture1OffsetX, _RepeatedTexture1OffsetY, 0, 0)) *
+                    float4(tangentScale * _RepeatedTexture1Scale, orthoTangentScale * _RepeatedTexture1Scale, 1, 1);
+                o.repeatedUV2 = 
+                    (v.texcoord + float4(_RepeatedTexture2OffsetX, _RepeatedTexture2OffsetY, 0, 0)) *
+                    float4(tangentScale * _RepeatedTexture2Scale, orthoTangentScale * _RepeatedTexture2Scale, 1, 1);
+                
                 o.planeScale = float2(tangentScale, orthoTangentScale);
-                o.normal = v.normal;
-                o.tangent = v.tangent;
+                
+                // Shading Info
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 TRANSFER_SHADOW(o)
+         
+                // Normal calculation
+                o.normal = v.normal;
+                o.tangent = v.tangent;
+                ComputeTangentSpace(normal, tangent, o.tanX1, o.tanX2, o.tanX3);
 
+                // Texture info
                 Input data;
                 SplatmapVert(v, data);
                 o.tc = data.tc;
-                //o.uv = v.uv;
-                //return o;
+
                 return o;
             }
             
-            float4 _Color;
-            //sampler2D _ShadowMapTexture; 
-            sampler2D _MainTex;
-            sampler2D _BumpMap;
-            sampler2D _SecondaryBumpMap;
-            sampler2D _BlendMap;
-            sampler2D _ColorMap;
-            float _ColorMapType;
-            float _ColorMapUpperThreshold;
-            float _ColorMapLowerThreshold;
-            float _Threshold;
-            float _CrossFade;
-            float _EvenFade;
-            float _OddFade;
-            sampler2D _CameraDepthTexture;
-            float _ShadowStrength;
-            float _LightShadowStrength;
-            float4 _MidFogColor;
-            float4 _EndFogColor;
-            float _WarmColorStrength;
-            //sampler2D _Splat0, _Splat1, _Splat2, _Splat3;
-            //float4 _Splat0_ST, _Splat1_ST, _Splat2_ST, _Splat3_ST;
-            //float3 _WorldSpaceLightPos0;
+            sampler2D _RepeatedTexture1;
+            sampler2D _RepeatedTexture2;
+            sampler2D _RepeatedTextureBlend;
 
-            //fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
+            sampler2D _BumpMap;
+            float _BumpMapIntensity;
+
+            float4 _Color;
+            sampler2D _ColorMap;
+
+            float _CrossFade;
+           
+            float _WarmColorStrength;
+
             fixed4 frag(v2fInput i, fixed facingCamera : VFACE) : SV_Target
             {
                 float3 normal = normalize(mul(unity_ObjectToWorld, i.normal));
                 float3 tangent = normalize(mul(unity_ObjectToWorld, i.tangent.xyz));
+
                 // Terrain texture:
                 // Learned via standard-firstpass.shader in default shaders
                 half4 splatControl;
@@ -291,148 +282,42 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                 input.tc = i.tc;
                 SplatmapMix(input, defaultSmoothness, splatControl, weight, mixedDiffuse, normal);
 
-                // Normal from terrain texture (From rendering systems project character helper):
-                float3 unpackedNormal = UnpackNormal(tex2D(_BumpMap, i.uv));//fixed4(mixedDiffuse.rgb, weight)
-                float3 secondaryUnpackedNormal = UnpackNormal(tex2D(_SecondaryBumpMap, i.uv));
-                float3 orthogonalTangent = mul(unity_ObjectToWorld, -cross(i.normal, i.tangent.xyz));
-                float3x3 tangentMatrix =
-                    float3x3(tangent.x, orthogonalTangent.x, normal.x,
-                             tangent.y, orthogonalTangent.y, normal.y,
-                             tangent.z, orthogonalTangent.z, normal.z
-                    );
-                float3 worldUnpackedNormal = mul(tangentMatrix, unpackedNormal); //world unpacked normal is wrong.
-               
-                float3 worldSecondaryUnpackedNormal = mul(tangentMatrix, secondaryUnpackedNormal); 
-                float4 blendFactors = tex2D(_BlendMap, i.originalUV);
-                worldUnpackedNormal = normalize(worldUnpackedNormal * blendFactors.r + 
-                                      worldSecondaryUnpackedNormal * blendFactors.b +
-                                      normal * saturate(1 - blendFactors.r - blendFactors.b));
-                //worldUnpackedNormal = unpackedNormal;
-                //float a = AngleBetween(float3(0,1,0), unpackedNormal) / 3.141592;
-                //worldUnpackedNormal = i.normal;
-                //return fixed4(worldUnpackedNormal.y,worldUnpackedNormal.y,worldUnpackedNormal.y,1);
-                //return float4(worldUnpackedNormal, 1);
-                //return fixed4(mixedDiffuse.rgb, weight);
+                // Normal mapping
+                half3 tangentNormal = UnpackNormal(tex2D(_BumpMap, i.originalUV));
+                tangentNormal.y *= -1;
+                half3 worldNormal = 
+                    TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, tangentNormal);
+                half3 originalWorldNormal = 
+                    TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, half3(0,0,1));
+                worldNormal = worldNormal * _BumpMapIntensity + originalWorldNormal * (1 - _BumpMapIntensity);
                 
-                float4 screenPos = ComputeScreenPos(i.pos);
-                //return fixed4(unity_LODFade.x, unity_LODFade.x, unity_LODFade.x, 1);
-                float4 textureColor = tex2D(_MainTex, i.uv);
-                //if (textureColor.a < _Threshold)
-                //    clip(textureColor.a - _Threshold);
-                textureColor = float4(1,1,1,1);
-                float primaryBumpPercentage = 1 - saturate(1 - blendFactors.r - blendFactors.b);
-                //return float4(primaryBumpPercentage, primaryBumpPercentage, primaryBumpPercentage, 1);
-                //return float4(1,1,1,1);
-                float4 primaryBumpMapColor = tex2D(_MainTex, i.uv) * primaryBumpPercentage + float4(1,1,1,1) * (1 - primaryBumpPercentage); 
-                primaryBumpMapColor.a = 1;
-                //return primaryBumpMapColor;
-                if (_ColorMapType < 0.5)
-                {
-                    float mainTexColor = tex2D(_MainTex, i.uv);
-                    //return RGBLightness(primaryBumpMapColor);
-                    if (RGBLightness(mainTexColor) < _ColorMapUpperThreshold &&
-                        RGBLightness(mainTexColor) > _ColorMapLowerThreshold)
-                    {
-                        float2 normalizedPlaneScale = i.planeScale / i.planeScale.x;
-                        textureColor = float4(tex2D(_ColorMap, i.originalUV * normalizedPlaneScale).rgb, 1) * primaryBumpMapColor * _Color;
-                    }
-                    else
-                    {
-                        //return fixed4(1,0,0,1);
-                        float4 colorMapColor = tex2D(_ColorMap, i.originalUV);
-                        textureColor = primaryBumpMapColor * _Color;
-                    }
-                }
-                else
-                {
-                    float mainTexColor = tex2D(_MainTex, i.uv);
-                    //return RGBLightness(primaryBumpMapColor);
-                    if (RGBLightness(mainTexColor) < _ColorMapUpperThreshold &&
-                        RGBLightness(mainTexColor) > _ColorMapLowerThreshold)
-                    {
-                        float4 colorMapColor = tex2D(_ColorMap, i.originalUV);
-                        textureColor = float4(
-                            colorMapColor.r * colorMapColor.a,
-                            colorMapColor.g * colorMapColor.a,
-                            colorMapColor.b * colorMapColor.a, 0) + primaryBumpMapColor * _Color;
-                    }
-                    else
-                    {
-                        //return fixed4(1,0,0,1);
-                        float4 colorMapColor = tex2D(_ColorMap, i.originalUV);
-                        textureColor = primaryBumpMapColor * _Color;
-                    }
-                }
-                //return textureColor;
-                //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPercentagePos));
-                //return fixed4(depth,depth,depth,1);
+                // Texture color calculation
+                float4 repeatedTexture1Color = tex2D(_RepeatedTexture1, i.repeatedUV1);
+                float4 repeatedTexture2Color = tex2D(_RepeatedTexture2, i.repeatedUV2);
+                float repeatedTextureBlend = tex2D(_RepeatedTextureBlend, i.originalUV).r;
+                float4 textureColor =
+                    repeatedTexture1Color * repeatedTextureBlend +
+                    repeatedTexture2Color * (1 - repeatedTextureBlend);
+
+                textureColor *= _Color;
+                float4 colorMapColor = tex2D(_ColorMap, i.originalUV);
+                textureColor *= colorMapColor;
 
                 ApplyDither(i.screenPos, _CrossFade);
 
+                // Shadow calculation
                 float inShadow = SHADOW_ATTENUATION(i);
-                float4 finalColor = float4(1,1,1,1);
-                finalColor *= textureColor;
-                //finalColor *= fixed4(mixedDiffuse.rgb, weight);//tex2D(_MainTex, i.uv);
-                //finalColor = finalColor + float4(1,1,1,0) * pow(saturate(i.uv.y - 0.5), 2) * 0.45;
-                //finalColor = finalColor + float4(1,1,1,0) * saturate(i.uv.y - 0.8) * 0.75;
-
-                float shadowProduct = AngleBetween(worldUnpackedNormal, _WorldSpaceLightPos0.xyz) / 3.151592;//i.normal
-                float inShadowSide = shadowProduct > 0.5;
-
-                 float4 baseShadowColor = finalColor * fixed4(.75, .75, .85, 1) * fixed4(.35, .35, .35, 1);
-                float4 shadowColor = (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength)) * (1 - inShadow) +
-                           finalColor * inShadow;//(1 - _ShadowStrength)
-                //return shadowColor;
+                float4 localColor = textureColor;
                 
-                float inShadowBool = inShadow < 0.6;
-
                 // Learned in AutoLight.cginc
+                // Shadow Fade
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
-                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-                float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, worldUnpackedNormal);//i.normal
-                float f = pow(AngleBetween(reflectedDir, -viewDir) / 3.141592, 2);
-                //return fixed4(f,f,f,1);
-                if (f > .9f)
-                {
-                    //return fixed4(f,f,f,1);
-                }
-                float scaledShadowProduct = pow(saturate(shadowProduct * 2),3);
-                float4 lightShadowColor = baseShadowColor * scaledShadowProduct +
-                                    finalColor * (1 - scaledShadowProduct);
-                //return baseShadowColor;
-                float4 lightColor = lightShadowColor * _LightShadowStrength +
-                    finalColor * (1 - _LightShadowStrength) + f * .4;
-
-                i.normal = worldUnpackedNormal;
-                if (!inShadowSide)
-                {    
-                    //if (!inShadowBool)
-                    //{
-                        //return lightColor;
-                        //STANDARD_FOG(lightColor)
-                    //}
-                    //else
-                    //{
-                        //return shadowColor * (1 - fadeValue) + lightColor * fadeValue;
-                        //float shadeFade = (1 - fadeValue) * inShadow;
-                        float shadeFade = inShadow;
-                        
-                        float4 fadedShadowColor = shadowColor * (1 - fadeValue) + lightColor * (fadeValue);
-                        //return shadeFade;
-                        inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                        STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
-                    //}
-                }
-                else
-                {
-                    //return (baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength));
-                    //return fixed4(1,0,0,1);
-                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                    STANDARD_SHADOWSIDE_FOG_TEMPERATURE(baseShadowColor * _ShadowStrength + finalColor * (1 - _ShadowStrength), _WarmColorStrength);
-                }
+                // Shading and fog
+                float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
+                STANDARD_FOG(shadedColor);
             }
             ENDCG
         }
