@@ -12,6 +12,9 @@
 //   for normal mapping.
 // - Standard-FirstPass/TerrainSplatmapCommon.cginc
 
+// Requirements:
+// Must need at least one of the terrain paint layers to have a normal map designated (can be blank)
+
 Shader "Custom/TerrainSemiFlatShader"
 {
     Properties
@@ -238,7 +241,8 @@ Shader "Custom/TerrainSemiFlatShader"
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
-                return Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
+                float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
+                STANDARD_FOG(shadedColor);
             }
             ENDCG
         }

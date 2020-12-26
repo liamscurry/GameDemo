@@ -280,7 +280,8 @@ Shader "Custom/SemiFlatShader"
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
-                return Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
+                float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
+                STANDARD_FOG(shadedColor);
 
                 //STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
                 //inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
