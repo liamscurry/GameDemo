@@ -5,27 +5,25 @@ float4 MultiplyColor(float percentage, float lightness, float4 startColor, float
            multipliedColor * percentage;
 }
 
-float4 WarmShadowColor(float4 startColor, float3 worldNormal, float isInShadowSide, float percentage)
+float4 WarmShadowColor(float4 startColor, float3 worldNormal, float inShadow)
 {
     float normalVerticalAngle = AngleBetween(worldNormal, float3(0, 1, 0)) / PI;
-    float normalWarmPercentage = (normalVerticalAngle - 0.5) * 2;
-    //if (isInShadowSide)
-    //{
-        float warmLightness = RGBLightness(startColor) * 1.2;
-        
-        float4 warmModifier =
-                float4(1, .55, .1, 1) * (normalWarmPercentage) + 
-                float4(1, 1, 1, 1) * (1 - normalWarmPercentage);
-            
-        float4 newColor = startColor *
-                (warmModifier * (1 - warmLightness) +
-                float4(1,1,1,1) * (warmLightness));
+    float normalWarmPercentage = (normalVerticalAngle - 0.5) * .3;
 
-        float4 blendedColor = newColor * (1 - isInShadowSide) + startColor * (isInShadowSide);
+    //float warmLightness = RGBLightness(startColor) * 1.2;
+    float4 warmModifier = float4(1, .55, .1, 1);
+    float4 coolModifier = float4(.9, .9, 1, 1);
         
-        return blendedColor * percentage + startColor * (1 - percentage);
-    //}
-    //return startColor;
+    //float4 newColor = startColor *
+    //        (warmModifier * (1 - warmLightness) +
+    //        float4(1,1,1,1) * (warmLightness));
+    float4 newColor =
+        startColor * warmModifier * (normalWarmPercentage) +
+        startColor * coolModifier * (1 - normalWarmPercentage);
+
+    float4 blendedColor = newColor * (1 - inShadow) + startColor * (inShadow);
+    
+    return blendedColor;
 }
 
 float4 HaloColor(float4 startColor, float distance, float3 worldPos)
@@ -74,12 +72,14 @@ fixed4 ApplyFog(
     float firstSectorDuration,
     float secondSectorDuration,
     float3 worldNormal, 
-    float isInShadowSide,
+    float inShadow,
     float temperaturePercentage)
 {
     float2 horizontalDisplacement = 
         (cameraPos - worldPos).xz;
     float distance = length(float3(horizontalDisplacement.x, 0, horizontalDisplacement.y));
+
+    startColor = WarmShadowColor(startColor, worldNormal, inShadow);
 
     float clampedHeight = worldPos.y + 20;
     if (clampedHeight < 0)
@@ -110,7 +110,7 @@ fixed4 ApplyFog(
 #define FIRSTSECTORCOLOR fixed4(63.0 / 255, 132.0 / 255, 235.0 / 255, 0)
 #define SECONDSECTORCOLOR fixed4(163.0 / 255, 205.0 / 255, 255.0 / 255, 0)
 
-#define STANDARD_FOG(color) return ApplyFog(color, FIRSTSECTORCOLOR, SECONDSECTORCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 140, 325, 400, i.normal, inShadow, 1);
+#define STANDARD_FOG(color, normal) return ApplyFog(color, FIRSTSECTORCOLOR, SECONDSECTORCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 140, 325, 400, normal, inShadow, 1);
 #define STANDARD_FOG_TEMPERATURE(color, temperature) return ApplyFog(color, FIRSTSECTORCOLOR, SECONDSECTORCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 90, 170, 400, i.normal, inShadow, temperature);
 #define STANDARD_SHADOWSIDE_FOG(color) return ApplyFog(color, FIRSTSECTORCOLOR, SECONDSECTORCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 90, 170, 400, i.normal, 1, 1);
 #define STANDARD_SHADOWSIDE_FOG_TEMPERATURE(color, temperature) return ApplyFog(color, FIRSTSECTORCOLOR, SECONDSECTORCOLOR, i.worldPos.xyz, _WorldSpaceCameraPos.xyz, 90, 170, 400, i.normal, 1, temperature);

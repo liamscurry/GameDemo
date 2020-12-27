@@ -318,12 +318,12 @@ Shader "Custom/AspenLeavesGround"
                 if (inShadow > 0.3)
                 {
                     //return finalColor;
-                    STANDARD_FOG(finalColor + float4(0.9, .9, 1, 0) * f * 2);
+                    STANDARD_FOG(finalColor + float4(0.9, .9, 1, 0) * f * 2, i.normal);
                 }
                 else
                 {
                     //return finalColor * fixed4(.85, .75, .75, 1) * (1 - fadeValue) + finalColor * (fadeValue);
-                    STANDARD_FOG((finalColor * fixed4(.8 * _ShadowStrength , .8 * _ShadowStrength, .8 * _ShadowStrength, 1) * (1 - fadeValue) + finalColor * (fadeValue)) + float4(0.9, .9, 1, 0) * f * .1);
+                    STANDARD_FOG((finalColor * fixed4(.8 * _ShadowStrength , .8 * _ShadowStrength, .8 * _ShadowStrength, 1) * (1 - fadeValue) + finalColor * (fadeValue)) + float4(0.9, .9, 1, 0) * f * .1, i.normal);
                     //STANDARD_FOG(finalColor * fixed4(1, .87, .625, 1) * (1 - fadeValue) + finalColor * (fadeValue));
                 }
             }

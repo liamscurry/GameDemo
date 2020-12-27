@@ -21,6 +21,7 @@ Shader "Custom/SemiFlatShader"
         _CrossFade ("CrossFade", float) = 0
 
         // Properties from Shading Helper
+        _FlatShading ("FlatShading", Range(0, 1)) = 0
         _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
 
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
@@ -280,7 +281,7 @@ Shader "Custom/SemiFlatShader"
                 float fadeValue = UnityComputeShadowFade(fadeDistance);
 
                 float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
-                STANDARD_FOG(shadedColor);
+                STANDARD_FOG(shadedColor, worldNormal);
 
                 //STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
                 //inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;

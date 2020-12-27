@@ -341,7 +341,7 @@ Shader "Custom/FlatShader"
                     if (!inShadowBool)
                     {
                         //return finalColor;
-                        STANDARD_FOG(finalColor);
+                        STANDARD_FOG(finalColor, i.normal);
                     }
                     else
                     {
@@ -353,7 +353,7 @@ Shader "Custom/FlatShader"
                         
                         float4 fadedShadowColor = shadowColor * (1 - fadeValue) + finalColor * (fadeValue);
                         STANDARD_SHADOWSIDE_FOG(shadowColor);
-                        STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + finalColor * shadeFade);
+                        STANDARD_FOG(fadedShadowColor * (1 - shadeFade) + finalColor * shadeFade, i.normal);
                     }
                 }
                 else

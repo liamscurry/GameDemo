@@ -11,6 +11,7 @@ _ReflectedIntensity ("ReflectedIntensity", Range(0, 3)) = 1
 #define SHADING_HELPER
 #include "/HelperCgincFiles/MathHelper.cginc"
 
+float _FlatShading;
 float _ShadowStrength;
 
 float _HighlightStrength;
@@ -18,7 +19,7 @@ float _HighlightIntensity;
 
 float _ReflectedIntensity;
 
-inline float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, float inShadow, float fadeValue)
+inline float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, inout float inShadow, float fadeValue)
 {
     float normalIncidence = AngleBetween(worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
 
@@ -38,6 +39,10 @@ inline float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, floa
         fixed4(1 - _ShadowStrength, 1 - _ShadowStrength, 1 - _ShadowStrength, 1);
 
     float lightIncidence = pow(saturate(normalIncidence * 2), 2);
+
+    if (_FlatShading > 0.5)
+        lightIncidence *= 0.5;
+        
     float4 lightColor =
         localShadowColor * lightIncidence +
         localColor * (1 - lightIncidence);
@@ -90,6 +95,7 @@ inline float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, floa
     float fadedInShadow = inShadow * (1 - fadeValue) + 0 * (fadeValue);
     lightDarkPercentage =
         min(fadedInShadow, lightDarkPercentage);
+    inShadow = lightDarkPercentage;
 
     float4 compositeColor =
         lightColor * (lightDarkPercentage) +

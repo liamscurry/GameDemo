@@ -294,12 +294,12 @@ Shader "Custom/TreeTrunk"
                     {
                         //return finalColor;
                         inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 0;
-                        STANDARD_FOG(finalColor);
+                        STANDARD_FOG(finalColor, i.normal);
                     }
                     else
                     {
                         inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 0;
-                        STANDARD_FOG(finalColor * fixed4(.85, .75, .75, 1) * fixed4(.7, .7, .7, 1));
+                        STANDARD_FOG(finalColor * fixed4(.85, .75, .75, 1) * fixed4(.7, .7, .7, 1), i.normal);
                     }
                 }
                 else

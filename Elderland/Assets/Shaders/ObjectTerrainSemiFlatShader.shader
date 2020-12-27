@@ -355,7 +355,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
 
                 // Shading and fog
                 float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
-                STANDARD_FOG(shadedColor);
+                STANDARD_FOG(shadedColor, worldNormal);
             }
             ENDCG
         }
