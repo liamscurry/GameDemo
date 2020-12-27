@@ -255,6 +255,7 @@ Shader "Custom/TreeLeaves"
                 float3 horizontalReflectedDir = normalize(float3(-_WorldSpaceLightPos0.x, 0, -_WorldSpaceLightPos0.z));
                 float f = 1 - saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, viewDir) / (PI / 2));
                 f = pow(f, 2);
+                finalColor = finalColor * (1 - fadeValue) + finalColor * float4(0.75,0.75,0.75,1) * (fadeValue);
 
                 if (inShadow > 0.3)
                 {

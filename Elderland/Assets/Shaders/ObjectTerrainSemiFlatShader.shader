@@ -14,6 +14,8 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
         _RepeatedTexture1Scale ("RepeatedTexture1Scale", Range(0.1, 10)) = 1
         _RepeatedTexture1OffsetX ("RepeatedTexture1OffsetX", Range(0, 1)) = 0 
         _RepeatedTexture1OffsetY ("RepeatedTexture1OffsetY", Range(0, 1)) = 0 
+        _RepeatedTexture1NormalMap ("RepeatedTexture1NormalMap", 2D) = "bump" {}
+        _RepeatedNormalMapIntensity ("RepeatedNormalMapIntensity", Range(0, 1)) = 1
 
         _RepeatedTexture2 ("RepeatedTexture2", 2D) = "white" {}
         _RepeatedTexture2Scale ("RepeatedTexture2Scale", Range(0.1, 10)) = 1
@@ -24,6 +26,8 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
         
         _BumpMap ("BumpMap", 2D) = "bump" {}
         _BumpMapIntensity ("BumpMapIntensity", Range(0, 1)) = 1
+        _IsBumpMapConstantScale ("IsBumpMapConstantScale", Range(0, 1)) = 0
+        _BumpMapConstantScale ("BumpMapConstantScale", float) = 1
 
         _Color ("Color", Color) = (1,1,1,1)
         _ColorMap ("ColorMap", 2D) = "white" {}
@@ -215,6 +219,9 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             float _RepeatedTexture2OffsetX;
             float _RepeatedTexture2OffsetY;
 
+            float _IsBumpMapConstantScale;
+            float _BumpMapConstantScale;
+
             v2fInput vert (appdata_full v, float3 normal : NORMAL, float4 tangent : TANGENT)
             {
                 v2fInput o;
@@ -254,8 +261,10 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             }
             
             sampler2D _RepeatedTexture1;
+            sampler2D _RepeatedTexture1NormalMap;
             sampler2D _RepeatedTexture2;
             sampler2D _RepeatedTextureBlend;
+            float _RepeatedNormalMapIntensity;
 
             sampler2D _BumpMap;
             float _BumpMapIntensity;
@@ -283,14 +292,43 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                 SplatmapMix(input, defaultSmoothness, splatControl, weight, mixedDiffuse, normal);
 
                 // Normal mapping
-                half3 tangentNormal = UnpackNormal(tex2D(_BumpMap, i.originalUV));
+                half3 tangentNormal;
+                half3 worldNormal;
+                half3 originalWorldNormal;
+
+                if (_IsBumpMapConstantScale > 0.5)
+                {
+                    float4 repeatedBumpUV = 
+                        (i.originalUV + float4(0, 0, 0, 0)) *
+                        float4(i.planeScale.x * _BumpMapConstantScale, i.planeScale.y * _BumpMapConstantScale, 1, 1);
+
+                    tangentNormal = UnpackNormal(tex2D(_BumpMap, repeatedBumpUV));
+                    tangentNormal.y *= -1;
+                    worldNormal = 
+                        TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, tangentNormal);
+                    originalWorldNormal = 
+                        TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, half3(0,0,1));
+                    worldNormal = worldNormal * _BumpMapIntensity + originalWorldNormal * (1 - _BumpMapIntensity);
+                }
+                else
+                {
+                    tangentNormal = UnpackNormal(tex2D(_BumpMap, i.originalUV));
+                    tangentNormal.y *= -1;
+                    worldNormal = 
+                        TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, tangentNormal);
+                    originalWorldNormal = 
+                        TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, half3(0,0,1));
+                    worldNormal = worldNormal * _BumpMapIntensity + originalWorldNormal * (1 - _BumpMapIntensity);
+                }
+
+                tangentNormal = UnpackNormal(tex2D(_RepeatedTexture1NormalMap, i.repeatedUV1));
                 tangentNormal.y *= -1;
-                half3 worldNormal = 
+                half3 worldRepeatedNormal1 = 
                     TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, tangentNormal);
-                half3 originalWorldNormal = 
-                    TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, half3(0,0,1));
-                worldNormal = worldNormal * _BumpMapIntensity + originalWorldNormal * (1 - _BumpMapIntensity);
+                worldRepeatedNormal1 = worldRepeatedNormal1 * _RepeatedNormalMapIntensity + originalWorldNormal * (1 - _RepeatedNormalMapIntensity);
                 
+                worldNormal = normalize(worldNormal + worldRepeatedNormal1);
+
                 // Texture color calculation
                 float4 repeatedTexture1Color = tex2D(_RepeatedTexture1, i.repeatedUV1);
                 float4 repeatedTexture2Color = tex2D(_RepeatedTexture2, i.repeatedUV2);
