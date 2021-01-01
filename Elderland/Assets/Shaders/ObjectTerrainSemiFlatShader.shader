@@ -34,7 +34,10 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
 
         _CrossFade ("CrossFade", float) = 0
         
+        // Properties from Shading Helper
+        _FlatShading ("FlatShading", Range(0, 1)) = 0
         _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
+        
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
         _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
         _ReflectedIntensity ("ReflectedIntensity", Range(0, 3)) = 1
