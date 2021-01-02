@@ -123,7 +123,7 @@ public sealed class RangedEnemySlow : EnemyAbility
         RangedEnemyManager manager = (RangedEnemyManager) ((EnemyAbilityManager) system).Manager;
         manager.AbilityManager.CancelQueue();
         manager.DefensiveAttackSuccessful = true;
-        character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage);
+        character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage, true);
         return true;
     }
 

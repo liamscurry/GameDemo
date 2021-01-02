@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -45,6 +46,8 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     private float savedHealth;
 
     public StandardInteraction Interaction { get; set; }
+
+    public event EventHandler OnBreak;
 
     private void Start()
     {
@@ -189,9 +192,9 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
             PhysicsSystem.HandleOverlapCollisions(PlayerInfo.PhysicsSystem, PlayerInfo.Capsule, transform.position, other);
     }
     
-    public void ChangeHealth(float value)
+    public void ChangeHealth(float value, bool unblockable = false)
     {
-        if (PlayerInfo.AnimationManager.Interuptable && !PlayerInfo.StatsManager.Blocking)
+        if (PlayerInfo.AnimationManager.Interuptable && (!PlayerInfo.StatsManager.Blocking || unblockable))
         {
             float preHealth = Health;
 
@@ -215,6 +218,12 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
                 {
                     healthSliders[i].value = 0;
                 }
+            }
+
+            if (unblockable && PlayerInfo.StatsManager.Blocking)
+            {
+                if (OnBreak != null)    
+                    OnBreak.Invoke(this, EventArgs.Empty);
             }
             
             if (preHealth != 0 && Health == 0)

@@ -29,7 +29,7 @@ public sealed class PlayerDodge : PlayerAbility
         segments.AddSegment(act);
         segments.NormalizeSegments();
 
-        coolDownDuration = .2f;
+        coolDownDuration = 0.5f;
     }
 
     protected override bool WaitCondition()

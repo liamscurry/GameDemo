@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,8 @@ public sealed class PlayerBlock : PlayerAbility
     private float timer;
     private const float minDuration = 0.5f;
     private const float staminaCostPerSecond = 2f;
+
+    private bool broke;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -38,6 +41,13 @@ public sealed class PlayerBlock : PlayerAbility
                 Quaternion.identity);
         blockParticlesObject.transform.parent = PlayerInfo.Player.transform;
         blockParticles = blockParticlesObject.GetComponent<ParticleSystem>();
+
+        PlayerInfo.Manager.OnBreak += OnBreak;
+    }
+
+    private void OnBreak(object sender, EventArgs args)
+    {
+        broke = true;
     }
 
     protected override bool WaitCondition()
@@ -50,6 +60,7 @@ public sealed class PlayerBlock : PlayerAbility
         PlayerInfo.StatsManager.Blocking = true;
         blockParticles.Play();
         timer = 0;
+        broke = false;
     }
 
     private void DuringAct()
@@ -58,7 +69,8 @@ public sealed class PlayerBlock : PlayerAbility
 
         timer += Time.deltaTime;
         if (((PlayerAbilityManager) system).Stamina == 0 ||
-            (!Input.GetKey(GameInfo.Settings.BlockAbilityKey) && timer > minDuration))
+            (!Input.GetKey(GameInfo.Settings.BlockAbilityKey) && timer > minDuration) ||
+            broke)
         {
             ActiveProcess.IndefiniteFinished = true;
         }
@@ -78,5 +90,10 @@ public sealed class PlayerBlock : PlayerAbility
     public override void ShortCircuitLogic()
     {
         ActEnd();
+    }
+
+    public override void DeleteResources()
+    {
+        PlayerInfo.Manager.OnBreak -= OnBreak;
     }
 }

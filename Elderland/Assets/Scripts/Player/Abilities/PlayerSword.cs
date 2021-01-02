@@ -499,7 +499,6 @@ public sealed class PlayerSword : PlayerAbility
                 enemy.transform.position - PlayerInfo.Player.transform.position);
         if (playerEnemyAngle > 25)
             directionalDamageModifier = 0.5f;
-        Debug.Log(playerEnemyAngle);
 
         enemy.ChangeHealth(
             -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * directionalDamageModifier);
