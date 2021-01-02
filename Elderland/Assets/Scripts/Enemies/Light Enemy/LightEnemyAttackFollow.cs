@@ -23,7 +23,7 @@ public class LightEnemyAttackFollow : StateMachineBehaviour
     {
         if (manager == null)
         {
-            manager = animator.GetComponent<LightEnemyManager>();
+            manager = animator.GetComponentInParent<LightEnemyManager>();
         }
 
         checkTimer = checkDuration;

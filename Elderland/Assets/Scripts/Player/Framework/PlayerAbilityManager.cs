@@ -14,6 +14,7 @@ public class PlayerAbilityManager : AbilitySystem
     private PlayerAbility melee;
     private PlayerAbility dodge;
     public PlayerAbility dash;
+    public PlayerAbility block;
     public PlayerAbility ranged;
     public PlayerAbility aoe;
 
@@ -32,6 +33,7 @@ public class PlayerAbilityManager : AbilitySystem
     public bool MeleeAvailable { get; set; }
     public bool DodgeAvailable { get; set; }
     public bool DashAvailable { get; set; }
+    public bool BlockAvailable { get; set; }
     public bool RangedAvailable { get; set; }
     public bool HealAvailable { get; set; }
     public bool AbilitiesAvailable { get; set; }
@@ -58,6 +60,7 @@ public class PlayerAbilityManager : AbilitySystem
         HealAvailable = true;
         DodgeAvailable = true;
         DashAvailable = true;
+        BlockAvailable = true;
         AbilitiesAvailable = true;
         #endif
         
@@ -76,6 +79,7 @@ public class PlayerAbilityManager : AbilitySystem
             Input.GetKey(GameInfo.Settings.MeleeAbilityKey) || Input.GetKey(GameInfo.Settings.AlternateMeleeAbilityKey) : false;
         bool dashInput = (GameInfo.Manager.ReceivingInput && DashAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
         bool dodgeInput = (GameInfo.Manager.ReceivingInput && DodgeAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
+        bool blockInput = (GameInfo.Manager.ReceivingInput && BlockAvailable && AbilitiesAvailable) ? Input.GetKeyDown(GameInfo.Settings.BlockAbilityKey) : false;
 
         //Weapon prioritization
         PlayerAbility weaponHeldDown = null;
@@ -94,6 +98,9 @@ public class PlayerAbilityManager : AbilitySystem
 
         if (dodgeInput)
             weaponHeldDown = dodge;
+        
+        if (blockInput)
+            weaponHeldDown = block;
 
         if (ranged != null)
             ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
@@ -109,6 +116,9 @@ public class PlayerAbilityManager : AbilitySystem
 
         if (dodge != null)
             dodge.UpdateAbility(dodge == weaponHeldDown, dodgeInput);
+
+        if (block != null)
+            block.UpdateAbility(block == weaponHeldDown, blockInput);
 	}
 
     public override bool Ready()
@@ -147,6 +157,7 @@ public class PlayerAbilityManager : AbilitySystem
         EquipAbility<PlayerDash>(ref dash);
         EquipAbility<PlayerFireball>(ref ranged);
         EquipAbility<PlayerFireChargeTier1>(ref aoe);
+        EquipAbility<PlayerBlock>(ref block);
         #endif
     }
 
@@ -224,6 +235,8 @@ public class PlayerAbilityManager : AbilitySystem
             dodge.UpdateStaminaCostIcons();
         if (dash != null)
             dash.UpdateStaminaCostIcons();
+        if (block != null)
+            block.UpdateStaminaCostIcons();    
         if (ranged != null)
             ranged.UpdateStaminaCostIcons();
         if (aoe != null)
@@ -240,6 +253,9 @@ public class PlayerAbilityManager : AbilitySystem
 
         if (dash != null && !dash.Continous)
             dash.ResetCooldown();
+
+        if (block != null && !block.Continous)
+            block.ResetCooldown();
 
         if (ranged != null && !ranged.Continous)
             ranged.ResetCooldown();

@@ -114,7 +114,7 @@ public sealed class PlayerFireChargeTier3 : PlayerAbility
             charges[i].gameObject.transform.position =
                 transform.position + GameInfo.CameraController.transform.right * (i - 3f) * 0.8f;
             charges[i].Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
-            hitboxes[i].Activate(this);           
+            hitboxes[i].Invoke(this);           
             hitboxes[i].gameObject.SetActive(true);
             charges[i].PostInitialization();
         }

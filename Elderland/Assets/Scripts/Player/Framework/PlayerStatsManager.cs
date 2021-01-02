@@ -40,6 +40,7 @@ public class PlayerStatsManager
 	public StatMultiplier AttackSpeedMultiplier { get; }
 
 	public bool Sprinting { get; set; }
+	public bool Blocking { get; set; }
 
 	public PlayerStatsManager()
 	{

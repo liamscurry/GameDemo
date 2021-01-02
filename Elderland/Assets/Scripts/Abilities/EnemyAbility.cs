@@ -113,5 +113,7 @@ public abstract class EnemyAbility : Ability
         ((EnemyAbilityManager) system).QueuedAbilities.Clear();
         system.Animator.SetBool("exitAbility", false);
         system.Animator.ResetTrigger("proceedAbility");
+        system.Animator.ResetTrigger("runAbility");
+        
     }
 }

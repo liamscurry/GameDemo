@@ -32,7 +32,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private GameObject glitchRenderersParent;
 
-    private int currentResolve;
+    private float currentResolve;
     private float resolveTimer;
 
     private float baseAgentSpeed;
@@ -207,7 +207,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         dynamicAgentVelocity = magnitude * dynamicAgentVelocity.normalized;
     }
 
-    public void IncreaseResolve(int amount)
+    public void IncreaseResolve(float amount)
     {
         currentResolve += amount;
         if (currentResolve > maxResolve)
@@ -404,6 +404,21 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         }
 
         Animator.SetBool("stationary", false);
+    }
+
+    public virtual void TryFlinch()
+    {
+        if (StatsManager.Interuptable)
+        {
+            TurnOffAgent();
+
+            if (AbilityManager.CurrentAbility != null)
+            {
+                AbilityManager.CurrentAbility.ShortCircuit();
+            }
+
+            Animator.SetTrigger("toFlinch");
+        }
     }
 
     protected IEnumerator DieTimer()

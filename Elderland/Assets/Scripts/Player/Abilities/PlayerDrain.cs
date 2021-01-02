@@ -114,7 +114,7 @@ public sealed class PlayerDrain : PlayerAbility
     public void ActBegin()
     {
         hitbox.gameObject.SetActive(true);
-        hitbox.Activate(this);
+        hitbox.Invoke(this);
 
         hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position;
         hitboxTrigger.center = scaledHitboxPosition;

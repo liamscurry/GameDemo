@@ -8,7 +8,7 @@ public sealed class PlayerDodge : PlayerAbility
 {
     //Fields
     private Vector2 direction;
-    private float speed = 6f;
+    private float speed = 13f;
 
     private AbilitySegment act;
     private AbilityProcess actProcess;

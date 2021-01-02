@@ -20,7 +20,7 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
         enemiesHit = new List<Collider>();
     }
 
-    public void Activate(PlayerAbility ability, bool callOnHit = true, bool callOnStay = false)
+    public void Invoke(PlayerAbility ability, bool callOnHit = true, bool callOnStay = false)
     {
         Reset();
         this.ability = ability;
@@ -61,6 +61,7 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
         }
     }
 
+    /*
     private void OnTriggerExit(Collider other)
     {
         if (other.tag == "EnemyHealth" && enemiesHit.Contains(other))
@@ -68,5 +69,5 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
             enemiesHit.Remove(other);
             ability.OnLeave(other.transform.parent.gameObject);
         }
-    }
+    }*/ //may need to have this for firecharge abilities, will have to look into supporting both.
 }

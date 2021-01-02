@@ -295,7 +295,7 @@ public sealed class BurningFireChargeManager : FireChargeManager
             var hitbox = debuffHitbox.GetComponentInChildren<PlayerMultiDamageHitbox>();
             hitbox.transform.parent.transform.position = position;
             currentDebuffHitboxes.Add(hitbox);
-            hitbox.Activate(ability, false, true);
+            hitbox.Invoke(ability, false, true);
             var particleManager = debuffHitbox.GetComponent<BurningFireChargeParticleManager>();
             particleManager.SetMaterialOffset();
             particleManager.FadeActiveIn();
@@ -312,7 +312,7 @@ public sealed class BurningFireChargeManager : FireChargeManager
             particleManager.DeactivatedFloorRenderer.transform.position = deactivatedFloorPosition;
             particleManager.ActiveFloorRenderer.transform.localPosition = Vector3.zero;
             currentDebuffHitboxes.Add(debuffHitbox);
-            debuffHitbox.Activate(ability, false, true);
+            debuffHitbox.Invoke(ability, false, true);
             debuffHitbox.gameObject.SetActive(true);
             particleManager.SetMaterialOffset();
             debuffHitbox.transform.parent.GetComponentInChildren<ParticleSystem>().Play();

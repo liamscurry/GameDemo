@@ -191,7 +191,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     
     public void ChangeHealth(float value)
     {
-        if (PlayerInfo.AnimationManager.Interuptable)
+        if (PlayerInfo.AnimationManager.Interuptable && !PlayerInfo.StatsManager.Blocking)
         {
             float preHealth = Health;
 

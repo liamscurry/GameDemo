@@ -66,8 +66,8 @@ public class MovementBehaviour : StateMachineBehaviour
                 LadderTransition(animator, stateInfo, layerIndex);
                 if (!exiting)
                     MantleTransition(animator, stateInfo, layerIndex);
-                if (!exiting)
-                    JumpTransition(animator, stateInfo, layerIndex);
+                //if (!exiting)
+                //    JumpTransition(animator, stateInfo, layerIndex);
             }
         }
 	}

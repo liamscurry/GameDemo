@@ -32,7 +32,7 @@ public sealed class LightEnemySword : EnemyAbility
         //Segment setup
         rotateProcess = new AbilityProcess(null, DuringRotate, null, 1);
         pauseProcess = new AbilityProcess(PauseBegin, null, PauseEnd, 1);
-        attackProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.25f);
+        attackProcess = new AbilityProcess(ActBegin, null, ActEnd, 1f);
         rotate = new AbilitySegment(rotateClip, rotateProcess);
         pause = new AbilitySegment(pauseClip, pauseProcess);
         attack = new AbilitySegment(attackClip, attackProcess);
@@ -84,16 +84,25 @@ public sealed class LightEnemySword : EnemyAbility
         hitbox.Invoke(this);
 
         SetHitboxRotation(this.hitbox.gameObject);
+        ((EnemyAbilityManager) system).Manager.StatsManager.Interuptable = false;
     }
 
     public void ActEnd()
     {
         hitbox.gameObject.SetActive(false);
+        ((EnemyAbilityManager) system).Manager.StatsManager.Interuptable = true;
     }
 
     public override bool OnHit(GameObject character)
     {
         character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage);
+
+        if (PlayerInfo.StatsManager.Blocking)
+        {
+            ShortCircuit();
+            ((EnemyAbilityManager) system).Manager.Animator.SetTrigger("toDeflected");
+        }
+
         return true;
     }
 

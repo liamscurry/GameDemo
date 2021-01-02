@@ -18,8 +18,8 @@ public sealed class PlayerSword : PlayerAbility
 
     private float damage = 0.5f;//0.5
     private float strength = 18;
-    private PlayerSingleDamageHitbox hitbox;
-    private Vector3 hitboxScale = new Vector3(1.5f, 2, 2);
+    private PlayerMultiDamageHitbox hitbox;
+    private Vector3 hitboxScale = new Vector3(3f, 2, 2);
     private ParticleSystem hitboxParticles;
     private Gradient hitboxParticlesNormalGradient;
     private ParticleSystem.ColorOverLifetimeModule hitboxParticlesColors;
@@ -81,11 +81,11 @@ public sealed class PlayerSword : PlayerAbility
         continous = true;
 
         //Hitbox initializations
-        GameObject hitboxObject = Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.RectangularSingleHitbox), transform.position, Quaternion.identity);
+        GameObject hitboxObject = Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.RectangularMultiHitbox), transform.position, Quaternion.identity);
         hitboxObject.transform.parent = PlayerInfo.MeleeObjects.transform;
         hitboxObject.SetActive(false);
 
-        hitbox = hitboxObject.GetComponent<PlayerSingleDamageHitbox>();
+        hitbox = hitboxObject.GetComponent<PlayerMultiDamageHitbox>();
         hitbox.gameObject.transform.localScale = hitboxScale;
 
         GameObject hitboxParticlesObject =
@@ -136,16 +136,6 @@ public sealed class PlayerSword : PlayerAbility
             }   
         }
     }
-
-    /*
-    bool hitLedge = UnityEngine.Physics.SphereCast(
-    PlayerInfo.Player.transform.position + interuptDirection * 1.25f,
-    PlayerInfo.Capsule.radius,
-    Vector3.down,
-    out predictLedgeCast,
-    (PlayerInfo.Capsule.height / 2) + PlayerInfo.Capsule.radius * 0.5f,
-    LayerConstants.GroundCollision);
-    */
 
     private bool CheckForGround()
     {
@@ -404,8 +394,7 @@ public sealed class PlayerSword : PlayerAbility
 
     public void ChargeEnd()
     {
-        //print("charge end called");
-        //PlayerInfo.AnimationManager.DisableRootMotion();
+        
     }
 
     public void ActBegin()
@@ -480,13 +469,6 @@ public sealed class PlayerSword : PlayerAbility
         PlayerInfo.Animator.SetFloat("speed", exitMoveSpeed);
     }
 
-    /*
-    protected override void Stop()
-    {
-        hitbox.gameObject.SetActive(false);
-    }
-    */
-
     Vector3 scanCenter;
     Vector3 scanSize;
     Quaternion scanRotation;
@@ -510,8 +492,18 @@ public sealed class PlayerSword : PlayerAbility
     public override bool OnHit(GameObject character)
     {
         EnemyManager enemy = character.GetComponent<EnemyManager>();
+        float directionalDamageModifier = 1;
+        float playerEnemyAngle =
+            Matho.AngleBetween(
+                PlayerInfo.Player.transform.forward,
+                enemy.transform.position - PlayerInfo.Player.transform.position);
+        if (playerEnemyAngle > 25)
+            directionalDamageModifier = 0.5f;
+        Debug.Log(playerEnemyAngle);
+
         enemy.ChangeHealth(
-            -damage * PlayerInfo.StatsManager.DamageMultiplier.Value);
+            -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * directionalDamageModifier);
+
         PlayerInfo.AbilityManager.ChangeStamina(
             0.5f * PlayerInfo.StatsManager.StaminaYieldMultiplier.Value);
 
@@ -523,7 +515,7 @@ public sealed class PlayerSword : PlayerAbility
                 enemy.ChangeHealth(
                     -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 2);
                 enemy.ConsumeResolve();
-                //Debug.Log(enemy.PhysicsSystem.Animating);
+
                 hitboxParticles.transform.localScale = Vector3.one * 1.5f;
                 
                 // Based on Particle System manual API.
@@ -540,17 +532,15 @@ public sealed class PlayerSword : PlayerAbility
                 );
 
                 hitboxParticlesColors.color = newGradient;
-                //hitboxParticles.colorOverLifetime = newColors;
                 hitboxParticles.Play();
             }
             else
             {
                 enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 1.5f);
-                enemy.IncreaseResolve(1);
+                if (directionalDamageModifier == 1)
+                    enemy.IncreaseResolve(0.5f);
             }
 
-            //enemy.ChangeHealth(
-            //    -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 1);
             abilitySpeed += 0.5f;
             if (abilitySpeed > maxSpeed)
                 abilitySpeed = maxSpeed;
@@ -577,26 +567,4 @@ public sealed class PlayerSword : PlayerAbility
         ActEnd();
         PlayerInfo.Animator.InterruptMatchTarget(false);
     }
-
-    /*
-    private class MatchTarget
-    {
-        public Vector3 position;
-        public Quaternion rotation;
-        public AvatarTarget part;
-        public MatchTargetWeightMask weightMask;
-        public float startTime;
-        public float endTime;
-
-        public MatchTarget(Vector3 position, Quaternion rotation, AvatarTarget part, MatchTargetWeightMask weightMask, float startTime, float endTime)
-        {
-            this.position = position;
-            this.rotation = rotation;
-            this.part = part;
-            this.weightMask = weightMask;
-            this.startTime = startTime;
-            this.endTime = endTime;
-        }
-    }
-    */
 }

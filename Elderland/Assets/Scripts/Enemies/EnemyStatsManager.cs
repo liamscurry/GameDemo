@@ -14,9 +14,12 @@ public class EnemyStatsManager
     // the enemy. Used to color health bar to indicate health debuff.
     public StatMultiplier HealthDebuffMultiplier { get; }
 
+    public bool Interuptable { get; set; }
+
     public EnemyStatsManager(EnemyManager manager)
     {   
         this.manager = manager;
+        Interuptable = true;
 
         MovespeedMultiplier = new StatMultiplier(1);
         DamageTakenMultiplier = new StatMultiplier(1);

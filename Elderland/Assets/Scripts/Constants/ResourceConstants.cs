@@ -40,6 +40,7 @@ public static class ResourceConstants
 
             public const string SwordParticles = "Player/Hitboxes/PlayerSwordParticles";
             public const string DashParticles = "Player/Hitboxes/PlayerDashParticles";
+            public const string BlockParticles = "Player/Hitboxes/PlayerBlockParticles";
         }
 
         public static class Pickups

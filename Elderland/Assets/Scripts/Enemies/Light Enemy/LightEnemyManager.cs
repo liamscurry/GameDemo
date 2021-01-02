@@ -26,6 +26,8 @@ public sealed class LightEnemyManager : EnemyManager
 
     public override void ChooseNextAbility()
     {
+        NextAttack = Sword;
+        /*
         Vector2 projectedPosition = Matho.StandardProjection2D(transform.position);
         Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
@@ -37,7 +39,7 @@ public sealed class LightEnemyManager : EnemyManager
         else
         {
             NextAttack = Sword;
-        }
+        }*/
     }
 
     protected override void SpawnPickups()
