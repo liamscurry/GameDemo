@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //The Dash skill allows the player to travel long distances in a short amount of time.
-
+// Vertical center swing is unblockable.
 public sealed class HeavyEnemyVerticalSword : EnemyAbility 
 {
     [SerializeField]
@@ -45,6 +45,7 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
     private System.Random random;
 
     private const float damage = 2f;
+    private bool verticalAttack;
 
     public override void Initialize(EnemyAbilityManager abilityManager)
     {
@@ -77,6 +78,7 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
         //if (swingType == 0)
         //    swingType = 1;
         //swingType = 0;
+        verticalAttack = (swingType == 0);        
 
         switch (swingType)
         {
@@ -199,7 +201,14 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
 
     public override bool OnHit(GameObject character)
     {
-        character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage);
+        character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage, verticalAttack);
+
+        if (PlayerInfo.StatsManager.Blocking && !verticalAttack)
+        {
+            ShortCircuit();
+            ((EnemyAbilityManager) system).Manager.Animator.SetTrigger("toDeflected");
+        }
+
         return true;
     }
 

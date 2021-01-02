@@ -155,6 +155,11 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         dynamicAgentVelocity += velocity;
     }
 
+    public void Zero()
+    {
+        dynamicAgentVelocity = Vector3.zero;
+    }
+
     public Vector3 GetGroundNormal()
     {
         RaycastHit raycast;

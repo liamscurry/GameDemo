@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 //Weapon ability with a light melee attack.
-
+// Unblockable.
 public sealed class RangedEnemySlow : EnemyAbility 
 {
     [SerializeField]

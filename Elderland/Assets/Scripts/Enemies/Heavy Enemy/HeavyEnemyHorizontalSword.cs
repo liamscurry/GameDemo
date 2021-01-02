@@ -104,6 +104,13 @@ public sealed class HeavyEnemyHorizontalSword : EnemyAbility
     public override bool OnHit(GameObject character)
     {
         character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage);
+
+        if (PlayerInfo.StatsManager.Blocking)
+        {
+            ShortCircuit();
+            ((EnemyAbilityManager) system).Manager.Animator.SetTrigger("toDeflected");
+        }
+
         return true;
     }
 
