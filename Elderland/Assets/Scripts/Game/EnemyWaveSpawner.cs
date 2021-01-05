@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyWaveSpawner : MonoBehaviour
 {
-    private enum EnemyType { Light, Heavy, Ranged }
+    private enum EnemyType { Light, Heavy, Ranged, Grunt }
     private enum EnemyTier { One, Two, Three }
 
     [SerializeField]
@@ -34,6 +34,9 @@ public class EnemyWaveSpawner : MonoBehaviour
                 case EnemyType.Ranged:
                     enemy = Resources.Load<GameObject>(ResourceConstants.Enemy.Enemies.RangedEnemy);
                     break;
+                case EnemyType.Grunt:
+                    enemy = Resources.Load<GameObject>(ResourceConstants.Enemy.Enemies.GruntEnemy);
+                    break;    
                 default:
                     throw new System.Exception("Not implemented to spawn yet");
             }

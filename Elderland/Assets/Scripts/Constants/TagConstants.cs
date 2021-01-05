@@ -4,6 +4,7 @@ public static class TagConstants
 {
     public const string BlinkAnchor = "BlinkAnchor";
     public const string Enemy = "Enemy";
+    public const string GruntGroupSensor = "GruntGroupSensor";
     
     public const string Ladder = "Ladder";
     public const string LadderTop = "LadderTop";
