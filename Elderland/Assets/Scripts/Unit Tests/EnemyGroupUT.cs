@@ -25,6 +25,7 @@ public class EnemyGroupUT : MonoBehaviour
             EnemyGroup.CalculateRotationConstantTest();
             EnemyGroup.RotateTest();
             EnemyGroup.ExpandTest();
+            EnemyGroup.AdjustResetAdjustTest();
 
             Debug.Log("EnemyGroup: Success");
         } 

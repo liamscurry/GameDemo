@@ -7,6 +7,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
 {
     private List<IEnemyGroup> enemies;
     private const float offsetThreshold = 0.005f;
+    private bool adjustAvailable;
 
     public int EnemyCount 
     { 
@@ -26,6 +27,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
     private EnemyGroup()
     {
         enemies = new List<IEnemyGroup>();
+        adjustAvailable = true;
     }
 
     public int CompareTo(EnemyGroup other)
@@ -165,6 +167,32 @@ public class EnemyGroup : IComparable<EnemyGroup>
                         enemy.Velocity += -nearbyDirection * speed * 0.5f;
                     }
                 }
+            }
+        }
+    }
+
+    public void Adjust(Vector3 target, float speed, float rotateSpeed, float expandSpeed)
+    {
+        if (adjustAvailable)
+        {
+            Vector3 center = 
+                CalculateCenter();
+            Rotate(center, rotateSpeed);
+            Expand(expandSpeed);
+            Move(center, target, speed);
+            adjustAvailable = false;
+        }
+    }
+
+    public void ResetAdjust()
+    {
+        if (!adjustAvailable)
+        {
+            adjustAvailable = true;
+
+            foreach (IEnemyGroup enemy in enemies)
+            {
+                enemy.Velocity = Vector3.zero;
             }
         }
     }
@@ -580,5 +608,21 @@ public class EnemyGroup : IComparable<EnemyGroup>
         UT.CheckEquality<bool>(Matho.IsInRange(e4.Velocity, new Vector3(-2 * Matho.Diagonal, 0, -2 * Matho.Diagonal), UT.Threshold), true);
         UT.CheckEquality<bool>(Matho.IsInRange(e5.Velocity, new Vector3(0, 0, 0), UT.Threshold), true);
         UT.CheckEquality<bool>(Matho.IsInRange(e6.Velocity, new Vector3(2 * Matho.Diagonal, 0, 2 * Matho.Diagonal), UT.Threshold), true);
+    }
+
+    public static void AdjustResetAdjustTest()
+    {
+        var e1 = new EnemyGroupUTDummy(new Vector3(-1, 0, 0));
+        var e2 = new EnemyGroupUTDummy(new Vector3(1, 0, 0));
+
+        EnemyGroup.Add(e1, e2);
+        UT.CheckEquality<bool>(e1.Group.adjustAvailable, true);
+        UT.CheckEquality<bool>(e1.Velocity.magnitude < UT.Threshold, true);
+        e1.Group.Adjust(new Vector3(5, 0, 0), 1, 1, 1);
+        UT.CheckEquality<bool>(e1.Group.adjustAvailable, false);
+        UT.CheckEquality<bool>(e1.Velocity.magnitude > UT.Threshold, true);
+        e1.Group.ResetAdjust();
+        UT.CheckEquality<bool>(e1.Group.adjustAvailable, true);
+        UT.CheckEquality<bool>(e1.Velocity.magnitude < UT.Threshold, true);
     }
 }
