@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -57,9 +58,9 @@ public class EnemyBuffUT : MonoBehaviour
 
             Debug.Log("EnemyBuff: Success");
         } 
-        catch
+        catch (Exception e)
         {
-            Debug.Log("EnemyBuff: Failed");
+            Debug.Log("EnemyBuff: Failed. " + e.Message + " " + e.StackTrace);
         }
     }
 }

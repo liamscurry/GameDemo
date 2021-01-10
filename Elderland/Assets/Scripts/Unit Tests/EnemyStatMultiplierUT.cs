@@ -24,9 +24,9 @@ public class EnemyStatMultiplierUT : MonoBehaviour
 
             Debug.Log("EnemyStatMultiplier: Success");
         } 
-        catch
+        catch (Exception e)
         {
-            Debug.Log("EnemyStatMultiplier: Failed");
+            Debug.Log("EnemyStatMultiplier: Failed. " + e.Message + " " + e.StackTrace);
         }
     }
 }
