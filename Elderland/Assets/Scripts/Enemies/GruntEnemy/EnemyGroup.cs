@@ -177,7 +177,8 @@ public class EnemyGroup : IComparable<EnemyGroup>
         {
             Vector3 center = 
                 CalculateCenter();
-            Rotate(center, rotateSpeed);
+            if (CalculateRotationConstant(center, target) < 0.25f)
+                Rotate(center, rotateSpeed);
             Expand(expandSpeed);
             Move(center, target, speed);
             adjustAvailable = false;
@@ -624,5 +625,15 @@ public class EnemyGroup : IComparable<EnemyGroup>
         e1.Group.ResetAdjust();
         UT.CheckEquality<bool>(e1.Group.adjustAvailable, true);
         UT.CheckEquality<bool>(e1.Velocity.magnitude < UT.Threshold, true);
+
+        var e3 = new EnemyGroupUTDummy(new Vector3(-1, 0, 0));
+        var e4 = new EnemyGroupUTDummy(new Vector3(1, 0, 0));
+
+        EnemyGroup.Add(e3, e4);
+        e3.Group.Adjust(new Vector3(0, 0, 5), 0, 1, 0);
+        UT.CheckEquality<bool>(e3.Velocity.magnitude < UT.Threshold, true);
+        e3.Group.ResetAdjust();
+        e3.Group.Adjust(new Vector3(5, 0, 0), 0, 1, 0);
+        UT.CheckEquality<bool>(e3.Velocity.magnitude > UT.Threshold, true);
     }
 }
