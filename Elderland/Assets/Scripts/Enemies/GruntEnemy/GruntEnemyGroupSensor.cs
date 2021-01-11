@@ -9,62 +9,37 @@ using UnityEngine;
 public class GruntEnemyGroupSensor : MonoBehaviour
 {
     //Properties//
-	public List<GameObject> NearbyGrunts { get; private set; }
+	private List<Collider> nearbyGrunts;
+	private GruntEnemyManager manager;
 
 	private void Awake()
 	{
-		NearbyGrunts = new List<GameObject>();
+		nearbyGrunts = new List<Collider>();
+		manager = GetComponentInParent<GruntEnemyManager>();
 	}
 
-	private void OnDestroy()
-	{
-		RemoveFromNearby();
-	}
-
-	private void OnTriggerEnter(Collider other)
+	private void OnTriggerStay(Collider other)
 	{
 		TryAdd(other);
 	}
 
-	private void OnTriggerExit(Collider other)
+	public void Reset()
 	{
-		TryRemove(other);
-	}
-
-	public void RemoveDeadNearby(GameObject grunt)
-	{
-		NearbyGrunts.Remove(grunt);
+		nearbyGrunts.Clear();
 	}
 
 	private void TryAdd(Collider other)
 	{
 		if (other.tag == TagConstants.GruntGroupSensor &&
-            !NearbyGrunts.Contains(other.transform.parent.gameObject))
+			manager.InGroupState && !nearbyGrunts.Contains(other))
         {
-			NearbyGrunts.Add(other.transform.parent.gameObject);
-        }
-	}
-
-	private void TryRemove(Collider other)
-	{
-		if (other.tag == TagConstants.GruntGroupSensor &&
-            NearbyGrunts.Contains(other.transform.parent.gameObject))
-        {
-			NearbyGrunts.Remove(other.transform.parent.gameObject);
-        }
-	}
-
-	private void RemoveFromNearby()
-	{
-		foreach (GameObject grunt in NearbyGrunts)
-		{
-			GruntEnemyManager gruntManager =
-				grunt.GetComponent<GruntEnemyManager>();
-			
-			if (gruntManager.GroupSensor.NearbyGrunts.Contains(transform.parent.gameObject))
+			GruntEnemyManager enemyManager =
+				other.GetComponentInParent<GruntEnemyManager>();
+			if (enemyManager.InGroupState)
 			{
-				gruntManager.GroupSensor.RemoveDeadNearby(transform.parent.gameObject);
+				nearbyGrunts.Add(other);
+				EnemyGroup.Add((IEnemyGroup) enemyManager, (IEnemyGroup) manager);
 			}
-		}
+        }
 	}
 }

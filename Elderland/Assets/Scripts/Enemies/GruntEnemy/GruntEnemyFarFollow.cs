@@ -30,6 +30,7 @@ public class GruntEnemyFarFollow : StateMachineBehaviour
         distanceToPlayer = lastDistanceToPlayer;
         lastRemainingDistance = distanceToPlayer;
         remainingDistance = distanceToPlayer;
+        manager.Agent.updateRotation = true;
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -73,6 +74,7 @@ public class GruntEnemyFarFollow : StateMachineBehaviour
     private void GroupFollowExit()
     {
         manager.Animator.SetTrigger("toGroupFollow");
+        manager.GroupSensor.Reset();
         exiting = true;
     }
 }

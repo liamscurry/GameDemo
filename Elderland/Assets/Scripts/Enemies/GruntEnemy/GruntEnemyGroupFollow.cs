@@ -30,6 +30,9 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
         distanceToPlayer = lastDistanceToPlayer;
         lastRemainingDistance = distanceToPlayer;
         remainingDistance = distanceToPlayer;
+        manager.InGroupState = true;
+        manager.GroupMovement = false;
+        manager.Agent.updateRotation = true;
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -40,10 +43,25 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
             distanceToPlayer = manager.DistanceToPlayer();
             remainingDistance = manager.Agent.remainingDistance;
 
-            if (checkTimer > checkDuration)
+            if (!manager.GroupMovement)
             {
-                manager.UpdateAgentPath();
+                if (checkTimer > checkDuration)
+                {
+                    manager.UpdateAgentPath();
+                }
             }
+            else
+            {
+                manager.Group.Adjust(
+                    PlayerInfo.Player.transform.position,
+                    1.2f * Time.deltaTime,
+                    0.5f * Time.deltaTime,
+                    0.5f * Time.deltaTime,
+                    manager.NearbySensor.Radius);
+                manager.Agent.Move(manager.Velocity);
+            }
+
+            RotateTowardsPlayer();
 
             manager.ClampToGround();
 
@@ -58,26 +76,27 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
 
     private void RotateTowardsPlayer()
     {
-        if (manager.Agent.hasPath)
+        if (!manager.GroupMovement)
         {
-            if (remainingDistance >= manager.GroupFollowRadius)
+            if (!manager.Agent.updateRotation)
+                manager.Agent.updateRotation = true;
+        }
+        else
+        {
+            if (manager.Agent.updateRotation)
             {
-                if (!manager.Agent.updateRotation)
-                    manager.Agent.updateRotation = true;
+                manager.Agent.updateRotation = false;
             }
-            else if (remainingDistance < manager.GroupFollowRadius)
+            else
             {
-                if (manager.Agent.updateRotation)
-                    manager.Agent.updateRotation = false;
-            }
-
-            if (remainingDistance < manager.GroupFollowRadius)
-            {
-                Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
-                Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 1f * Time.deltaTime, 0f);
+                Vector3 targetForward =
+                    Matho.StandardProjection3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
+                Vector3 forward =
+                    Vector3.RotateTowards(manager.transform.forward, targetForward, 1f * Time.deltaTime, 0f);
                 manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
             }
         }
+        Debug.Log(manager.Agent.updateRotation);
     }
 
     private void FarFollowTransition()
@@ -97,6 +116,8 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
     private void FarFollowExit()
     {
         manager.Animator.SetTrigger("toFarFollow");
+        EnemyGroup.Remove((IEnemyGroup) manager);
+        manager.InGroupState = false;
         exiting = true;
     }
 }

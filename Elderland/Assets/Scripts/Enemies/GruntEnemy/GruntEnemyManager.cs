@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class GruntEnemyManager : EnemyManager
+public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
 {
     //public LightEnemySword Sword { get; private set; }
 
@@ -11,11 +11,67 @@ public sealed class GruntEnemyManager : EnemyManager
     [SerializeField]
     private float groupFollowRadiusMargin;
     [SerializeField]
+    private GruntEnemyNearbySensor nearbySensor;
+    [SerializeField]
     private GruntEnemyGroupSensor groupSensor;
 
     public float GroupFollowRadius { get { return groupFollowRadius; } }
     public float GroupFollowRadiusMargin { get { return groupFollowRadiusMargin; } }
+    public GruntEnemyNearbySensor NearbySensor { get { return nearbySensor; } }
     public GruntEnemyGroupSensor GroupSensor { get { return groupSensor; } }
+    public bool GroupMovement { get; set; }
+
+    public EnemyGroup Group { get; set; }
+    public Vector3 Position
+    {
+        get
+        {
+            return transform.position;
+        }
+    }
+    public Vector3 Velocity { get; set; }
+    public List<IEnemyGroup> NearbyEnemies
+    {
+        get
+        {
+            return nearbySensor.NearbyGrunts;
+        }
+
+        set
+        {
+            Debug.Log("GruntEnemyManager nearby grunts cannot be set. This message should not be printed");
+        }
+    }
+
+    public bool InGroupState { get; set; }
+
+    public int CompareTo(IEnemyGroup e)
+    {
+        if (((IEnemyGroup) this) == e)
+        {
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (Group != null)
+        {
+            if (Agent.hasPath)
+            {
+                GroupMovement = true;
+                Agent.ResetPath();
+            }
+            else
+            {
+                Group.ResetAdjust();
+            }
+        }
+    }
 
     protected override void DeclareAbilities()
     {

@@ -143,6 +143,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     private void FixedUpdate()
     {
+        // Temporarily disable dynamic velocity
         Agent.Move(dynamicAgentVelocity * Time.deltaTime);
     
         DynamicDrag(12f);
