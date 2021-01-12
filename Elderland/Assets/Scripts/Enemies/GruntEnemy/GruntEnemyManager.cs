@@ -19,6 +19,8 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     [SerializeField]
     private float attackFollowRadiusMargin;
     [SerializeField]
+    private float attackPingRadius;
+    [SerializeField]
     private float attackFollowSpeed;
     [SerializeField]
     private GruntEnemyNearbySensor nearbySensor;
@@ -31,10 +33,12 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     public float CentralStopRadiusMargin { get { return centralStopRadiusMargin; } }
     public float AttackFollowRadius { get { return attackFollowRadius; } }
     public float AttackFollowRadiusMargin { get { return attackFollowRadiusMargin; } }
+    public float AttackPingRadius { get { return attackPingRadius; } }
     public float AttackFollowSpeed { get { return attackFollowSpeed; } }
     public GruntEnemyNearbySensor NearbySensor { get { return nearbySensor; } }
     public GruntEnemyGroupSensor GroupSensor { get { return groupSensor; } }
     public bool GroupMovement { get; set; }
+    public bool PingedToAttack { get; set; }
 
     public EnemyGroup Group { get; set; }
     public Vector3 Position

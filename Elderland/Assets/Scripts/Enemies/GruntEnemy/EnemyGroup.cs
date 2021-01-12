@@ -10,7 +10,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
     private bool adjustAvailable;
     private bool isStopped;
 
-    public static readonly int MaxAttackingEnemies = 1;
+    public static readonly int MaxAttackingEnemies = 3;
     public static List<EnemyManager> AttackingEnemies { get; }
 
     public bool IsStopped { get { return isStopped; } }

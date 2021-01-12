@@ -296,7 +296,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 135660507675371946}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 1
   m_Speed: 3.75
   m_Acceleration: 20
   avoidancePriority: 50
@@ -339,7 +339,8 @@ MonoBehaviour:
   centralStopRadius: 5
   centralStopRadiusMargin: 2
   attackFollowRadius: 3
-  attackFollowRadiusMargin: 1.5
+  attackFollowRadiusMargin: 3.75
+  attackPingRadius: 3.5
   attackFollowSpeed: 2.5
   nearbySensor: {fileID: 7879308274015474422}
   groupSensor: {fileID: 278664622586447163}
