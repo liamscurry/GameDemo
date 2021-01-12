@@ -8,6 +8,12 @@ public class EnemyGroup : IComparable<EnemyGroup>
     private List<IEnemyGroup> enemies;
     private const float offsetThreshold = 0.005f;
     private bool adjustAvailable;
+    private bool isStopped;
+
+    public static readonly int MaxAttackingEnemies = 1;
+    public static List<EnemyManager> AttackingEnemies { get; }
+
+    public bool IsStopped { get { return isStopped; } }
 
     public int EnemyCount 
     { 
@@ -22,6 +28,11 @@ public class EnemyGroup : IComparable<EnemyGroup>
                 return enemies.Count;
             }
         }
+    }
+
+    static EnemyGroup()
+    {
+        AttackingEnemies = new List<EnemyManager>();
     }
 
     private EnemyGroup()
@@ -60,6 +71,16 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
             return posSum * (1.0f / enemies.Count);
         }
+    }
+
+    public void Stop()
+    {
+        isStopped = true;
+    }
+
+    public void Resume()
+    {
+        isStopped = false;
     }
 
     private void Move(Vector3 center, Vector3 target, float speed)
@@ -178,6 +199,12 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
     public void Adjust(Vector3 target, float speed, float rotateSpeed, float expandSpeed, float expandRadius)
     {
+        if (isStopped)
+        {
+            adjustAvailable = false;
+            return;
+        }
+
         if (adjustAvailable)
         {
             Vector3 center = 

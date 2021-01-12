@@ -11,10 +11,6 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
     private const float checkDuration = 0.5f;
 
     private bool exiting;
-    private float lastDistanceToPlayer;
-    private float distanceToPlayer;
-    private float lastRemainingDistance;
-    private float remainingDistance;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -24,12 +20,8 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
         }
 
         checkTimer = checkDuration;
-        exiting = false;
 
-        lastDistanceToPlayer = manager.DistanceToPlayer();
-        distanceToPlayer = lastDistanceToPlayer;
-        lastRemainingDistance = distanceToPlayer;
-        remainingDistance = distanceToPlayer;
+        exiting = false;
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -37,58 +29,42 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
         if (!exiting)
         {
             checkTimer += Time.deltaTime;
-            distanceToPlayer = manager.DistanceToPlayer();
-            remainingDistance = manager.Agent.remainingDistance;
 
-            if (checkTimer > checkDuration)
-            {
-                //UpdatePath();
-            }
+            MoveTowardsPlayer();
+            manager.RotateLocallyTowardsPlayer();
 
             manager.ClampToGround();
             
-            //if (manager.ArrangementNode != -1)
-            //    StopTransition();
+            GroupTransition();
 
-            lastDistanceToPlayer = distanceToPlayer;
-            lastRemainingDistance = remainingDistance;
             if (checkTimer >= checkDuration)
                 checkTimer = 0;
         }
     }
 
-    private void UpdatePath()
+    private void MoveTowardsPlayer()
     {
-        Vector2 projectedPlayerPosition = 
-            Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
-        Vector3 targetPosition =
-            GameInfo.CurrentLevel.NavCast(projectedPlayerPosition);
-        
-        manager.Agent.destination = targetPosition;
+        Vector3 moveDirection = 
+            PlayerInfo.Player.transform.position - manager.transform.position;
+        moveDirection.Normalize();
+        manager.Agent.Move(moveDirection * manager.AttackFollowSpeed * Time.deltaTime);
     }
 
-    private void RotateTowardsPlayer()
+    private void GroupTransition()
     {
-        if (manager.Agent.hasPath)
+        Vector2 horizontalOffset = 
+            Matho.StandardProjection2D(PlayerInfo.Player.transform.position - manager.transform.position);
+        if (horizontalOffset.magnitude > manager.AttackFollowRadius + manager.AttackFollowRadiusMargin)
         {
-            if (remainingDistance >= manager.GroupFollowRadius)
-            {
-                if (!manager.Agent.updateRotation)
-                    manager.Agent.updateRotation = true;
-            }
-            else if (remainingDistance < manager.GroupFollowRadius)
-            {
-                if (manager.Agent.updateRotation)
-                    manager.Agent.updateRotation = false;
-            }
-
-            if (remainingDistance < manager.GroupFollowRadius)
-            {
-                Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
-                Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 1f * Time.deltaTime, 0f);
-                manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
-            }
+            GroupExit();
         }
+    }
+
+    private void GroupExit()
+    {
+        EnemyGroup.AttackingEnemies.Remove(manager);
+        manager.Animator.SetTrigger("toGroupFollow");
+        exiting = true;
     }
 
     private void AttackExit()

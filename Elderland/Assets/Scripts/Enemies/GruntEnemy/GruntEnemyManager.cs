@@ -11,12 +11,27 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     [SerializeField]
     private float groupFollowRadiusMargin;
     [SerializeField]
+    private float centralStopRadius;
+    [SerializeField]
+    private float centralStopRadiusMargin;
+    [SerializeField]
+    private float attackFollowRadius;
+    [SerializeField]
+    private float attackFollowRadiusMargin;
+    [SerializeField]
+    private float attackFollowSpeed;
+    [SerializeField]
     private GruntEnemyNearbySensor nearbySensor;
     [SerializeField]
     private GruntEnemyGroupSensor groupSensor;
 
     public float GroupFollowRadius { get { return groupFollowRadius; } }
     public float GroupFollowRadiusMargin { get { return groupFollowRadiusMargin; } }
+    public float CentralStopRadius { get { return centralStopRadius; } }
+    public float CentralStopRadiusMargin { get { return centralStopRadiusMargin; } }
+    public float AttackFollowRadius { get { return attackFollowRadius; } }
+    public float AttackFollowRadiusMargin { get { return attackFollowRadiusMargin; } }
+    public float AttackFollowSpeed { get { return attackFollowSpeed; } }
     public GruntEnemyNearbySensor NearbySensor { get { return nearbySensor; } }
     public GruntEnemyGroupSensor GroupSensor { get { return groupSensor; } }
     public bool GroupMovement { get; set; }
@@ -73,6 +88,14 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         }
     }
 
+    private void OnDestroy()
+    {
+        if (EnemyGroup.AttackingEnemies.Contains(this))
+        {
+            EnemyGroup.AttackingEnemies.Remove(this);
+        }
+    }
+
     protected override void DeclareAbilities()
     {
         //Sword = GetComponent<LightEnemySword>();
@@ -126,5 +149,38 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
             3f,
             90f);
             */
+    }
+
+    public void RotateTowardsPlayer()
+    {
+        if (!GroupMovement)
+        {
+            if (!Agent.updateRotation)
+                Agent.updateRotation = true;
+        }
+        else
+        {
+            if (Agent.updateRotation)
+            {
+                Agent.updateRotation = false;
+            }
+            else
+            {
+                Vector3 targetForward =
+                    Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
+                Vector3 forward =
+                    Vector3.RotateTowards(transform.forward, targetForward, 1f * Time.deltaTime, 0f);
+                transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+            }
+        }
+    }
+
+    public void RotateLocallyTowardsPlayer()
+    {
+        Vector3 targetForward =
+            Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
+        Vector3 forward =
+            Vector3.RotateTowards(transform.forward, targetForward, 1f * Time.deltaTime, 0f);
+        transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
 }
