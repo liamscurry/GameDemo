@@ -12,6 +12,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
     public static readonly int MaxAttackingEnemies = 3;
     public static List<EnemyManager> AttackingEnemies { get; }
+    public static EnemyGroup AttackingGroup { get; }
 
     public bool IsStopped { get { return isStopped; } }
 
@@ -33,6 +34,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
     static EnemyGroup()
     {
         AttackingEnemies = new List<EnemyManager>();
+        AttackingGroup = new EnemyGroup();
     }
 
     private EnemyGroup()
@@ -170,7 +172,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
         }
     }
 
-    private void Expand(float speed, float radius)
+    private void Expand(Vector3 target, float speed, float radius, bool spin = false)
     {
         foreach (IEnemyGroup enemy in enemies)
         {
@@ -178,15 +180,26 @@ public class EnemyGroup : IComparable<EnemyGroup>
             {
                 foreach (IEnemyGroup nearbyEnemy in enemy.NearbyEnemies)
                 {
+                    if (nearbyEnemy.Group != this)
+                        continue;
+
                     Vector3 nearbyDirection =
                         nearbyEnemy.Position - enemy.Position;
                     nearbyDirection = Matho.StandardProjection3D(nearbyDirection);
+
+                    if (spin)
+                        nearbyDirection = SpinExpand(target, nearbyEnemy, nearbyDirection);
+
                     if (nearbyDirection.magnitude > offsetThreshold)
                     {
                         float scaledSpeed = speed;
-                        scaledSpeed -= Mathf.Pow(nearbyDirection.magnitude / radius, 2) * speed;
-                        if (scaledSpeed < 0)
-                            scaledSpeed = 0;
+
+                        //if (!spin)
+                        {
+                            scaledSpeed -= Mathf.Pow(nearbyDirection.magnitude / radius, 2) * speed;
+                            if (scaledSpeed < 0)
+                                scaledSpeed = 0;
+                        }
 
                         nearbyDirection.Normalize();
                         nearbyEnemy.Velocity += nearbyDirection * scaledSpeed * 0.5f;
@@ -197,7 +210,46 @@ public class EnemyGroup : IComparable<EnemyGroup>
         }
     }
 
-    public void Adjust(Vector3 target, float speed, float rotateSpeed, float expandSpeed, float expandRadius)
+    private Vector3 SpinExpand(Vector3 target, IEnemyGroup nearbyEnemy, Vector3 nearbyDirection)
+    {
+        Vector3 targetDirection = 
+            target - nearbyEnemy.Position;
+        targetDirection = 
+            Matho.StandardProjection3D(targetDirection);
+
+        Vector3 tangentDirection = Vector3.zero;
+            
+        float tangencyAngle = 
+            Matho.AngleBetween(targetDirection, nearbyDirection);
+
+        if (tangencyAngle == 0 ||
+            tangencyAngle == 180 ||
+            nearbyDirection.magnitude == 0 ||
+            targetDirection.magnitude == 0)
+        {
+            tangentDirection = Matho.Rotate(targetDirection, Vector3.up, 90f);
+            tangentDirection.Normalize();
+        }
+        else
+        {
+            // Gram-schmidt for tangent direction.
+            Vector3 enemyDirection = -nearbyDirection;
+            Vector3 projectedEnemyDirection = 
+                Matho.Project(enemyDirection, targetDirection);
+            tangentDirection = enemyDirection - projectedEnemyDirection;
+            tangentDirection.Normalize();
+        }
+
+        return -tangentDirection;
+    }
+
+    public void Adjust(
+        Vector3 target,
+        float speed,
+        float rotateSpeed,
+        float expandSpeed,
+        float expandRadius,
+        bool expandSpin = false)
     {
         if (isStopped)
         {
@@ -211,7 +263,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
                 CalculateCenter();
             if (CalculateRotationConstant(center, target) < 0.55f)
                 Rotate(center, rotateSpeed);
-            Expand(expandSpeed, expandRadius);
+            Expand(target, expandSpeed, expandRadius, expandSpin);
             Move(center, target, speed);
             adjustAvailable = false;
         }
@@ -278,6 +330,15 @@ public class EnemyGroup : IComparable<EnemyGroup>
         }
     }
 
+    public static void AddAttacking(IEnemyGroup e)
+    {
+        if (!AttackingGroup.enemies.Contains(e))
+        {
+            e.Group = AttackingGroup;
+            AttackingGroup.enemies.Add(e);
+        }
+    }
+
     // Removes an enemy from its group, deleting group if empty afterwards for automation.
     public static void Remove(IEnemyGroup e)
     {
@@ -286,6 +347,15 @@ public class EnemyGroup : IComparable<EnemyGroup>
             EnemyGroup temp = e.Group;
             e.Group = null;
             temp.enemies.Remove(e);
+        }
+    }
+
+    public static void RemoveAttacking(IEnemyGroup e)
+    {
+        if (AttackingGroup.enemies.Contains(e))
+        {
+            e.Group = null;
+            AttackingGroup.enemies.Remove(e);
         }
     }
 
@@ -654,7 +724,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
         EnemyGroup.Add(e4, e5);
         EnemyGroup.Add(e5, e6);
 
-        e1.Group.Expand(1, 5);
+        e1.Group.Expand(Vector3.zero, 1, 5);
         UT.CheckEquality<bool>(Matho.IsInRange(e1.Velocity, new Vector3(0, 0, 0), UT.Threshold), true);
 
         UT.CheckEquality<bool>(Matho.AngleBetween(e2.Velocity, new Vector3(-1f, 0, 0)) < UT.Threshold * 10, true);
@@ -689,5 +759,26 @@ public class EnemyGroup : IComparable<EnemyGroup>
         e3.Group.ResetAdjust();
         e3.Group.Adjust(new Vector3(5, 0, 0), 0, 1, 0, 1);
         UT.CheckEquality<bool>(e3.Velocity.magnitude > UT.Threshold, true);
+    }
+
+    public static void AttackingGroupTest()
+    {
+        var e1 = new EnemyGroupUTDummy(new Vector3(-1, 0, 0));
+        var e2 = new EnemyGroupUTDummy(new Vector3(1, 0, 0));
+
+        UT.CheckEquality<int>(AttackingGroup.enemies.Count, 0);
+        AddAttacking(e1);
+        UT.CheckEquality<int>(AttackingGroup.enemies.Count, 1);
+        AddAttacking(e2);
+        UT.CheckEquality<int>(AttackingGroup.enemies.Count, 2);
+        RemoveAttacking(e1);
+        UT.CheckEquality<int>(AttackingGroup.enemies.Count, 1);
+        RemoveAttacking(e1);    
+        UT.CheckEquality<int>(AttackingGroup.enemies.Count, 1);
+        RemoveAttacking(e2);    
+        UT.CheckEquality<int>(AttackingGroup.enemies.Count, 0);
+        RemoveAttacking(e2);    
+        UT.CheckEquality<int>(AttackingGroup.enemies.Count, 0);
+        AttackingGroup.Adjust(Vector3.zero, 0, 1, 2, 3);
     }
 }

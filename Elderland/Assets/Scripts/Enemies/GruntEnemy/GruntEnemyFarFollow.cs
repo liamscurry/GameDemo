@@ -26,6 +26,8 @@ public class GruntEnemyFarFollow : StateMachineBehaviour
         checkTimer = checkDuration;
         exiting = false;
 
+        manager.ChooseNextAbility();
+
         lastDistanceToPlayer = manager.DistanceToPlayer();
         distanceToPlayer = lastDistanceToPlayer;
         lastRemainingDistance = distanceToPlayer;

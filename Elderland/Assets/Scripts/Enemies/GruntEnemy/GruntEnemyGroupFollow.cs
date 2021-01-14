@@ -12,6 +12,7 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
 
     private bool exiting;
     private float distanceToPlayer;
+    private float nearbySensorScale;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -84,9 +85,9 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
 
                 manager.Group.Adjust(
                     PlayerInfo.Player.transform.position,
-                    1.2f * Time.deltaTime,
+                    2.2f * Time.deltaTime,
                     0.5f * Time.deltaTime,
-                    0.5f * Time.deltaTime,
+                    GruntEnemyManager.ExpandSpeed * Time.deltaTime,
                     manager.NearbySensor.Radius);
                 manager.Agent.Move(manager.Velocity);
             }

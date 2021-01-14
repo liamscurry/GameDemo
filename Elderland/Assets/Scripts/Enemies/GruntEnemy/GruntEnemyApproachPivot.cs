@@ -13,7 +13,6 @@ public class GruntEnemyApproachPivot : StateMachineBehaviour
             manager = animator.GetComponentInParent<GruntEnemyManager>();
         }
 
-        //manager.ChooseNextAbility();
         DecideTransition();
     }
 

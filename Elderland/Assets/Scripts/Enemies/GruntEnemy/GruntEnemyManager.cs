@@ -23,9 +23,15 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     [SerializeField]
     private float attackFollowSpeed;
     [SerializeField]
+    private float fightingAgentRadius;
+    [SerializeField]
+    private float followAgentRadius;
+    [SerializeField]
     private GruntEnemyNearbySensor nearbySensor;
     [SerializeField]
     private GruntEnemyGroupSensor groupSensor;
+
+    public const float ExpandSpeed = 0.5f;
 
     public float GroupFollowRadius { get { return groupFollowRadius; } }
     public float GroupFollowRadiusMargin { get { return groupFollowRadiusMargin; } }
@@ -39,6 +45,8 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     public GruntEnemyGroupSensor GroupSensor { get { return groupSensor; } }
     public bool GroupMovement { get; set; }
     public bool PingedToAttack { get; set; }
+    public float FightingAgentRadius { get { return fightingAgentRadius; } }
+    public float FollowAgentRadius { get { return followAgentRadius; } }
 
     public EnemyGroup Group { get; set; }
     public Vector3 Position
@@ -63,6 +71,8 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     }
 
     public bool InGroupState { get; set; }
+
+    public GruntEnemySword Sword { get; private set; }
 
     public int CompareTo(IEnemyGroup e)
     {
@@ -102,10 +112,10 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
 
     protected override void DeclareAbilities()
     {
-        //Sword = GetComponent<LightEnemySword>();
-        //AbilityManager.ApplyAbility(Sword);
+        Sword = GetComponent<GruntEnemySword>();
+        AbilityManager.ApplyAbility(Sword);
 
-        MaxHealth = 1;
+        MaxHealth = 0.25f;
         Health = MaxHealth;
     }
 
@@ -116,12 +126,17 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
 
     public override void ChooseNextAbility()
     {
-        //NextAttack = Sword;
+        NextAttack = Sword;
     }
 
     public void UpdateAgentPath()
     {
         Agent.destination = PlayerNavMeshPosition();
+    }
+
+    public void UpdateAgentPathOffset(Vector3 offset)
+    {
+        Agent.destination = PlayerNavMeshPosition(offset);
     }
 
     public Vector3 PlayerNavMeshPosition()

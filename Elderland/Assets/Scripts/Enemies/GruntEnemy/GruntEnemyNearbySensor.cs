@@ -18,12 +18,16 @@ public class GruntEnemyNearbySensor : MonoBehaviour
 		}
 	}
 
+	public float BaseRadius { get { return baseRadius; } }
+
 	private GruntEnemyManager manager;
+	private float baseRadius;
 
 	private void Awake()
 	{ 
 		NearbyGrunts = new List<IEnemyGroup>();
 		manager = GetComponentInParent<GruntEnemyManager>();
+		baseRadius = transform.localScale.x;
 	}
 
 	private void OnDestroy()
