@@ -24,9 +24,11 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
         exiting = false;
         manager.Agent.radius = manager.FightingAgentRadius;
         manager.Agent.stoppingDistance = manager.NextAttack.AttackDistance * 0.8f;
-        EnemyGroup.AddAttacking(manager);
+        if (!manager.PingedToGroup)
+            EnemyGroup.AddAttacking(manager);
         
-        manager.NearbySensor.transform.localScale *= 3;
+        manager.NearbySensor.transform.localScale =
+            3 * manager.NearbySensor.BaseRadius * Vector3.one;
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -35,29 +37,16 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
         {
             checkTimer += Time.deltaTime;
             
-            if (!manager.IsInNextAttackMax())
-            {
-                //MoveTowardsPlayer(checkTimer > checkDuration);
-                EnemyGroup.AttackingGroup.Adjust(
-                    PlayerInfo.Player.transform.position,
-                    0,
-                    0,
-                    GruntEnemyManager.ExpandSpeed * 2 * Time.deltaTime,
-                    manager.NearbySensor.Radius,
-                    true);
-                manager.Agent.Move(manager.Velocity);
-
-                Vector3 moveDirection = 
-                    PlayerInfo.Player.transform.position - manager.transform.position;
-                moveDirection.Normalize();
-                manager.Agent.Move(moveDirection * manager.AttackFollowSpeed * Time.deltaTime);
-            }
-
+            MoveTowardsPlayer();
             manager.RotateLocallyTowardsPlayer();
 
             manager.ClampToGround();
             
-            GroupTransition();
+            
+            if (!exiting)
+                PingedToGroupTransition();
+            if (!exiting)
+                GroupTransition();
             if (!exiting)
                 AttackTransition();
 
@@ -66,27 +55,23 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
         }
     }
 
-    private void MoveTowardsPlayer(bool timerReady)
+    private void MoveTowardsPlayer()
     {
         if (!manager.IsInNextAttackMax())
         {
-            
-            if (timerReady)
-            {
-                manager.UpdateAgentPath();
-            }
-            //MoveAwayFromAttackingEnemies();
-            /*
+            EnemyGroup.AttackingGroup.Adjust(
+                PlayerInfo.Player.transform.position,
+                0,
+                0,
+                GruntEnemyManager.ExpandSpeed * 2 * Time.deltaTime,
+                manager.NearbySensor.Radius,
+                true);
+            manager.Agent.Move(manager.Velocity);
+
             Vector3 moveDirection = 
                 PlayerInfo.Player.transform.position - manager.transform.position;
             moveDirection.Normalize();
             manager.Agent.Move(moveDirection * manager.AttackFollowSpeed * Time.deltaTime);
-            */
-        }
-        else
-        {
-            if (manager.Agent.hasPath)
-                manager.Agent.ResetPath();
         }
     }
 
@@ -137,23 +122,22 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
         exiting = true;
     }
 
-    private void MoveAwayFromAttackingEnemies()
+    private void PingedToGroupTransition()
     {
-        Vector3 compositeExpansion = 
-            Vector3.zero;
-        foreach (EnemyManager enemy in EnemyGroup.AttackingEnemies)
+        if (manager.PingedToGroup)
         {
-            Vector3 offset = (manager.transform.position - enemy.transform.position);
-            offset = Matho.StandardProjection3D(offset);
-            if (offset.magnitude < manager.NearbySensor.Radius)
-            {
-                //offset = Matho.Rotate(offset, Vector3.up, 90f);
-                float speed = GruntEnemyManager.ExpandSpeed * 2f;
-                speed *= Mathf.Clamp01(1 - (offset.magnitude / manager.NearbySensor.Radius));
-                compositeExpansion +=
-                    offset.normalized * speed * Time.deltaTime;
-            }
+            PingedToGroupExit();
         }
-        manager.Agent.Move(compositeExpansion);
+    }
+
+    private void PingedToGroupExit()
+    {
+        manager.PingedToGroup = false;
+        manager.Animator.SetTrigger("toGroupFollow");
+        manager.Agent.radius = manager.FollowAgentRadius;
+        manager.Agent.stoppingDistance = 0;
+        manager.Agent.ResetPath();
+        manager.NearbySensor.transform.localScale = manager.NearbySensor.BaseRadius * Vector3.one;
+        exiting = true;
     }
 }

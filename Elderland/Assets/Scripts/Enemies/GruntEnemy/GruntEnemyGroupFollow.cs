@@ -101,6 +101,8 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
             if (!exiting)
                 FarFollowTransition();
             if (!exiting)
+                OverrideAttackTransition();
+            if (!exiting)
                 AttackTransition();
 
             if (checkTimer >= checkDuration)
@@ -146,6 +148,50 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
                 manager.PingedToAttack = false;
             }
         }
+    }
+
+    private void OverrideAttackTransition()
+    {
+        if (EnemyGroup.AttackingEnemies.Count == EnemyGroup.MaxAttackingEnemies)
+        {
+            Vector2 offset = 
+                Matho.StandardProjection2D(manager.Position - PlayerInfo.Player.transform.position);
+            foreach (IEnemyGroup enemy in EnemyGroup.AttackingEnemies)
+            {
+                Vector2 enemyOffset = 
+                    Matho.StandardProjection2D(enemy.Position - PlayerInfo.Player.transform.position);
+                if (offset.magnitude < enemyOffset.magnitude)
+                {
+                    // Override logic.
+                    OverrideAttackExit(enemy);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void OverrideAttackExit(IEnemyGroup enemy)
+    {
+        GruntEnemyManager enemyManager = 
+            (GruntEnemyManager) enemy;
+
+        enemyManager.PingedToGroup = true;
+
+        EnemyGroup.AttackingEnemies.Remove(enemyManager);
+        EnemyGroup.RemoveAttacking(enemyManager);
+
+        EnemyGroup.AttackingEnemies.Add(manager);
+        if (manager.Group != null)
+        {
+            manager.Group.Stop();
+        }
+        
+        manager.Animator.SetTrigger("toAttackFollow");
+        EnemyGroup.Remove((IEnemyGroup) manager);
+        manager.Agent.ResetPath();
+        manager.GroupMovement = false;
+        manager.InGroupState = false;
+        exiting = true;
     }
 
     private void FarFollowExit()

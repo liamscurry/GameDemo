@@ -14,6 +14,8 @@ public class GruntEnemyApproachPivot : StateMachineBehaviour
         }
 
         DecideTransition();
+
+        manager.PingedToGroup = false;
     }
 
     // TEMP

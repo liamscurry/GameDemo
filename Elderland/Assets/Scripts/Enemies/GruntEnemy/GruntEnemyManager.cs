@@ -45,6 +45,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     public GruntEnemyGroupSensor GroupSensor { get { return groupSensor; } }
     public bool GroupMovement { get; set; }
     public bool PingedToAttack { get; set; }
+    public bool PingedToGroup { get; set; }
     public float FightingAgentRadius { get { return fightingAgentRadius; } }
     public float FollowAgentRadius { get { return followAgentRadius; } }
 
