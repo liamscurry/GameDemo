@@ -89,6 +89,7 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
                     0.5f * Time.deltaTime,
                     GruntEnemyManager.ExpandSpeed * Time.deltaTime,
                     manager.NearbySensor.Radius);
+
                 manager.Agent.Move(manager.Velocity);
             }
 

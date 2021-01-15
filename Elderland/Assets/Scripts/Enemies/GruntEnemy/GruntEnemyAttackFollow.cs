@@ -63,7 +63,7 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
                 PlayerInfo.Player.transform.position,
                 0,
                 0,
-                GruntEnemyManager.ExpandSpeed * 2 * Time.deltaTime,
+                GruntEnemyManager.ExpandSpeed * 0.5f * Time.deltaTime,
                 manager.NearbySensor.Radius,
                 true);
             manager.Agent.Move(manager.Velocity);

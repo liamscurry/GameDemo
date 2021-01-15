@@ -31,7 +31,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     [SerializeField]
     private GruntEnemyGroupSensor groupSensor;
 
-    public const float ExpandSpeed = 0.5f;
+    public const float ExpandSpeed = 3.5f;
 
     public float GroupFollowRadius { get { return groupFollowRadius; } }
     public float GroupFollowRadiusMargin { get { return groupFollowRadiusMargin; } }

@@ -196,7 +196,8 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
                         //if (!spin)
                         {
-                            scaledSpeed -= Mathf.Pow(nearbyDirection.magnitude / radius, 2) * speed;
+                            //scaledSpeed -= Mathf.Pow(nearbyDirection.magnitude / radius, 2) * speed;
+                            scaledSpeed -= Mathf.Pow(nearbyDirection.magnitude / radius, 1) * speed;
                             if (scaledSpeed < 0)
                                 scaledSpeed = 0;
                         }
@@ -251,20 +252,26 @@ public class EnemyGroup : IComparable<EnemyGroup>
         float expandRadius,
         bool expandSpin = false)
     {
+        /*
         if (isStopped)
         {
             adjustAvailable = false;
             return;
-        }
+        }*/
 
         if (adjustAvailable)
         {
             Vector3 center = 
                 CalculateCenter();
-            if (CalculateRotationConstant(center, target) < 0.55f)
+
+            if (!isStopped && CalculateRotationConstant(center, target) < 0.55f)
                 Rotate(center, rotateSpeed);
+
             Expand(target, expandSpeed, expandRadius, expandSpin);
-            Move(center, target, speed);
+
+            if (!isStopped)
+                Move(center, target, speed);
+                
             adjustAvailable = false;
         }
     }
