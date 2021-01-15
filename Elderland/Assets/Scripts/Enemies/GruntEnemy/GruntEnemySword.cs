@@ -93,18 +93,19 @@ public sealed class GruntEnemySword : EnemyAbility
     {
         character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage);
 
-        /*
         if (PlayerInfo.StatsManager.Blocking)
         {
             ShortCircuit();
             ((EnemyAbilityManager) system).Manager.Animator.SetTrigger("toDeflected");
-        }*/
+        }
 
         return true;
     }
 
     public override void ShortCircuitLogic()
     {
+        hitboxPredictor.SetActive(false);
+
         ActEnd();
     }
 
