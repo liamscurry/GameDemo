@@ -167,21 +167,21 @@ Shader "Custom/WavingGrassGround"
                     if (!inShadowBool)
                     {
                         //return finalColor;
-                        STANDARD_FOG(finalColor + float4(0.9, .9, 1, 0) * f * 2);// + float4(0.9, .9, 1, 0) * f * .7
+                        STANDARD_FOG(finalColor + float4(0.9, .9, 1, 0) * f * 2, i.normal);// + float4(0.9, .9, 1, 0) * f * .7
                     }
                     else
                     {
                         //return inShadow;
                         float4 mergeColor = finalColor * (inShadow) + 
                         (finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue)) * (1 - inShadow);
-                        STANDARD_FOG(mergeColor);
+                        STANDARD_FOG(mergeColor, i.normal);
                     }
                 }
                 else
                 {
                     //return finalColor * fixed4(.5, .5, .5, 1);
                     //return finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue);
-                    STANDARD_FOG(finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue));
+                    STANDARD_FOG(finalColor * fixed4(.5, .5, .5, 1) * (1 - fadeValue) + finalColor * (fadeValue), i.normal);
                 }
             }
             ENDCG

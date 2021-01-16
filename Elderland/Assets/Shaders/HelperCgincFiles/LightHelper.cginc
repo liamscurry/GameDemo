@@ -60,6 +60,13 @@
 
     fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
     {
+        // Learned in AutoLight.cginc
+        // Shadow Fade
+        float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
+        float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
+        float fadeValue = UnityComputeShadowFade(fadeDistance);
+
+        // For disabling point lights on a shader.
         if (_ApplyLight < 0.5)
         {
             return fixed4(0,0,0,0);
@@ -68,20 +75,32 @@
         float3 fragWorldPosition = mul(unity_ObjectToWorld, i.objectPos);
         ApplyDither(i.screenPos, _CrossFade);
         UNITY_LIGHT_ATTENUATION(attenuation, i, i.worldPos.xyz);
+
         float3 localLightDirection = normalize(i.worldPos - _WorldSpaceLightPos0.xyz);
         float shadowProduct = AngleBetween(i.normal, localLightDirection) / 3.151592;
         //return length(i.worldPos - _WorldSpaceLightPos0.xyz) / 20;
-        if (shadowProduct > 0.5)
+        float attenuationFade = 1 - saturate(fadeValue - 0.2);
+
+        // Light cutoff blending
+        float lightCutoff = 0.4;
+        float darkCutoff = 0.5;
+        float lightDarkPercentage;
+        if (shadowProduct < lightCutoff)
         {
-            // in light
-            return attenuation * _LightColor0;
+            lightDarkPercentage = 0;
+        }
+        else if (shadowProduct > darkCutoff)
+        {
+            lightDarkPercentage = 1;
         }
         else
         {
-            return fixed4(0,0,0,0);
+            float percentage =
+                (shadowProduct - lightCutoff) / (darkCutoff - lightCutoff);
+            lightDarkPercentage = percentage;
         }
-        return shadowProduct;
-        return attenuation * _LightColor0;
+
+        return attenuation * lightDarkPercentage * _LightColor0 * attenuationFade;
     }
 
 /*   ENDCG

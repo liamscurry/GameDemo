@@ -255,18 +255,19 @@ Shader "Custom/TreeLeaves"
                 float3 horizontalReflectedDir = normalize(float3(-_WorldSpaceLightPos0.x, 0, -_WorldSpaceLightPos0.z));
                 float f = 1 - saturate(AngleBetween(-_WorldSpaceLightPos0.xyz, viewDir) / (PI / 2));
                 f = pow(f, 2);
+                finalColor = finalColor * (1 - fadeValue) + finalColor * float4(0.75,0.75,0.75,1) * (fadeValue);
 
                 if (inShadow > 0.3)
                 {
                     //return finalColor;
-                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                    STANDARD_FOG_TEMPERATURE(finalColor + float4(0.9, .9, 1, 0) * f * .5, 0);
+                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 0;
+                    STANDARD_FOG(finalColor + float4(0.9, .9, 1, 0) * f * .5, i.normal);
                 }
                 else
                 {
                     //return finalColor * fixed4(.85, .75, .75, 1) * (1 - fadeValue) + finalColor * (fadeValue);
-                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-                    STANDARD_FOG_TEMPERATURE((finalColor * fixed4(.8, .8, .8, 1) * (1 - fadeValue) + finalColor * (fadeValue)) + float4(0.9, .9, 1, 0) * f * .1, 0);
+                    inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 0;
+                    STANDARD_FOG((finalColor * fixed4(.8, .8, .8, 1) * (1 - fadeValue) + finalColor * (fadeValue)) + float4(0.9, .9, 1, 0) * f * .1, i.normal);
                     //STANDARD_FOG(finalColor * fixed4(1, .87, .625, 1) * (1 - fadeValue) + finalColor * (fadeValue));
                 }
             }
