@@ -23,6 +23,7 @@ Shader "Custom/SemiFlatShader"
         // Properties from Shading Helper
         _FlatShading ("FlatShading", Range(0, 1)) = 0
         _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
+        _BakedLightLevel ("BakedLightLevel", Range(0, 1)) = 1
 
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
         _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
@@ -50,6 +51,7 @@ Shader "Custom/SemiFlatShader"
 
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
+            #include "/HelperCgincFiles/LODHelper.cginc"
 
             struct appdata
             {
@@ -64,7 +66,7 @@ Shader "Custom/SemiFlatShader"
                 //float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 V2F_SHADOW_CASTER; //float4 pos : SV_POSITION thats it
-                //float4 screenPos : TEXCOORD1;
+                float4 screenPos : TEXCOORD1;
             };
 
             sampler2D _MainTex;
@@ -79,81 +81,13 @@ Shader "Custom/SemiFlatShader"
                 o.uv = v.uv;
                 TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
                 //UNITY_TRANSFER_LIGHTING(o, v.uv1); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
-                //o.screenPos = ComputeScreenPos(o.pos);
+                o.screenPos = ComputeScreenPos(o.pos);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 screenPos = ComputeScreenPos(i.pos);
-                float2 screenPercentagePos = screenPos.xy / screenPos.w;
-                float2 checkerboard = float2(sin(screenPercentagePos.x * 2 * 3.151592 * _CrossFade * 16),
-                                             sin(screenPercentagePos.y * 2 * 3.151592 * _CrossFade * 9));
-                float checkboardClip = checkerboard.x > 0 ^ checkerboard.y > 0; 
-
-                //return fixed4(screenPercentagePos.x, screenPercentagePos.x, screenPercentagePos.x, 1);
-
-                float flipLOD = abs(unity_LODFade.x);
-                if (unity_LODFade.x > 0)
-                    flipLOD = 1 - flipLOD;
-                flipLOD = 1 - flipLOD;
-
-                //unity_LODFade.x at 1 is off.
-                //unity_LODFade.x at 0 is on.
-
-                //unity_LODFade.x at 1 is off.
-                //unity_LODFade.x at 0 is on.
-
-                
-                int fadeSign = 1;
-                if (unity_LODFade.x < 0)
-                    fadeSign = -1;
-
-                if ((checkboardClip * -1 < 0 && fadeSign == 1) || (checkboardClip * -1 >= 0 && fadeSign == -1))
-                {
-                    //clip(-1);
-                    float rightLOD = (flipLOD - 0.5) * 2;
-                    if (rightLOD < 0)
-                        rightLOD = 0;
-
-                    float evenClip = 0;
-                    if (fadeSign == 1)
-                    {    
-                        evenClip = abs(checkerboard.x) > rightLOD && abs(checkerboard.y) > rightLOD;
-                    }
-                    else
-                    {
-                        evenClip = !(abs(checkerboard.x) > (1 - rightLOD) && abs(checkerboard.y) > (1 - rightLOD));
-                    }
-                    clip(evenClip * -1);
-                }
-                else
-                {
-                    //clip(-1);
-                    float leftLOD = flipLOD * 2;
-                    float oddClip = 0;
-                    if (fadeSign == 1)
-                    {
-                        oddClip = abs(checkerboard.x) > leftLOD && abs(checkerboard.y) > leftLOD;
-                    }
-                    else
-                    {
-                        oddClip = !(abs(checkerboard.x) > (1 - leftLOD) && abs(checkerboard.y) > (1 - leftLOD));
-                    }
-                    clip(oddClip * -1);
-                }
-  
-                float4 textureColor = (tex2D(_MainTex, i.uv));
-                //clip(textureColor.w - .1);
-                if (textureColor.a < _Threshold)
-                {
-                    //return fixed4(1,0,0,1);
-                    clip(textureColor.a - _Threshold);
-                }
-
-                float4 cutoutColor = tex2D(_CutoutTex, i.uv);
-                float underThreshold = _Threshold > cutoutColor;
-                clip(-underThreshold);
+                ApplyDither(i.screenPos, _CrossFade);
 
                 SHADOW_CASTER_FRAGMENT(i)
                 //return 0;
@@ -278,7 +212,7 @@ Shader "Custom/SemiFlatShader"
                 // Shadow Fade
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
-                float fadeValue = UnityComputeShadowFade(fadeDistance);
+                float fadeValue = CompositeShadeFade(inShadow, fadeDistance);
 
                 float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
                 STANDARD_FOG(shadedColor, worldNormal);

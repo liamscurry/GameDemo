@@ -37,6 +37,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
         // Properties from Shading Helper
         _FlatShading ("FlatShading", Range(0, 1)) = 0
         _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
+        _BakedLightLevel ("BakedLightLevel", Range(0, 1)) = 1
         
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
         _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
@@ -354,7 +355,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                 // Shadow Fade
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
-                float fadeValue = UnityComputeShadowFade(fadeDistance);
+                float fadeValue = CompositeShadeFade(inShadow, fadeDistance);
 
                 // Shading and fog
                 float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);

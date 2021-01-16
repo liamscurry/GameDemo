@@ -1,5 +1,7 @@
 /*
- _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
+_FlatShading ("FlatShading", Range(0, 1)) = 0
+_ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
+_BakedLightLevel ("BakedLightLevel", Range(0, 1)) = 1
 
 _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
 _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
@@ -13,13 +15,33 @@ _ReflectedIntensity ("ReflectedIntensity", Range(0, 3)) = 1
 
 float _FlatShading;
 float _ShadowStrength;
+float _BakedLightLevel;
 
 float _HighlightStrength;
 float _HighlightIntensity;
 
 float _ReflectedIntensity;
 
-inline float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, inout float inShadow, float fadeValue)
+float StandardShadeFade(float distance)
+{
+    return UnityComputeShadowFade(distance);
+} 
+
+float CustomShadeFade(float distance)
+{
+    return UnityComputeShadowFade(distance - 100);
+}   
+
+float CompositeShadeFade(float inShadow, float distance)
+{
+    float standardShadeFade = StandardShadeFade(distance);
+    float customShadeFade = CustomShadeFade(distance);
+    float fadedOutShadow = inShadow * (1 - standardShadeFade) + _BakedLightLevel * (standardShadeFade);
+    float compositeFadedShadow = fadedOutShadow * (1 - customShadeFade) + 0 * (1 - customShadeFade);
+    return compositeFadedShadow;
+}
+
+float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, inout float inShadow, float fadeValue)
 {
     float normalIncidence = AngleBetween(worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
 
@@ -92,9 +114,8 @@ inline float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, inou
     }
 
     // Include shadows in blend (occlude with more dark color)
-    float fadedInShadow = inShadow * (1 - fadeValue) + 0 * (fadeValue);
     lightDarkPercentage =
-        min(fadedInShadow, lightDarkPercentage);
+        min(fadeValue, lightDarkPercentage);
     inShadow = lightDarkPercentage;
 
     float4 compositeColor =

@@ -277,7 +277,7 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 // Shadow Fade
                 float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
-                float fadeValue = UnityComputeShadowFade(fadeDistance);
+                float fadeValue = CompositeShadeFade(inShadow, fadeDistance);
 
                 return Shade(i.normal, i.worldPos, localColor, inShadow, fadeValue);
             }
