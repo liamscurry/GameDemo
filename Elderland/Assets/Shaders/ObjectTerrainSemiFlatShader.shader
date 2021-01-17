@@ -23,6 +23,8 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
         _RepeatedTexture2OffsetY ("RepeatedTexture2OffsetY", Range(0, 1)) = 0 
 
         _RepeatedTextureBlend ("RepeatedFlatBlend", 2D) = "white" {}
+        _IsTextureBlendHeight ("IsTextureBlendHeight", Range(0, 1)) = 0
+        _TextureBlendHeightScale ("TextureBlendHeightScale", Range(0.01, 1)) = 0
         
         _BumpMap ("BumpMap", 2D) = "bump" {}
         _BumpMapIntensity ("BumpMapIntensity", Range(0, 1)) = 1
@@ -30,6 +32,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
         _BumpMapConstantScale ("BumpMapConstantScale", float) = 1
 
         _Color ("Color", Color) = (1,1,1,1)
+        _AltColor ("AltColor", Color) = (1,1,1,1)
         _ColorMap ("ColorMap", 2D) = "white" {}
 
         _CrossFade ("CrossFade", float) = 0
@@ -223,6 +226,9 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             float _RepeatedTexture2OffsetX;
             float _RepeatedTexture2OffsetY;
 
+            float _IsTextureBlendHeight;
+            float _TextureBlendHeightScale;
+
             float _IsBumpMapConstantScale;
             float _BumpMapConstantScale;
 
@@ -274,6 +280,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             float _BumpMapIntensity;
 
             float4 _Color;
+            float4 _AltColor;
             sampler2D _ColorMap;
 
             float _CrossFade;
@@ -294,6 +301,46 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                 Input input = (Input)0;
                 input.tc = i.tc;
                 SplatmapMix(input, defaultSmoothness, splatControl, weight, mixedDiffuse, normal);
+
+                // Texture color calculation
+                float4 textureColor;
+                float4 repeatedTexture1Color = tex2D(_RepeatedTexture1, i.repeatedUV1);
+                float4 repeatedTexture2Color = tex2D(_RepeatedTexture2, i.repeatedUV2);
+                float repeatedTextureBlend = tex2D(_RepeatedTextureBlend, i.originalUV).r;
+                float primaryAltBlend;
+                if (_IsTextureBlendHeight > 0.5)
+                {
+                    if (repeatedTextureBlend > repeatedTexture1Color.r)
+                    {
+                        float blendScale =
+                            (repeatedTextureBlend - repeatedTexture1Color.r) / _TextureBlendHeightScale;
+                        blendScale = saturate(blendScale);
+                        
+                        textureColor = _AltColor * (blendScale) +
+                                       _Color * repeatedTexture2Color * (1 - blendScale);
+                        primaryAltBlend = 1 * (blendScale) + 
+                                          0 * (1 - blendScale);
+                    }
+                    else
+                    {
+                        textureColor = _Color * repeatedTexture2Color;
+                        primaryAltBlend = 0;
+                    }
+                }
+                else
+                {
+                    textureColor =
+                        repeatedTexture1Color * repeatedTextureBlend +
+                        repeatedTexture2Color * (1 - repeatedTextureBlend);
+
+                    primaryAltBlend = 0 * (repeatedTextureBlend) + 
+                                      1 * (1 - repeatedTextureBlend);
+
+                    textureColor *= _Color;
+                }
+
+                float4 colorMapColor = tex2D(_ColorMap, i.originalUV);
+                textureColor *= colorMapColor;
 
                 // Normal mapping
                 half3 tangentNormal;
@@ -329,21 +376,18 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                 tangentNormal.y *= -1;
                 half3 worldRepeatedNormal1 = 
                     TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, tangentNormal);
-                worldRepeatedNormal1 = worldRepeatedNormal1 * _RepeatedNormalMapIntensity + originalWorldNormal * (1 - _RepeatedNormalMapIntensity);
-                
+                if (_IsTextureBlendHeight > 0.5)
+                {
+                    worldRepeatedNormal1 = 
+                        worldRepeatedNormal1 * (1 - primaryAltBlend) + originalWorldNormal * (primaryAltBlend);
+                }
+                else
+                {   
+                    worldRepeatedNormal1 =
+                        worldRepeatedNormal1 * _RepeatedNormalMapIntensity + originalWorldNormal * (1 - _RepeatedNormalMapIntensity);
+                }
+
                 worldNormal = normalize(worldNormal + worldRepeatedNormal1);
-
-                // Texture color calculation
-                float4 repeatedTexture1Color = tex2D(_RepeatedTexture1, i.repeatedUV1);
-                float4 repeatedTexture2Color = tex2D(_RepeatedTexture2, i.repeatedUV2);
-                float repeatedTextureBlend = tex2D(_RepeatedTextureBlend, i.originalUV).r;
-                float4 textureColor =
-                    repeatedTexture1Color * repeatedTextureBlend +
-                    repeatedTexture2Color * (1 - repeatedTextureBlend);
-
-                textureColor *= _Color;
-                float4 colorMapColor = tex2D(_ColorMap, i.originalUV);
-                textureColor *= colorMapColor;
 
                 ApplyDither(i.screenPos, _CrossFade);
 

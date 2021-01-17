@@ -105,10 +105,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _ApplyLight: 1
+    - _BakedLightLevel: 1
     - _BumpMapConstantScale: 0.07
     - _BumpMapConstantScaleX: 1
     - _BumpMapConstantScaleY: 1
-    - _BumpMapIntensity: 0.251
+    - _BumpMapIntensity: 0.255
     - _BumpMapScale: 1
     - _BumpScale: 1
     - _ColorMapLowerThreshold: 1.1
@@ -119,6 +120,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EvenFade: 0
+    - _FlatShading: 0
     - _GlossMapScale: 0.1
     - _Glossiness: 0
     - _GlossyReflections: 1
@@ -127,6 +129,7 @@ Material:
     - _HighlightIntensity: 0.51
     - _HighlightStrength: 0.3
     - _IsBumpMapConstantScale: 1
+    - _IsTextureBlendHeight: 0
     - _LightShadowStrength: 0.679
     - _Metallic: 0
     - _Mode: 0
@@ -134,7 +137,7 @@ Material:
     - _OddFade: 0
     - _Parallax: 0.02
     - _ReflectedIntensity: 0.57
-    - _RepeatedNormalMapIntensity: 0.459
+    - _RepeatedNormalMapIntensity: 0.509
     - _RepeatedTexture1OffsetX: 0
     - _RepeatedTexture1OffsetY: 0
     - _RepeatedTexture1Scale: 0.59
@@ -145,6 +148,7 @@ Material:
     - _SmoothnessTextureChannel: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _TextureBlendHeightScale: 0
     - _Threshold: 0
     - _UVOffsetX: 0
     - _UVOffsetY: 0
@@ -152,7 +156,8 @@ Material:
     - _WarmColorStrength: 0.65
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.7830189, g: 0.7334031, b: 0.6685208, a: 1}
+    - _AltColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.78431374, g: 0.7372549, b: 0.67058825, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EndFogColor: {r: 1, g: 1, b: 1, a: 1}
     - _HiddenColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
