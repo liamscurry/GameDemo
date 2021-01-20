@@ -32,7 +32,7 @@ public sealed class GruntEnemySword : EnemyAbility
         //Segment setup
         rotateProcess = new AbilityProcess(null, DuringRotate, null, 1);
         pauseProcess = new AbilityProcess(PauseBegin, null, PauseEnd, 1);
-        attackProcess = new AbilityProcess(ActBegin, null, ActEnd, 1f);
+        attackProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.25f);
         rotate = new AbilitySegment(rotateClip, rotateProcess);
         pause = new AbilitySegment(pauseClip, pauseProcess);
         attack = new AbilitySegment(attackClip, attackProcess);

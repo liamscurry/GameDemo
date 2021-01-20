@@ -180,7 +180,7 @@ public abstract class Ability : MonoBehaviour
                 if (ActiveProcess.Begin != null)
                     ActiveProcess.Begin();
 
-                yield return new WaitUntil(() => (fixedTimer > fixedDuration));
+                yield return new WaitUntil(() => (fixedTimer >= fixedDuration));
 
                 if (ActiveProcess.End != null)
                     ActiveProcess.End();

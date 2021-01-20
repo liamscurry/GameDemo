@@ -85,7 +85,7 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
 
                 manager.Group.Adjust(
                     PlayerInfo.Player.transform.position,
-                    2.2f * Time.deltaTime,
+                    3.3f * Time.deltaTime,
                     0.5f * Time.deltaTime,
                     GruntEnemyManager.ExpandSpeed * Time.deltaTime,
                     manager.NearbySensor.Radius);

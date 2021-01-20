@@ -44,7 +44,7 @@ public sealed class PlayerSword : PlayerAbility
     private bool interuptedTarget;
 
     private int castDirection;
-    private float baseSpeed = 0.75f;
+    private float baseSpeed = 1f;
     private float maxSpeed = 1.5f;
     private float hitTime;
     private const float resetHitTime = 3.5f;
@@ -67,7 +67,7 @@ public sealed class PlayerSword : PlayerAbility
         actNoTargetClip = Resources.Load<AnimationClip>("Player/Abilities/ActNoTargetLightAttack");
 
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
-        actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1);
+        actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.15f);
         charge = new AbilitySegment(null, chargeProcess);
         charge.Type = AbilitySegmentType.RootMotion;
         act = new AbilitySegment(null, actProcess);
@@ -81,7 +81,8 @@ public sealed class PlayerSword : PlayerAbility
         continous = true;
 
         //Hitbox initializations
-        GameObject hitboxObject = Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.RectangularMultiHitbox), transform.position, Quaternion.identity);
+        GameObject hitboxObject =
+            Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.RectangularMultiHitbox), transform.position, Quaternion.identity);
         hitboxObject.transform.parent = PlayerInfo.MeleeObjects.transform;
         hitboxObject.SetActive(false);
 
@@ -286,10 +287,11 @@ public sealed class PlayerSword : PlayerAbility
             abilitySpeed = baseSpeed;
         }
 
+        /*
         if (PlayerInfo.StatsManager.AttackSpeedMultiplier.ModifierCount != 0)
         {
             abilitySpeed = PlayerInfo.StatsManager.AttackSpeedMultiplier.Value;
-        }
+        }*/
     }
 
     public void ChargeBegin()
@@ -540,7 +542,7 @@ public sealed class PlayerSword : PlayerAbility
                     enemy.IncreaseResolve(0.5f);
             }
 
-            abilitySpeed += 0.5f;
+            abilitySpeed += 0.25f;
             if (abilitySpeed > maxSpeed)
                 abilitySpeed = maxSpeed;
 
@@ -551,10 +553,11 @@ public sealed class PlayerSword : PlayerAbility
             abilitySpeed = baseSpeed;
         }
 
+        /*
         if (PlayerInfo.StatsManager.AttackSpeedMultiplier.ModifierCount != 0)
         {
             abilitySpeed = PlayerInfo.StatsManager.AttackSpeedMultiplier.Value;
-        }
+        }*/
 
         hitTime = Time.time;
 

@@ -42,7 +42,7 @@ public sealed class PlayerDodge : PlayerAbility
     {
         if (!((PlayerSword) PlayerInfo.AbilityManager.Melee).IsAbilitySpeedReset)
         {
-            swordSpeedModifier = (0.25f + PlayerInfo.AbilityManager.Melee.AbilitySpeed);
+            swordSpeedModifier = PlayerInfo.AbilityManager.Melee.AbilitySpeed;
             abilitySpeed = 1 / swordSpeedModifier;
         }
         else
@@ -51,10 +51,12 @@ public sealed class PlayerDodge : PlayerAbility
             abilitySpeed = 1;
         }
 
+        /*
         if (PlayerInfo.StatsManager.AttackSpeedMultiplier.ModifierCount != 0)
         {
             abilitySpeed = 1 / (PlayerInfo.StatsManager.AttackSpeedMultiplier.Value);
-        }
+            Debug.Log(PlayerInfo.StatsManager.AttackSpeedMultiplier.Value);
+        }*/
     }
 
     private void ActBegin()
