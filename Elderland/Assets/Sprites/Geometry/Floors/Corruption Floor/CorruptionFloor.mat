@@ -1,0 +1,174 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CorruptionFloor
+  m_Shader: {fileID: 4800000, guid: bae17efebf7a7ef479ed37a11177cdbf, type: 3}
+  m_ShaderKeywords: _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BlendMap:
+        m_Texture: {fileID: 2800000, guid: ffb443ff8db0c644192ad856e5b52c4b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 244f772cd41f0204bb2026c065e0ace8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMapIntensity:
+        m_Texture: {fileID: 2800000, guid: 858801ed5efef67429269a99bc956f1d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ColorMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 77bbfcc0cadcdf04782f3f0c745a7c2d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OpacityMap:
+        m_Texture: {fileID: 2800000, guid: 370919a3c896a0849a75c6f4d95193bb, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ReflectionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RepeatedFlatBlend:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RepeatedTexture1:
+        m_Texture: {fileID: 2800000, guid: 4b404ca6c4184ab4aa6724b5a1ca44cd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RepeatedTexture1NormalMap:
+        m_Texture: {fileID: 2800000, guid: 3b8da799ec2ca02409d12e670d5b53e9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RepeatedTexture2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RepeatedTexture2NormalMap:
+        m_Texture: {fileID: 2800000, guid: bfd2052dcb850fd40920f324443ae475, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RepeatedTextureBlend:
+        m_Texture: {fileID: 2800000, guid: 1bc0ca82b0a7cd4489e2429ee1dd0af2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RepeatedTextureNormalMap2:
+        m_Texture: {fileID: 2800000, guid: bfd2052dcb850fd40920f324443ae475, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SecondaryBumpMap:
+        m_Texture: {fileID: 2800000, guid: 711fef50f31d1cf46a2076f0205c08d7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ValueMap:
+        m_Texture: {fileID: 2800000, guid: 77bbfcc0cadcdf04782f3f0c745a7c2d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _ApplyLight: 1
+    - _BakedLightLevel: 1
+    - _BumpMapConstantScale: 0.07
+    - _BumpMapConstantScaleX: 1
+    - _BumpMapConstantScaleY: 1
+    - _BumpMapIntensity: 0.18
+    - _BumpMapScale: 1
+    - _BumpScale: 1
+    - _ColorMapLowerThreshold: 1.1
+    - _ColorMapType: 0
+    - _ColorMapUpperThreshold: 0.244
+    - _CrossFade: 0
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _EvenFade: 0
+    - _FlatShading: 0
+    - _GlossMapScale: 0.1
+    - _Glossiness: 0
+    - _GlossyReflections: 1
+    - _HiddenColorLowerThreshold: 1
+    - _HiddenColorUpperThreshold: 0
+    - _HighlightIntensity: 1.12
+    - _HighlightStrength: 0.32
+    - _IsBumpMapConstantScale: 1
+    - _IsTextureBlendHeight: 0.897
+    - _LightShadowStrength: 0.679
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _OddFade: 0
+    - _Parallax: 0.02
+    - _ReflectedIntensity: 0.57
+    - _RepeatedNormalMap2Intensity: 1
+    - _RepeatedNormalMapIntensity: 0.459
+    - _RepeatedTexture1OffsetX: 0
+    - _RepeatedTexture1OffsetY: 0
+    - _RepeatedTexture1Scale: 0.59
+    - _RepeatedTexture2OffsetX: 0.278
+    - _RepeatedTexture2OffsetY: 0.974
+    - _RepeatedTexture2Scale: 0.12
+    - _ShadowStrength: 0.59
+    - _SmoothnessTextureChannel: 1
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _TextureBlendHeightScale: 0.347
+    - _Threshold: 0
+    - _UVOffsetX: 0
+    - _UVOffsetY: 0
+    - _UVSec: 0
+    - _WarmColorStrength: 0.65
+    - _ZWrite: 1
+    m_Colors:
+    - _AltColor: {r: 0.29235458, g: 0.24862051, b: 0.3490566, a: 1}
+    - _Color: {r: 0.7830189, g: 0.7334031, b: 0.6685208, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EndFogColor: {r: 1, g: 1, b: 1, a: 1}
+    - _HiddenColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
+    - _MidFogColor: {r: 1, g: 1, b: 1, a: 1}
+    - _WaterBedColor: {r: 0, g: 0, b: 0, a: 0}

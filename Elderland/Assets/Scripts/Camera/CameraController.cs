@@ -165,6 +165,15 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    /*
+    [ContextMenu("Set Camera To Depth Normals")]
+    public void SetCameraToDepthNormals()
+    {
+        Camera thisCamera =
+            GetComponent<Camera>();
+        thisCamera.depthTextureMode = DepthTextureMode.DepthNormals;
+    }*/
+
     public void DefaultGameplaySettings()
     {
         TargetSpeed = defaultSpeed;

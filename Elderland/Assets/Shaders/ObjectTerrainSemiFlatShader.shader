@@ -21,6 +21,8 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
         _RepeatedTexture2Scale ("RepeatedTexture2Scale", Range(0.1, 10)) = 1
         _RepeatedTexture2OffsetX ("RepeatedTexture2OffsetX", Range(0, 1)) = 0 
         _RepeatedTexture2OffsetY ("RepeatedTexture2OffsetY", Range(0, 1)) = 0 
+        _RepeatedTexture2NormalMap ("RepeatedTexture2NormalMap", 2D) = "bump" {}
+        _RepeatedNormalMap2Intensity ("RepeatedNormalMap2Intensity", Range(0, 1)) = 1
 
         _RepeatedTextureBlend ("RepeatedFlatBlend", 2D) = "white" {}
         _IsTextureBlendHeight ("IsTextureBlendHeight", Range(0, 1)) = 0
@@ -273,8 +275,10 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             sampler2D _RepeatedTexture1;
             sampler2D _RepeatedTexture1NormalMap;
             sampler2D _RepeatedTexture2;
+            sampler2D _RepeatedTexture2NormalMap;
             sampler2D _RepeatedTextureBlend;
             float _RepeatedNormalMapIntensity;
+            float _RepeatedNormalMap2Intensity;
 
             sampler2D _BumpMap;
             float _BumpMapIntensity;
@@ -372,22 +376,34 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                     worldNormal = worldNormal * _BumpMapIntensity + originalWorldNormal * (1 - _BumpMapIntensity);
                 }
 
+                // Repeated normal 1
                 tangentNormal = UnpackNormal(tex2D(_RepeatedTexture1NormalMap, i.repeatedUV1));
                 tangentNormal.y *= -1;
                 half3 worldRepeatedNormal1 = 
                     TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, tangentNormal);
+
+                // Repeated normal 2
+                half3 tangentNormal2 = UnpackNormal(tex2D(_RepeatedTexture2NormalMap, i.repeatedUV2));
+                tangentNormal2.y *= -1;
+                half3 worldRepeatedNormal2 = 
+                    TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, tangentNormal2);
+
+                half3 worldRepeatedNormal;
+
                 if (_IsTextureBlendHeight > 0.5)
                 {
-                    worldRepeatedNormal1 = 
-                        worldRepeatedNormal1 * (1 - primaryAltBlend) + originalWorldNormal * (primaryAltBlend);
+                    worldRepeatedNormal = 
+                        worldRepeatedNormal1 * (1 - primaryAltBlend) + worldRepeatedNormal2 * (primaryAltBlend);
                 }
                 else
                 {   
-                    worldRepeatedNormal1 =
-                        worldRepeatedNormal1 * _RepeatedNormalMapIntensity + originalWorldNormal * (1 - _RepeatedNormalMapIntensity);
+                    worldRepeatedNormal =
+                        worldRepeatedNormal1 * _RepeatedNormalMapIntensity + worldRepeatedNormal2 * (1 - _RepeatedNormalMapIntensity);
                 }
+                
+                worldNormal = normalize(worldNormal + worldRepeatedNormal);
 
-                worldNormal = normalize(worldNormal + worldRepeatedNormal1);
+                worldRepeatedNormal = worldRepeatedNormal2;
 
                 ApplyDither(i.screenPos, _CrossFade);
 
