@@ -14,6 +14,8 @@ public class CorruptionCannon : LevelMechanic
     private float shootSpeed;
     [SerializeField]
     private float shootLifetime;
+    [SerializeField]
+    private float shootWallSpawnOffset;
 
     private float timer;
 
@@ -42,7 +44,9 @@ public class CorruptionCannon : LevelMechanic
 
     private void ShootProjectiles()
     {
-        Vector3 centerOffset = (shootAmount - 1) * shootMargin / 2f * Vector3.right;
+        Vector3 centerOffset = (shootAmount - 1) * shootMargin / 2f * transform.right;
+
+        //centerOffset -= transform.forward * shootWallSpawnOffset;
         for (int i = 0; i < shootAmount; i++)
         {
             Vector3 offset = 
