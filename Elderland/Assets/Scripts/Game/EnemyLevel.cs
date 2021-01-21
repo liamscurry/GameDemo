@@ -56,18 +56,25 @@ public class EnemyLevel : MonoBehaviour
         foreach (LevelMechanic mechanic in mechanics)
         {
             mechanic.ResetEvent.Invoke();
+            mechanic.ResetSelf();
         } 
     }
 
     public void StartLevel()
     {
         startEvent.Invoke();
+
+        foreach (LevelMechanic mechanic in mechanics)
+        {
+            mechanic.InvokeSelf();
+        } 
+
         StartWaves();
         PlayerInfo.Manager.SaveHealth();
         PlayerInfo.Manager.SaveStamina();
         if (!keepWaypointsOnFight)
             GameInfo.Menu.ObjectiveManager.DisableWaypoints(this);
-        
+
         //GameInfo.Menu.ObjectiveManager.ObjectiveWaypoints.gameObject.SetActive(false);
     }
 

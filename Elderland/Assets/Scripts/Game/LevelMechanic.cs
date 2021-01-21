@@ -9,4 +9,6 @@ public class LevelMechanic : MonoBehaviour
     private UnityEvent resetEvent;
     
     public UnityEvent ResetEvent { get { return resetEvent; } }
+    public virtual void ResetSelf() {}
+    public virtual void InvokeSelf() {}
 }
