@@ -32,21 +32,23 @@ public class CorruptionCannon : LevelMechanic
     public override void InvokeSelf()
     {
         this.enabled = true;
-        Debug.Log("invoked self");
     }
 
     public override void ResetSelf()
     {
         timer = 0;
         this.enabled = false;
-        Debug.Log("reset self");
+    }
+
+    public override void DisableSelf()
+    {
+        ResetSelf();
     }
 
     private void ShootProjectiles()
     {
         Vector3 centerOffset = (shootAmount - 1) * shootMargin / 2f * transform.right;
-
-        //centerOffset -= transform.forward * shootWallSpawnOffset;
+        centerOffset -= transform.forward * shootWallSpawnOffset;
         for (int i = 0; i < shootAmount; i++)
         {
             Vector3 offset = 

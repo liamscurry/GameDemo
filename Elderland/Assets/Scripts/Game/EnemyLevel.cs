@@ -146,6 +146,11 @@ public class EnemyLevel : MonoBehaviour
         }
         else
         {
+            foreach (LevelMechanic mechanic in mechanics)
+            {
+                mechanic.DisableSelf();
+            }
+
             completed = true;
             endEvent.Invoke();
             GameInfo.Menu.ObjectiveManager.EnableWaypoints(this);

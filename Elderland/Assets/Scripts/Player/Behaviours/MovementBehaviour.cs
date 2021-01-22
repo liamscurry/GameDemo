@@ -12,7 +12,6 @@ public class MovementBehaviour : StateMachineBehaviour
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
 		exiting = false;
-        PlayerInfo.StatsManager.MovespeedModifier = 1;
         movespeedVelocity = 0;
         sprinting = false;
         PlayerInfo.StatsManager.Sprinting = false;
@@ -57,7 +56,7 @@ public class MovementBehaviour : StateMachineBehaviour
 
             PlayerInfo.MovementSystem.Move(PlayerInfo.MovementManager.CurrentDirection, PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed);
 
-            animator.SetFloat("speed", PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.MovespeedModifier);
+            animator.SetFloat("speed", PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.MovespeedMultiplier.Value);
 
             //Transitions//
             if (!animator.IsInTransition(0) && PlayerInfo.AbilityManager.CurrentAbility == null)

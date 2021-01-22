@@ -11,11 +11,11 @@ public class PlayerStatsManager
 
 	//Stat properties
 	//Based on: movespeed modifier
-	public float Movespeed { get { return movespeed * MovespeedModifier; } }
+	public float Movespeed { get { return movespeed * MovespeedMultiplier.Value; } }
 	public float Jumpspeed { get { return jumpspeed * JumpspeedModifier; }}
 
 	//Modifiers for abilities/skills
-	public float MovespeedModifier { get; set; }
+	public StatMultiplier MovespeedMultiplier { get; set; }
 	public float JumpspeedModifier { get; set; }
 
 	public float BaseMovespeed { get { return movespeed; } }
@@ -50,7 +50,7 @@ public class PlayerStatsManager
 		jumpspeed = 7;
 
 		//Modifiers
-		MovespeedModifier = 1;
+		MovespeedMultiplier = new StatMultiplier(1);
 		JumpspeedModifier = 1;
 
 		UpgradePoints = 0;

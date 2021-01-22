@@ -72,7 +72,9 @@ public sealed class PlayerDodge : PlayerAbility
     {
         if (system.Physics.TouchingFloor)
         {
-            actVelocity = system.Movement.Move(direction, speed * (1 / abilitySpeed), false);
+            float compositeSpeed = 
+                speed * (1 / abilitySpeed) * PlayerInfo.StatsManager.MovespeedMultiplier.Value;
+            actVelocity = system.Movement.Move(direction, compositeSpeed, false);
         }
         else
         {
