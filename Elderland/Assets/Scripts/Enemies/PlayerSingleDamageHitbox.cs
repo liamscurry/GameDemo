@@ -27,10 +27,21 @@ public class PlayerSingleDamageHitbox : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.tag == "EnemyHealth" && !hit && (specificEnemy == null || other == specificEnemy))
+        if (other.tag == "EnemyHealth" &&
+            !hit &&
+            (specificEnemy == null ||other == specificEnemy) &&
+            gameObject.activeInHierarchy &&
+            other.gameObject.activeInHierarchy &&
+            !CheckForObstruction(other))
         {
             hit = true;
             ability.OnHit(other.transform.parent.gameObject);
         }
+    }
+
+    private bool CheckForObstruction(Collider other)
+    {
+        Debug.Log("checked");
+        return false;
     }
 }

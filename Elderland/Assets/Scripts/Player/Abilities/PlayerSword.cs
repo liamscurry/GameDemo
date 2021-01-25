@@ -405,7 +405,7 @@ public sealed class PlayerSword : PlayerAbility
         hitbox.gameObject.SetActive(true);
         if (type == Type.CloseTarget || type == Type.FarTarget)
         {
-            hitbox.Invoke(this, target);
+            hitbox.Invoke(this, target, true);
         }
         else
         {

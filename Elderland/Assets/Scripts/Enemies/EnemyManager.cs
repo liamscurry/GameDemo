@@ -10,7 +10,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public enum EnemyState { Watching, Attacking, None }
 
     [SerializeField]
-    private GameObject healthbarPivot;
+    protected GameObject healthbarPivot;
     [SerializeField]
     private MeshRenderer healthbarDisplay;
     [SerializeField]
@@ -141,7 +141,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         }
     }
 
-    private void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         // Temporarily disable dynamic velocity
         Agent.Move(dynamicAgentVelocity * Time.deltaTime);

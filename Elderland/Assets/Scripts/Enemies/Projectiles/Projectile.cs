@@ -117,6 +117,20 @@ public abstract class Projectile : MonoBehaviour
         {
             if (other.tag == TagConstants.GroundCollision)
             {
+                // Check for hitbox trigger
+                Collider[] overlappingColliders =  
+                    Physics.OverlapSphere(transform.position, sphereCollider.radius * 1.1f, LayerConstants.Hitbox);
+
+                foreach (Collider overlapCollider in overlappingColliders)
+                {
+                    if (overlapCollider.tag == targetTag)
+                    {
+                        AdjustDeathPosition(LayerConstants.Hitbox);    
+                        OnDeath(overlapCollider.transform.parent.gameObject);  
+                        return;
+                    }
+                }
+
                 AdjustDeathPosition(LayerConstants.GroundCollision);               
                 OnDeath(null);  
             }

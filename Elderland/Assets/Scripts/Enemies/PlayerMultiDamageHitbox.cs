@@ -47,18 +47,23 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.tag == "EnemyHealth" && gameObject.activeSelf)
+        if (other.tag == "EnemyHealth" && gameObject.activeInHierarchy && other.gameObject.activeInHierarchy)
         {
             if (!enemiesHit.Contains(other))
             {
-                if ((callOnHit && ability.OnHit(other.transform.parent.gameObject)) || (!callOnHit))
+                if ((callOnHit && !CheckForObstruction(other) && ability.OnHit(other.transform.parent.gameObject)) || (!callOnHit))
                     enemiesHit.Add(other);
             }
-            else if (callOnStay)
+            else if (callOnStay && !CheckForObstruction(other))
             {
                 ability.OnStay(other.transform.parent.gameObject);
             }
         }
+    }
+
+    private bool CheckForObstruction(Collider other)
+    {
+        return false;
     }
 
     /*
