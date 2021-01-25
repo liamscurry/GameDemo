@@ -63,7 +63,7 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
 
     private bool CheckForObstruction(Collider other)
     {
-        return false;
+        return Physics.Linecast(transform.position, other.transform.position, LayerConstants.GroundCollision);
     }
 
     /*

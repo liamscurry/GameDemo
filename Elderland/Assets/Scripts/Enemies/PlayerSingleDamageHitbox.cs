@@ -41,7 +41,6 @@ public class PlayerSingleDamageHitbox : MonoBehaviour
 
     private bool CheckForObstruction(Collider other)
     {
-        Debug.Log("checked");
-        return false;
+        return Physics.Linecast(transform.position, other.transform.position, LayerConstants.GroundCollision);
     }
 }
