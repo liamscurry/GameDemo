@@ -58,6 +58,11 @@ public class EnemyLevel : MonoBehaviour
             mechanic.ResetEvent.Invoke();
             mechanic.ResetSelf();
         } 
+
+        foreach (EnemyWave wave in waves)
+        {
+            wave.RespawnExistingEnemies();
+        }
     }
 
     public void StartLevel()
