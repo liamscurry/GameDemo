@@ -247,14 +247,25 @@ MonoBehaviour:
   enemies:
   - location: {x: 0, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: -1.05, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
+  - location: {x: 0, y: 0}
+    heightOffset: 0
+    useExplicitLocation: 1
+    explicitLocation: {x: 34.52, y: 2, z: -8.5}
+    direction: 90
+    type: 4
+    tier: 2
 --- !u!1001 &113468935
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -578,11 +589,15 @@ MonoBehaviour:
   enemies:
   - location: {x: 0, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 1
     tier: 0
   - location: {x: 0, y: -5.72}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 1
     tier: 0
@@ -632,11 +647,15 @@ MonoBehaviour:
   enemies:
   - location: {x: -1.97, y: -5.99}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 0
     tier: 0
   - location: {x: -1.97, y: 1.24}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 0
     tier: 0
@@ -1101,91 +1120,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 4273991598445385970}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &639035245
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 1651271114}
-    m_Modifications:
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -22.33
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -19.97
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371946, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_Name
-      value: TurretEnemy
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371946, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7984405727469949522, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: c14099793abf7fc4e8fb7637dd9df45f, type: 3}
---- !u!4 &639035246 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-    type: 3}
-  m_PrefabInstance: {fileID: 639035245}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &644632053
 GameObject:
   m_ObjectHideFlags: 0
@@ -1602,6 +1536,8 @@ MonoBehaviour:
   enemies:
   - location: {x: 0, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 1
     tier: 0
@@ -2263,26 +2199,36 @@ MonoBehaviour:
   enemies:
   - location: {x: 0, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: -1.29, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: 0.15, y: -5.61}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: -1.18, y: -6.27}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: -0.43, y: 0.63}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
@@ -2332,13 +2278,24 @@ MonoBehaviour:
   enemies:
   - location: {x: 0, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: -1.05, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
+    tier: 0
+  - location: {x: -1.05, y: 0}
+    heightOffset: 0
+    useExplicitLocation: 1
+    explicitLocation: {x: -11.86, y: 2, z: 11.17}
+    direction: 270
+    type: 4
     tier: 0
 --- !u!1001 &1137981759
 PrefabInstance:
@@ -2548,11 +2505,15 @@ MonoBehaviour:
   enemies:
   - location: {x: 0, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 0
     tier: 0
   - location: {x: 0, y: -5.72}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 1
     tier: 0
@@ -2620,26 +2581,36 @@ MonoBehaviour:
   enemies:
   - location: {x: 0, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: -1.29, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: 0.15, y: -5.61}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: -1.18, y: -6.27}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
   - location: {x: -0.43, y: 0.63}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 3
     tier: 0
@@ -3505,11 +3476,15 @@ MonoBehaviour:
   enemies:
   - location: {x: -1.97, y: -5.99}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 0
     tier: 0
   - location: {x: -1.97, y: 1.24}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 0
     tier: 0
@@ -3542,7 +3517,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1048995862}
-  - {fileID: 639035246}
   m_Father: {fileID: 1870116676}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3734,6 +3708,8 @@ MonoBehaviour:
   enemies:
   - location: {x: 0, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 1
     tier: 0
@@ -4304,83 +4280,11 @@ MonoBehaviour:
   enemies:
   - location: {x: 0, y: 0}
     heightOffset: 0
+    useExplicitLocation: 0
+    explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
     type: 0
     tier: 0
---- !u!1001 &1975743574
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 1326319009}
-    m_Modifications:
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -11.579522
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -13.22
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371942, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 135660507675371946, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_Name
-      value: TurretEnemy
-      objectReference: {fileID: 0}
-    - target: {fileID: 7984405727469949522, guid: c14099793abf7fc4e8fb7637dd9df45f,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: c14099793abf7fc4e8fb7637dd9df45f, type: 3}
 --- !u!1001 &2013646095
 PrefabInstance:
   m_ObjectHideFlags: 0

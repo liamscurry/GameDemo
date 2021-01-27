@@ -10,6 +10,7 @@ public static class ResourceConstants
             public const string HeavyEnemy = "Enemies/Heavy Enemy";
             public const string RangedEnemy = "Enemies/RangedEnemy/RangedEnemy";
             public const string GruntEnemy = "Enemies/GruntEnemy/GruntEnemy";
+            public const string TurretEnemy = "Enemies/TurretEnemy/TurretEnemy";
         }
 
         public static class Projectiles

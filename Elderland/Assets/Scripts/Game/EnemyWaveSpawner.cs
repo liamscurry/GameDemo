@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyWaveSpawner : MonoBehaviour
 {
-    private enum EnemyType { Light, Heavy, Ranged, Grunt }
+    private enum EnemyType { Light, Heavy, Ranged, Grunt, Turret }
     private enum EnemyTier { One, Two, Three }
 
     [SerializeField]
@@ -36,12 +36,26 @@ public class EnemyWaveSpawner : MonoBehaviour
                     break;
                 case EnemyType.Grunt:
                     enemy = Resources.Load<GameObject>(ResourceConstants.Enemy.Enemies.GruntEnemy);
-                    break;    
+                    break;  
+                case EnemyType.Turret:
+                    enemy = Resources.Load<GameObject>(ResourceConstants.Enemy.Enemies.TurretEnemy);
+                    break;     
                 default:
                     throw new System.Exception("Not implemented to spawn yet");
             }
 
-            Vector3 position = CalculatePosition(spawn) + enemy.GetComponent<CapsuleCollider>().height / 2 * Vector3.up + spawn.heightOffset * Vector3.up;
+            Vector3 position;
+            if (spawn.useExplicitLocation)
+            {
+                position = spawn.explicitLocation + transform.position;
+            }
+            else
+            {
+                position = 
+                    CalculatePosition(spawn) +
+                    enemy.GetComponent<CapsuleCollider>().height / 2 * Vector3.up + spawn.heightOffset * Vector3.up;
+            }
+            
             Quaternion rotation = CalculateRotation(spawn);
             enemy = Instantiate(enemy, position, rotation) as GameObject;
             EnemyManager enemyManager = enemy.GetComponent<EnemyManager>();
@@ -79,18 +93,30 @@ public class EnemyWaveSpawner : MonoBehaviour
         [SerializeField]
         public float heightOffset;
         [SerializeField]
+        public bool useExplicitLocation;
+        [SerializeField]
+        public Vector3 explicitLocation;
+        [SerializeField]
         public float direction;
         [SerializeField]
         public EnemyType type;
         [SerializeField]
         public EnemyTier tier;
 
-        public EnemySpawn(Vector2 location, float direction, EnemyType type, EnemyTier tier)
+        public EnemySpawn(
+            Vector2 location,
+            float direction,
+            EnemyType type,
+            EnemyTier tier,
+            bool useExplicitLocation,
+            Vector3 explicitLocation)
         {
             this.location = location;
             this.type = type;
             this.direction = direction;
             this.tier = tier;
+            this.useExplicitLocation = useExplicitLocation;
+            this.explicitLocation = explicitLocation;
         }
     }
 
@@ -134,7 +160,16 @@ public class EnemyWaveSpawner : MonoBehaviour
                     break;
             }
 
-            Vector3 position = CalculatePosition(spawn) + spawn.heightOffset * Vector3.up;
+            Vector3 position;
+            if (spawn.useExplicitLocation)
+            {
+                position = spawn.explicitLocation + transform.position;
+            }
+            else
+            {
+                position =
+                    CalculatePosition(spawn) + spawn.heightOffset * Vector3.up;
+            }
             Vector3 forward = 
                 new Vector3(Mathf.Cos(spawn.direction * Mathf.Deg2Rad),
                 0,
