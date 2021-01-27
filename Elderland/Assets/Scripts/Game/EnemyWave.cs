@@ -35,9 +35,13 @@ public class EnemyWave : MonoBehaviour
     public void Awake()
     {
         spawners = GetComponentsInChildren<EnemyWaveSpawner>();
-        existingEnemies = GetComponentsInChildren<EnemyManager>(true);
-        existingActive = new bool[existingEnemies.Length];
         level = transform.parent.GetComponent<EnemyLevel>();
+        existingEnemies = GetComponentsInChildren<EnemyManager>(true);
+        foreach (EnemyManager enemy in existingEnemies)
+        {
+            enemy.Level = level;
+        }
+        existingActive = new bool[existingEnemies.Length];
     }
 
     public List<EnemyManager> Spawn()
