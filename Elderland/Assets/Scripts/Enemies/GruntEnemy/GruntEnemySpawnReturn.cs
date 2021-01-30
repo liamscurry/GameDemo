@@ -1,9 +1,9 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class GruntEnemyFarFollow : StateMachineBehaviour
+public class GruntEnemySpawnReturn : StateMachineBehaviour
 {
     private GruntEnemyManager manager;
 
@@ -15,6 +15,10 @@ public class GruntEnemyFarFollow : StateMachineBehaviour
     private float distanceToPlayer;
     private float lastRemainingDistance;
     private float remainingDistance;
+
+    private float recycleTimer;
+
+    private Vector3 startPosition;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -35,13 +39,16 @@ public class GruntEnemyFarFollow : StateMachineBehaviour
         lastRemainingDistance = distanceToPlayer;
         remainingDistance = distanceToPlayer;
         manager.Agent.updateRotation = true;
+        recycleTimer = 0;
+
+        startPosition = manager.transform.position;
     }
 
     private void OnStateExitImmediate()
     {
         manager.GroupSensor.Reset();
         manager.Agent.ResetPath();
-    }
+    }    
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -59,17 +66,16 @@ public class GruntEnemyFarFollow : StateMachineBehaviour
 
             if (checkTimer > checkDuration)
             {
-                manager.UpdateAgentPath();
+                manager.UpdateSpawnPath();
             }
 
             manager.ClampToGround();
-            
+
             if (!exiting)
-                GroupFollowTransition();
-            if (exiting)
-            {
-                OnStateExitImmediate();
-            }
+                CheckForRecycle();
+            // Need to make transition to normal approach again if given a set of conditions.
+            if (!exiting)
+                ApproachTransition();
 
             lastDistanceToPlayer = distanceToPlayer;
             lastRemainingDistance = remainingDistance;
@@ -78,23 +84,36 @@ public class GruntEnemyFarFollow : StateMachineBehaviour
         }
     }
 
-    private void GroupFollowTransition()
+    private void CheckForRecycle()
     {
-        Vector3 enemyDirection =
-            manager.transform.position - PlayerInfo.Player.transform.position;
-        enemyDirection.Normalize();
-
-        NavMeshHit navMeshHit;
-        if (distanceToPlayer < manager.GroupFollowRadius &&
-            !manager.Agent.Raycast(manager.PlayerNavMeshPosition(enemyDirection), out navMeshHit))
+        if (distanceToPlayer > Encounter.RecycleDistance)
         {
-            GroupFollowExit();
+            recycleTimer += Time.deltaTime;
+            if (recycleTimer > Encounter.RecycleDuration)
+            {
+                manager.Recycle();
+                exiting = true;
+            }
+        }
+        else
+        {
+            recycleTimer = 0;
         }
     }
 
-    private void GroupFollowExit()
+    private void ApproachTransition()
     {
-        manager.Animator.SetTrigger("toGroupFollow");
+        float distanceFromStart = 
+            Matho.StandardProjection2D(startPosition - manager.transform.position).magnitude; 
+        if (distanceToPlayer < Encounter.EngageEnemyDistance && distanceFromStart > Encounter.EngageStartDistance)
+        {
+            ApproachExit();
+        }
+    }
+
+    private void ApproachExit()
+    {
+        manager.Animator.SetTrigger("toAttack");
         exiting = true;
     }
 }

@@ -5,7 +5,6 @@ using UnityEngine.Events;
 
 public class EnemyWave : MonoBehaviour
 {
-    [Header("Existing enemies should be childs of this game object (ex Turrets).")]
     [SerializeField]
     private UnityEvent completionEvent;
 

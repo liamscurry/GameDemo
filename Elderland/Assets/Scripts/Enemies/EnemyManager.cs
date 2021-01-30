@@ -38,6 +38,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private float baseAgentSpeed;
 
     public EnemyLevel Level { get; set; }
+    public EncounterSpawner.Spawner EncounterSpawn { get; set; }
 
     public Animator Animator { get; protected set; }
     public CapsuleCollider Capsule { get; protected set; }
@@ -397,7 +398,52 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             AbilityManager.CurrentAbility.ShortCircuit();
         }
 
-        Level.RemoveFromWave();
+        if (Level != null)
+        {
+            Level.RemoveFromWave();
+        }
+        else if (EncounterSpawn != null)
+        {
+            EncounterSpawn.state = EncounterSpawner.SpawnState.Dead;
+        }
+    }
+
+    public void Recycle()
+    {
+        Alive = false;
+        RecycleLogic();
+
+        StartCoroutine(RecycleTimer());
+    }
+
+    public void RecycleLogic()
+    {
+        Animator.SetTrigger("recycle");
+
+        /*
+        if (Type == EnemyType.Melee && ArrangementNode != -1)
+        {
+            EnemyInfo.MeleeArranger.ClearNode(ArrangementNode);
+        }*/
+
+        /*
+        if (State == EnemyState.Attacking)
+        {
+            UnsubscribeFromAttack();
+        }
+        else if (State == EnemyState.Watching)
+        {
+            UnsubscribeFromWatch();
+        }*/
+
+        TurnOffAgent();
+
+        if (AbilityManager.CurrentAbility != null)
+        {
+            AbilityManager.CurrentAbility.ShortCircuit();
+        }
+
+        EncounterSpawn.state = EncounterSpawner.SpawnState.Ready;
     }
 
     public virtual void Freeze()
@@ -430,6 +476,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     protected IEnumerator DieTimer()
     {
         yield return new WaitForSeconds(1f);
+        Destroy(gameObject);
+    }
+
+    protected IEnumerator RecycleTimer()
+    {
+        yield return new WaitForSeconds(0.5f);
         Destroy(gameObject);
     }
 

@@ -1,27 +1,31 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyWaveSpawner : MonoBehaviour
+public class EncounterSpawner : MonoBehaviour
 {
-    protected enum EnemyType { Light, Heavy, Ranged, Grunt, Turret }
-    protected enum EnemyTier { One, Two, Three }
+    public enum EnemyType { Light, Heavy, Ranged, Grunt, Turret }
+    public enum EnemyTier { One, Two, Three }
 
     [SerializeField]
-    protected EnemySpawn[] enemies;
+    private Spawner[] enemies;
+    [SerializeField]
+    private float navCastHeight;
 
-    protected EnemyLevel level;
+    private Encounter encounter;
 
-    public int Count { get { return enemies.Length; } }
+    private Color tier2Color = new Color(255f / 255f, 221f / 255f, 0, 1);
+    private Color tier3Color = new Color(0f / 255f, 255f / 255f, 136f / 255f, 1);
 
-    protected Color tier2Color = new Color(255f / 255f, 221f / 255f, 0, 1);
-    protected Color tier3Color = new Color(0f / 255f, 255f / 255f, 136f / 255f, 1);
-
-    public virtual List<EnemyManager> Spawn()
+    public List<EnemyManager> Spawn()
     {
         List<EnemyManager> enemyManagers = new List<EnemyManager>();
-        foreach (EnemySpawn spawn in enemies)
+
+        foreach (Spawner spawn in enemies)
         {
+            if (spawn.state != SpawnState.Ready)
+                continue;
+
             GameObject enemy = null;
             switch (spawn.type)
             { 
@@ -44,38 +48,23 @@ public class EnemyWaveSpawner : MonoBehaviour
                     throw new System.Exception("Not implemented to spawn yet");
             }
 
-            Vector3 position;
-            if (spawn.useExplicitLocation)
-            {
-                position = spawn.explicitLocation + transform.position;
-            }
-            else
-            {
-                position = 
-                    CalculatePosition(spawn) +
-                    enemy.GetComponent<CapsuleCollider>().height / 2 * Vector3.up + spawn.heightOffset * Vector3.up;
-            }
+            Vector3 position = NavCast(spawn);
+            if (!spawn.useExplicitLocation)
+                position += enemy.GetComponent<CapsuleCollider>().height / 2 * Vector3.up;
             
             Quaternion rotation = CalculateRotation(spawn);
             enemy = Instantiate(enemy, position, rotation) as GameObject;
             EnemyManager enemyManager = enemy.GetComponent<EnemyManager>();
-            enemyManager.Level = level;
+            enemyManager.EncounterSpawn = spawn;
+            spawn.state = SpawnState.Alive;
+            spawn.spawnPosition = position;
             StartCoroutine(ApplyTierBuff(enemyManager, spawn.tier));
             enemyManagers.Add(enemyManager);
         }
         return enemyManagers;
     }
 
-    protected virtual Vector3 CalculatePosition(EnemySpawn spawn)
-    {
-        if (level == null)
-        {
-            level = transform.parent.parent.GetComponent<EnemyLevel>();
-        }
-        return level.NavCast(Matho.StandardProjection2D(transform.position) + spawn.location, true);
-    }
-
-    protected Quaternion CalculateRotation(EnemySpawn spawn)
+    private Quaternion CalculateRotation(Spawner spawn)
     {
         Vector3 forward = 
             new Vector3(Mathf.Cos(spawn.direction * Mathf.Deg2Rad),
@@ -85,8 +74,32 @@ public class EnemyWaveSpawner : MonoBehaviour
         return Quaternion.LookRotation(forward, Vector3.up);
     }
 
+    public Vector3 NavCast(Spawner spawn)
+    {   
+        if (spawn.useExplicitLocation)
+        {
+            return spawn.explicitLocation + transform.position;
+        }
+        else
+        {
+            Vector3 start =
+                transform.position + new Vector3(spawn.location.x, navCastHeight, spawn.location.y);
+            RaycastHit hit;
+            if (Physics.Raycast(start, Vector3.down, out hit, navCastHeight * 2f, LayerConstants.GroundCollision))
+            {
+                return hit.point + spawn.heightOffset * Vector3.up;
+            }
+            else
+            {
+                return Vector3.zero;
+            }
+        }
+    }
+
+    public enum SpawnState { Ready, Alive, Dead }
+
     [System.Serializable]
-    protected class EnemySpawn
+    public class Spawner
     {
         [SerializeField]
         public Vector2 location;
@@ -102,8 +115,13 @@ public class EnemyWaveSpawner : MonoBehaviour
         public EnemyType type;
         [SerializeField]
         public EnemyTier tier;
+        [HideInInspector]
+        public SpawnState state;
+        [HideInInspector]
+        public Vector3 spawnPosition;
 
-        public EnemySpawn(
+        /*
+        public Spawner(
             Vector2 location,
             float direction,
             EnemyType type,
@@ -117,10 +135,11 @@ public class EnemyWaveSpawner : MonoBehaviour
             this.tier = tier;
             this.useExplicitLocation = useExplicitLocation;
             this.explicitLocation = explicitLocation;
-        }
+            state = SpawnState.Ready;
+        }*/
     }
 
-    protected IEnumerator ApplyTierBuff(EnemyManager enemyManager, EnemyTier tier)
+    private IEnumerator ApplyTierBuff(EnemyManager enemyManager, EnemyTier tier)
     {
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
@@ -142,7 +161,7 @@ public class EnemyWaveSpawner : MonoBehaviour
 
     public void OnDrawGizmosSelected()
     {
-        foreach (EnemySpawn spawn in enemies)
+        foreach (Spawner spawn in enemies)
         {
             switch (spawn.type)
             { 
@@ -160,16 +179,8 @@ public class EnemyWaveSpawner : MonoBehaviour
                     break;
             }
 
-            Vector3 position;
-            if (spawn.useExplicitLocation)
-            {
-                position = spawn.explicitLocation + transform.position;
-            }
-            else
-            {
-                position =
-                    CalculatePosition(spawn) + spawn.heightOffset * Vector3.up;
-            }
+            Vector3 position = NavCast(spawn);
+            
             Vector3 forward = 
                 new Vector3(Mathf.Cos(spawn.direction * Mathf.Deg2Rad),
                 0,

@@ -21,6 +21,8 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
             manager = animator.GetComponentInParent<GruntEnemyManager>();
         }
 
+        manager.BehaviourLock = this;
+
         checkTimer = checkDuration;
         exiting = false;
 
@@ -31,14 +33,28 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
         manager.PingedToAttack = false;
     }
 
+    private void OnStateExitImmediate()
+    {
+        EnemyGroup.Remove((IEnemyGroup) manager);
+        manager.Agent.ResetPath();
+        manager.GroupMovement = false;
+        manager.InGroupState = false;
+    }
+
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (manager.BehaviourLock != this && !exiting)
+        {
+            OnStateExitImmediate();
+            exiting = true;
+        }
+
         if (!exiting)
         {
             checkTimer += Time.deltaTime;
             distanceToPlayer = manager.DistanceToPlayer();
-
-            if (!manager.GroupMovement)
+            // starts off in group from before? and then null afterwards
+            if (manager.Group == null) // has to do with group not being null/null when entering and timer.
             {
                 if (checkTimer > checkDuration)
                 {
@@ -47,7 +63,8 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
             }
             else
             {
-                if (!manager.Group.IsStopped)
+                // fixed but now starts, stops and then starts (there is a pause)
+                if (!manager.Group.IsStopped) // Bug here said was null when going into encounter boundary. happened when close and not by boundary and dashed away
                 {
                     // Stop condition 2
                     if (EnemyGroup.AttackingEnemies.Count == EnemyGroup.MaxAttackingEnemies)
@@ -105,6 +122,10 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
                 OverrideAttackTransition();
             if (!exiting)
                 AttackTransition();
+            if (exiting)
+            {
+                OnStateExitImmediate();
+            }
 
             if (checkTimer >= checkDuration)
                 checkTimer = 0;
@@ -198,9 +219,6 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
     private void FarFollowExit()
     {
         manager.Animator.SetTrigger("toFarFollow");
-        EnemyGroup.Remove((IEnemyGroup) manager);
-        manager.GroupMovement = false;
-        manager.InGroupState = false;
         exiting = true;
     }
 
@@ -214,10 +232,6 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
         }
         
         manager.Animator.SetTrigger("toAttackFollow");
-        EnemyGroup.Remove((IEnemyGroup) manager);
-        manager.Agent.ResetPath();
-        manager.GroupMovement = false;
-        manager.InGroupState = false;
         exiting = true;
     }
 
@@ -225,10 +239,6 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
     {
         EnemyGroup.AttackingEnemies.Add(manager);
         manager.Animator.SetTrigger("toAttackFollow");
-        EnemyGroup.Remove((IEnemyGroup) manager);
-        manager.Agent.ResetPath();
-        manager.GroupMovement = false;
-        manager.InGroupState = false;
         exiting = true;
     }
 

@@ -11,6 +11,7 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
     private const float checkDuration = 0.5f;
 
     private bool exiting;
+    private bool exitingFromAttack;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -19,9 +20,12 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
             manager = animator.GetComponentInParent<GruntEnemyManager>();
         }
 
+        manager.BehaviourLock = this;
+
         checkTimer = checkDuration;
 
         exiting = false;
+        exitingFromAttack = false;
         manager.Agent.radius = manager.FightingAgentRadius;
         manager.Agent.stoppingDistance = manager.NextAttack.AttackDistance * 0.8f;
         if (!manager.PingedToGroup)
@@ -31,8 +35,27 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
             3 * manager.NearbySensor.BaseRadius * Vector3.one;
     }
 
+    private void OnStateExitImmediate()
+    {
+        if (!exitingFromAttack)
+        {
+            EnemyGroup.AttackingEnemies.Remove(manager);
+            manager.Agent.radius = manager.FollowAgentRadius;
+            manager.Agent.stoppingDistance = 0;
+            manager.Agent.ResetPath();
+            EnemyGroup.RemoveAttacking(manager);
+            manager.NearbySensor.transform.localScale = manager.NearbySensor.BaseRadius * Vector3.one;
+        }
+    }
+
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (manager.BehaviourLock != this && !exiting)
+        {
+            OnStateExitImmediate();
+            exiting = true;
+        }
+
         if (!exiting)
         {
             checkTimer += Time.deltaTime;
@@ -49,6 +72,10 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
                 GroupTransition();
             if (!exiting)
                 AttackTransition();
+            if (exiting)
+            {
+                OnStateExitImmediate();
+            }
 
             if (checkTimer >= checkDuration)
                 checkTimer = 0;
@@ -87,13 +114,7 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
 
     private void GroupExit()
     {
-        EnemyGroup.AttackingEnemies.Remove(manager);
         manager.Animator.SetTrigger("toGroupFollow");
-        manager.Agent.radius = manager.FollowAgentRadius;
-        manager.Agent.stoppingDistance = 0;
-        manager.Agent.ResetPath();
-        EnemyGroup.RemoveAttacking(manager);
-        manager.NearbySensor.transform.localScale = manager.NearbySensor.BaseRadius * Vector3.one;
         exiting = true;
     }
 
@@ -120,6 +141,7 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
         manager.Animator.SetTrigger("runAbility");
         manager.Agent.ResetPath();
         exiting = true;
+        exitingFromAttack = true;
     }
 
     private void PingedToGroupTransition()
@@ -134,10 +156,6 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
     {
         manager.PingedToGroup = false;
         manager.Animator.SetTrigger("toGroupFollow");
-        manager.Agent.radius = manager.FollowAgentRadius;
-        manager.Agent.stoppingDistance = 0;
-        manager.Agent.ResetPath();
-        manager.NearbySensor.transform.localScale = manager.NearbySensor.BaseRadius * Vector3.one;
         exiting = true;
     }
 }

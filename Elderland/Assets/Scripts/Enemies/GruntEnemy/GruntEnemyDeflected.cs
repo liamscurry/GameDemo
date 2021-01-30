@@ -17,4 +17,9 @@ public class GruntEnemyDeflected : StateMachineBehaviour
         manager.Push(direction * 1.4f);
         manager.IncreaseResolve(1);
     }
+
+    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        
+    }
 }

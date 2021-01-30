@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
 {
@@ -50,6 +51,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     public float FollowAgentRadius { get { return followAgentRadius; } }
 
     public EnemyGroup Group { get; set; }
+    public StateMachineBehaviour BehaviourLock { get; set; }
     public Vector3 Position
     {
         get
@@ -142,20 +144,35 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
 
     public Vector3 PlayerNavMeshPosition()
     {
+        return PlayerInfo.Player.transform.position - PlayerInfo.BottomSphereOffset;
+
+        /*
+
         Vector2 projectedPlayerPosition = 
             Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
         Vector3 targetPosition =
-            GameInfo.CurrentLevel.NavCast(projectedPlayerPosition);
-        return targetPosition;
+            GameInfo.CurrentLevel.NavCast(projectedPlayerPosition);*/
+        //return targetPosition;
     }
 
     public Vector3 PlayerNavMeshPosition(Vector3 offset)
     {
+        /*
         Vector2 projectedPlayerPosition = 
             Matho.StandardProjection2D(PlayerInfo.Player.transform.position + offset);
         Vector3 targetPosition =
             GameInfo.CurrentLevel.NavCast(projectedPlayerPosition);
         return targetPosition;
+        */
+        return 
+            PlayerInfo.Player.transform.position -
+            PlayerInfo.BottomSphereOffset +
+            Matho.StandardProjection3D(offset);
+    }
+
+    public void UpdateSpawnPath()
+    {
+        Agent.destination = EncounterSpawn.spawnPosition;
     }
 
     protected override void SpawnPickups()
@@ -200,7 +217,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         Vector3 targetForward =
             Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
         Vector3 forward =
-            Vector3.RotateTowards(transform.forward, targetForward, 1f * Time.deltaTime, 0f);
+            Vector3.RotateTowards(transform.forward, targetForward, 3f * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
 }
