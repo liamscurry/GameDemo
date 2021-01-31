@@ -53,7 +53,9 @@ v2f vert (appdata v, float3 normal : NORMAL, float4 tangent : TANGENT)
     o.tangent = tangent;
     o.worldPos = mul(unity_ObjectToWorld, v.vertex);
     ComputeTangentSpace(normal, tangent, o.tanX1, o.tanX2, o.tanX3);
-    o.objectPos = v.vertex;
+    
+    o.objectPos = GenerateWorldOffset(v.vertex);
+
     return o;
 }
 
@@ -68,6 +70,8 @@ float _Threshold;
 float _CrossFade;
 
 float _WarmColorStrength;
+
+float _WorldMaxHeight;
 
 fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
 {
@@ -90,7 +94,8 @@ fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
     clip(-underThreshold);
     
     ApplyDither(i.screenPos, _CrossFade);
-    ApplyCharacterFade(i.objectPos);
+
+    ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
 
     float inShadow = SHADOW_ATTENUATION(i);
     float4 localColor = _Color;

@@ -35,7 +35,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private ParticleSystem spawnParticles;
     [SerializeField]
-    private ParticleSystem deathParticles;
+    private ParticleSystem[] deathParticles;
     [SerializeField]
     private ParticleSystem recycleParticles;
 
@@ -70,7 +70,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     // Particles
     public ParticleSystem SpawnParticles { get { return spawnParticles; } }
-    public ParticleSystem DeathParticles { get { return deathParticles; } }
+    public ParticleSystem[] DeathParticles { get { return deathParticles; } }
     public ParticleSystem RecycleParticles { get { return recycleParticles; } }
     
     private SkinnedMeshRenderer[] glitchRenderers;
@@ -488,26 +488,40 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     protected IEnumerator DieTimer()
     {
         float timer = 0;
-        float duration = .6f;
+        float duration = 0.6f;
         Vector3 healthBarScale =
             healthbarPivot.transform.parent.localScale;
         Vector3 resolveBarScale =
             resolvebarPivot.transform.parent.localScale;
         
-        ParticleSystemRenderer deathParticleRenderer =
-            deathParticles.GetComponent<ParticleSystemRenderer>();
-        deathParticleRenderer.material.SetVector("_WorldCenter", deathParticles.transform.position + Vector3.up * 0.2f);
-
+        var deathParticleRenderers
+            = new List<ParticleSystemRenderer>();
+        foreach (ParticleSystem particleSystem in deathParticles)
+        {
+            deathParticleRenderers.Add(
+                particleSystem.GetComponent<ParticleSystemRenderer>());
+        }
+            
         foreach (SkinnedMeshRenderer glitch in glitchRenderers)
         {
             glitch.material.SetFloat("_ClipThreshold", 1);
         }
-        deathParticleRenderer.material.SetFloat("_ClipThreshold", 0);
+
+        foreach (var deathParticle in deathParticleRenderers)
+        {
+            deathParticle.material.SetFloat("_ClipThreshold", 0);
+            deathParticle.material.SetVector("_WorldCenter", glitchRenderersParent.transform.position + Vector3.up * 0.2f);
+        }
 
         while (timer < duration)
         {
             yield return new WaitForEndOfFrame();
-            deathParticleRenderer.material.SetVector("_WorldCenter", deathParticles.transform.position + Vector3.up * 0.2f);
+
+            foreach (var deathParticle in deathParticleRenderers)
+            {
+                deathParticle.material.SetFloat("_ClipThreshold", 0);
+                deathParticle.material.SetVector("_WorldCenter", glitchRenderersParent.transform.position + Vector3.up * 0.2f);
+            }
 
             timer += Time.deltaTime;
             float percentage = 1 - timer / duration;
@@ -531,9 +545,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 }
             }
 
-            deathParticleRenderer.material.SetFloat(
-                "_ClipThreshold",
-                1 - (percentage));
+            foreach (var deathParticle in deathParticleRenderers)
+            {
+                deathParticle.material.SetFloat("_ClipThreshold", 1 - (percentage));
+            }
         }
 
         foreach (SkinnedMeshRenderer glitch in glitchRenderers)

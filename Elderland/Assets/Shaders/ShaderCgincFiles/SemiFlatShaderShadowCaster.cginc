@@ -27,6 +27,8 @@ float _CrossFade;
 float _Threshold;
 sampler2D _CutoutTex;
 
+float _WorldMaxHeight;
+
 v2f vert (appdata v)
 {
     v2f o;
@@ -35,14 +37,14 @@ v2f vert (appdata v)
     TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
     //UNITY_TRANSFER_LIGHTING(o, v.uv1); //upon further inspection, gets clip space of vertex (if ignoring bias), all information needed for depth map
     o.screenPos = ComputeScreenPos(o.pos);
-    o.objectPos = v.vertex;
+    o.objectPos = GenerateWorldOffset(v.vertex);
     return o;
 }
 
 fixed4 frag (v2f i) : SV_Target
 {
     ApplyDither(i.screenPos, _CrossFade);
-    ApplyCharacterFade(i.objectPos);
+    ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
 
     SHADOW_CASTER_FRAGMENT(i)
     //return 0;

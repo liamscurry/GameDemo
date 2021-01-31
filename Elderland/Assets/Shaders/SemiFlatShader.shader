@@ -33,6 +33,8 @@ Shader "Custom/SemiFlatShader"
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
 
+        _WorldMaxHeight ("WorldMaxHeight", float) = 10000
+
         // From CharacterEffectsHelper.cginc
         _ClipThreshold ("ClipThreshold", Range(0.0, 1.0)) = 1.0
     }

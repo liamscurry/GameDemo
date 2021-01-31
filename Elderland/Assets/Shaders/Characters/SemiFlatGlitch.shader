@@ -19,6 +19,8 @@
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
         _Glitch ("Glitch", Range(0.0, 1.0)) = 1.0
 
+        _WorldMaxHeight ("WorldMaxHeight", float) = 10000
+
         //CharacterEffectsHelper.cginc
         _ClipThreshold ("ClipThreshold", Range(0.0, 1.0)) = 1
     }
@@ -137,7 +139,7 @@
 
                 o.pos = clipPos;
                 o.screenPos = screenPos;
-                o.objectPos = v.vertex;
+                o.objectPos = GenerateWorldOffset(v.vertex);
                 //float4 alteredVertex = v.vertex;
                 //alteredVertex.x = alteredVertex.x * 
                 
@@ -160,6 +162,7 @@
             sampler2D _CutoutTex;
             float _WarmColorStrength;
             float _Glitch;
+            float _WorldMaxHeight;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
@@ -168,7 +171,8 @@
                 //return float4(screenPosPercentage.y, screenPosPercentage.y, screenPosPercentage.y,1);
                 float glitchX = pow(sin(256 * (screenPosPercentage.x * screenPosPercentage.y)), 2);
                 float glitchY = sin(256 * (screenPosPercentage.x +  screenPosPercentage.y));
-                ApplyCharacterFade(i.objectPos);
+
+                ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
                 return fixed4(1, 1, 1, _Glitch * sign(glitchY) * .3);// * sin(16 * _Time.y)
             }
             ENDCG

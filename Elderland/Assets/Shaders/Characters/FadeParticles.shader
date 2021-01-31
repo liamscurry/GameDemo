@@ -76,7 +76,7 @@ Shader "Custom/FadeParticles"
                 if (verticalPercentage < -1)
                     verticalPercentage = -1;
 
-                ApplyCharacterFade(float4(0, -verticalPercentage, 0, 1));
+                ApplyCharacterFadeRaw(float4(0, -verticalPercentage, 0, 1));
 
                 return color;
             }

@@ -53,11 +53,12 @@
         UNITY_TRANSFER_LIGHTING(o, v.uv1);
         o.worldPos = mul(unity_ObjectToWorld, v.vertex);
         o.normal = UnityObjectToWorldNormal(v.normal);
-        o.objectPos = v.vertex;
+        o.objectPos = GenerateWorldOffset(v.vertex);
         return o;
     }
 
     float _CrossFade;
+    float _WorldMaxHeight;
 
     fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
     {
@@ -75,7 +76,7 @@
 
         float3 fragWorldPosition = mul(unity_ObjectToWorld, i.objectPos);
         ApplyDither(i.screenPos, _CrossFade);
-        ApplyCharacterFade(i.objectPos);
+        ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
 
         UNITY_LIGHT_ATTENUATION(attenuation, i, i.worldPos.xyz);
 
