@@ -11,7 +11,7 @@ _ReflectedIntensity ("ReflectedIntensity", Range(0, 3)) = 1
 
 #ifndef SHADING_HELPER
 #define SHADING_HELPER
-#include "/HelperCgincFiles/MathHelper.cginc"
+#include "MathHelper.cginc"
 
 float _FlatShading;
 float _ShadowStrength;

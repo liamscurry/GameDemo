@@ -18,12 +18,73 @@
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
         _Glitch ("Glitch", Range(0.0, 1.0)) = 1.0
+
+        //CharacterEffectsHelper.cginc
+        _ClipThreshold ("ClipThreshold", Range(0.0, 1.0)) = 1
     }
     SubShader
     {
-        UsePass "Custom/SemiFlatShader/SemiFlatShaderShadow"
-        UsePass "Custom/SemiFlatShader/SemiFlatShader"
-        UsePass "Custom/SemiFlatShader/PointLights"
+        // SemiFlatShader pass structure
+        Pass
+        {
+            Name "SemiFlatShaderShadow"
+            Tags { "LightMode"="ShadowCaster" }
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_shadowcaster
+            
+            #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderShadowCaster.cginc"
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "SemiFlatShader"
+            Tags 
+            { 
+                "LightMode"="ForwardBase"
+                "RenderType"="Geometry+20"
+            }
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_fwdbase
+
+            #pragma multi_compile_local __ _ALPHATEST_ON
+            #pragma multi_compile_local __ _NORMALMAP
+
+            #define TERRAIN_STANDARD_SHADER
+            #define TERRAIN_INSTANCED_PERPIXEL_NORMAL
+
+            #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderBase.cginc"
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "PointLights"
+            Tags
+            {
+                "LightMode"="ForwardAdd"
+            }
+
+            Blend One One
+            ZWrite Off
+            ZTest LEqual
+            
+            CGPROGRAM
+
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_fwdadd_fullshadows
+            #pragma multi_compile_shadowcaster
+
+            #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderAdditive.cginc"
+            ENDCG
+        }
 
         Pass
         {
@@ -50,7 +111,7 @@
             #include "../HelperCgincFiles/MathHelper.cginc"
             #include "../HelperCgincFiles/FogHelper.cginc"
             #include "../HelperCgincFiles/LODHelper.cginc"
-            #include "TerrainSplatmapCommon.cginc"
+            #include "../HelperCgincFiles/CharacterEffectsHelper.cginc"
 
             struct appdata
             {
@@ -64,6 +125,7 @@
                 float2 uv : TEXCOORD0;
                 float4 pos : SV_POSITION;
                 float4 screenPos : TEXCOORD1;
+                float4 objectPos : TEXCOORD2;
             };
 
             v2f vert (appdata v, float3 normal : NORMAL, float3 tangent : TANGENT)
@@ -75,6 +137,7 @@
 
                 o.pos = clipPos;
                 o.screenPos = screenPos;
+                o.objectPos = v.vertex;
                 //float4 alteredVertex = v.vertex;
                 //alteredVertex.x = alteredVertex.x * 
                 
@@ -105,6 +168,7 @@
                 //return float4(screenPosPercentage.y, screenPosPercentage.y, screenPosPercentage.y,1);
                 float glitchX = pow(sin(256 * (screenPosPercentage.x * screenPosPercentage.y)), 2);
                 float glitchY = sin(256 * (screenPosPercentage.x +  screenPosPercentage.y));
+                ApplyCharacterFade(i.objectPos);
                 return fixed4(1, 1, 1, _Glitch * sign(glitchY) * .3);// * sin(16 * _Time.y)
             }
             ENDCG

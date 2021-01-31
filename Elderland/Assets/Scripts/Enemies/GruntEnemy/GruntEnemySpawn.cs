@@ -10,6 +10,8 @@ public class GruntEnemySpawn : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
         manager = animator.GetComponentInParent<GruntEnemyManager>();
+        manager.SpawnParticles.Play();
+        manager.BehaviourLock = this;
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 

@@ -250,22 +250,8 @@ MonoBehaviour:
     useExplicitLocation: 0
     explicitLocation: {x: 0, y: 0, z: 0}
     direction: 180.24
-    type: 3
+    type: 0
     tier: 0
-  - location: {x: -1.05, y: 0}
-    heightOffset: 0
-    useExplicitLocation: 0
-    explicitLocation: {x: 0, y: 0, z: 0}
-    direction: 180.24
-    type: 3
-    tier: 0
-  - location: {x: 0, y: 0}
-    heightOffset: 0
-    useExplicitLocation: 1
-    explicitLocation: {x: 34.52, y: 2, z: -8.5}
-    direction: 90
-    type: 4
-    tier: 2
 --- !u!1001 &113468935
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2601,71 +2587,6 @@ MonoBehaviour:
     direction: 180.24
     type: 3
     tier: 0
---- !u!1 &1048995861
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1048995862}
-  - component: {fileID: 1048995863}
-  m_Layer: 0
-  m_Name: Stamina (6)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1048995862
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1048995861}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11.46, y: 0, z: -2.1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1651271114}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1048995863
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1048995861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7ebfb552ebcc1b4f863e53f86146f97, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemies:
-  - location: {x: 0, y: 0}
-    heightOffset: 0
-    useExplicitLocation: 0
-    explicitLocation: {x: 0, y: 0, z: 0}
-    direction: 180.24
-    type: 3
-    tier: 0
-  - location: {x: -1.05, y: 0}
-    heightOffset: 0
-    useExplicitLocation: 0
-    explicitLocation: {x: 0, y: 0, z: 0}
-    direction: 180.24
-    type: 3
-    tier: 0
-  - location: {x: -1.05, y: 0}
-    heightOffset: 0
-    useExplicitLocation: 1
-    explicitLocation: {x: -11.86, y: 2, z: 11.17}
-    direction: 270
-    type: 4
-    tier: 0
 --- !u!1001 &1137981759
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3955,53 +3876,6 @@ MonoBehaviour:
     direction: 180.24
     type: 0
     tier: 0
---- !u!1 &1651271113
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1651271114}
-  - component: {fileID: 1651271115}
-  m_Layer: 0
-  m_Name: Wave 2
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1651271114
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1651271113}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.87, y: 0, z: -1.53}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1048995862}
-  m_Father: {fileID: 1870116676}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1651271115
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1651271113}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91c5ab7486b6beb4b8530af05aedf901, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  completionEvent:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &1688390339
 GameObject:
   m_ObjectHideFlags: 0

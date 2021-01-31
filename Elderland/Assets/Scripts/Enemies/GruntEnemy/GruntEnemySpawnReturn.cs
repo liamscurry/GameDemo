@@ -76,6 +76,10 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
             // Need to make transition to normal approach again if given a set of conditions.
             if (!exiting)
                 ApproachTransition();
+            if (exiting)
+            {
+                OnStateExitImmediate();
+            }
 
             lastDistanceToPlayer = distanceToPlayer;
             lastRemainingDistance = remainingDistance;

@@ -22,10 +22,11 @@
 */
     #include "UnityCG.cginc"
     #include "Lighting.cginc"
-    #include "Color.cginc"
+    #include "Assets/Shaders/Color.cginc"
     #include "AutoLight.cginc"
-    #include "LODHelper.cginc"
-    #include "/HelperCgincFiles/MathHelper.cginc"
+    #include "Assets/Shaders/HelperCgincFiles/LODHelper.cginc"
+    #include "Assets/Shaders/HelperCgincFiles/MathHelper.cginc"
+    #include "Assets/Shaders/HelperCgincFiles/CharacterEffectsHelper.cginc"
     
     struct appdata
     {
@@ -41,7 +42,7 @@
         float3 worldPos : TEXCOORD3;
         float4 screenPos : TEXCOORD4;
         float3 normal : TEXCOORD5;
-        float3 objectPos : TEXCOORD6;
+        float4 objectPos : TEXCOORD6;
     };
 
     v2f vert (appdata_full v)
@@ -74,6 +75,8 @@
 
         float3 fragWorldPosition = mul(unity_ObjectToWorld, i.objectPos);
         ApplyDither(i.screenPos, _CrossFade);
+        ApplyCharacterFade(i.objectPos);
+
         UNITY_LIGHT_ATTENUATION(attenuation, i, i.worldPos.xyz);
 
         float3 localLightDirection = normalize(i.worldPos - _WorldSpaceLightPos0.xyz);
