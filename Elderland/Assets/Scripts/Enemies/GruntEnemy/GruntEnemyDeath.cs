@@ -15,6 +15,8 @@ public class GruntEnemyDeath : StateMachineBehaviour
             deathParticle.Play();
         }
 
+        animator.speed = 0;
+
         manager.BehaviourLock = this;
     }
 }

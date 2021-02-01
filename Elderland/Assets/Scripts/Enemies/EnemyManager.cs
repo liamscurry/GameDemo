@@ -504,7 +504,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             
         foreach (SkinnedMeshRenderer glitch in glitchRenderers)
         {
-            glitch.material.SetFloat("_ClipThreshold", 1);
+            foreach (var material in glitch.materials)
+            {
+                material.SetFloat("_ClipThreshold", 1);
+            }
         }
 
         foreach (var deathParticle in deathParticleRenderers)
@@ -529,7 +532,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
             foreach (SkinnedMeshRenderer glitch in glitchRenderers)
             {
-                glitch.material.SetFloat("_ClipThreshold", percentage);
+                foreach (var material in glitch.materials)
+                {
+                    material.SetFloat("_ClipThreshold", percentage);
+                }
                 if (alteredPercentage != 0)
                 {
                     healthbarPivot.transform.parent.localScale = 
@@ -553,12 +559,15 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         foreach (SkinnedMeshRenderer glitch in glitchRenderers)
         {
-            glitch.material.SetFloat("_ClipThreshold", 0);
+            foreach (var material in glitch.materials)
+            {
+                material.SetFloat("_ClipThreshold", 0);
+            }
             healthbarPivot.transform.parent.gameObject.SetActive(false);
             resolvebarPivot.transform.parent.gameObject.SetActive(false);
         }
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.8f);
         //deathParticleRenderer.material.SetFloat("_ClipThreshold", 1);
 
         Destroy(gameObject);
