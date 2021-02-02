@@ -9,7 +9,12 @@ public class GruntEnemyRecycle : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
         manager = animator.GetComponentInParent<GruntEnemyManager>();
-        manager.RecycleParticles.Play();
+
+        foreach (var recycleParticle in manager.RecycleParticles)
+        {
+            recycleParticle.Play();
+        }
+
         manager.BehaviourLock = this;
     }
 }

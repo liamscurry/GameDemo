@@ -41,7 +41,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private ParticleSystem[] deathParticles;
     [SerializeField]
-    private ParticleSystem recycleParticles;
+    private ParticleSystem[] recycleParticles;
 
     private float currentResolve;
     private float resolveTimer;
@@ -79,7 +79,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     // Particles
     public ParticleSystem[] SpawnParticles { get { return spawnParticles; } }
     public ParticleSystem[] DeathParticles { get { return deathParticles; } }
-    public ParticleSystem RecycleParticles { get { return recycleParticles; } }
+    public ParticleSystem[] RecycleParticles { get { return recycleParticles; } }
     
     private SkinnedMeshRenderer[] glitchRenderers;
 
@@ -563,7 +563,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             resolvebarPivot.transform.parent.localScale;
 
         StartCoroutine(MeshTransitionTimer(1, 0.6f, healthBarScale, resolveBarScale, 16));
-        yield return ParticleTransitionTimer(0.6f);
+        yield return ParticleTransitionTimer(0.6f, deathParticles);
 
         healthbarPivot.transform.parent.gameObject.SetActive(false);
         resolvebarPivot.transform.parent.gameObject.SetActive(false);
@@ -650,13 +650,13 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         }   
     }
 
-    protected IEnumerator ParticleTransitionTimer(float duration)
+    protected IEnumerator ParticleTransitionTimer(float duration, ParticleSystem[] particleSystemParent)
     {
         float timer = 0;
         
         var deathParticleRenderers
             = new List<ParticleSystemRenderer>();
-        foreach (ParticleSystem particleSystem in deathParticles)
+        foreach (ParticleSystem particleSystem in particleSystemParent)
         {
             deathParticleRenderers.Add(
                 particleSystem.GetComponent<ParticleSystemRenderer>());
@@ -690,7 +690,19 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     protected IEnumerator RecycleTimer()
     {
-        yield return new WaitForSeconds(1.5f);
+        Vector3 healthBarScale =
+            healthbarPivot.transform.parent.localScale;
+        Vector3 resolveBarScale =
+            resolvebarPivot.transform.parent.localScale;
+
+        yield return (MeshTransitionTimer(1, 0.6f, healthBarScale, resolveBarScale, 16));
+        //yield return ParticleTransitionTimer(0.6f, recycleParticles);
+
+        healthbarPivot.transform.parent.gameObject.SetActive(false);
+        resolvebarPivot.transform.parent.gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(0.8f);
+
         Destroy(gameObject);
     }
 
