@@ -31,7 +31,6 @@ public class TurretEnemyDefensive : StateMachineBehaviour
         manager.InDefensive = true;
         //manager.StatsManager.DamageTakenMultiplier.AddModifier(0);
         manager.MainHitbox.SetActive(false);
-        manager.BackHitbox.SetActive(true);
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -75,7 +74,6 @@ public class TurretEnemyDefensive : StateMachineBehaviour
         exiting = true;
         manager.InDefensive = false;
         manager.MainHitbox.SetActive(true);
-        manager.BackHitbox.SetActive(false);
         //manager.StatsManager.DamageTakenMultiplier.RemoveModifier(0);
     }
 }

@@ -16,6 +16,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private Color healthBarColor;
     [SerializeField]
+    private float healthbarAppearRadius;
+    [SerializeField]
+    private float healthbarAppearBlend;
+    [SerializeField]
     private GameObject resolvebarPivot;
     [SerializeField]
     private HealthbarShadow resolvebarShadowPivot;
@@ -41,8 +45,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     private float currentResolve;
     private float resolveTimer;
+    private Vector3 healthbarPivotScale;
+    private Vector3 resolvebarPivotScale;
 
     private float baseAgentSpeed;
+
+    public StateMachineBehaviour BehaviourLock { get; set; }
 
     public EnemyLevel Level { get; set; }
     public EncounterSpawner.Spawner EncounterSpawn { get; set; }
@@ -133,6 +141,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         ZeroResolveBar();
         resolvebarShadowPivot.Zero();
+        healthbarPivotScale = healthbarPivot.transform.parent.localScale;
+        resolvebarPivotScale = resolvebarPivot.transform.parent.localScale;
 
         ScrambleWeakDirection();
 
@@ -363,6 +373,43 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 new Color(1,
                           0,
                           1f - StatsManager.HealthDebuffMultiplier.Value);
+        }
+
+        if (Alive)
+        {
+            float distanceToPlayer = DistanceToPlayer();
+            if (distanceToPlayer > healthbarAppearRadius)
+            {
+                float scaleModifier = distanceToPlayer - healthbarAppearRadius;
+                scaleModifier = 1 - Mathf.Clamp01(scaleModifier / healthbarAppearBlend);
+                
+                if (scaleModifier == 0)
+                {
+                    if (healthbarPivot.transform.parent.gameObject.activeSelf)
+                    {
+                        healthbarPivot.transform.parent.gameObject.SetActive(false);
+                        resolvebarPivot.transform.parent.gameObject.SetActive(false);
+                    }
+                }
+                else
+                {
+                    if (!healthbarPivot.transform.parent.gameObject.activeSelf)
+                    {
+                        healthbarPivot.transform.parent.gameObject.SetActive(true);
+                        resolvebarPivot.transform.parent.gameObject.SetActive(true);
+                    }
+                    healthbarPivot.transform.parent.localScale = healthbarPivotScale * scaleModifier;
+                    resolvebarPivot.transform.parent.localScale = resolvebarPivotScale * scaleModifier;
+                }
+            } 
+            else
+            {
+                if (!healthbarPivot.transform.parent.gameObject.activeSelf)
+                {
+                    healthbarPivot.transform.parent.gameObject.SetActive(true);
+                    resolvebarPivot.transform.parent.gameObject.SetActive(true);
+                }
+            }
         }
     }
 

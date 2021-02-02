@@ -18,6 +18,7 @@ public class FireChargeManager : MonoBehaviour
     protected float speedExponentialTerm = 1f;
 
     protected ParticleSystem[] particles;
+    protected bool alive;
 
     protected virtual void Awake()
     {
@@ -38,6 +39,8 @@ public class FireChargeManager : MonoBehaviour
         {
             particle.Play();
         }
+
+        alive = true;
     }
 
     protected virtual void Update()
@@ -47,12 +50,15 @@ public class FireChargeManager : MonoBehaviour
 
         //Vector3 currentVelocity = velocity.normalized * speed;
         //Debug.Log(speed);
-        characterController.Move(velocity * Time.deltaTime);
-        GroundClamp();
-        lifeTimer += Time.deltaTime;
-        if (lifeTimer >= lifeDuration)
+        if (alive)
         {
-            Deactivate();
+            characterController.Move(velocity * Time.deltaTime);
+            GroundClamp();
+            lifeTimer += Time.deltaTime;
+            if (lifeTimer >= lifeDuration)
+            {
+                Deactivate();
+            }
         }
     }
 
@@ -115,18 +121,21 @@ public class FireChargeManager : MonoBehaviour
     {
         if (Matho.AngleBetween(hit.normal, Vector3.up) > 45)
         {
+            // Hit wall, need to add overlap check here to make sure enemies are hit that are touching walls.
+            // of course not hitting enemies that have already been hit.
             Deactivate();
         }
     }
 
     protected virtual void Deactivate()
     {
+        alive = false;
         foreach (ParticleSystem particle in particles)
         {
             particle.Stop();
         }
         velocity = Vector3.zero;
-        hitbox.gameObject.SetActive(false);
         hitbox.Deactivate();
+        hitbox.gameObject.SetActive(false);
     }
 }

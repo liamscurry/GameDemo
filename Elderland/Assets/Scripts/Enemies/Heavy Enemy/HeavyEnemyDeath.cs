@@ -17,6 +17,6 @@ public class HeavyEnemyDeath : StateMachineBehaviour
 
         animator.speed = 0;
 
-        //manager.BehaviourLock = this;
+        manager.BehaviourLock = this;
     }
 }

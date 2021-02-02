@@ -252,6 +252,13 @@ MonoBehaviour:
     direction: 180.24
     type: 1
     tier: 0
+  - location: {x: 34.48, y: -8.88}
+    heightOffset: 0
+    useExplicitLocation: 1
+    explicitLocation: {x: 34.48, y: 2, z: -8.88}
+    direction: 90
+    type: 4
+    tier: 0
 --- !u!1001 &113468935
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1711,17 +1718,17 @@ PrefabInstance:
     - target: {fileID: 8071053208528465585, guid: 7f59d9a7fd4839f41872f40657c1b19d,
         type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8071053208528465585, guid: 7f59d9a7fd4839f41872f40657c1b19d,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8071053208528465585, guid: 7f59d9a7fd4839f41872f40657c1b19d,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8071053208562997324, guid: 7f59d9a7fd4839f41872f40657c1b19d,
         type: 3}

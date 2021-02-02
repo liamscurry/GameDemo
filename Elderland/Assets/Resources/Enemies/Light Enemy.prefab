@@ -324,6 +324,8 @@ MonoBehaviour:
   healthbarPivot: {fileID: 7254841331116865468}
   healthbarDisplay: {fileID: 4796870852572761688}
   healthBarColor: {r: 1, g: 0, b: 0, a: 1}
+  healthbarAppearRadius: 0
+  healthbarAppearBlend: 0
   resolvebarPivot: {fileID: 3177941745364097970}
   resolvebarShadowPivot: {fileID: 7471917127826487381}
   hitbox: {fileID: 135660506621485437}
@@ -332,6 +334,9 @@ MonoBehaviour:
   leftWeakDirectionIndicator: {fileID: 5521365890044839904}
   rightWeakDirectionIndicator: {fileID: 6767815777545787747}
   glitchRenderersParent: {fileID: 7984750978102836005}
+  spawnParticles: {fileID: 0}
+  deathParticles: []
+  recycleParticles: {fileID: 0}
   State: 0
   ArrangementNode: 0
 --- !u!114 &135660507675371938

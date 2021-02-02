@@ -411,7 +411,7 @@ public sealed class PlayerSword : PlayerAbility
         {
             hitbox.Invoke(this);
         }
-        hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position;
+        hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
         hitboxParticles.transform.position = hitbox.transform.position;
 
         Quaternion horizontalRotation = Quaternion.identity;
@@ -447,7 +447,7 @@ public sealed class PlayerSword : PlayerAbility
 
     public void DuringAct()
     {
-        hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position;
+        hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
     }
 
     public void ActEnd()

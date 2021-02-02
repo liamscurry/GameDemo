@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Cannot use center field of colliders. Must edit location by its local transform.
+// Only multi damage hitbox supports overlap check on deactivation as of right now.
 public class PlayerSingleDamageHitbox : MonoBehaviour
 {
     [SerializeField]

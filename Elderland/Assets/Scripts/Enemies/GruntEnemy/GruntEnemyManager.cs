@@ -51,7 +51,6 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     public float FollowAgentRadius { get { return followAgentRadius; } }
 
     public EnemyGroup Group { get; set; }
-    public StateMachineBehaviour BehaviourLock { get; set; }
     public Vector3 Position
     {
         get

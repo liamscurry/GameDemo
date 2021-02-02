@@ -43,10 +43,23 @@ public class HeavyEnemyAttackFollow : StateMachineBehaviour
         {
             manager.CancelAgentPath();
         }
+
+        manager.BehaviourLock = this;
+    }
+
+    private void OnStateExitImmediate()
+    {
+        manager.Agent.ResetPath();
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
+        if (manager.BehaviourLock != this && !exiting)
+        {
+            OnStateExitImmediate();
+            exiting = true;
+        }
+
         if (!exiting)
         {
             checkTimer += Time.deltaTime;

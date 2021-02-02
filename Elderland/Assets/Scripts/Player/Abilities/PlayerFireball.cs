@@ -9,7 +9,7 @@ public sealed class PlayerFireball : PlayerAbility
     private AbilityProcess waitProcess;
     private AbilityProcess shootProcess;
 
-    private const float damage = 0.75f;
+    private const float damage = 10.75f;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
