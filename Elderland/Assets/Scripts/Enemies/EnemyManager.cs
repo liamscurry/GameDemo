@@ -37,7 +37,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private GameObject glitchRenderersParent;
     [Header("Particles")]
     [SerializeField]
-    private ParticleSystem spawnParticles;
+    private ParticleSystem[] spawnParticles;
     [SerializeField]
     private ParticleSystem[] deathParticles;
     [SerializeField]
@@ -77,7 +77,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public int waypointsLength { get; set; }
 
     // Particles
-    public ParticleSystem SpawnParticles { get { return spawnParticles; } }
+    public ParticleSystem[] SpawnParticles { get { return spawnParticles; } }
     public ParticleSystem[] DeathParticles { get { return deathParticles; } }
     public ParticleSystem RecycleParticles { get { return recycleParticles; } }
     
@@ -133,7 +133,6 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         waypoints = new List<Vector2>();
 
         ArrangementNode = -1;
-        Alive = true;
 
         baseAgentSpeed = Agent.speed;
 
@@ -147,6 +146,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         ScrambleWeakDirection();
 
         glitchRenderers = glitchRenderersParent.GetComponentsInChildren<SkinnedMeshRenderer>();
+
+        StartCoroutine(SpawnTimer());
     }
 
     private void Update()
@@ -532,14 +533,126 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         }
     }
 
-    protected IEnumerator DieTimer()
+    protected IEnumerator SpawnTimer()
     {
-        float timer = 0;
-        float duration = 0.6f;
         Vector3 healthBarScale =
             healthbarPivot.transform.parent.localScale;
         Vector3 resolveBarScale =
             resolvebarPivot.transform.parent.localScale;
+
+        healthbarPivot.transform.parent.gameObject.SetActive(false);
+        resolvebarPivot.transform.parent.gameObject.SetActive(false);
+
+        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        {
+            foreach (var material in glitch.materials)
+            {
+                material.SetFloat("_ClipThreshold", 0);
+            }
+        }
+        yield return new WaitForSeconds(0.3f);
+        yield return MeshTransitionTimer(-1, 0.7f, healthBarScale, resolveBarScale, 1);
+        Alive = true;
+    }
+
+    protected IEnumerator DieTimer()
+    {
+        Vector3 healthBarScale =
+            healthbarPivot.transform.parent.localScale;
+        Vector3 resolveBarScale =
+            resolvebarPivot.transform.parent.localScale;
+
+        StartCoroutine(MeshTransitionTimer(1, 0.6f, healthBarScale, resolveBarScale, 16));
+        yield return ParticleTransitionTimer(0.6f);
+
+        healthbarPivot.transform.parent.gameObject.SetActive(false);
+        resolvebarPivot.transform.parent.gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(0.8f);
+
+        Destroy(gameObject);
+    }
+
+    protected IEnumerator MeshTransitionTimer(int sign, float duration, Vector3 healthBarScale, Vector3 resolveBarScale, float healthBarSpeed)
+    {
+        float scaledSign = sign * 0.5f + 0.5f;
+
+        float timer = 0;
+
+        float distanceToPlayer = DistanceToPlayer();
+        float scaleModifier;
+        if (distanceToPlayer > healthbarAppearRadius)
+        {
+            scaleModifier = distanceToPlayer - healthbarAppearRadius;
+            scaleModifier = 1 - Mathf.Clamp01(scaleModifier / healthbarAppearBlend);
+        }
+        else
+        {
+            scaleModifier = 1;
+        }
+            
+        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        {
+            foreach (var material in glitch.materials)
+            {
+                material.SetFloat("_ClipThreshold", scaledSign);
+            }
+        }
+
+        while (timer < duration)
+        {
+            yield return new WaitForEndOfFrame();
+
+            timer += Time.deltaTime;
+            float percentage = 1 - timer / duration;
+            float alteredPercentage = Mathf.Clamp01(1 - healthBarSpeed * timer / duration);
+            float clipThreshold = percentage;
+            if (scaledSign == 0)
+            {
+                clipThreshold = 1 - percentage;
+                alteredPercentage = 1 - alteredPercentage;
+            }
+
+            foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+            {
+                foreach (var material in glitch.materials)
+                {
+                    material.SetFloat("_ClipThreshold", clipThreshold);
+                }
+            }
+            if (alteredPercentage != 0)
+            {
+                if (!healthbarPivot.transform.parent.gameObject.activeSelf)
+                {
+                    healthbarPivot.transform.parent.gameObject.SetActive(true);
+                    resolvebarPivot.transform.parent.gameObject.SetActive(true);
+                }
+
+                healthbarPivot.transform.parent.localScale = 
+                    new Vector3(healthBarScale.x, alteredPercentage * healthBarScale.y, healthBarScale.z) * scaleModifier;
+                
+                resolvebarPivot.transform.parent.localScale = 
+                    new Vector3(resolveBarScale.x, alteredPercentage * resolveBarScale.y, resolveBarScale.z) * scaleModifier;
+            }
+            else
+            {
+                healthbarPivot.transform.parent.gameObject.SetActive(false);
+                resolvebarPivot.transform.parent.gameObject.SetActive(false);
+            }
+        }
+
+        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        {
+            foreach (var material in glitch.materials)
+            {
+                material.SetFloat("_ClipThreshold", 1 - scaledSign);
+            }
+        }   
+    }
+
+    protected IEnumerator ParticleTransitionTimer(float duration)
+    {
+        float timer = 0;
         
         var deathParticleRenderers
             = new List<ParticleSystemRenderer>();
@@ -547,14 +660,6 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         {
             deathParticleRenderers.Add(
                 particleSystem.GetComponent<ParticleSystemRenderer>());
-        }
-            
-        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
-        {
-            foreach (var material in glitch.materials)
-            {
-                material.SetFloat("_ClipThreshold", 1);
-            }
         }
 
         foreach (var deathParticle in deathParticleRenderers)
@@ -575,49 +680,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
             timer += Time.deltaTime;
             float percentage = 1 - timer / duration;
-            float alteredPercentage = Mathf.Clamp01(1 - 16 * timer / duration);
-
-            foreach (SkinnedMeshRenderer glitch in glitchRenderers)
-            {
-                foreach (var material in glitch.materials)
-                {
-                    material.SetFloat("_ClipThreshold", percentage);
-                }
-                if (alteredPercentage != 0)
-                {
-                    healthbarPivot.transform.parent.localScale = 
-                        new Vector3(healthBarScale.x, alteredPercentage * healthBarScale.y, healthBarScale.z);
-                    
-                    resolvebarPivot.transform.parent.localScale = 
-                        new Vector3(resolveBarScale.x, alteredPercentage * resolveBarScale.y, resolveBarScale.z);
-                }
-                else
-                {
-                    healthbarPivot.transform.parent.gameObject.SetActive(false);
-                    resolvebarPivot.transform.parent.gameObject.SetActive(false);
-                }
-            }
 
             foreach (var deathParticle in deathParticleRenderers)
             {
-                deathParticle.material.SetFloat("_ClipThreshold", 1 - (percentage));
+                deathParticle.material.SetFloat("_ClipThreshold", 1 - percentage);
             }
         }
-
-        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
-        {
-            foreach (var material in glitch.materials)
-            {
-                material.SetFloat("_ClipThreshold", 0);
-            }
-            healthbarPivot.transform.parent.gameObject.SetActive(false);
-            resolvebarPivot.transform.parent.gameObject.SetActive(false);
-        }
-
-        yield return new WaitForSeconds(0.8f);
-        //deathParticleRenderer.material.SetFloat("_ClipThreshold", 1);
-
-        Destroy(gameObject);
     }
 
     protected IEnumerator RecycleTimer()
