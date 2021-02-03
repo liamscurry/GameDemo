@@ -535,11 +535,6 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     protected IEnumerator SpawnTimer()
     {
-        Vector3 healthBarScale =
-            healthbarPivot.transform.parent.localScale;
-        Vector3 resolveBarScale =
-            resolvebarPivot.transform.parent.localScale;
-
         healthbarPivot.transform.parent.gameObject.SetActive(false);
         resolvebarPivot.transform.parent.gameObject.SetActive(false);
 
@@ -551,7 +546,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             }
         }
         yield return new WaitForSeconds(0.3f);
-        yield return MeshTransitionTimer(-1, 0.7f, healthBarScale, resolveBarScale, 1);
+        yield return MeshTransitionTimer(-1, 0.7f, 4);
         Alive = true;
     }
 
@@ -562,7 +557,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Vector3 resolveBarScale =
             resolvebarPivot.transform.parent.localScale;
 
-        StartCoroutine(MeshTransitionTimer(1, 0.6f, healthBarScale, resolveBarScale, 16));
+        StartCoroutine(MeshTransitionTimer(1, 0.6f, 16));
         yield return ParticleTransitionTimer(0.6f, deathParticles);
 
         healthbarPivot.transform.parent.gameObject.SetActive(false);
@@ -573,7 +568,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Destroy(gameObject);
     }
 
-    protected IEnumerator MeshTransitionTimer(int sign, float duration, Vector3 healthBarScale, Vector3 resolveBarScale, float healthBarSpeed)
+    protected IEnumerator MeshTransitionTimer(int sign, float duration, float healthBarSpeed)
     {
         float scaledSign = sign * 0.5f + 0.5f;
 
@@ -629,10 +624,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 }
 
                 healthbarPivot.transform.parent.localScale = 
-                    new Vector3(healthBarScale.x, alteredPercentage * healthBarScale.y, healthBarScale.z) * scaleModifier;
+                    new Vector3(healthbarPivotScale.x, alteredPercentage * healthbarPivotScale.y, healthbarPivotScale.z) * scaleModifier;
                 
                 resolvebarPivot.transform.parent.localScale = 
-                    new Vector3(resolveBarScale.x, alteredPercentage * resolveBarScale.y, resolveBarScale.z) * scaleModifier;
+                    new Vector3(resolvebarPivotScale.x, alteredPercentage * resolvebarPivotScale.y, resolvebarPivotScale.z) * scaleModifier;
             }
             else
             {
@@ -695,7 +690,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Vector3 resolveBarScale =
             resolvebarPivot.transform.parent.localScale;
 
-        yield return (MeshTransitionTimer(1, 0.6f, healthBarScale, resolveBarScale, 16));
+        yield return (MeshTransitionTimer(1, 0.6f, 16));
         //yield return ParticleTransitionTimer(0.6f, recycleParticles);
 
         healthbarPivot.transform.parent.gameObject.SetActive(false);

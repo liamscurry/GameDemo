@@ -10,6 +10,11 @@ public class HeavyEnemySpawn : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
         manager = animator.GetComponentInParent<HeavyEnemyManager>();
+
+        foreach (var spawnParticle in manager.SpawnParticles)
+        {
+            spawnParticle.Play();
+        }
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 

@@ -471,7 +471,14 @@ MonoBehaviour:
   leftWeakDirectionIndicator: {fileID: 669861324586991675}
   rightWeakDirectionIndicator: {fileID: 2390030183615277365}
   glitchRenderersParent: {fileID: 1031419228842379150}
-  spawnParticles: {fileID: 0}
+  spawnParticles:
+  - {fileID: 8552130474639059956}
+  - {fileID: 6730096983817397167}
+  - {fileID: 3643415615116586174}
+  - {fileID: 1847399200693637366}
+  - {fileID: 8523208912235431961}
+  - {fileID: 5023838349801479229}
+  - {fileID: 681927383451729040}
   deathParticles:
   - {fileID: 8552130474639059956}
   - {fileID: 6730096983817397167}
@@ -480,7 +487,8 @@ MonoBehaviour:
   - {fileID: 8523208912235431961}
   - {fileID: 5023838349801479229}
   - {fileID: 681927383451729040}
-  recycleParticles: {fileID: 0}
+  recycleParticles:
+  - {fileID: 0}
   State: 0
   ArrangementNode: 0
 --- !u!114 &8476457048137574370
@@ -11370,7 +11378,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0.5
       minScalar: 5
       maxCurve:
         serializedVersion: 2
