@@ -10,6 +10,11 @@ public class RangedEnemySpawn : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
         manager = animator.GetComponentInParent<RangedEnemyManager>();
+
+        foreach (var spawnParticle in manager.SpawnParticles)
+        {
+            spawnParticle.Play();
+        }
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
