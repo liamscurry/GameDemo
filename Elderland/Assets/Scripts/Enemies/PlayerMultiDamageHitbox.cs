@@ -68,7 +68,6 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
                     boxCollider.transform.rotation);
             foreach (Collider overlappingCollider in overlappingColliders)
             {
-                Debug.Log(overlappingCollider.tag + ", " + gameObject.activeInHierarchy + ", " + overlappingCollider.gameObject.activeInHierarchy + ", "+ !CheckForObstruction(overlappingCollider));
                 TestCollider(overlappingCollider);
             }
         }

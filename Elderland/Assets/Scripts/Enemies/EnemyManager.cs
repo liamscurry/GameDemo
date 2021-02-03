@@ -42,6 +42,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private ParticleSystem[] deathParticles;
     [SerializeField]
     private ParticleSystem[] recycleParticles;
+    [SerializeField]
+    private Light[] lights;
+
+    private float[] lightsIntensity;
 
     private float currentResolve;
     private float resolveTimer;
@@ -145,6 +149,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         ScrambleWeakDirection();
 
+        lightsIntensity = new float[lights.Length];
+
+        for (int i = 0; i < lightsIntensity.Length; i++)
+        {
+            lightsIntensity[i] = lights[i].intensity;
+        }
         glitchRenderers = glitchRenderersParent.GetComponentsInChildren<SkinnedMeshRenderer>();
 
         StartCoroutine(SpawnTimer());
@@ -545,6 +555,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 material.SetFloat("_ClipThreshold", 0);
             }
         }
+
+        for (int i = 0; i < lights.Length; i++)
+        {
+            lights[i].intensity = 0;
+        }
+
         yield return new WaitForSeconds(0.3f);
         yield return MeshTransitionTimer(-1, 0.7f, 4);
         Alive = true;
@@ -594,6 +610,11 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             }
         }
 
+        for (int i = 0; i < lights.Length; i++)
+        {
+            lights[i].intensity = scaledSign * lightsIntensity[i];
+        }
+
         while (timer < duration)
         {
             yield return new WaitForEndOfFrame();
@@ -615,6 +636,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                     material.SetFloat("_ClipThreshold", clipThreshold);
                 }
             }
+
+            for (int i = 0; i < lights.Length; i++)
+            {
+                lights[i].intensity = clipThreshold * lightsIntensity[i];
+            }
+            
             if (alteredPercentage != 0)
             {
                 if (!healthbarPivot.transform.parent.gameObject.activeSelf)
@@ -643,6 +670,11 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 material.SetFloat("_ClipThreshold", 1 - scaledSign);
             }
         }   
+
+        for (int i = 0; i < lights.Length; i++)
+        {
+            lights[i].intensity = (1 - scaledSign) * lightsIntensity[i];
+        }
     }
 
     protected IEnumerator ParticleTransitionTimer(float duration, ParticleSystem[] particleSystemParent)
