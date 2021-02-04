@@ -9,7 +9,8 @@ public sealed class PlayerFireball : PlayerAbility
     private AbilityProcess waitProcess;
     private AbilityProcess shootProcess;
 
-    private const float damage = 10.75f;
+    private const float damage = 0.25f;
+    private const float speed = 50;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
@@ -30,7 +31,7 @@ public sealed class PlayerFireball : PlayerAbility
         //Durations
         continous = true;
 
-        staminaCost = 1f;
+        staminaCost = 0.25f;
 
         GenerateCoolDownIcon(
             staminaCost,
@@ -125,7 +126,7 @@ public sealed class PlayerFireball : PlayerAbility
 
     private void SpawnProjectiles(Vector3 direction, Vector3 startPosition)
     {
-        Vector3 velocity = 50 * direction;
+        Vector3 velocity = speed * direction;
 
         GameInfo.ProjectilePool.Create<FireboltProjectile>(
             Resources.Load<GameObject>(ResourceConstants.Player.Projectiles.Fireball), 

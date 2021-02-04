@@ -117,7 +117,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         Sword = GetComponent<GruntEnemySword>();
         AbilityManager.ApplyAbility(Sword);
 
-        MaxHealth = 0.25f;
+        MaxHealth = 1f;
         Health = MaxHealth;
     }
 

@@ -234,17 +234,19 @@ public abstract class PlayerAbility : Ability
             cooldownStaminaIcons.Add(cooldownStaminaUIObject.GetComponent<Image>());
         }
 
-        float tolerance = 0.25f;
+        float tolerance = 0.01f;
         if (staminaCost - remainingStaminaInt > 0.0f + tolerance)
         {
             GameObject cooldownStaminaUIObject =
             GameObject.Instantiate(
-                Resources.Load(ResourceConstants.Player.UI.CooldownHalfStaminaUI),
+                Resources.Load(ResourceConstants.Player.UI.CooldownStaminaUI),
                 cooldownUIObject.transform,
                 false) as GameObject;
 
             ((RectTransform) cooldownStaminaUIObject.transform).anchoredPosition =
                 new Vector2(xStart + xDelta * (remainingStaminaInt), 0);
+
+            cooldownStaminaUIObject.transform.localScale = new Vector2(staminaCost - remainingStaminaInt, 1);
             
             cooldownStaminaIcons.Add(cooldownStaminaUIObject.GetComponent<Image>());
         }

@@ -16,8 +16,9 @@ public sealed class PlayerSword : PlayerAbility
     private AnimationClip chargeNoTargetClip;
     private AnimationClip actNoTargetClip;
 
-    private float damage = 10.5f;//0.5
+    private float damage = 0.5f;//0.5
     private float strength = 18;
+    private float knockbackStrength = 6.5f;
     private PlayerMultiDamageHitbox hitbox;
     private Vector3 hitboxScale = new Vector3(3f, 2, 2);
     private ParticleSystem hitboxParticles;
@@ -512,7 +513,7 @@ public sealed class PlayerSword : PlayerAbility
         {
             if (enemy.CheckResolve())
             {
-                enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 5.5f);
+                enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * knockbackStrength);
                 enemy.ChangeHealth(
                     -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 2);
                 enemy.ConsumeResolve();
@@ -537,7 +538,7 @@ public sealed class PlayerSword : PlayerAbility
             }
             else
             {
-                enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * 1.5f);
+                enemy.Push((enemy.transform.position - PlayerInfo.Player.transform.position).normalized * knockbackStrength);
                 if (directionalDamageModifier == 1)
                     enemy.IncreaseResolve(0.5f);
             }
