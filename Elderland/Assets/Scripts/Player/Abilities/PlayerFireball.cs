@@ -65,7 +65,7 @@ public sealed class PlayerFireball : PlayerAbility
     protected override void GlobalStart()
     {
         walkSpeedModifier = 1;
-        GameInfo.CameraController.ZoomIn.ClaimLock(this, true);
+        GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.32f));
     }
 
     public override void GlobalConstantUpdate()
@@ -118,7 +118,7 @@ public sealed class PlayerFireball : PlayerAbility
 
     public void ChargeEnd()
     {
-        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, false);
+        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0f, 0f));
     }
 
 	public void ActBegin()

@@ -17,9 +17,9 @@ public class StatLockUT : MonoBehaviour
 
         try
         {
-            StatLock.ContructorTests();
-            StatLock.ClaimLockTests();
-            StatLock.TryReleaseLockTests();
+            StatLock<bool>.ContructorTests();
+            StatLock<bool>.ClaimLockTests();
+            StatLock<bool>.TryReleaseLockTests();
 
             Debug.Log("StatLockUT: Success");
         } 

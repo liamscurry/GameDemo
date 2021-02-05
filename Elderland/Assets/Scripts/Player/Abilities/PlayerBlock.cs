@@ -55,6 +55,11 @@ public sealed class PlayerBlock : PlayerAbility
         return PlayerInfo.AbilityManager.Stamina >= staminaCostPerSecond * minDuration;
     }
 
+    protected override void GlobalStart()
+    {
+        GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -5, 0.32f));
+    }
+
     private void ActBegin()
     {
         PlayerInfo.StatsManager.Blocking = true;
@@ -80,6 +85,7 @@ public sealed class PlayerBlock : PlayerAbility
     {  
         PlayerInfo.StatsManager.Blocking = false;
         blockParticles.Stop();
+        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0));
     }
 
     public override bool OnHit(GameObject character)

@@ -39,7 +39,25 @@ public class PlayerStatsManager
 	public StatMultiplier DamageMultiplier { get; }
 	public StatMultiplier AttackSpeedMultiplier { get; }
 
-	public bool Sprinting { get; set; }
+	private bool sprinting;
+	public bool Sprinting { 
+		get { return sprinting; } 
+
+		set
+		{
+			if (sprinting && !value)
+			{
+				// Stopped sprinting
+				GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0f, 0f));
+			}
+			else if (!sprinting & value)
+			{
+				// Started sprinting
+				GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, 5, 0.9f));
+			}
+			sprinting = value;
+		}
+	}
 	public bool Blocking { get; set; }
 
 	public PlayerStatsManager()

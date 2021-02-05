@@ -26,7 +26,7 @@ public class MovementBehaviour : StateMachineBehaviour
             Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
             Vector2 movementDirection = forwardDirection + sidewaysDirection;
 
-            UpdateSprinting();
+            UpdateSprinting(GameInfo.Settings.LeftDirectionalInput);
 
             //Direction and speed targets
             if (GameInfo.Settings.LeftDirectionalInput.magnitude <= 0.5f)
@@ -77,18 +77,19 @@ public class MovementBehaviour : StateMachineBehaviour
         PlayerInfo.StatsManager.Sprinting = false;
 	}
 
-    private void UpdateSprinting()
+    private void UpdateSprinting(Vector2 analogMovementDirection)
     {
+        if (analogMovementDirection.y < 0)
+        {
+            sprinting = false;
+            PlayerInfo.StatsManager.Sprinting = false;
+            return;
+        }
+
         if (Input.GetKeyDown(GameInfo.Settings.SprintKey) && PlayerInfo.MovementManager.SprintAvailable)
         {
             sprinting = true;
             PlayerInfo.StatsManager.Sprinting = true;
-        }
-
-        if (Input.GetAxis("Left Trigger") != 0)
-        {
-            sprinting = false;
-            PlayerInfo.StatsManager.Sprinting = false;
         }
     }
 

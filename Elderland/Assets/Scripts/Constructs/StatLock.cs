@@ -1,32 +1,32 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StatLock
+public class StatLock<T>
 {
     private object tracker;
 
-    public bool Value { get; private set; }
+    public T Value { get; private set; }
 
     public StatLock()
     {
         this.tracker = null;
-        Value = false;
     }
 
-    public StatLock(bool value)
+    public StatLock(T value)
     {
         this.tracker = null;
         Value = value;
     }
 
-    public void ClaimLock(object tracker, bool value)
+    public void ClaimLock(object tracker, T value)
     {
         this.tracker = tracker;
         Value = value;
     }
 
-    public void TryReleaseLock(object tracker, bool value)
+    public void TryReleaseLock(object tracker, T value)
     {
         if (this.tracker == tracker)
         {
@@ -37,24 +37,24 @@ public class StatLock
 
     public static void ContructorTests()
     {
-        StatLock lock1 = new StatLock();
+        var lock1 = new StatLock<bool>();
         UT.CheckEquality<bool>(lock1.Value, false);  
         UT.CheckEquality<bool>(lock1.tracker == null, true);  
 
-        StatLock lock2 = new StatLock(true);
+        var lock2 = new StatLock<bool>(true);
         UT.CheckEquality<bool>(lock2.Value, true);  
         UT.CheckEquality<bool>(lock2.tracker == null, true);  
 
-        StatLock lock3 = new StatLock(false);
+        var lock3 = new StatLock<bool>(false);
         UT.CheckEquality<bool>(lock3.Value, false);  
         UT.CheckEquality<bool>(lock3.tracker == null, true);  
     }
 
     public static void ClaimLockTests()
     {
-        StatLock lock1 = new StatLock();
-        object object1 = new Object();
-        object object2 = new Object();
+        var lock1 = new StatLock<bool>();
+        object object1 = new object();
+        object object2 = new object();
         lock1.ClaimLock(object1, true);
         UT.CheckEquality<bool>(lock1.Value, true);  
         UT.CheckEquality<bool>(lock1.tracker == object1, true);  
@@ -67,9 +67,9 @@ public class StatLock
 
     public static void TryReleaseLockTests()
     {
-        StatLock lock1 = new StatLock();
-        object object1 = new Object();
-        object object2 = new Object();
+        var lock1 = new StatLock<bool>();
+        object object1 = new object();
+        object object2 = new object();
         lock1.ClaimLock(object1, true);
         UT.CheckEquality<bool>(lock1.Value, true);  
         UT.CheckEquality<bool>(lock1.tracker == object1, true);  
