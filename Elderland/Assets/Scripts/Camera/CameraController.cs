@@ -84,7 +84,8 @@ public class CameraController : MonoBehaviour
     public float Radius { get; private set; }
 
     public bool AllowZoom { get; set; }
-    
+    public StatLock ZoomIn { get; private set; }
+
     public float OrientationModifier 
     { 
         get { return orientationModifier; } 
@@ -150,6 +151,8 @@ public class CameraController : MonoBehaviour
         zoomModifier = 1;
 
         Camera = GetComponent<Camera>();
+
+        ZoomIn = new StatLock(false);
     }
 
     private void LateUpdate()
@@ -243,6 +246,7 @@ public class CameraController : MonoBehaviour
 
     private void AdjustZoom()
     {
+        /*
         if (Input.GetAxis("Left Trigger") != 0 &&
             AllowZoom &&
             PlayerInfo.AbilityManager.RangedAvailable &&
@@ -251,7 +255,8 @@ public class CameraController : MonoBehaviour
             targetFov = 40;
             zoomModifier = .4f;
         }
-        else
+        else*/
+        if (!ZoomIn.Value)
         {
             if (PlayerInfo.StatsManager.Sprinting)
             {
@@ -263,6 +268,11 @@ public class CameraController : MonoBehaviour
                 targetFov = 60;
                 zoomModifier = 1;
             }
+        }
+        else
+        {
+            targetFov = 50;
+            zoomModifier = .32f;
         }
     }   
 

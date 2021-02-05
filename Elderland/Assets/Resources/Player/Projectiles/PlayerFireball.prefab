@@ -5126,7 +5126,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.13
+      scalar: 0.3
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -9551,10 +9551,10 @@ GameObject:
   m_Component:
   - component: {fileID: 4046189964253288}
   - component: {fileID: 54746473929869240}
-  - component: {fileID: 135071465151130714}
   - component: {fileID: 33472941221014588}
   - component: {fileID: 23723937362251558}
   - component: {fileID: 114634344611566212}
+  - component: {fileID: 2396413613282900423}
   m_Layer: 21
   m_Name: PlayerFireball
   m_TagString: PlayerProjectile
@@ -9595,19 +9595,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 1
---- !u!135 &135071465151130714
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1538306325473434}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!33 &33472941221014588
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -9670,6 +9657,19 @@ MonoBehaviour:
   damage: 2
   trailParticle: {fileID: 198601848894686264}
   deathParticle: {fileID: 198775290984373944}
+--- !u!135 &2396413613282900423
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538306325473434}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1861033056016234
 GameObject:
   m_ObjectHideFlags: 0

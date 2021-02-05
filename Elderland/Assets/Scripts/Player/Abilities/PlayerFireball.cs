@@ -5,33 +5,50 @@ using UnityEngine.UI;
 
 public sealed class PlayerFireball : PlayerAbility
 {
-    private AbilitySegment act;
+    private AbilitySegment chargeSegment;
+    private AbilityProcess chargeProcess;
+
+    private AbilitySegment actSegment;
     private AbilityProcess waitProcess;
     private AbilityProcess shootProcess;
 
-    private const float damage = 0.25f;
+    private const float damage = 2f;
     private const float speed = 50;
+    private const float walkSlowRate = 3;
+
+    private float chargeTimer;
+    private float chargeWeakDuration = 0.25f;
+    private float chargeStrongDuration = 0.4f;
+    private bool letGoOfCharge;
+
+    private bool strongAttack;
+    private float walkSpeedModifier;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
         //Specifications
         this.system = abilitySystem;
 
+        AnimationClip chargeClip = Resources.Load<AnimationClip>("Player/Abilities/Fireball/FireballCharge");
         AnimationClip actClip = Resources.Load<AnimationClip>("Player/Abilities/Fireball/FireballAct");
+
+        chargeProcess = new AbilityProcess(ChargeStart, ChargeUpdate, ChargeEnd, 1, true);
+        chargeSegment = new AbilitySegment(chargeClip, chargeProcess);
 
         waitProcess = new AbilityProcess(null, null, null, 0.25f);
         shootProcess = new AbilityProcess(ActBegin, null, null, 0.75f);
-        act = new AbilitySegment(actClip, waitProcess, shootProcess);
-        act.Type = AbilitySegmentType.Normal;
+        actSegment = new AbilitySegment(actClip, waitProcess, shootProcess);
+        actSegment.Type = AbilitySegmentType.Normal;
 
         segments = new AbilitySegmentList();
-        segments.AddSegment(act);
+        segments.AddSegment(chargeSegment);
+        segments.AddSegment(actSegment);
         segments.NormalizeSegments();
 
         //Durations
         continous = true;
 
-        staminaCost = 0.25f;
+        staminaCost = 1f;
 
         GenerateCoolDownIcon(
             staminaCost,
@@ -45,38 +62,18 @@ public sealed class PlayerFireball : PlayerAbility
                Physics.OverlapSphere(CalculateStartPosition(), 1f, LayerConstants.GroundCollision).Length == 0;
     }
 
+    protected override void GlobalStart()
+    {
+        walkSpeedModifier = 1;
+        GameInfo.CameraController.ZoomIn.ClaimLock(this, true);
+    }
+
     public override void GlobalConstantUpdate()
     {
-        Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
-        Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
-        Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
-        Vector2 movementDirection = forwardDirection + sidewaysDirection;
-
-        //Direction and speed targets
-        if (GameInfo.Settings.LeftDirectionalInput.magnitude <= 0.5f)
-        {
-            PlayerInfo.MovementManager.LockDirection();
-            PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
-        }
-        else
-        {
-            Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
-            Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
-            Vector3 incrementedRotation = Vector3.RotateTowards(currentRotation, targetRotation, 10 * Time.deltaTime, 0f);
-            Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
-            PlayerInfo.Player.transform.rotation = rotation;
-
-            PlayerInfo.MovementManager.TargetDirection = movementDirection;
-
-            float forwardsAngle = Matho.AngleBetween(Matho.StandardProjection2D(targetRotation), movementDirection);
-            float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
-        
-            PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier;
-        }
-
-        PlayerInfo.MovementSystem.Move(PlayerInfo.MovementManager.CurrentDirection, PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed);
-
-        PlayerInfo.Animator.SetFloat("speed", PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.MovespeedMultiplier.Value);
+        walkSpeedModifier -= walkSlowRate * Time.deltaTime;
+        if (walkSpeedModifier < 0)
+            walkSpeedModifier = 0;
+        PlayerInfo.AbilityManager.MoveDuringAbility(walkSpeedModifier);
     }
 
     /*
@@ -89,20 +86,60 @@ public sealed class PlayerFireball : PlayerAbility
     }
     */
 
+    public void ChargeStart()
+    {
+        chargeTimer = 0;
+        letGoOfCharge = false;
+    }
+
+    public void ChargeUpdate()
+    {
+        chargeTimer += Time.deltaTime;
+        if (Mathf.Abs(GameInfo.Settings.FireballTrigger) <
+            GameInfo.Settings.FireballTriggerOffThreshold)
+        {
+            letGoOfCharge = true;
+        }
+        
+        if (letGoOfCharge)
+        {
+            if (chargeTimer > chargeStrongDuration)
+            {
+                strongAttack = true;
+                ActiveProcess.IndefiniteFinished = true;
+            }
+            else if (chargeTimer > chargeWeakDuration)
+            {
+                strongAttack = false;
+                ActiveProcess.IndefiniteFinished = true;
+            }
+        }
+    }
+
+    public void ChargeEnd()
+    {
+        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, false);
+    }
+
 	public void ActBegin()
     {
-        // PlayerInfo.Capsule.TopSpherePosition()
-        Vector3 startPosition = CalculateStartPosition();
-        Vector3 direction = CalculateProjectileDirection(startPosition);
-        SpawnProjectiles(direction, startPosition);
-        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+        if (strongAttack)
+        {
+            // PlayerInfo.Capsule.TopSpherePosition()
+            Vector3 startPosition = CalculateStartPosition();
+            Vector3 direction = CalculateProjectileDirection(startPosition);
+        
+            SpawnProjectiles(direction, startPosition);
+            PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+        }
     }
 
     private Vector3 CalculateStartPosition()
     {
         return PlayerInfo.Capsule.TopSpherePosition() +
-               Vector3.up * 0.75f +
-               GameInfo.CameraController.transform.right * -1 * 0.5f;
+               Vector3.up * 0.35f +
+               GameInfo.CameraController.transform.right * -1 * 0.5f +
+               GameInfo.CameraController.transform.forward * -1 * 0.5f;
     }
 
     private Vector3 CalculateProjectileDirection(Vector3 startPosition)

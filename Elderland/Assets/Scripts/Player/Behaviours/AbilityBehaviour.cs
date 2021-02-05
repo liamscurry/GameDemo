@@ -27,7 +27,8 @@ public class AbilityBehaviour : StateMachineBehaviour
 			if (!segment.Finished)
 			{
 				ability.StartFixed();
-				if (ability.ActiveProcess.Update != null)
+				if (ability.ActiveProcess.Update != null &&
+					(!ability.ActiveProcess.Indefinite || !ability.ActiveProcess.IndefiniteFinished))
 					ability.ActiveProcess.Update();
 					
 				ability.GlobalUpdate();

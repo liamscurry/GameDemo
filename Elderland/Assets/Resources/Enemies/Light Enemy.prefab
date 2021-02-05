@@ -334,9 +334,12 @@ MonoBehaviour:
   leftWeakDirectionIndicator: {fileID: 5521365890044839904}
   rightWeakDirectionIndicator: {fileID: 6767815777545787747}
   glitchRenderersParent: {fileID: 7984750978102836005}
-  spawnParticles: {fileID: 0}
+  spawnParticles:
+  - {fileID: 0}
   deathParticles: []
-  recycleParticles: {fileID: 0}
+  recycleParticles:
+  - {fileID: 0}
+  lights: []
   State: 0
   ArrangementNode: 0
 --- !u!114 &135660507675371938
@@ -388,7 +391,7 @@ Rigidbody:
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 3
 --- !u!1 &135660508320150475
 GameObject:
   m_ObjectHideFlags: 0

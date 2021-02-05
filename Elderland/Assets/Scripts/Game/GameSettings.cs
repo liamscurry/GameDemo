@@ -14,6 +14,10 @@ public class GameSettings : MonoBehaviour
     public KeyCode UtilityAbilityKey { get; set; }
     public KeyCode UltimateAbilityKey { get; set; }
 
+    public float FireballTrigger { get { return Input.GetAxis("Right Trigger"); } }
+    public float FireballTriggerOffThreshold { get { return 0.1f; } }
+    public float FireballTriggerOnThreshold { get { return 0.5f; } }
+
     //Skills
     public KeyCode DodgeKey { get; set; }
     public KeyCode BlinkKey { get; set; }

@@ -73,7 +73,7 @@ public class PlayerAbilityManager : AbilitySystem
 	public override void UpdateAbilities() 
     {
         //Try to run specified ability if held down
-        bool rangedInput = (GameInfo.Manager.ReceivingInput && RangedAvailable && AbilitiesAvailable) ? Input.GetAxis("Right Trigger") != 0 : false;
+        bool rangedInput = (GameInfo.Manager.ReceivingInput && RangedAvailable && AbilitiesAvailable) ? Mathf.Abs(GameInfo.Settings.FireballTrigger) > GameInfo.Settings.FireballTriggerOnThreshold: false;
         bool aoeInput = (GameInfo.Manager.ReceivingInput && HealAvailable && AbilitiesAvailable) ? Input.GetKey(KeyCode.Joystick1Button4) : false;
         bool meleeInput = (GameInfo.Manager.ReceivingInput && MeleeAvailable && AbilitiesAvailable) ? 
             Input.GetKey(GameInfo.Settings.MeleeAbilityKey) || Input.GetKey(GameInfo.Settings.AlternateMeleeAbilityKey) : false;
@@ -275,5 +275,42 @@ public class PlayerAbilityManager : AbilitySystem
         {
             PlayerInfo.Animator.ResetTrigger("proceedAbility");
         }
+    }
+
+    public void MoveDuringAbility(float walkSpeedPercentage)
+    {
+        Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+        Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
+        Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
+        Vector2 movementDirection = forwardDirection + sidewaysDirection;
+
+        //Direction and speed targets
+        if (GameInfo.Settings.LeftDirectionalInput.magnitude <= 0.5f)
+        {
+            PlayerInfo.MovementManager.LockDirection();
+            PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
+        }
+        else
+        {
+            Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
+            Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
+            Vector3 incrementedRotation = Vector3.RotateTowards(currentRotation, targetRotation, 10 * Time.deltaTime, 0f);
+            Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
+            PlayerInfo.Player.transform.rotation = rotation;
+
+            PlayerInfo.MovementManager.TargetDirection = movementDirection;
+
+            float forwardsAngle = Matho.AngleBetween(Matho.StandardProjection2D(targetRotation), movementDirection);
+            float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
+        
+            PlayerInfo.MovementManager.TargetPercentileSpeed =
+                GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier;
+        }
+
+        PlayerInfo.MovementSystem.Move(
+            PlayerInfo.MovementManager.CurrentDirection,
+            PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed * walkSpeedPercentage);
+
+        PlayerInfo.Animator.SetFloat("speed", PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.MovespeedMultiplier.Value);
     }
 }

@@ -129,6 +129,7 @@ public abstract class Ability : MonoBehaviour
     protected IEnumerator ProcessSegment()
     {
         AbilityProcess[] processes = ActiveSegment.Processes;
+
         for (int i = 0; i < processes.Length; i++)
         {
             ActiveProcess = processes[i];
