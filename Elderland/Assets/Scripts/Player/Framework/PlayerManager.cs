@@ -225,6 +225,11 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
                 if (OnBreak != null)    
                     OnBreak.Invoke(this, EventArgs.Empty);
             }
+
+            if (value < 0)
+            {
+                GameInfo.CameraController.ShakeCamera();
+            }
             
             if (preHealth != 0 && Health == 0)
             {

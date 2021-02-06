@@ -111,6 +111,17 @@ public class CameraController : MonoBehaviour
     float orientationPercentage;
     float orientationTimer;
 
+    private float startShake;
+    private float targetShake;
+    private float currentShake;
+    private float shakeTimer;
+    private float shakeStepDuration;
+    private float shakeSteps;
+    private float shakeStrength;
+    private const float defaultShakeStepDuration = 0.05f;
+    private const float defaultShakeStrength = 2f;
+    private const float defaultShakeSteps = 2;
+
     private void Start()
     {   
         #if DevMode
@@ -157,6 +168,7 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
+        UpdateUniversalSettings();
         switch (state)
         {
             case State.Gameplay:
@@ -368,6 +380,46 @@ public class CameraController : MonoBehaviour
         }    
     }
 
+    public void ShakeCamera()
+    {
+        this.shakeStrength = defaultShakeStrength;
+        this.shakeStepDuration = defaultShakeStepDuration;
+        this.shakeSteps = defaultShakeSteps;
+        StopCoroutine("ShakeCameraCoroutine");
+        StartCoroutine("ShakeCameraCoroutine");
+    }
+
+    public void ShakeCamera(float shakeStrength, float shakeStepDuration, float shakeSteps)
+    {
+        this.shakeStrength = shakeStrength;
+        this.shakeStepDuration = shakeStepDuration;
+        this.shakeSteps = shakeSteps;
+        StopCoroutine("ShakeCameraCoroutine");
+        StartCoroutine("ShakeCameraCoroutine");
+    }
+
+    private void StopShakeCamera()
+    {
+        targetShake = 0;
+        StopCoroutine("ShakeCameraCoroutine");
+    }
+
+    private IEnumerator ShakeCameraCoroutine()
+    {
+        int signOffset = (Random.value > 0.5f) ? 1 : 0;
+        for (int i = 0; i < shakeSteps; i++)
+        {
+            targetShake = Random.value * Mathf.Pow(-1, i + signOffset);
+            startShake = currentShake;
+            shakeTimer = 0;
+            yield return new WaitForSeconds(shakeStepDuration);
+        }
+
+        targetShake = 0;
+        startShake = currentShake;
+        shakeTimer = 0;
+    }
+
     public Vector3 GeneratePosition(Vector3 targetPosition)
     {
         Vector3 offset = Vector3.zero;
@@ -408,8 +460,9 @@ public class CameraController : MonoBehaviour
         Direction = rotationDirection;
         
         Quaternion sprintTilt = Quaternion.Euler(0,0, -3 * orientationPercentage);
+        Quaternion shakeTilt = Quaternion.Euler(-currentShake / 2, 0, currentShake / 2);
 
-        Quaternion q = Quaternion.LookRotation(rotationDirection) * sprintTilt;
+        Quaternion q = Quaternion.LookRotation(rotationDirection) * sprintTilt * shakeTilt;
 
         //Debug.Log(HorizontalAngle);
         return q;
@@ -436,21 +489,6 @@ public class CameraController : MonoBehaviour
         transform.position = GeneratePosition(FollowTarget.transform.position);
     }
 
-    private Vector3 GenerateAverageEnemyPosition()
-    {
-        /* 
-        Vector3 sumPosition = Vector3.zero;
-
-        foreach (GameObject enemy in PlayerInfo.FightingSensor.Enemies)
-        {
-            sumPosition += enemy.transform.position;
-        }
-
-        return sumPosition / PlayerInfo.FightingSensor.Enemies.Count;
-        */
-        return Vector3.zero;
-    }
-
     //Moves camera towards and interpolates camera settings based on the next and current waypoint.
     private void Cutscene()
     {      
@@ -465,6 +503,14 @@ public class CameraController : MonoBehaviour
         transform.position = new Vector3(x, y, z);
 
         transform.rotation = Quaternion.Slerp(cutscene.CurrentWaypointNode.Value.Rotation, cutscene.TargetWaypointNode.Value.Rotation, lerpTime);
+    }
+
+    private void UpdateUniversalSettings()
+    {
+        shakeTimer += Time.deltaTime;
+
+        currentShake =
+            Mathf.SmoothStep(startShake, targetShake * shakeStrength, Mathf.Clamp01(shakeTimer / shakeStepDuration));
     }
 
     private void UpdateGameplaySettings()
