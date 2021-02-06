@@ -24,6 +24,10 @@ public sealed class PlayerFireball : PlayerAbility
     private bool strongAttack;
     private float walkSpeedModifier;
 
+    private GameObject chargeBar;
+    private GameObject chargeBarFill;
+    private float chargeBarScaleXMax;
+
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
         //Specifications
@@ -44,6 +48,15 @@ public sealed class PlayerFireball : PlayerAbility
         segments.AddSegment(chargeSegment);
         segments.AddSegment(actSegment);
         segments.NormalizeSegments();
+
+        GameObject chargeBarInstance =
+            Instantiate(
+                Resources.Load<GameObject>(ResourceConstants.Player.Projectiles.FireballChargeBar),
+                GameInfo.Menu.GameplayUI.transform);
+        chargeBarInstance.SetActive(false);
+        chargeBar = chargeBarInstance;
+        chargeBarFill = chargeBar.transform.Find("Charge Bar Fill").gameObject;
+        chargeBarScaleXMax = chargeBarFill.transform.localScale.x;
 
         //Durations
         continous = true;
@@ -90,6 +103,12 @@ public sealed class PlayerFireball : PlayerAbility
     {
         chargeTimer = 0;
         letGoOfCharge = false;
+        chargeBar.SetActive(true);
+        chargeBarFill.transform.localScale =
+            new Vector3(
+                0,
+                chargeBarFill.transform.localScale.y,
+                chargeBarFill.transform.localScale.z);
     }
 
     public void ChargeUpdate()
@@ -101,6 +120,14 @@ public sealed class PlayerFireball : PlayerAbility
             letGoOfCharge = true;
         }
         
+        float chargePercentage = 
+            Mathf.Clamp01(chargeTimer / chargeStrongDuration);
+        chargeBarFill.transform.localScale =
+            new Vector3(
+                chargePercentage * chargeBarScaleXMax,
+                chargeBarFill.transform.localScale.y,
+                chargeBarFill.transform.localScale.z);
+
         if (letGoOfCharge)
         {
             if (chargeTimer > chargeStrongDuration)
@@ -119,6 +146,7 @@ public sealed class PlayerFireball : PlayerAbility
     public void ChargeEnd()
     {
         GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0f, 0f));
+        chargeBar.SetActive(false);
     }
 
 	public void ActBegin()
@@ -206,5 +234,6 @@ public sealed class PlayerFireball : PlayerAbility
     public override void DeleteResources()
     {
         DeleteAbilityIcon();
+        GameObject.Destroy(chargeBar);
     }
 }

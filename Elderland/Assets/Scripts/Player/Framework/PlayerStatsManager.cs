@@ -71,7 +71,7 @@ public class PlayerStatsManager
 		MovespeedMultiplier = new StatMultiplier(1);
 		JumpspeedModifier = 1;
 
-		UpgradePoints = 0;
+		UpgradePoints = 10;
 		VitalityPoints = 0;
 
 		HealthTier = 0;
