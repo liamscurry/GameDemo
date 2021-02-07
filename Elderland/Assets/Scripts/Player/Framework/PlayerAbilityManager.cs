@@ -17,6 +17,7 @@ public class PlayerAbilityManager : AbilitySystem
     public PlayerAbility block;
     public PlayerAbility ranged;
     public PlayerAbility aoe;
+    public PlayerAbility finisher;
 
     private Transform cooldownOriginTransform;
     private float cooldownHeightDelta;
@@ -80,6 +81,10 @@ public class PlayerAbilityManager : AbilitySystem
         bool dashInput = (GameInfo.Manager.ReceivingInput && DashAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
         bool dodgeInput = (GameInfo.Manager.ReceivingInput && DodgeAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
         bool blockInput = (GameInfo.Manager.ReceivingInput && BlockAvailable && AbilitiesAvailable) ? Input.GetKeyDown(GameInfo.Settings.BlockAbilityKey) : false;
+        bool finisherInput = 
+            (GameInfo.Manager.ReceivingInput && AbilitiesAvailable) ? 
+            Input.GetKeyDown(GameInfo.Settings.FinisherAbilityKey): 
+            false;
 
         //Weapon prioritization
         PlayerAbility weaponHeldDown = null;
@@ -102,6 +107,9 @@ public class PlayerAbilityManager : AbilitySystem
         if (blockInput)
             weaponHeldDown = block;
 
+        if (finisherInput)
+            weaponHeldDown = finisher;
+
         if (ranged != null)
             ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
 
@@ -119,6 +127,9 @@ public class PlayerAbilityManager : AbilitySystem
 
         if (block != null)
             block.UpdateAbility(block == weaponHeldDown, blockInput);
+        
+        if (finisher != null)
+            finisher.UpdateAbility(finisher == weaponHeldDown, finisherInput);
 	}
 
     public override bool Ready()
@@ -153,6 +164,7 @@ public class PlayerAbilityManager : AbilitySystem
     {  
         EquipAbility<PlayerSword>(ref melee);
         EquipAbility<PlayerDodge>(ref dodge);
+        EquipAbility<PlayerFinisher>(ref finisher);
         #if DevMode
         EquipAbility<PlayerDash>(ref dash);
         EquipAbility<PlayerFireball>(ref ranged);

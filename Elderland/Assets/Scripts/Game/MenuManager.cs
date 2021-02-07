@@ -108,7 +108,7 @@ public class MenuManager : MonoBehaviour
 
     private void ObjectiveMenu()
     {
-        if (Input.GetKeyDown(KeyCode.Joystick1Button9))
+        if (GameInfo.Settings.ObjectiveTrigger == -1)
         {
             objectiveUIManager.PingObjectives();
         }

@@ -13,10 +13,13 @@ public class GameSettings : MonoBehaviour
     public KeyCode BlockAbilityKey { get; set; }
     public KeyCode UtilityAbilityKey { get; set; }
     public KeyCode UltimateAbilityKey { get; set; }
+    public KeyCode FinisherAbilityKey { get; private set; }
 
     public float FireballTrigger { get { return Input.GetAxis("Right Trigger"); } }
     public float FireballTriggerOffThreshold { get { return 0.1f; } }
     public float FireballTriggerOnThreshold { get { return 0.5f; } }
+
+    public int ObjectiveTrigger { get { return (int) Input.GetAxis("Horizontal DPad"); } }
 
     //Skills
     public KeyCode DodgeKey { get; set; }
@@ -73,6 +76,7 @@ public class GameSettings : MonoBehaviour
         DodgeAbilityKey = KeyCode.JoystickButton0;
         DashAbilityKey = KeyCode.Joystick1Button5;
         BlockAbilityKey = KeyCode.Joystick1Button1;
+        FinisherAbilityKey = KeyCode.Joystick1Button9;
 
         //Misc
         JumpKey = KeyCode.Joystick1Button1;
