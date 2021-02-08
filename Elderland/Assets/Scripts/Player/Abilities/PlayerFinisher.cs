@@ -29,6 +29,7 @@ public sealed class PlayerFinisher : PlayerAbility
 
     private float obstructionCheckMargin = 0.25f;
     private float endPositionOffset = 0.5f / 3;
+    private const float finisherHealthMargin = 0.1f;
 
     private PlayerAnimationManager.MatchTarget matchTarget;
     private bool interuptedTarget;
@@ -99,7 +100,8 @@ public sealed class PlayerFinisher : PlayerAbility
                 
                 if (((minCollider != null && distance < minDistance) ||
                     (minCollider == null)) &&
-                    cameraForwardEnemyAngle < 90f &&
+                    cameraForwardEnemyAngle < 90f && 
+                    IsEnemyInFinisherState(enemyColliders[i]) &&
                     !IsEnemyObstructed(enemyColliders[i]))
                 {
                     minDistance = distance;
@@ -117,6 +119,15 @@ public sealed class PlayerFinisher : PlayerAbility
                 return false;
             }
         }
+    }
+
+    private bool IsEnemyInFinisherState(Collider other)
+    {
+        EnemyManager enemyManager = 
+            other.GetComponentInParent<EnemyManager>();
+        
+        return enemyManager.Health < enemyManager.FinisherHealth ||
+               Matho.IsInRange(enemyManager.Health, enemyManager.FinisherHealth, finisherHealthMargin);
     }
 
     private bool IsEnemyObstructed(Collider other)
@@ -299,6 +310,13 @@ public sealed class PlayerFinisher : PlayerAbility
 
             enemy.ChangeHealth(
                 -Mathf.Infinity);
+
+            Pickup.SpawnPickups<HealthPickup>(
+                Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
+                enemy.transform.position,
+                4,
+                2f,
+                90f);
         }
     }
 

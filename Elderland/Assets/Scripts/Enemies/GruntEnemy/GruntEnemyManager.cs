@@ -119,6 +119,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
 
         MaxHealth = 1f;
         Health = MaxHealth;
+        FinisherHealth = 0.5f;
     }
 
     protected override void DeclareType()
@@ -181,7 +182,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         Pickup.SpawnPickups<HealthPickup>(
             Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
             transform.position,
-            1,
+            4,
             3f,
             90f);
             */

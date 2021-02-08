@@ -14,7 +14,11 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private MeshRenderer healthbarDisplay;
     [SerializeField]
+    private GameObject healthbarBackground;
+    [SerializeField]
     private Color healthBarColor;
+    [SerializeField]
+    private Color finisherColor;
     [SerializeField]
     private float healthbarAppearRadius;
     [SerializeField]
@@ -51,6 +55,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private float resolveTimer;
     private Vector3 healthbarPivotScale;
     private Vector3 resolvebarPivotScale;
+    private const float finisherHealthMargin = 0.1f;
 
     private float baseAgentSpeed;
 
@@ -104,6 +109,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public float Health { get; protected set; }
     public float MaxHealth { get; protected set; }
+    public float FinisherHealth { get; protected set; }
     public Color HealthBarColor { get; set; }
     
     public Vector3 BottomSphereOffset { get; private set; }
@@ -142,10 +148,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         BottomSphereOffset = Capsule.BottomSphereOffset();
 
-        ZeroResolveBar();
-        resolvebarShadowPivot.Zero();
-        healthbarPivotScale = healthbarPivot.transform.parent.localScale;
-        resolvebarPivotScale = resolvebarPivot.transform.parent.localScale;
+        GenerateHealthbar();
 
         ScrambleWeakDirection();
 
@@ -183,6 +186,30 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         DynamicDrag(12f);
 
         AbilityManager.FixedUpdateAbilities();
+    }
+
+    protected virtual void GenerateHealthbar()
+    {
+        ZeroResolveBar();
+        resolvebarShadowPivot.Zero();
+        healthbarPivotScale = healthbarPivot.transform.parent.localScale;
+        resolvebarPivotScale = resolvebarPivot.transform.parent.localScale;
+
+        GameObject finisherIndicator =
+            Instantiate(
+                Resources.Load<GameObject>(ResourceConstants.Enemy.UI.FinisherIndicator),
+                healthbarBackground.transform);
+
+        float width =
+            healthbarBackground.transform.localScale.x;
+        float finisherPercentage = 
+            FinisherHealth / MaxHealth;
+
+        finisherIndicator.transform.localPosition = 
+            new Vector3(
+                width / 2 - finisherPercentage * width,
+                finisherIndicator.transform.localPosition.y,
+                finisherIndicator.transform.localPosition.z);
     }
 
     public void Push(Vector3 velocity)
@@ -317,6 +344,17 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         Health = Mathf.Clamp(Health + (value * StatsManager.DamageTakenMultiplier.Value), 0, MaxHealth);
 
+        // Health Color
+        if (Health < FinisherHealth ||
+            Matho.IsInRange(Health, FinisherHealth, finisherHealthMargin))
+        {
+            healthbarDisplay.material.SetColor("_Color", finisherColor);
+        }
+        else
+        {
+            healthbarDisplay.material.SetColor("_Color", healthBarColor);
+        }
+
         Vector3 currentScale = healthbarPivot.transform.localScale;
         healthbarPivot.transform.localScale = new Vector3(Health / MaxHealth, currentScale.y, currentScale.z);
         if (preHealth != 0 && Health == 0)
@@ -374,6 +412,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     private void ColorHealth()
     {
+        /*
         if (StatsManager.HealthDebuffMultiplier.Value == 1)
         {
             healthbarDisplay.material.color = HealthBarColor;
@@ -384,7 +423,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 new Color(1,
                           0,
                           1f - StatsManager.HealthDebuffMultiplier.Value);
-        }
+        }*/
 
         if (Alive)
         {

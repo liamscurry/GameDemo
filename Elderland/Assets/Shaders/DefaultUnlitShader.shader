@@ -11,6 +11,7 @@ Shader "Custom/DefaultUnlitShader"
     {
         Tags { "RenderType"="Opaque" "Queue"="Geometry+20"}
         LOD 100
+        ZWrite On
 
         Pass
         {

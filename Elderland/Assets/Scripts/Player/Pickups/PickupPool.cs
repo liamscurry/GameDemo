@@ -9,7 +9,7 @@ public class PickupPool : MonoBehaviour
     // Delegate which stores each projectiles type's clear method.
     private static Action clearPickups;
 
-    private const int maxPickups = 15;
+    private const int maxPickups = 45;
 
     // Adds projectile to pool, called on projectile recycle.
     public void Add<T>(GameObject obj) where T : Pickup
@@ -72,6 +72,7 @@ public class PickupPool : MonoBehaviour
             PickupGroup<T>.InUse = true;
         }
 
+        p.Initialize(position);
         PickupGroup<T>.Pickups.Add(p);
         PickupGroup<T>.CurrentPickups.Add(p);
 
@@ -82,7 +83,7 @@ public class PickupPool : MonoBehaviour
     {
         T p = PickupGroup<T>.AsleepPickups[0];
         PickupGroup<T>.AsleepPickups[0].gameObject.SetActive(true);      
-        PickupGroup<T>.AsleepPickups[0].Reset(position);
+        PickupGroup<T>.AsleepPickups[0].Initialize(position);
         PickupGroup<T>.AsleepPickups.RemoveAt(0);  
         PickupGroup<T>.CurrentPickups.Add(p);
         return p;   

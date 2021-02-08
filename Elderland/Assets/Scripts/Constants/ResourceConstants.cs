@@ -17,6 +17,11 @@ public static class ResourceConstants
         {
             public const string RangedEnemyProjectile = "Enemies/RangedEnemy/RangedEnemyProjectile";
         }
+
+        public static class UI
+        {
+            public const string FinisherIndicator = "Enemies/UI/FinisherIndicator";
+        }
     }
 
     public static class Misc

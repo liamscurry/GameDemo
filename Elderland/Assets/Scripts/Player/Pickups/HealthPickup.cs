@@ -8,8 +8,32 @@ public sealed class HealthPickup : Pickup
     private float healthGain;
     [SerializeField]
     private float minHealthSeek;
+    [SerializeField]
+    private ParticleSystem centralParticle;
+    [SerializeField]
+    private ParticleSystem trailParticles;
 
     private static float compositeHealthSeek;
+
+    private MeshRenderer meshRenderer;
+    
+    protected override void Awake()
+    {
+        base.Awake();
+        meshRenderer = GetComponent<MeshRenderer>();
+    }
+
+    public override void Initialize(Vector3 position)
+    {
+        base.Initialize(position);
+        meshRenderer.enabled = true;
+        centralParticle.Play();
+        ParticleSystem.MainModule newMain = centralParticle.main;
+        newMain.simulationSpeed = 1;
+        trailParticles.Play();
+        ParticleSystem.MainModule newMainTrail = trailParticles.main;
+        newMainTrail.simulationSpeed = 1;
+    }
 
     public override bool IsSeekValid()
     {
@@ -27,13 +51,15 @@ public sealed class HealthPickup : Pickup
 
     protected override void OnReachPlayer()
     {
+        meshRenderer.enabled = false;
+        ParticleSystem.MainModule newMain = centralParticle.main;
+        newMain.simulationSpeed = 2f;
+        centralParticle.Stop();
+        ParticleSystem.MainModule newMainTrail = trailParticles.main;
+        newMainTrail.simulationSpeed = 2;
+        trailParticles.Stop();
         compositeHealthSeek -= healthGain;
         PlayerInfo.Manager.ChangeHealth(healthGain);
-    }
-
-    protected override void Recycle()
-    {
-        GameInfo.PickupPool.Add<HealthPickup>(gameObject);
     }
 
     public override void OnForceRecycle()
