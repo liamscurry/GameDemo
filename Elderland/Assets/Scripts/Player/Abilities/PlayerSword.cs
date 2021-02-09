@@ -7,6 +7,7 @@ using UnityEngine;
 public sealed class PlayerSword : PlayerAbility 
 {
     //Fields
+    private AnimationClip holdClip;
     private AnimationClip chargeFarDashClip;
     private AnimationClip actFarDashClip;
     private AnimationClip chargeFarRunClip;
@@ -25,8 +26,10 @@ public sealed class PlayerSword : PlayerAbility
     private Gradient hitboxParticlesNormalGradient;
     private ParticleSystem.ColorOverLifetimeModule hitboxParticlesColors;
 
+    private AbilityProcess holdProcess;
     private AbilityProcess chargeProcess;
     private AbilityProcess actProcess;
+    private AbilitySegment hold;
     private AbilitySegment charge;
     private AbilitySegment act;
 
@@ -52,9 +55,13 @@ public sealed class PlayerSword : PlayerAbility
 
     public bool IsAbilitySpeedReset { get { return Time.time - hitTime > resetHitTime; } }
 
+    private PlayerAbilityHold holdSegmentHold;
+
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         //Animation assignment
+        holdClip = Resources.Load<AnimationClip>(ResourceConstants.Player.Abilities.SwordHoldClip);
+
         chargeFarDashClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeFarDashLightAttack");
         actFarDashClip = Resources.Load<AnimationClip>("Player/Abilities/ActFarDashLightAttack");
 
@@ -67,13 +74,16 @@ public sealed class PlayerSword : PlayerAbility
         chargeNoTargetClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeNoTargetLightAttack");
         actNoTargetClip = Resources.Load<AnimationClip>("Player/Abilities/ActNoTargetLightAttack");
 
+        holdProcess = new AbilityProcess(HoldBegin, DuringHold, HoldEnd, 1, true);
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.15f);
+        hold = new AbilitySegment(holdClip, holdProcess);
         charge = new AbilitySegment(null, chargeProcess);
         charge.Type = AbilitySegmentType.RootMotion;
         act = new AbilitySegment(null, actProcess);
         segments = new AbilitySegmentList();
         segments.AddSegment(charge);
+        segments.AddSegment(hold);
         segments.AddSegment(act);
         segments.NormalizeSegments();
 
@@ -99,6 +109,16 @@ public sealed class PlayerSword : PlayerAbility
         hitboxParticles = hitboxParticlesObject.GetComponent<ParticleSystem>();
         hitboxParticlesNormalGradient = hitboxParticles.colorOverLifetime.color.gradient;
         hitboxParticlesColors = hitboxParticles.colorOverLifetime;
+
+        holdSegmentHold =
+            new PlayerAbilityHold(
+                abilityManager.HoldBar,
+                holdProcess,
+                0.1f,
+                0.25f,
+                () => !Input.GetKey(GameInfo.Settings.MeleeAbilityKey),
+                false
+            );
 
         scanRotation = Quaternion.identity;   
 
@@ -141,36 +161,16 @@ public sealed class PlayerSword : PlayerAbility
 
     private bool CheckForGround()
     {
-        //RaycastHit predictLedgeCastClose;
-        //RaycastHit predictLedgeCastFar;
         Vector3 interuptDirection = (dashPosition - PlayerInfo.Player.transform.position).normalized;
-        //Debug.DrawLine(dashPosition, PlayerInfo.Player.transform.position, Color.black, 5);
-        /*
-        bool hitLedgeClose = UnityEngine.Physics.Raycast(
-            PlayerInfo.Player.transform.position + interuptDirection * 0.6f,
-            Vector3.down,
-            out predictLedgeCastClose,
-            (PlayerInfo.Capsule.height / 2) + PlayerInfo.Capsule.radius * 0.5f,
-            LayerConstants.GroundCollision | LayerConstants.Destructable);
 
-        bool hitLedgeFar = UnityEngine.Physics.Raycast(
-            PlayerInfo.Player.transform.position + interuptDirection * 0.7f,
-            Vector3.down,
-            out predictLedgeCastFar,
-            (PlayerInfo.Capsule.height / 2) + PlayerInfo.Capsule.radius * 0.5f,
+        Collider[] overlapColliders = UnityEngine.Physics.OverlapSphere(
+            PlayerInfo.Player.transform.position + PlayerInfo.Capsule.BottomSphereOffset() + Vector3.up * 0.2f + interuptDirection * 0.3f,
+            PlayerInfo.Capsule.radius,
             LayerConstants.GroundCollision | LayerConstants.Destructable);
-        */
-        //if (!hitLedgeClose || !hitLedgeFar)
+        
+        if (overlapColliders.Length == 0)
         {
-            Collider[] overlapColliders = UnityEngine.Physics.OverlapSphere(
-                PlayerInfo.Player.transform.position + PlayerInfo.Capsule.BottomSphereOffset() + Vector3.up * 0.2f + interuptDirection * 0.3f,
-                PlayerInfo.Capsule.radius,
-                LayerConstants.GroundCollision | LayerConstants.Destructable);
-            
-            if (overlapColliders.Length == 0)
-            {
-                return false;
-            }
+            return false;
         }
 
         return true;
@@ -293,6 +293,21 @@ public sealed class PlayerSword : PlayerAbility
         {
             abilitySpeed = PlayerInfo.StatsManager.AttackSpeedMultiplier.Value;
         }*/
+    }
+
+    public void HoldBegin()
+    {
+        holdSegmentHold.Start();
+    }
+
+    public void DuringHold()
+    {
+        holdSegmentHold.Update();
+    }
+
+    public void HoldEnd()
+    {
+        holdSegmentHold.End();
     }
 
     public void ChargeBegin()
@@ -553,12 +568,6 @@ public sealed class PlayerSword : PlayerAbility
         {
             abilitySpeed = baseSpeed;
         }
-
-        /*
-        if (PlayerInfo.StatsManager.AttackSpeedMultiplier.ModifierCount != 0)
-        {
-            abilitySpeed = PlayerInfo.StatsManager.AttackSpeedMultiplier.Value;
-        }*/
 
         hitTime = Time.time;
 

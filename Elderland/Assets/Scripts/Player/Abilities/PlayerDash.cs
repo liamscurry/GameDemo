@@ -43,7 +43,7 @@ public sealed class PlayerDash : PlayerAbility
         staminaCost = 1f;
         GenerateCoolDownIcon(
             staminaCost,
-            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.DashTier1Icon),
+            Resources.Load<Sprite>(ResourceConstants.Player.Abilities.DashTier1Icon),
             "I");
     }
 

@@ -210,7 +210,7 @@ public abstract class PlayerAbility : Ability
     {
         GameObject cooldownUIObject =
             GameObject.Instantiate(
-                Resources.Load(ResourceConstants.Player.UI.CooldownUI),
+                Resources.Load(ResourceConstants.Player.Abilities.CooldownUI),
                 GameInfo.Menu.FightingUI.transform,
                 false) as GameObject;
 
@@ -224,7 +224,7 @@ public abstract class PlayerAbility : Ability
         {
             GameObject cooldownStaminaUIObject =
             GameObject.Instantiate(
-                Resources.Load(ResourceConstants.Player.UI.CooldownStaminaUI),
+                Resources.Load(ResourceConstants.Player.Abilities.CooldownStaminaUI),
                 cooldownUIObject.transform,
                 false) as GameObject;
 
@@ -239,7 +239,7 @@ public abstract class PlayerAbility : Ability
         {
             GameObject cooldownStaminaUIObject =
             GameObject.Instantiate(
-                Resources.Load(ResourceConstants.Player.UI.CooldownStaminaUI),
+                Resources.Load(ResourceConstants.Player.Abilities.CooldownStaminaUI),
                 cooldownUIObject.transform,
                 false) as GameObject;
 
@@ -255,7 +255,7 @@ public abstract class PlayerAbility : Ability
 
         GameObject levelUIObject =
             GameObject.Instantiate(
-                Resources.Load(ResourceConstants.Player.UI.CooldownLevelUI),
+                Resources.Load(ResourceConstants.Player.Abilities.CooldownLevelUI),
                 cooldownUIObject.transform,
                 false) as GameObject;
 

@@ -32,7 +32,7 @@ public sealed class PlayerFireballTier2 : PlayerAbility
         staminaCost = 1f * 0.5f;
         GenerateCoolDownIcon(
             staminaCost,
-            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FireballTier2Icon),
+            Resources.Load<Sprite>(ResourceConstants.Player.Abilities.FireballTier2Icon),
             "II");
     }
 

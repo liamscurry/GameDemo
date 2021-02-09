@@ -16,17 +16,9 @@ public sealed class PlayerFireball : PlayerAbility
     private const float speed = 50;
     private const float walkSlowRate = 3;
 
-    private float chargeTimer;
-    private float chargeWeakDuration = 0.25f;
-    private float chargeStrongDuration = 0.4f;
-    private bool letGoOfCharge;
-
-    private bool strongAttack;
     private float walkSpeedModifier;
 
-    private GameObject chargeBar;
-    private GameObject chargeBarFill;
-    private float chargeBarScaleXMax;
+    private PlayerAbilityHold chargeSegmentHold;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
@@ -49,14 +41,15 @@ public sealed class PlayerFireball : PlayerAbility
         segments.AddSegment(actSegment);
         segments.NormalizeSegments();
 
-        GameObject chargeBarInstance =
-            Instantiate(
-                Resources.Load<GameObject>(ResourceConstants.Player.Projectiles.FireballChargeBar),
-                GameInfo.Menu.GameplayUI.transform);
-        chargeBarInstance.SetActive(false);
-        chargeBar = chargeBarInstance;
-        chargeBarFill = chargeBar.transform.Find("Charge Bar Fill").gameObject;
-        chargeBarScaleXMax = chargeBarFill.transform.localScale.x;
+        chargeSegmentHold =
+            new PlayerAbilityHold(
+                abilitySystem.HoldBar,
+                chargeProcess,
+                0.25f,
+                0.4f,
+                () => Mathf.Abs(GameInfo.Settings.FireballTrigger) < GameInfo.Settings.FireballTriggerOffThreshold,
+                true
+            );
 
         //Durations
         continous = true;
@@ -65,7 +58,7 @@ public sealed class PlayerFireball : PlayerAbility
 
         GenerateCoolDownIcon(
             staminaCost,
-            Resources.Load<Sprite>(ResourceConstants.Player.UI.Abilities.FireballTier1Icon),
+            Resources.Load<Sprite>(ResourceConstants.Player.Abilities.FireballTier1Icon),
             "I");
     }
 
@@ -101,57 +94,23 @@ public sealed class PlayerFireball : PlayerAbility
 
     public void ChargeStart()
     {
-        chargeTimer = 0;
-        letGoOfCharge = false;
-        chargeBar.SetActive(true);
-        chargeBarFill.transform.localScale =
-            new Vector3(
-                0,
-                chargeBarFill.transform.localScale.y,
-                chargeBarFill.transform.localScale.z);
+        chargeSegmentHold.Start();
     }
 
     public void ChargeUpdate()
     {
-        chargeTimer += Time.deltaTime;
-        if (Mathf.Abs(GameInfo.Settings.FireballTrigger) <
-            GameInfo.Settings.FireballTriggerOffThreshold)
-        {
-            letGoOfCharge = true;
-        }
-        
-        float chargePercentage = 
-            Mathf.Clamp01(chargeTimer / chargeStrongDuration);
-        chargeBarFill.transform.localScale =
-            new Vector3(
-                chargePercentage * chargeBarScaleXMax,
-                chargeBarFill.transform.localScale.y,
-                chargeBarFill.transform.localScale.z);
-
-        if (letGoOfCharge)
-        {
-            if (chargeTimer > chargeStrongDuration)
-            {
-                strongAttack = true;
-                ActiveProcess.IndefiniteFinished = true;
-            }
-            else if (chargeTimer > chargeWeakDuration)
-            {
-                strongAttack = false;
-                ActiveProcess.IndefiniteFinished = true;
-            }
-        }
+        chargeSegmentHold.Update();
     }
 
     public void ChargeEnd()
     {
+        chargeSegmentHold.End();
         GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0f, 0f));
-        chargeBar.SetActive(false);
     }
 
 	public void ActBegin()
     {
-        if (strongAttack)
+        if (chargeSegmentHold.Held)
         {
             // PlayerInfo.Capsule.TopSpherePosition()
             Vector3 startPosition = CalculateStartPosition();
@@ -234,6 +193,5 @@ public sealed class PlayerFireball : PlayerAbility
     public override void DeleteResources()
     {
         DeleteAbilityIcon();
-        GameObject.Destroy(chargeBar);
     }
 }

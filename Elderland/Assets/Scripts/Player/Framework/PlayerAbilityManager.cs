@@ -43,6 +43,8 @@ public class PlayerAbilityManager : AbilitySystem
     public float Stamina { get; private set; }
     public float SavedStamina { get; set; }
 
+    public GameObject HoldBar { get; private set; }
+
     public PlayerAbilityManager(
         Animator animator,
         PhysicsSystem physics,
@@ -51,6 +53,13 @@ public class PlayerAbilityManager : AbilitySystem
         Transform cooldownOriginTransform,
         float cooldownHeightDelta) : base(animator, physics, movement, parent)
     { 
+        GameObject holdBarInstance =
+            GameObject.Instantiate(
+                Resources.Load<GameObject>(ResourceConstants.Player.Abilities.HoldBar),
+                GameInfo.Menu.GameplayUI.transform);
+        holdBarInstance.SetActive(false);
+        HoldBar = holdBarInstance;
+
         this.cooldownOriginTransform = cooldownOriginTransform;
         this.cooldownHeightDelta = cooldownHeightDelta;
         InitializePreferences();
@@ -66,7 +75,6 @@ public class PlayerAbilityManager : AbilitySystem
         #endif
         
         AbilitiesAvailable = true;
-
         //Stamina = 0;
     }
 
