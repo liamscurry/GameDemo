@@ -15,6 +15,7 @@
         _MidFogColor ("MidFogColor", Color) = (1,1,1,1)
         _EndFogColor ("EndFogColor", Color) = (1,1,1,1)
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
+        _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
 

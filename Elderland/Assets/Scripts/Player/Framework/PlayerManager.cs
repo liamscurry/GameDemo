@@ -29,11 +29,22 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private Slider staminaSlider4;
     [SerializeField]
+    private GameObject glitchRenderersParent;
+    [SerializeField]
     private AbilityMenuButton fireballTierOneButton;
     [SerializeField]
     private AbilityMenuButton firechargeTierOneButton;
     [SerializeField]
     private AbilityMenuButton dashTierOneButton;
+
+    // Fields
+    private SkinnedMeshRenderer[] glitchRenderers;
+        
+    private const float healFresnelDuration = 0.5f;
+    private IEnumerator healFresnelEnumerator;
+
+    // Properties
+    public SkinnedMeshRenderer[] GlitchRenderers { get { return glitchRenderers; } }
 
     public Slider StaminaSlider1 { get { return staminaSlider1; } }
     public Slider StaminaSlider2 { get { return staminaSlider2; } }
@@ -53,6 +64,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     {
         healthUpgradeButton.Initialize();
         UnlockSprint();
+        glitchRenderers = glitchRenderersParent.GetComponentsInChildren<SkinnedMeshRenderer>();
     }
 
 	private void Update()
@@ -237,6 +249,35 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
                 GameInfo.Manager.Respawn();
             }
         }
+    }
+
+    public void HealFresnel()
+    {
+        if (healFresnelEnumerator != null)
+        {
+            StopCoroutine(healFresnelEnumerator);
+        }
+
+        healFresnelEnumerator = HealFresnelCoroutine();
+        StartCoroutine(healFresnelEnumerator);
+    }    
+
+    private IEnumerator HealFresnelCoroutine()
+    {
+        float timer = 0;
+        while (timer < healFresnelDuration)
+        {
+            yield return new WaitForEndOfFrame();
+            timer += Time.deltaTime;
+            float fresnelStrength = 
+                Mathf.Sin((Mathf.PI) * timer / healFresnelDuration);
+            foreach (var renderer in GlitchRenderers)
+            {
+                renderer.material.SetFloat("_FresnelStrength", fresnelStrength);
+            }
+        }
+        
+        healFresnelEnumerator = null;
     }
 
     public void ChangeStamina(float f)

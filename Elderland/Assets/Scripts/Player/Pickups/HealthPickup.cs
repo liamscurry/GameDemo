@@ -16,7 +16,7 @@ public sealed class HealthPickup : Pickup
     private static float compositeHealthSeek;
 
     private MeshRenderer meshRenderer;
-    
+
     protected override void Awake()
     {
         base.Awake();
@@ -60,6 +60,8 @@ public sealed class HealthPickup : Pickup
         trailParticles.Stop();
         compositeHealthSeek -= healthGain;
         PlayerInfo.Manager.ChangeHealth(healthGain);
+
+        PlayerInfo.Manager.HealFresnel();
     }
 
     public override void OnForceRecycle()
