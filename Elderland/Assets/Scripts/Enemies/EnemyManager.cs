@@ -56,6 +56,9 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private Vector3 healthbarPivotScale;
     private Vector3 resolvebarPivotScale;
     private const float finisherHealthMargin = 0.1f;
+    private bool inFinisherState;
+    private float currentFresnel;
+    private const float fresnelSpeed = 2f;
 
     private float baseAgentSpeed;
 
@@ -210,6 +213,9 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 width / 2 - finisherPercentage * width,
                 finisherIndicator.transform.localPosition.y,
                 finisherIndicator.transform.localPosition.z);
+
+        inFinisherState = false;
+        currentFresnel = 0;
     }
 
     public void Push(Vector3 velocity)
@@ -346,13 +352,15 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         // Health Color
         if (Health < FinisherHealth ||
-            Matho.IsInRange(Health, FinisherHealth, finisherHealthMargin))
+            Matho.IsInRange(Health, FinisherHealth, finisherHealthMargin) && !inFinisherState)
         {
             healthbarDisplay.material.SetColor("_Color", finisherColor);
+            inFinisherState = true;
         }
-        else
+        else if (inFinisherState)
         {
             healthbarDisplay.material.SetColor("_Color", healthBarColor);
+            inFinisherState = false;
         }
 
         Vector3 currentScale = healthbarPivot.transform.localScale;
@@ -412,18 +420,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     private void ColorHealth()
     {
-        /*
-        if (StatsManager.HealthDebuffMultiplier.Value == 1)
-        {
-            healthbarDisplay.material.color = HealthBarColor;
-        }
-        else
-        {
-            healthbarDisplay.material.color =
-                new Color(1,
-                          0,
-                          1f - StatsManager.HealthDebuffMultiplier.Value);
-        }*/
+        ColorFresnel();
 
         if (Alive)
         {
@@ -460,6 +457,16 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                     resolvebarPivot.transform.parent.gameObject.SetActive(true);
                 }
             }
+        }
+    }
+
+    private void ColorFresnel()
+    {
+        int fresnelTarget = (inFinisherState) ? 1 : 0;
+        currentFresnel = Mathf.MoveTowards(currentFresnel, fresnelTarget, fresnelSpeed * Time.deltaTime);
+        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        {
+            glitch.material.SetFloat("_FresnelStrength", currentFresnel);
         }
     }
 

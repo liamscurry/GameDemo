@@ -17,13 +17,18 @@
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
+
+        // Glitch properties
         _Glitch ("Glitch", Range(0.0, 1.0)) = 1.0
+        _FresnelColor ("FresnelColor", Color) = (1,1,1,1)
+        _FresnelStrength ("FresnelStrength", Range(0, 1)) = 0.0
 
         _WorldMaxHeight ("WorldMaxHeight", float) = 10000
 
         //CharacterEffectsHelper.cginc
         _ClipThreshold ("ClipThreshold", Range(0.0, 1.0)) = 1
     }
+
     SubShader
     {
         // SemiFlatShader pass structure
@@ -128,6 +133,8 @@
                 float4 pos : SV_POSITION;
                 float4 screenPos : TEXCOORD1;
                 float4 objectPos : TEXCOORD2;
+                float3 worldNormal : TEXCOORD3;
+                float3 worldView : TEXCOORD4;
             };
 
             v2f vert (appdata v, float3 normal : NORMAL, float3 tangent : TANGENT)
@@ -142,6 +149,8 @@
                 o.objectPos = GenerateWorldOffset(v.vertex);
                 //float4 alteredVertex = v.vertex;
                 //alteredVertex.x = alteredVertex.x * 
+                o.worldNormal = UnityObjectToWorldNormal(normal);
+                o.worldView = WorldSpaceViewDir(v.vertex);
                 
                 return o;
             }
@@ -161,7 +170,12 @@
             sampler2D _BumpMap;
             sampler2D _CutoutTex;
             float _WarmColorStrength;
+
+            // Glitch properties
             float _Glitch;
+            float4 _FresnelColor;
+            float _FresnelStrength;
+
             float _WorldMaxHeight;
 
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
@@ -172,8 +186,25 @@
                 float glitchX = pow(sin(256 * (screenPosPercentage.x * screenPosPercentage.y)), 2);
                 float glitchY = sin(256 * (screenPosPercentage.x +  screenPosPercentage.y));
 
+                float fresnel = 
+                    AngleBetween(i.worldView, i.worldNormal) / (PI / 2);
+                float alteredFresnel = 
+                    pow(fresnel, 1);
+                if (alteredFresnel < 0.5)
+                {
+                    alteredFresnel = 0;
+                }
+                else
+                {
+                    alteredFresnel = (alteredFresnel - 0.5) / 0.5;
+                }
+                    
+                float4 fresnelColor = 
+                    float4(_FresnelColor.r, _FresnelColor.g, _FresnelColor.b, alteredFresnel * _FresnelStrength);
+
                 ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
-                return fixed4(1, 1, 1, _Glitch * sign(glitchY) * .3);// * sin(16 * _Time.y)
+                float glitchColorValue = _Glitch * sign(glitchY) * .3;
+                return glitchColorValue * fixed4(1, 1, 1, 1) + fresnelColor;// * sin(16 * _Time.y)
             }
             ENDCG
         }
