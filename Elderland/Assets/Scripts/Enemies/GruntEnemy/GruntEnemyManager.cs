@@ -44,7 +44,6 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     public float AttackFollowSpeed { get { return attackFollowSpeed; } }
     public GruntEnemyNearbySensor NearbySensor { get { return nearbySensor; } }
     public GruntEnemyGroupSensor GroupSensor { get { return groupSensor; } }
-    public bool GroupMovement { get; set; }
     public bool PingedToAttack { get; set; }
     public bool PingedToGroup { get; set; }
     public float FightingAgentRadius { get { return fightingAgentRadius; } }
@@ -94,7 +93,6 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         {
             if (Agent.hasPath)
             {
-                GroupMovement = true;
                 Agent.ResetPath();
             }
             else
@@ -188,12 +186,14 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
             */
     }
 
+    public bool updatingRotation;
     public void RotateTowardsPlayer()
     {
-        if (!GroupMovement)
+        if (Group == null)
         {
             if (!Agent.updateRotation)
                 Agent.updateRotation = true;
+            updatingRotation = true;
         }
         else
         {
@@ -203,6 +203,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
             }
             else
             {
+                updatingRotation = false;
                 Vector3 targetForward =
                     Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
                 Vector3 forward =

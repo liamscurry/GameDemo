@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GruntEnemyDeflected : StateMachineBehaviour
+public class GruntEnemyFlinch : StateMachineBehaviour
 {
     private GruntEnemyManager manager;
 
@@ -13,9 +13,6 @@ public class GruntEnemyDeflected : StateMachineBehaviour
             manager = animator.GetComponentInParent<GruntEnemyManager>();
         }
 
-        Vector3 direction = manager.transform.position - PlayerInfo.Player.transform.position;
-        manager.Push(direction * 1.4f);
-        manager.IncreaseResolve(1);
         manager.BehaviourLock = this;
     }
 

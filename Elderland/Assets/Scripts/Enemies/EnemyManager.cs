@@ -578,8 +578,6 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     {
         if (StatsManager.Interuptable)
         {
-            TurnOffAgent();
-
             if (AbilityManager.CurrentAbility != null)
             {
                 AbilityManager.CurrentAbility.ShortCircuit();

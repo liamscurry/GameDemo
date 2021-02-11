@@ -518,6 +518,11 @@ public sealed class PlayerSword : PlayerAbility
         if (playerEnemyAngle > 25)
             directionalDamageModifier = 0.5f;
 
+        if (holdSegmentHold.Held)
+        {
+            enemy.TryFlinch();
+        }
+
         enemy.ChangeHealth(
             -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * directionalDamageModifier);
 

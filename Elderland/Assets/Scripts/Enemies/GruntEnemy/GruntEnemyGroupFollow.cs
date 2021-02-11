@@ -28,7 +28,6 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
 
         distanceToPlayer = manager.DistanceToPlayer();
         manager.InGroupState = true;
-        manager.GroupMovement = false;
         manager.Agent.updateRotation = true;
         manager.PingedToAttack = false;
     }
@@ -37,7 +36,6 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
     {
         EnemyGroup.Remove((IEnemyGroup) manager);
         manager.Agent.ResetPath();
-        manager.GroupMovement = false;
         manager.InGroupState = false;
     }
 
@@ -211,7 +209,6 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
         manager.Animator.SetTrigger("toAttackFollow");
         EnemyGroup.Remove((IEnemyGroup) manager);
         manager.Agent.ResetPath();
-        manager.GroupMovement = false;
         manager.InGroupState = false;
         exiting = true;
     }
