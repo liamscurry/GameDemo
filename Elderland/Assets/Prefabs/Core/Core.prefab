@@ -25819,6 +25819,10 @@ MonoBehaviour:
   projectilePool: {fileID: 5471461584761333803}
   pickupPool: {fileID: 1774390298025587620}
   cooldownOriginTransform: {fileID: 340967601}
+  ArmorColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 1}
+  HealthColor: {r: 1, g: 0, b: 0, a: 1}
+  FinisherHealthColor: {r: 1, g: 0, b: 0.5763054, a: 1}
+  shadowColorDim: 0.705
 --- !u!1 &1774390297330823529
 GameObject:
   m_ObjectHideFlags: 0
@@ -48149,7 +48153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: e97850609e5744b43b23799483a096c9, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.1960784, g: 0.8862745, b: 0.47228, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
@@ -49161,7 +49165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: e97850609e5744b43b23799483a096c9, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.8862745, b: 0.47058824, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
@@ -49879,7 +49883,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: e97850609e5744b43b23799483a096c9, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.8862745, b: 0.47058824, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
@@ -50592,7 +50596,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: e97850609e5744b43b23799483a096c9, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.8862745, b: 0.47058824, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1

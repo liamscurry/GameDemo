@@ -23,8 +23,17 @@ public static class EnemyInfo
     public static RangedArranger RangedArranger { get; private set; }
 
     public static System.Random AbilityRandomizer { get; private set; }
+
+    public static Color ArmorColor { get; private set; }
+    public static Color HealthColor { get; private set; }
+    public static Color FinisherHealthColor { get; private set; }
+    public static float ShadowColorDim { get; private set; }
     
-    public static void Initialize()
+    public static void Initialize(
+        Color armorColor,
+        Color healthColor,
+        Color finisherHealthColor,
+        float shadowColorDim)
     {
         MeleeAttackers = new List<EnemyManager>(MaxMeleeAttackers);
         RangedAttackers = new List<EnemyManager>(MaxRangedAttackers);
@@ -37,5 +46,10 @@ public static class EnemyInfo
         RangedArranger = new RangedArranger(playerPosition, 12, 16, 0);//7
 
         AbilityRandomizer = new System.Random();
+
+        ArmorColor = armorColor;
+        HealthColor = healthColor;
+        FinisherHealthColor = finisherHealthColor;
+        ShadowColorDim = shadowColorDim;
     }
 }

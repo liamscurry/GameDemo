@@ -9,6 +9,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public enum EnemyType { Melee, Ranged }
     public enum EnemyState { Watching, Attacking, None }
 
+    [Header("Healthbar")]
     [SerializeField]
     protected GameObject healthbarPivot;
     [SerializeField]
@@ -20,11 +21,16 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private Color finisherColor;
     [SerializeField]
+    private Color armorColor;
+    [SerializeField]
     private float healthbarAppearRadius;
     [SerializeField]
     private float healthbarAppearBlend;
+    [Header("Resolvebar")]
     [SerializeField]
     private GameObject resolvebarPivot;
+    [SerializeField]
+    private MeshRenderer resolvebarDisplay;
     [SerializeField]
     private HealthbarShadow resolvebarShadowPivot;
     [SerializeField]
@@ -55,7 +61,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private float resolveTimer;
     private Vector3 healthbarPivotScale;
     private Vector3 resolvebarPivotScale;
-    private const float finisherHealthMargin = 0.1f;
+    private GameObject finisherIndicator;
+    private const float healthArmorMargin = 0.1f;
     private bool inFinisherState;
     private float currentFresnel;
     private const float fresnelSpeed = 2f;
@@ -112,6 +119,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public float Health { get; protected set; }
     public float MaxHealth { get; protected set; }
+    public float Armor { get; protected set; }
+    public float MaxArmor { get; protected set; }
     public float FinisherHealth { get; protected set; }
     public Color HealthBarColor { get; set; }
     
@@ -170,7 +179,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     {
         BuffManager.UpdateBuffs();
         AbilityManager.UpdateAbilities();
-        ColorHealth();
+        UpdateMaterialSettings();
         TimeResolve();
         Agent.speed = baseAgentSpeed * StatsManager.MovespeedMultiplier.Value;
 
@@ -178,6 +187,11 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         {
             //MovementSystem.Move(Matho.StandardProjection2D(dynamicAgentVelocity), dynamicAgentVelocity.magnitude);
             //Debug.Log(Matho.StandardProjection2D(dynamicAgentVelocity));
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            ChangeHealth(0.5f);
         }
     }
 
@@ -198,7 +212,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         healthbarPivotScale = healthbarPivot.transform.parent.localScale;
         resolvebarPivotScale = resolvebarPivot.transform.parent.localScale;
 
-        GameObject finisherIndicator =
+        finisherIndicator =
             Instantiate(
                 Resources.Load<GameObject>(ResourceConstants.Enemy.UI.FinisherIndicator),
                 healthbarBackground.transform);
@@ -216,6 +230,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         inFinisherState = false;
         currentFresnel = 0;
+
+        ColorHealth();
     }
 
     public void Push(Vector3 velocity)
@@ -346,39 +362,124 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public void ChangeHealth(float value)
     {
-        float preHealth = Health;
-
-        Health = Mathf.Clamp(Health + (value * StatsManager.DamageTakenMultiplier.Value), 0, MaxHealth);
-
-        // Health Color
-        if (Health < FinisherHealth ||
-            Matho.IsInRange(Health, FinisherHealth, finisherHealthMargin) && !inFinisherState)
+        if (Armor > healthArmorMargin)
         {
-            healthbarDisplay.material.SetColor("_Color", finisherColor);
-            inFinisherState = true;
+            // Still armor left
+            if (value < 0)
+            {
+                float armor = Armor;
+                ChangeHealthbarValue(
+                    ref armor,
+                    MaxArmor,
+                    value,
+                    OnArmorZero,
+                    OnArmorNonZero);
+                    Armor = armor;
+            }
         }
-        else if (inFinisherState)
+        else
         {
-            healthbarDisplay.material.SetColor("_Color", healthBarColor);
-            inFinisherState = false;
+            float health = Health;
+            ChangeHealthbarValue(
+                ref health,
+                MaxHealth,
+                value,
+                OnHealthZero,
+                OnHealthNonZero);
+            Health = health;
         }
+
+        ColorHealth();
+    }
+
+    private void ChangeHealthbarValue(
+        ref float current,
+        float max,
+        float delta,
+        Action onZero,
+        Action onNonzero)
+    {
+        float preHealth = current;
+
+        current = Mathf.Clamp(current + (delta * StatsManager.DamageTakenMultiplier.Value), 0, max);
 
         Vector3 currentScale = healthbarPivot.transform.localScale;
-        healthbarPivot.transform.localScale = new Vector3(Health / MaxHealth, currentScale.y, currentScale.z);
-        if (preHealth != 0 && Health == 0)
+        healthbarPivot.transform.localScale = new Vector3(current / max, currentScale.y, currentScale.z);
+        if (preHealth != 0 && current == 0)
         {
-            healthbarPivot.SetActive(false);
-            Die();
+            if (onZero != null)
+                onZero.Invoke();
         }
-        else if (preHealth == 0 && Health != 0)
+        else if (preHealth == 0 && current != 0)
         {
-            healthbarPivot.SetActive(true);
+            if (onNonzero != null)
+                onNonzero.Invoke();
         }
 
-        if (value < 0)
+        if (delta < 0)
         {
             StopCoroutine("GlitchMaterial");
             StartCoroutine("GlitchMaterial", 0.75f);
+        }
+    }
+
+    private void OnHealthZero()
+    {
+        //healthbarPivot.SetActive(false);
+        Die();
+    }
+
+    private void OnHealthNonZero()
+    {
+        //healthbarPivot.SetActive(true);
+    }
+
+    private void OnArmorZero()
+    {
+        Vector3 currentScale = healthbarPivot.transform.localScale;
+        healthbarPivot.transform.localScale = new Vector3(1, currentScale.y, currentScale.z);
+    }
+
+    private void OnArmorNonZero()
+    {
+        
+    }
+
+    private void ColorHealth()
+    {
+        Color dimColor =
+            new Color(
+                EnemyInfo.ShadowColorDim,
+                EnemyInfo.ShadowColorDim,
+                EnemyInfo.ShadowColorDim,
+                1);
+        // Health Color
+        if (Armor < healthArmorMargin)
+        {
+            if (Health < FinisherHealth ||
+                Matho.IsInRange(Health, FinisherHealth, healthArmorMargin))
+            {
+                healthbarDisplay.material.SetColor("_Color", EnemyInfo.FinisherHealthColor);
+                resolvebarDisplay.material.SetColor("_Color", EnemyInfo.FinisherHealthColor * dimColor);
+                inFinisherState = true;
+            }
+            else
+            {
+                healthbarDisplay.material.SetColor("_Color", EnemyInfo.HealthColor);
+                resolvebarDisplay.material.SetColor("_Color", EnemyInfo.HealthColor * dimColor);
+                inFinisherState = false;
+            }
+
+            if (!finisherIndicator.activeSelf)
+                finisherIndicator.SetActive(true);
+        }
+        else
+        {
+            // In armor state
+            healthbarDisplay.material.SetColor("_Color", EnemyInfo.ArmorColor);
+            resolvebarDisplay.material.SetColor("_Color", EnemyInfo.ArmorColor * dimColor);
+            if (finisherIndicator.activeSelf)
+                finisherIndicator.SetActive(false);
         }
     }
 
@@ -418,7 +519,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         MaxHealth *= percentage;
     }
 
-    private void ColorHealth()
+    private void UpdateMaterialSettings()
     {
         ColorFresnel();
 

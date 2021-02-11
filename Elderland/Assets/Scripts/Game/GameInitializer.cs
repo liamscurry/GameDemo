@@ -24,13 +24,23 @@ public class GameInitializer : MonoBehaviour
     private PickupPool pickupPool;
     [SerializeField]
     private Transform cooldownOriginTransform;
+    [Header("Universal Enemy Info")]
+    [SerializeField]
+    private Color ArmorColor;
+    [SerializeField]
+    private Color HealthColor;
+    [SerializeField]
+    private Color FinisherHealthColor;
+    [SerializeField]
+    [Range(0.0f, 1.0f)]
+    private float shadowColorDim;
 
     public void Initialize()
     {
         //Reference initialization
         GameInfo.Initialize(menuManager, gameObject, projectilePool, pickupPool);
         PlayerInfo.Initialize(player, sensor, playerObjects, meleeObjects, cooldownOriginTransform);
-        EnemyInfo.Initialize();
+        EnemyInfo.Initialize(ArmorColor, HealthColor, FinisherHealthColor, shadowColorDim);
         GetComponent<GameSettings>().Initialize();
     }
 

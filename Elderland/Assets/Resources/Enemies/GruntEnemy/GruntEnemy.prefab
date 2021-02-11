@@ -341,9 +341,11 @@ MonoBehaviour:
   healthbarBackground: {fileID: 509523527408355941}
   healthBarColor: {r: 1, g: 0, b: 0, a: 1}
   finisherColor: {r: 1, g: 0, b: 0.5763054, a: 1}
+  armorColor: {r: 0, g: 0, b: 0, a: 0}
   healthbarAppearRadius: 9
   healthbarAppearBlend: 16
   resolvebarPivot: {fileID: 3177941745364097970}
+  resolvebarDisplay: {fileID: 6474032456286763300}
   resolvebarShadowPivot: {fileID: 7471917127826487381}
   hitbox: {fileID: 0}
   maxResolve: 1000
@@ -372,6 +374,7 @@ MonoBehaviour:
   followAgentRadius: 0.5
   nearbySensor: {fileID: 7879308274015474422}
   groupSensor: {fileID: 278664622586447163}
+  updatingRotation: 0
 --- !u!114 &7093048942448253740
 MonoBehaviour:
   m_ObjectHideFlags: 0
