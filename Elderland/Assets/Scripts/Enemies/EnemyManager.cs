@@ -360,12 +360,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         resolvebarPivot.SetActive(false);
     }
 
-    public void ChangeHealth(float value)
+    public void ChangeHealth(float value, bool effectsArmor = true)
     {
         if (Armor > healthArmorMargin)
         {
             // Still armor left
-            if (value < 0)
+            if (value < 0 && effectsArmor)
             {
                 float armor = Armor;
                 ChangeHealthbarValue(

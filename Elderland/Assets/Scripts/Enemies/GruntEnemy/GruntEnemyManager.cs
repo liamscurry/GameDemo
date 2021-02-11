@@ -117,7 +117,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
 
         MaxHealth = 1f;
         Health = MaxHealth;
-        MaxArmor = 1f;
+        MaxArmor = 0.5f;
         Armor = MaxArmor;
         FinisherHealth = 0.5f;
     }
