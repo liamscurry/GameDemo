@@ -56,6 +56,7 @@ public sealed class PlayerSword : PlayerAbility
     public bool IsAbilitySpeedReset { get { return Time.time - hitTime > resetHitTime; } }
 
     private PlayerAbilityHold holdSegmentHold;
+    private KeyCode keyUsed;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -116,13 +117,35 @@ public sealed class PlayerSword : PlayerAbility
                 holdProcess,
                 0.1f,
                 0.25f,
-                () => !Input.GetKey(GameInfo.Settings.MeleeAbilityKey),
+                HeldPredicate,
                 false
             );
 
         scanRotation = Quaternion.identity;   
 
         abilitySpeed = baseSpeed;     
+    }
+
+    public override bool Wait(bool firstTimeCalling)
+    {
+        bool success = base.Wait(firstTimeCalling);
+        if (success)
+        {
+            if (Input.GetKey(GameInfo.Settings.MeleeAbilityKey))
+            {
+                keyUsed = GameInfo.Settings.MeleeAbilityKey;
+            }
+            else
+            {
+                keyUsed = GameInfo.Settings.AlternateMeleeAbilityKey;
+            }
+        }
+        return success;
+    }
+
+    private bool HeldPredicate()
+    {
+        return !Input.GetKey(keyUsed);
     }
 
     public override void GlobalConstantUpdate()

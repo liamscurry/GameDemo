@@ -49,7 +49,7 @@ public abstract class PlayerAbility : Ability
     }
 
     //Waits for valid input.
-    public bool Wait(bool firstTimeCalling)
+    public virtual bool Wait(bool firstTimeCalling)
     {
         if (system.Ready() && system.CurrentAbility == null && pressedOverloadFrame && WaitCondition())
         {
