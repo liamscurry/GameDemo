@@ -25,4 +25,6 @@ public static class TagConstants
     public const string PlayerHitbox = "PlayerHealth";
     public const string PlayerPickupBounds = "PlayerPickupBounds";
 	public const string PlayerProjectile = "PlayerProjectile";
+
+    public const string TeleporterObject = "TeleporterObject";
 }
