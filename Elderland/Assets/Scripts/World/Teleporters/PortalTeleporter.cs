@@ -15,9 +15,10 @@ public class PortalTeleporter : MonoBehaviour
     private bool drawPlane;
 
     public void Update()
-    {
+    { 
         if (drawPlane && targetTeleporter != null)
         {
+            // neeed to have initial global rotaion of camera to be local to camera. rotate based on current teleporter (this)
             Vector3 globalCameraPosition =
                 GameInfo.CameraController.transform.position;
             Vector3 localCameraPosition = 
@@ -26,7 +27,7 @@ public class PortalTeleporter : MonoBehaviour
                 targetTeleporter.transform.localToWorldMatrix;
             Matrix4x4 rotationMatrix = Matrix4x4.Rotate(Quaternion.Euler(0, 180, 0));
             Quaternion globalCameraRotation = 
-                targetTeleporter.transform.rotation * GameInfo.CameraController.transform.rotation;
+                targetTeleporter.transform.rotation * Quaternion.Inverse(transform.rotation) * Quaternion.Euler(0, 180, 0) * GameInfo.CameraController.transform.rotation;
             Vector3 targetGlobalPosition = 
                 rotationMatrix.MultiplyPoint(localCameraPosition);
             targetGlobalPosition = 
@@ -35,6 +36,7 @@ public class PortalTeleporter : MonoBehaviour
             renderCamera.transform.rotation = globalCameraRotation;
 
             renderCamera.fieldOfView = GameInfo.CameraController.Camera.fieldOfView;
+            renderCamera.Render();
         }
     }
 
