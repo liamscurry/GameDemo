@@ -9,10 +9,6 @@ public class PortalTeleporter : MonoBehaviour
     [SerializeField]
     private Camera renderCamera;
     [SerializeField]
-    private SkinnedMeshRenderer playerRendererCopy;
-    [SerializeField]
-    private SkinnedMeshRenderer playerRenderer;
-    [SerializeField]
     private PortalTeleporter targetTeleporter;
 
     // Fields
@@ -41,19 +37,29 @@ public class PortalTeleporter : MonoBehaviour
 
             renderCamera.fieldOfView = GameInfo.CameraController.Camera.fieldOfView;
             renderCamera.Render();
-
-            // assume created from before (will add create and destory system on touching the teleporter)
-            playerRendererCopy.materials = playerRenderer.materials;
-            Vector3 globalPlayerPosition =
-                PlayerInfo.Player.transform.position;
-            Vector3 localPlayerPosition = 
-                transform.worldToLocalMatrix.MultiplyPoint(globalPlayerPosition);
-            localPlayerPosition.x *= -1;
-            localPlayerPosition.z *= -1;
-            Vector3 targetGlobalPlayerPosition = 
-                targetMatrix.MultiplyPoint(localPlayerPosition);
-            playerRendererCopy.transform.parent.position = targetGlobalPlayerPosition;
         }
+    }
+
+    public void RootMirror(Transform root, Transform target)
+    {
+        Matrix4x4 targetMatrix =
+            targetTeleporter.transform.localToWorldMatrix;
+        Vector3 globalPlayerPosition =
+            target.position;
+        Vector3 localPlayerPosition = 
+            transform.worldToLocalMatrix.MultiplyPoint(globalPlayerPosition);
+        localPlayerPosition.x *= -1;
+        localPlayerPosition.z *= -1;
+        Vector3 targetGlobalPlayerPosition = 
+            targetMatrix.MultiplyPoint(localPlayerPosition);
+        root.position = targetGlobalPlayerPosition;
+
+        Quaternion teleporterRotation = 
+            targetTeleporter.transform.rotation *
+            Quaternion.Inverse(transform.rotation) *
+            Quaternion.Euler(0, 180, 0) *
+            target.rotation;
+        root.rotation = teleporterRotation;
     }
 
     private void OnTriggerEnter(Collider other)
