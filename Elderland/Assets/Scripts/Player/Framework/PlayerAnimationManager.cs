@@ -52,7 +52,8 @@ public class PlayerAnimationManager
 					Matho.StandardProjection2D(PlayerInfo.Sensor.Interaction.ValidityDirection));
 
 			if (angle < 75 &&
-			 	Input.GetKeyDown(GameInfo.Settings.UseKey) &&
+			 	(Input.GetKeyDown(GameInfo.Settings.UseKey) ||
+				 PlayerInfo.Sensor.Interaction.Access == StandardInteraction.AccessType.Trigger) &&
 				PlayerInfo.AbilityManager.CurrentAbility == null &&
 				!PlayerInfo.TeleportingThisFrame)
 			{

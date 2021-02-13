@@ -13,6 +13,13 @@ public class PortalTeleporter : MonoBehaviour
 
     // Fields
     private bool drawPlane;
+    private PortalObjectManager objectManager;
+    
+    private void Start()
+    {
+        objectManager = 
+            transform.parent.GetComponentInChildren<PortalObjectManager>();
+    }
 
     public void Update()
     { 
@@ -60,6 +67,24 @@ public class PortalTeleporter : MonoBehaviour
             Quaternion.Euler(0, 180, 0) *
             target.rotation;
         root.rotation = teleporterRotation;
+    }
+
+    public void TeleportPlayer()
+    {
+        Vector3 modelOffset = 
+        PlayerInfo.Player.transform.Find("Model").Find("Armature").position - 
+            PlayerInfo.Player.transform.position;
+        //Debug.Log(objectManager.PlayerCopy.transform.Find("Armature").position); // seems to be players actual position.
+        Transform armature = 
+            objectManager.PlayerCopy.transform.Find("Armature");
+        PlayerInfo.Player.transform.position = 
+            armature.position; // teleporting to wrong place for some reason.
+        PlayerInfo.Player.transform.position += modelOffset;
+        PlayerInfo.Player.transform.rotation =
+            Quaternion.LookRotation(targetTeleporter.transform.forward, Vector3.up);
+        
+        GameInfo.CameraController.SetDirection(renderCamera.transform);
+        
     }
 
     private void OnTriggerEnter(Collider other)

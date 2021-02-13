@@ -6,11 +6,12 @@ using UnityEngine.Events;
 public class StandardInteraction : MonoBehaviour 
 {
 	[SerializeField]
-	protected AnimationClip animationClip;
+	protected AnimationClip playerAnimationClip;
 	[SerializeField]
-	protected GameObject ui;
+	protected GameObject UI;
+	[Header("Target Matching")]
 	[SerializeField]
-	protected bool target;
+	protected bool useTarget;
 	[SerializeField]
 	protected Vector3 targetPosition;
 	[SerializeField]
@@ -23,6 +24,10 @@ public class StandardInteraction : MonoBehaviour
 	protected bool reusable;
 	[SerializeField]
 	protected bool disableOnStart;
+	[SerializeField]
+	protected AccessType access;
+	[SerializeField]
+	protected bool alignCameraToTargetRotation;
 	[SerializeField]
 	protected Type type;
 	[Header("For hold until release or complete interactions")]
@@ -43,6 +48,7 @@ public class StandardInteraction : MonoBehaviour
 
 	public Vector3 ValidityDirection { get { return transform.forward; } }
 	public Type InteractionType { get { return type; } }
+	public AccessType Access { get { return access; } }
 	public float HoldNormalizedTime { get; set; }
 	public float HoldDuration { get { return holdDuration; } }
 	public float MinimumHoldDuration { get { return minimumHoldDuration; } }
@@ -78,6 +84,7 @@ public class StandardInteraction : MonoBehaviour
 	}
 
 	public enum Type { press, holdUntilRelease, holdUntilReleaseOrComplete }  
+	public enum AccessType { Input, Trigger }  
 
 	protected virtual void Start()
 	{
@@ -96,7 +103,7 @@ public class StandardInteraction : MonoBehaviour
 			GameInfo.CameraController.AllowZoom = false;
 			PlayerInfo.AnimationManager.Interuptable = false;
 
-			if (target)
+			if (useTarget)
 			{
 				Quaternion rotation = Quaternion.LookRotation(GeneratedTargetRotation, Vector3.up);
 				var matchTarget = new PlayerAnimationManager.MatchTarget(GeneratedTargetPosition, rotation, AvatarTarget.Root, positionWeight, rotationWeight);
@@ -112,6 +119,11 @@ public class StandardInteraction : MonoBehaviour
 			PlayerInfo.Animator.SetTrigger("generalInteracting");
 			PlayerInfo.Animator.SetBool("instantaneous", type == Type.press);
 			//PlayerInfo.AnimationManager.SetInteractionAnimation(animationClip);
+			if (alignCameraToTargetRotation)
+			{
+				GameInfo.CameraController.TargetDirection =
+					Matho.Rotate(-GeneratedTargetRotation, Vector3.up, 0);
+			}
 
 			PlayerInfo.Manager.Interaction = this;
 
@@ -124,8 +136,11 @@ public class StandardInteraction : MonoBehaviour
 	protected IEnumerator UITimer()
 	{
 		yield return new WaitForSeconds(1);
-		if (type == Type.press)
-			ui.SetActive(false);
+		if (access == AccessType.Input)
+		{
+			if (type == Type.press)
+				UI.SetActive(false);
+		}
 	}
 
 	public void EndEvent()
@@ -154,21 +169,27 @@ public class StandardInteraction : MonoBehaviour
 	public virtual void Disable()
 	{
 		activated = true;
-		ui.SetActive(false);
+		if (access == AccessType.Input)
+		{
+			UI.SetActive(false);
+		}
 	}
 
 	public virtual void Reset()
 	{
 		activated = false;
-		ui.SetActive(true);
-		HoldNormalizedTime = 0;
+		if (access == AccessType.Input)
+		{
+			UI.SetActive(true);
+			HoldNormalizedTime = 0;
+		}
 	}
 
 	protected virtual void OnExitBegin() {}
 
 	protected void OnDrawGizmosSelected()
 	{
-		if (target)
+		if (useTarget)
 		{
 			Vector3 generatedTargetPosition = GeneratedTargetPosition;
 			Vector3 generatedTargetRotation = GeneratedTargetRotation;

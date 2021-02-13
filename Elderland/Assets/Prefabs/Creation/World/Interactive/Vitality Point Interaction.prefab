@@ -108,44 +108,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 1095377037982682990}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fac5ccba7098c141b0c45d1612e8e6f, type: 3}
+  m_Script: {fileID: 11500000, guid: d9d741eee9573e24a999c235e59c9911, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animationClip: {fileID: 7400000, guid: e379741504bdc764ca4ea8c54a6fe80d, type: 2}
-  ui: {fileID: 1095377037210014134}
-  target: 1
-  targetPosition: {x: 0, y: 1, z: -1.625}
-  positionWeight: {x: 1, y: 1, z: 1}
-  targetRotation: {x: 0, y: 0, z: 1}
-  rotationWeight: 1
+  playerAnimationClip: {fileID: 0}
+  UI: {fileID: 0}
+  useTarget: 0
+  targetPosition: {x: 0, y: 0, z: 0}
+  positionWeight: {x: 0, y: 0, z: 0}
+  targetRotation: {x: 0, y: 0, z: 0}
+  rotationWeight: 0
   reusable: 0
   disableOnStart: 0
+  access: 0
   type: 0
   holdDuration: 0
+  minimumHoldDuration: 0
   holdEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  holdStartEvent:
     m_PersistentCalls:
       m_Calls: []
   endEvent:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114875325966251592, guid: 8ae649922321374449c83f714cdb9624,
-          type: 3}
-        m_MethodName: IncreaseVitalityPoints
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  idleClip: {fileID: 1615313303492549001, guid: 64874f55730c9bf4a8dd2aac64bbccc7,
-    type: 3}
-  activateClip: {fileID: 1838519351875132662, guid: 64874f55730c9bf4a8dd2aac64bbccc7,
-    type: 3}
-  activatedClip: {fileID: -4921567550940986940, guid: 64874f55730c9bf4a8dd2aac64bbccc7,
-    type: 3}
+      m_Calls: []
+  idleClip: {fileID: 0}
+  activateClip: {fileID: 0}
+  activatedClip: {fileID: 0}
 --- !u!1 &1095377038549038254
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,12 +513,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1a3b08fb34905a449ae50950ee9840bc, type: 3}
---- !u!1 &1095377037210014134 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 100000, guid: 1a3b08fb34905a449ae50950ee9840bc,
-    type: 3}
-  m_PrefabInstance: {fileID: 1095377037209917206}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1095377037209783702 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 1a3b08fb34905a449ae50950ee9840bc,

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class TestInteraction : StandardInteraction 
+public sealed class AnimationInteraction : StandardInteraction 
 {
 	[SerializeField]
 	private AnimationClip idleClip;
@@ -30,7 +30,10 @@ public sealed class TestInteraction : StandardInteraction
 	public override void Reset()
 	{
 		activated = false;
-		ui.SetActive(true);
+		if (access == AccessType.Input)
+		{
+			UI.SetActive(true);
+		}
 	}
 
 	protected override void OnExitBegin()

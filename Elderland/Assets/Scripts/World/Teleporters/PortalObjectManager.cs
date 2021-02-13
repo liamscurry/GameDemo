@@ -12,6 +12,8 @@ public class PortalObjectManager : MonoBehaviour
 
     private PortalTeleporter teleporter;
 
+    public GameObject PlayerCopy { get; private set; }
+
     private void Start()
     {
         touchingColliders = new List<Collider>();
@@ -63,16 +65,30 @@ public class PortalObjectManager : MonoBehaviour
         GameObject.Destroy(copiedTeleporterObject);
         copiedObjects.Add(copiedObject);
         targetObjects.Add(other.transform.parent.gameObject);
+
+        if (other.transform.parent.parent != null && 
+            other.transform.parent.parent.gameObject.name == TagConstants.Player)
+            PlayerCopy = copiedObject;
     }
 
     private void DeleteCopy(Collider other)
     {
+        if (other == PlayerCopy)
+            PlayerCopy = null;
+
         int indexToDelete = 
             touchingColliders.IndexOf(other);
         GameObject copyToDelete = 
             copiedObjects[indexToDelete];
         copiedObjects.RemoveAt(indexToDelete);
         targetObjects.RemoveAt(indexToDelete);
+        StartCoroutine(DeleteCopyCoroutine(copyToDelete));
+    }
+
+    private IEnumerator DeleteCopyCoroutine(GameObject copyToDelete)
+    {
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
         GameObject.Destroy(copyToDelete);
     }
 
