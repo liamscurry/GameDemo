@@ -119,6 +119,7 @@ public class StandardInteraction : MonoBehaviour
 			PlayerInfo.Animator.SetTrigger("generalInteracting");
 			PlayerInfo.Animator.SetBool("instantaneous", type == Type.press);
 			//PlayerInfo.AnimationManager.SetInteractionAnimation(animationClip);
+
 			if (alignCameraToTargetRotation)
 			{
 				GameInfo.CameraController.TargetDirection =

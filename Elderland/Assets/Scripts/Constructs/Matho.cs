@@ -193,6 +193,11 @@ public static class Matho
         return new Vector3(v.x, 0, v.z);
     }
 
+    public static Vector3 PairMultiply(Vector3 a, Vector3 b)
+    {
+        return new Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
+    }
+
     //Calculates the directional derivative of a plane given its normal.
     public static Vector3 PlanarDirectionalDerivative(Vector2 direction, Vector3 normal)
     {
