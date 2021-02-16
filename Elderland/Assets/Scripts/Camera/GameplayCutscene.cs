@@ -5,8 +5,15 @@ using UnityEngine.Events;
 
 public class GameplayCutscene 
 {
+	// Fields
 	private bool turnWaypointUIOffOnEnd;
 
+	Vector3 position;
+	Quaternion rotationSpace;
+	Vector3 cameraDirection;
+	GameplayCutsceneEvent invokee;
+
+	// Properties
 	public LinkedListNode<GameplayCutsceneWaypoint> CurrentWaypointNode { get; private set; }
 	public float Timer { get; private set; }
 	public float WaitTimer { get; private set; }
@@ -15,10 +22,18 @@ public class GameplayCutscene
 
 	public GameplayCutscene(
 		LinkedList<GameplayCutsceneWaypoint> waypoints,
-		bool turnWaypointUIOffOnEnd)
+		Vector3 position,
+		Quaternion rotationSpace,
+		Vector3 cameraDirection,
+		bool turnWaypointUIOffOnEnd,
+		GameplayCutsceneEvent invokee)
 	{
 		Waypoints = waypoints;
+		this.position = position;
+		this.rotationSpace = rotationSpace;
+		this.cameraDirection = cameraDirection;
 		this.turnWaypointUIOffOnEnd = turnWaypointUIOffOnEnd;
+		this.invokee = invokee;
 	}
 
 	public void Start()
@@ -28,16 +43,21 @@ public class GameplayCutscene
 		CurrentWaypointNode = Waypoints.First;
 		Timer = 0;
 		WaitTimer = 0;
+		GameInfo.CameraController.TargetDirection = 
+			-CurrentWaypointNode.Value.CameraDirection;
 
 		foreach (CameraCutsceneWaypointEvent waypointEvent in CurrentWaypointNode.Value.events)
 		{
-			GameInfo.CameraController.StartCoroutine(EventTimer(CurrentWaypointNode.Value, waypointEvent));
+			GameInfo.CameraController.StartCoroutine(
+				EventTimer(CurrentWaypointNode.Value, waypointEvent));
 		}
 
 		GameInfo.Manager.FreezeInput(this);
 	}
 
-	public IEnumerator EventTimer(GameplayCutsceneWaypoint waypoint, CameraCutsceneWaypointEvent waypointEvent)
+	public IEnumerator EventTimer(
+		GameplayCutsceneWaypoint waypoint,
+		CameraCutsceneWaypointEvent waypointEvent)
 	{
 		yield return new WaitForSeconds(waypointEvent.normalizedTime * waypoint.clipSpeed);
 		waypointEvent.methods.Invoke();
@@ -57,9 +77,20 @@ public class GameplayCutscene
 					Timer = 0;
 					WaitTimer = 0;
 
-					foreach (CameraCutsceneWaypointEvent waypointEvent in CurrentWaypointNode.Value.events)
+					invokee.GenerateConcreteNextWaypoint(
+						ref position,
+						ref rotationSpace,
+						ref cameraDirection,
+						CurrentWaypointNode.Value);
+
+					GameInfo.CameraController.TargetDirection = 
+						-cameraDirection;
+
+					foreach (CameraCutsceneWaypointEvent waypointEvent in
+							 CurrentWaypointNode.Value.events)
 					{
-						GameInfo.CameraController.StartCoroutine(EventTimer(CurrentWaypointNode.Value, waypointEvent));
+						GameInfo.CameraController.StartCoroutine(
+							EventTimer(CurrentWaypointNode.Value, waypointEvent));
 					}
 				}
 				else

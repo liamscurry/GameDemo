@@ -1,0 +1,27 @@
+Started 2/15/21
+
+Max characters per line: 100-120. Near 100 preferred (goal).
+Max method lines: 30-35.
+
+Comments:
+Before methods:
+/*
+* Words go here. Only describe WHY this function needs to exist.
+*/
+
+Inside methods:
+Section parts of code with headers. Also include complex part descriptions 
+for why you are doing these operations
+// Comment example.
+
+Properties:
+If need to have explicit backing local variable, declare it on the
+line under the property.
+
+Constructors Wrap:
+Have closing ) be inline with beginning of new keyword.
+
+Method Wrap:
+Make sure to have arguments tabbed in once from beginning of instance identifier.
+Have closing ) line up with beginning of method call. Commas go after arguments and
+then a new line.

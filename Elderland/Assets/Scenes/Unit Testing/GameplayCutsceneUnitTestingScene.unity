@@ -257,24 +257,24 @@ MonoBehaviour:
   waypoints:
   - position: {x: 0, y: 0, z: 2.15}
     rotation: {x: 0, y: 0, z: 0}
-    cameraDirection: {x: 0, y: 0, z: 1}
-    clipSpeed: 0
+    cameraDirection: {x: -1, y: 0, z: 0}
+    clipSpeed: 1
     travelClip: {fileID: 0}
     waitClip: {fileID: 0}
     waitTime: 0
     connectionEvents: []
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: -43.54, z: 0}
-    cameraDirection: {x: 1, y: 0.55, z: 0.32}
-    clipSpeed: 0
+    cameraDirection: {x: -1, y: 1, z: 2.79}
+    clipSpeed: 1
     travelClip: {fileID: 0}
     waitClip: {fileID: 0}
     waitTime: 0
     connectionEvents: []
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: 90, z: 0}
-    cameraDirection: {x: 0, y: 0, z: 1}
-    clipSpeed: 0
+    cameraDirection: {x: 0, y: -1, z: 1}
+    clipSpeed: 1
     travelClip: {fileID: 0}
     waitClip: {fileID: 0}
     waitTime: 0
@@ -481,6 +481,36 @@ PrefabInstance:
       propertyPath: m_Name
       value: Trigger Event
       objectReference: {fileID: 0}
+    - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
+        type: 3}
+      propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
+        type: 3}
+      propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
+        type: 3}
+      propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
+        type: 3}
+      propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1107592955}
+    - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
+        type: 3}
+      propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Invoke
+      objectReference: {fileID: 0}
+    - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
+        type: 3}
+      propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: acbab058a1dea4e4ebd5c97ea6062f23, type: 3}
 --- !u!4 &1443481241 stripped
@@ -573,6 +603,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298475377248, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298475377248, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1774390298475377248, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1774390298771988948, guid: 7f59d9a7fd4839f41872f40657c1b19d,
         type: 3}
@@ -698,6 +743,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8071053209726490159, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8071053209726490159, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8071053209726490159, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8071053209732884446, guid: 7f59d9a7fd4839f41872f40657c1b19d,
         type: 3}

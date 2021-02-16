@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public enum State { Gameplay, Cutscene, Idle }
+    public enum State { Gameplay, GameplayCutscene, Cutscene, Idle }
 
     //Fields//
     [Header("Default Gameplay Settings")]
@@ -32,6 +32,7 @@ public class CameraController : MonoBehaviour
 
     private State state;
     private CameraCutscene cutscene;
+    private GameplayCutscene gameplayCutscene;
    
     //Property assignment backings
     private Vector3 direction;
@@ -108,8 +109,12 @@ public class CameraController : MonoBehaviour
     float sprintTimer;
     float sprintPercentage;
     float orientationDelta;
-    float orientationPercentage;
+    float sprintOrientation;
     float orientationTimer;
+
+    // target direction threshold
+    private const float targetDirectionTH = 0.25f;
+    private const float targetDirectionSpeed = 100f;
 
     private float startShake;
     private float targetShake;
@@ -174,6 +179,9 @@ public class CameraController : MonoBehaviour
             case State.Gameplay:
                 Gameplay();
                 break;
+            case State.GameplayCutscene:
+                GameplayCutscene();
+                break;    
             case State.Cutscene:
                 Cutscene();
                 break;
@@ -199,9 +207,21 @@ public class CameraController : MonoBehaviour
         FollowTarget = PlayerInfo.Player.transform;
         sprintTimer = 0;
         sprintPercentage = 0;
-        orientationPercentage = 0;
+        sprintOrientation = 0;
         if (cutscene != null && !cutscene.TurnWaypointUIOffOnEnd)
             GameInfo.Menu.ObjectiveManager.EnableWaypoints(this);
+    }
+
+    public void StartGameplayCutscene(GameplayCutscene gameplayCutscene)
+    {
+        state = State.GameplayCutscene;
+        this.gameplayCutscene = gameplayCutscene;
+        this.gameplayCutscene.Start();
+        targetFov = 60;
+        if (!this.gameplayCutscene.TurnWaypointUIOffOnEnd)
+            GameInfo.Menu.ObjectiveManager.DisableWaypoints(this);
+        HorizontalOffset = 20;
+        MaxRadius = 2.75f;
     }
 
     public void StartCutscene(CameraCutscene cameraCutscene)
@@ -340,7 +360,7 @@ public class CameraController : MonoBehaviour
                 Mathf.MoveTowardsAngle(VerticalAngle, 90, 60f * Time.deltaTime);
 
             orientationDelta = 0;
-            orientationPercentage = Mathf.MoveTowards(orientationPercentage, orientationDelta, 1.8f * Time.deltaTime);
+            sprintOrientation = Mathf.MoveTowards(sprintOrientation, orientationDelta, 1.8f * Time.deltaTime);
         }
         else
         {
@@ -364,11 +384,11 @@ public class CameraController : MonoBehaviour
                 orientationTimer > 0.35f &&
                 Matho.AngleBetween(GameInfo.Settings.LeftDirectionalInput, Vector2.up) < 45f)
             {
-                orientationPercentage = Mathf.MoveTowards(orientationPercentage, orientationDelta, 1.8f * Time.deltaTime);
+                sprintOrientation = Mathf.MoveTowards(sprintOrientation, orientationDelta, 1.8f * Time.deltaTime);
             }
             else
             {
-                orientationPercentage = Mathf.MoveTowards(orientationPercentage, 0, 3 * Time.deltaTime);
+                sprintOrientation = Mathf.MoveTowards(sprintOrientation, 0, 3 * Time.deltaTime);
             }
 
             if (GameInfo.Settings.RightDirectionalInput.magnitude != 0 && GameInfo.Manager.ReceivingInput)
@@ -459,7 +479,7 @@ public class CameraController : MonoBehaviour
         Vector3 rotationDirection = Matho.SphericalToCartesianX(1, HorizontalAngle - HorizontalOffset, VerticalAngle + 180);
         Direction = rotationDirection;
         
-        Quaternion sprintTilt = Quaternion.Euler(0,0, -3 * orientationPercentage);
+        Quaternion sprintTilt = Quaternion.Euler(0,0, -3 * sprintOrientation);
         Quaternion shakeTilt = Quaternion.Euler(-currentShake / 2, 0, currentShake / 2);
 
         Quaternion q = Quaternion.LookRotation(rotationDirection) * sprintTilt * shakeTilt;
@@ -489,6 +509,21 @@ public class CameraController : MonoBehaviour
         transform.position = GeneratePosition(FollowTarget.transform.position);
     }
 
+    /*
+    * Needed to manage current gameplay cutscene and update its structure
+    */
+    private void GameplayCutscene()
+    {
+        gameplayCutscene.Update();
+
+        UpdateCutsceneSettings();
+        SeekTargetDirection();
+
+        transform.rotation = GenerateRotation();
+        transform.position =
+            GeneratePosition(FollowTarget.transform.position);
+    }
+
     //Moves camera towards and interpolates camera settings based on the next and current waypoint.
     private void Cutscene()
     {      
@@ -503,6 +538,39 @@ public class CameraController : MonoBehaviour
         transform.position = new Vector3(x, y, z);
 
         transform.rotation = Quaternion.Slerp(cutscene.CurrentWaypointNode.Value.Rotation, cutscene.TargetWaypointNode.Value.Rotation, lerpTime);
+    }
+
+    /*
+    * Helper needed for gameplay cutscene and gameplay states to have camera look in a specified
+    * direction.
+    */
+    private void SeekTargetDirection()
+    {
+        if (TargetDirection.magnitude > targetDirectionTH)
+        {
+            float targetHorizontalAngle =
+                Matho.Angle(Matho.StandardProjection2D(targetDirection)) + HorizontalOffset;
+            float targetVerticalAngle =
+                Matho.AngleBetween(targetDirection, Vector3.up);
+
+            float reducedHorizontalAngle = 
+                Matho.ReduceAngle(HorizontalAngle);
+            float reducedTargetHorizontalAngle = 
+                Matho.ReduceAngle(targetHorizontalAngle);
+
+            HorizontalAngle =
+                Mathf.MoveTowardsAngle(
+                    reducedHorizontalAngle,
+                    reducedTargetHorizontalAngle,
+                    targetDirectionSpeed * Time.deltaTime
+                );
+            VerticalAngle =
+                Mathf.MoveTowardsAngle(
+                    VerticalAngle,
+                    targetVerticalAngle,
+                    targetDirectionSpeed * Time.deltaTime
+                );
+        }
     }
 
     private void UpdateUniversalSettings()

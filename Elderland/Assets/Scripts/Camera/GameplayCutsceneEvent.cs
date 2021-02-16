@@ -20,23 +20,21 @@ public class GameplayCutsceneEvent : MonoBehaviour
 		{
 			var linkedWaypoints = new LinkedList<GameplayCutsceneWaypoint>();
 
-			Vector3 globalPosition =
-				transform.position +
-				Matrix4x4.TRS(Vector3.zero, transform.rotation, Vector3.one).MultiplyPoint(waypoints[0].position);
-			Quaternion globalRotation =
-				Quaternion.FromToRotation(Vector3.forward, waypoints[0].rotation);
-			globalRotation = transform.rotation * globalRotation;
-			Vector3 globalRotationVector = 
-				Matrix4x4.TRS(
-					Vector3.zero,
-					globalRotation,
-					Vector3.one).MultiplyPoint(Vector3.forward);
+			Vector3 position;
+			Quaternion rotationSpace;
+			Vector3 rotationVector;
+			Vector3 cameraDirection;
+			GenerateStartWaypoint(
+				out position,
+				out rotationSpace,
+				out rotationVector,
+				out cameraDirection);
 
 			linkedWaypoints.AddLast(
 				new GameplayCutsceneWaypoint(
-					globalPosition,
-					globalRotationVector,
-					waypoints[0].cameraDirection,
+					position,
+					rotationVector,
+					cameraDirection,
 					waypoints[0].clipSpeed,
 					waypoints[0].waitTime,
 					waypoints[0].travelClip,
@@ -59,57 +57,132 @@ public class GameplayCutsceneEvent : MonoBehaviour
 						waypoints[i].connectionEvents));
 			}
 
-			/*
 			GameInfo.CameraController.StartGameplayCutscene(
 				new GameplayCutscene(
 					linkedWaypoints,
-					turnWaypointUIOffOnEnd));
-			*/
+					position,
+					rotationSpace,
+					cameraDirection,
+					turnWaypointUIOffOnEnd,
+					this));
 		}
+	}
+
+	/*
+	* Needed for gizmos and cutscene origin.
+	*/
+	public void GenerateStartWaypoint(
+		out Vector3 position,
+		out Quaternion rotationSpace,
+		out Vector3 rotationVector,
+		out Vector3 cameraDirection)
+	{
+		Matrix4x4 gameObjectMRotation = 
+			Matrix4x4.TRS(Vector3.zero, transform.rotation, Vector3.one);
+		Vector3 globalPosition =
+				transform.position +
+				gameObjectMRotation.MultiplyPoint(waypoints[0].position);
+		Quaternion globalRotation =
+			Quaternion.FromToRotation(Vector3.forward, waypoints[0].rotation);
+		globalRotation = transform.rotation * globalRotation;
+		Vector3 globalRotationVector = 
+			Matrix4x4.TRS(
+				Vector3.zero,
+				globalRotation,
+				Vector3.one).MultiplyPoint(Vector3.forward);
+		Vector3 globalCameraDirection = 
+			waypoints[0].cameraDirection;
+
+		position = globalPosition;
+		rotationSpace = globalRotation;
+		rotationVector = globalRotationVector;
+		cameraDirection = globalCameraDirection;
+	}
+
+	/*
+	* Needed for gizmos and real time generation based on current player position.
+	*/
+	public void GenerateNextWaypoint(
+		ref Vector3 position,
+		ref Quaternion rotationSpace,
+		ref Vector3 cameraDirection,
+		GeneratedWaypoint waypoint)
+	{
+		rotationSpace =
+			Quaternion.Euler(waypoint.rotation.x, waypoint.rotation.y, waypoint.rotation.z) *
+			rotationSpace;
+		position =
+			position +
+			SpaceMultiply(waypoint.position, rotationSpace);
+		cameraDirection =
+			SpaceMultiply(waypoint.cameraDirection, rotationSpace);
+	}
+
+	/*
+	* Needed to call GenearteNextWaypoint with altered type
+	*/
+	public void GenerateConcreteNextWaypoint(
+		ref Vector3 position,
+		ref Quaternion rotationSpace,
+		ref Vector3 cameraDirection,
+		GameplayCutsceneWaypoint waypoint)
+	{
+		var generatedWaypoint = 
+			new GeneratedWaypoint(
+				waypoint.Position,
+				waypoint.Rotation,
+				waypoint.CameraDirection,
+				waypoint.clipSpeed,
+				waypoint.waitTime,
+				waypoint.travelClip,
+				waypoint.waitClip,
+				waypoint.events
+			);
+
+		GenerateNextWaypoint(
+			ref position,
+			ref rotationSpace,
+			ref cameraDirection,
+			generatedWaypoint);
 	}
 
 	private void OnDrawGizmosSelected()
 	{
 		if (waypoints.Length != 0)
 		{
-			Vector3 globalPosition =
-				transform.position +
-				Matrix4x4.TRS(Vector3.zero, transform.rotation, Vector3.one).MultiplyPoint(waypoints[0].position);
-			Quaternion globalRotation =
-				Quaternion.FromToRotation(Vector3.forward, waypoints[0].rotation);
-			globalRotation = transform.rotation * globalRotation;
-			Vector3 globalRotationVector = 
-				Matrix4x4.TRS(
-					Vector3.zero,
-					globalRotation,
-					Vector3.one).MultiplyPoint(Vector3.forward);
-			Vector3 globalCameraDirection = 
-				waypoints[0].cameraDirection;
+			Vector3 position;
+			Quaternion rotationSpace;
+			Vector3 rotationVector;
+			Vector3 cameraDirection;
+			GenerateStartWaypoint(
+				out position,
+				out rotationSpace,
+				out rotationVector,
+				out cameraDirection);
 
 			Gizmos.color = Color.cyan;	
-			Gizmos.DrawCube(globalPosition, Vector3.one * 0.5f);	
+			Gizmos.DrawCube(position, Vector3.one * 0.5f);	
 			Gizmos.color = Color.yellow;	
-			Gizmos.DrawLine(globalPosition + globalCameraDirection, globalPosition);
-			Gizmos.DrawCube(globalPosition + globalCameraDirection, Vector3.one * 0.25f);
+			Gizmos.DrawLine(position + cameraDirection, position);
+			Gizmos.DrawCube(position + cameraDirection, Vector3.one * 0.25f);
 
 			for (int i = 1; i < waypoints.Length; i++)
 			{
-				Gizmos.color = Color.cyan;	
-				Vector3 oldGlobalPosition = globalPosition;
-				globalRotation =
-					Quaternion.Euler(waypoints[i].rotation.x, waypoints[i].rotation.y, waypoints[i].rotation.z) *
-					globalRotation;
-				globalPosition =
-					globalPosition +
-					SpaceMultiply(waypoints[i].position, globalRotation);
-				Gizmos.DrawLine(globalPosition, oldGlobalPosition);		
-				Gizmos.DrawCube(globalPosition, Vector3.one * 0.5f);	
+				Vector3 oldGlobalPosition = position;
 
-				globalCameraDirection =
-					SpaceMultiply(waypoints[i].cameraDirection, globalRotation);
+				GenerateNextWaypoint(
+					ref position,
+					ref rotationSpace,
+					ref cameraDirection,
+					waypoints[i]);
+				
+				Gizmos.color = Color.cyan;	
+				Gizmos.DrawLine(position, oldGlobalPosition);		
+				Gizmos.DrawCube(position, Vector3.one * 0.5f);	
+				
 				Gizmos.color = Color.yellow;
-				Gizmos.DrawLine(globalPosition + globalCameraDirection, globalPosition);
-				Gizmos.DrawCube(globalPosition + globalCameraDirection, Vector3.one * 0.25f);
+				Gizmos.DrawLine(position + cameraDirection, position);
+				Gizmos.DrawCube(position + cameraDirection, Vector3.one * 0.25f);
 			}
 		}
 	}
