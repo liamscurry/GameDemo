@@ -8,6 +8,7 @@ public class Kinematic : StateMachineBehaviour
 	{
 		PlayerInfo.AnimationManager.KinematicBehaviour = this;
 
+		PlayerInfo.PhysicsSystem.Animating = true;
 		PlayerInfo.Body.isKinematic = true;
 		animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
 		PlayerInfo.Animator.applyRootMotion = true;
@@ -17,11 +18,13 @@ public class Kinematic : StateMachineBehaviour
 	{
 		if (PlayerInfo.AnimationManager.KinematicBehaviour == this)
 		{
+			PlayerInfo.PhysicsSystem.Animating = false;
 			PlayerInfo.Body.isKinematic = false;
 			animator.updateMode = AnimatorUpdateMode.Normal;
 			PlayerInfo.Animator.applyRootMotion = false;
 
-			Vector2 forwardProjection = Matho.StandardProjection2D(PlayerInfo.Player.transform.forward).normalized;
+			Vector2 forwardProjection =
+				Matho.StandardProjection2D(PlayerInfo.Player.transform.forward).normalized;
 			PlayerInfo.MovementManager.TargetDirection = forwardProjection;
 			PlayerInfo.MovementManager.SnapDirection();
 		}

@@ -19,6 +19,8 @@ public class GameplayCutscene
 	public float WaitTimer { get; private set; }
 	public bool TurnWaypointUIOffOnEnd { get { return turnWaypointUIOffOnEnd; } }
 	public LinkedList<GameplayCutsceneWaypoint> Waypoints { get; private set; }
+	public Vector3 TargetPosition { get { return position; } }
+	public Quaternion TargetRotation { get { return rotationSpace; } }
 
 	public GameplayCutscene(
 		LinkedList<GameplayCutsceneWaypoint> waypoints,
@@ -45,6 +47,9 @@ public class GameplayCutscene
 		WaitTimer = 0;
 		GameInfo.CameraController.TargetDirection = 
 			-CurrentWaypointNode.Value.CameraDirection;
+		position = CurrentWaypointNode.Value.Position;
+		rotationSpace =
+			Quaternion.LookRotation(CurrentWaypointNode.Value.Rotation, Vector3.up);
 
 		foreach (CameraCutsceneWaypointEvent waypointEvent in CurrentWaypointNode.Value.events)
 		{
@@ -60,16 +65,15 @@ public class GameplayCutscene
 		GameplayCutsceneWaypoint waypoint,
 		CameraCutsceneWaypointEvent waypointEvent)
 	{
-		yield return new WaitForSeconds(waypointEvent.normalizedTime * waypoint.clipSpeed);
+		yield return new WaitForSeconds(waypointEvent.normalizedTime * waypoint.clipsPerDistance);
 		waypointEvent.methods.Invoke();
 	}
 
-	public bool Update()
+	public bool Update(bool completedMatch)
 	{
 		bool exiting = false;
 
-		Timer += Time.deltaTime;
-		if (Timer / CurrentWaypointNode.Value.clipSpeed >= 1)
+		if (completedMatch)
 		{
 			WaitTimer += Time.deltaTime;
 			if (WaitTimer > CurrentWaypointNode.Value.waitTime)

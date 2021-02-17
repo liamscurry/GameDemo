@@ -11,9 +11,6 @@ public class AbilityBehaviour : StateMachineBehaviour
 	{
 		if (PlayerInfo.AbilityManager.CurrentAbility != null)
 		{
-			if (PlayerInfo.Animator.isMatchingTarget)
-				PlayerInfo.Animator.InterruptMatchTarget(false);
-
 			ability = PlayerInfo.AbilityManager.CurrentAbility;
 			ability.StartSegmentCoroutine();
 			segment = ability.ActiveSegment;

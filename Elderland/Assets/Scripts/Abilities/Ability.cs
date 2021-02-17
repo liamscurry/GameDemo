@@ -102,6 +102,9 @@ public abstract class Ability : MonoBehaviour
         ActiveSegment.Finished = true;
         //Make active segment a member of each segment to eliminate overlap
         
+        if (system.Animator.isMatchingTarget)
+            system.Animator.InterruptMatchTarget(false);
+
         AdvanceSegment();
     }
 

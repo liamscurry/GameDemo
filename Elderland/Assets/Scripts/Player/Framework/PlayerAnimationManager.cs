@@ -76,10 +76,6 @@ public class PlayerAnimationManager
 
 	public void StartTarget(MatchTarget target)
 	{
-		if (PlayerInfo.Animator.IsInTransition(0))
-		{
-			
-		}
 		PlayerInfo.Manager.StartCoroutine(CoUpdateTargetMatch(target));
 	}
 
@@ -110,7 +106,13 @@ public class PlayerAnimationManager
 		if (target.startTime > startTime)
 			startTime = target.startTime;
 
-		PlayerInfo.Animator.MatchTarget(target.position, target.rotation, AvatarTarget.Root, mask, startTime, target.endTime);
+		PlayerInfo.Animator.MatchTarget(
+			target.position,
+			target.rotation,
+			AvatarTarget.Root,
+			mask,
+			startTime, 
+			target.endTime);
 		PlayerInfo.Manager.currentTargetPosition = target.position;
 	}
 
@@ -170,8 +172,8 @@ public class PlayerAnimationManager
 			this.avatarTarget = avatarTarget;
 			this.positionWeight = positionWeight;
 			this.rotationWeight = rotationWeight;
-			this.startTime = Mathf.Clamp01(startTime);
-			this.endTime = Mathf.Clamp01(endTime);
+			this.startTime = startTime;
+			this.endTime = endTime;
 		}
 	}
 }

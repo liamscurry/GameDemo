@@ -35,7 +35,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 					position,
 					rotationVector,
 					cameraDirection,
-					waypoints[0].clipSpeed,
+					waypoints[0].clipsPerDistance,
 					waypoints[0].waitTime,
 					waypoints[0].travelClip,
 					waypoints[0].waitClip,
@@ -50,7 +50,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 						waypoints[i].position,
 						waypoints[i].rotation,
 						waypoints[i].cameraDirection,
-						waypoints[i].clipSpeed,
+						waypoints[i].clipsPerDistance,
 						waypoints[i].waitTime,
 						waypoints[i].travelClip,
 						waypoints[i].waitClip,
@@ -132,7 +132,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 				waypoint.Position,
 				waypoint.Rotation,
 				waypoint.CameraDirection,
-				waypoint.clipSpeed,
+				waypoint.clipsPerDistance,
 				waypoint.waitTime,
 				waypoint.travelClip,
 				waypoint.waitClip,
@@ -218,7 +218,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 		[SerializeField]
 		public Vector3 cameraDirection;
 		[SerializeField]
-		public float clipSpeed;
+		public float clipsPerDistance;
 		[SerializeField]
 		public AnimationClip travelClip;
 		[SerializeField]
@@ -232,7 +232,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 			Vector3 position,
 			Vector3 rotation,
 			Vector3 cameraDirection,
-			float clipSpeed,
+			float clipsPerDistance,
 			float waitTime,
 			AnimationClip travelClip,
 			AnimationClip waitClip,
@@ -241,7 +241,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 			this.position = position;
 			this.rotation = rotation;
 			this.cameraDirection = cameraDirection;
-			this.clipSpeed = clipSpeed;
+			this.clipsPerDistance = clipsPerDistance;
 			this.waitTime = waitTime;
 			this.travelClip = travelClip;
 			this.waitClip = waitClip;
@@ -250,8 +250,8 @@ public class GameplayCutsceneEvent : MonoBehaviour
 
 		public void CheckConnectionTime()
 		{
-			if (clipSpeed < 0.1f)
-				clipSpeed = 0.1f;
+			if (clipsPerDistance < 0.1f)
+				clipsPerDistance = 0.1f;
 		}
 	}
 }

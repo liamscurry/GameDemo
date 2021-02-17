@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Obsolete("use Kinematic.cs for target matching.")]
 public class RootMotionStateBehaviour : StateMachineBehaviour 
 {
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
