@@ -80,7 +80,9 @@ public class MenuManager : MonoBehaviour
 
     private void StartMenu()
     {
-        if (Input.GetKeyDown(KeyCode.Joystick1Button7) && GameInfo.CameraController.CameraState != CameraController.State.Cutscene)
+        if (Input.GetKeyDown(KeyCode.Joystick1Button7) &&
+            GameInfo.CameraController.CameraState != CameraController.State.Cutscene && 
+            GameInfo.CameraController.CameraState != CameraController.State.GameplayCutscene)
         {
             OpenStartMenu();
         }

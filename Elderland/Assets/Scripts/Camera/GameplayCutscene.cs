@@ -52,6 +52,7 @@ public class GameplayCutscene
 				EventTimer(CurrentWaypointNode.Value, waypointEvent));
 		}
 
+		PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.GameplayCutscene);
 		GameInfo.Manager.FreezeInput(this);
 	}
 
@@ -63,14 +64,18 @@ public class GameplayCutscene
 		waypointEvent.methods.Invoke();
 	}
 
-	public void Update()
+	public bool Update()
 	{
+		bool exiting = false;
+
 		Timer += Time.deltaTime;
 		if (Timer / CurrentWaypointNode.Value.clipSpeed >= 1)
 		{
 			WaitTimer += Time.deltaTime;
 			if (WaitTimer > CurrentWaypointNode.Value.waitTime)
 			{
+				exiting = true;
+
 				if (CurrentWaypointNode.Next != null)
 				{
 					CurrentWaypointNode = CurrentWaypointNode.Next;
@@ -95,13 +100,18 @@ public class GameplayCutscene
 				}
 				else
 				{
+					GameInfo.CameraController.TargetDirection = Vector3.zero;
 					GameInfo.CameraController.StartGameplay();
 					GameInfo.Manager.UnfreezeInput(this);
 					
 					PlayerInfo.PhysicsSystem.ForceTouchingFloor();
 					PlayerInfo.PhysicsSystem.Animating = false;
+
+					PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.Exit);
 				}
 			}
 		}
+
+		return exiting;
 	}
 }

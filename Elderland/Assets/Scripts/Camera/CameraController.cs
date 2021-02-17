@@ -32,7 +32,6 @@ public class CameraController : MonoBehaviour
 
     private State state;
     private CameraCutscene cutscene;
-    private GameplayCutscene gameplayCutscene;
    
     //Property assignment backings
     private Vector3 direction;
@@ -48,6 +47,9 @@ public class CameraController : MonoBehaviour
     private float orientationModifier;
 
     //Properties//
+    public GameplayCutscene GameplayCutscene { get { return gameplayCutscene; } }
+    private GameplayCutscene gameplayCutscene;
+
     //Gameplay data
     public float Speed { get; private set; }
     public float Zoom { get; private set; }
@@ -180,7 +182,7 @@ public class CameraController : MonoBehaviour
                 Gameplay();
                 break;
             case State.GameplayCutscene:
-                GameplayCutscene();
+                UpdateGameplayCutscene();
                 break;    
             case State.Cutscene:
                 Cutscene();
@@ -512,9 +514,9 @@ public class CameraController : MonoBehaviour
     /*
     * Needed to manage current gameplay cutscene and update its structure
     */
-    private void GameplayCutscene()
+    private void UpdateGameplayCutscene()
     {
-        gameplayCutscene.Update();
+        //gameplayCutscene.Update();
 
         UpdateCutsceneSettings();
         SeekTargetDirection();
