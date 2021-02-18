@@ -21,6 +21,8 @@ public class GameplayCutscene
 	public LinkedList<GameplayCutsceneWaypoint> Waypoints { get; private set; }
 	public Vector3 TargetPosition { get { return position; } }
 	public Quaternion TargetRotation { get { return rotationSpace; } }
+	public float CurrentStateDuration { get; private set; }
+	public float CurrentStateNormDuration { get; private set; }
 
 	public GameplayCutscene(
 		LinkedList<GameplayCutsceneWaypoint> waypoints,
@@ -50,6 +52,8 @@ public class GameplayCutscene
 		position = CurrentWaypointNode.Value.Position;
 		rotationSpace =
 			Quaternion.LookRotation(CurrentWaypointNode.Value.Rotation, Vector3.up);
+		CurrentStateDuration = CalculateStateDuration();
+		CurrentStateNormDuration = CalculateStateNormDuration();
 
 		foreach (CameraCutsceneWaypointEvent waypointEvent in CurrentWaypointNode.Value.events)
 		{
@@ -61,12 +65,41 @@ public class GameplayCutscene
 		GameInfo.Manager.FreezeInput(this);
 	}
 
+	/*
+	* Dev: Currently works when clip length is 1. Doesn't work otherwise. (Timing off)
+	* They seem to be called too early.
+	* Works, had clips different in animation controller from event inspector.
+	* Applying the clips is the next step.
+	*/
 	public IEnumerator EventTimer(
 		GameplayCutsceneWaypoint waypoint,
 		CameraCutsceneWaypointEvent waypointEvent)
 	{
-		yield return new WaitForSeconds(waypointEvent.normalizedTime * waypoint.clipsPerDistance);
+		yield return new WaitForSeconds(waypointEvent.normalizedTime * CurrentStateDuration);
 		waypointEvent.methods.Invoke();
+	}
+
+
+	/*
+	* Helper method needed for timing events.
+	*/
+	private float CalculateStateDuration()
+	{
+		return CalculateStateNormDuration() * CurrentWaypointNode.Value.travelClip.length;
+	}
+
+	/*
+	* Helper method needed for timing events.
+	*/
+	private float CalculateStateNormDuration()
+	{
+		float distanceToTarget = 
+            Vector3.Distance(
+                PlayerInfo.Player.transform.position,
+                GameInfo.CameraController.GameplayCutscene.TargetPosition);
+
+		return distanceToTarget *
+			   CurrentWaypointNode.Value.clipsPerDistance;
 	}
 
 	public bool Update(bool completedMatch)
@@ -94,6 +127,9 @@ public class GameplayCutscene
 
 					GameInfo.CameraController.TargetDirection = 
 						-cameraDirection;
+
+					CurrentStateDuration = CalculateStateDuration();
+					CurrentStateNormDuration = CalculateStateNormDuration();
 
 					foreach (CameraCutsceneWaypointEvent waypointEvent in
 							 CurrentWaypointNode.Value.events)

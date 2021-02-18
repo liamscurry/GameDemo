@@ -146,6 +146,21 @@ public class GameplayCutsceneEvent : MonoBehaviour
 			generatedWaypoint);
 	}
 
+	public void BeginningTest()
+	{
+		Debug.Log("called in beginning");
+	}
+
+	public void MiddleTest()
+	{
+		Debug.Log("called in middle");
+	}
+
+	public void EndTest()
+	{
+		Debug.Log("called in end");
+	}
+
 	private void OnDrawGizmosSelected()
 	{
 		if (waypoints.Length != 0)

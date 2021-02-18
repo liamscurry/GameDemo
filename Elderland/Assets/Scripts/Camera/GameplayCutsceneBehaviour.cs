@@ -11,11 +11,6 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-        float distanceToTarget = 
-            Vector3.Distance(
-                PlayerInfo.Player.transform.position,
-                GameInfo.CameraController.GameplayCutscene.TargetPosition);
-
         var matchTarget =
             new PlayerAnimationManager.MatchTarget(
                 GameInfo.CameraController.GameplayCutscene.TargetPosition,
@@ -24,8 +19,7 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
                 Vector3.one,
                 1,
                 0,
-                distanceToTarget *
-                GameInfo.CameraController.GameplayCutscene.CurrentWaypointNode.Value.clipsPerDistance
+                GameInfo.CameraController.GameplayCutscene.CurrentStateNormDuration
             );
 
         PlayerInfo.AnimationManager.StartTarget(matchTarget);
