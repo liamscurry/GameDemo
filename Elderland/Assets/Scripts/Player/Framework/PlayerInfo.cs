@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 //Contains references to player required objects.
 
@@ -31,6 +34,8 @@ public static class PlayerInfo
     public static PlayerSkillManager SkillManager { get; private set; }
     public static PlayerStatsManager StatsManager { get; private set; }
 
+    public static AnimatorOverrideController Controller { get; private set; }
+
     //Informational Properties
     public static Vector3 BottomSphereOffset { get; private set; } 
 
@@ -54,6 +59,9 @@ public static class PlayerInfo
         Capsule = player.GetComponent<CapsuleCollider>();
         Manager = player.GetComponent<PlayerManager>();
         Animator = player.GetComponent<Animator>();
+        
+        Controller = new AnimatorOverrideController(Animator.runtimeAnimatorController);
+		Animator.runtimeAnimatorController = Controller;
 
         //Components on player children assignments
         Sensor = sensor.GetComponent<PlayerSensor>();

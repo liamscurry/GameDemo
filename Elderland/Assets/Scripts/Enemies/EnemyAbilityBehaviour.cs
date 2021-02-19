@@ -16,6 +16,8 @@ public class EnemyAbilityBehaviour : StateMachineBehaviour
         ability = abilityManager.CurrentAbility;
 		ability.StartSegmentCoroutine();
 		segment = ability.ActiveSegment;
+
+		Debug.Log(animator.GetCurrentAnimatorClipInfo(0)[0].clip.name);
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 

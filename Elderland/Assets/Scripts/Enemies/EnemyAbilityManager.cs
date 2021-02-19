@@ -13,7 +13,12 @@ public class EnemyAbilityManager : AbilitySystem
     public Queue<EnemyAbilityType> QueuedTypes { get; private set; }
     public new EnemyAbility CurrentAbility { get { return (EnemyAbility) currentAbility; } set { currentAbility = value; } }
 
-    public EnemyAbilityManager(Animator animator, PhysicsSystem physics, MovementSystem movement, GameObject parent) : base(animator, physics, movement, parent)
+    public EnemyAbilityManager(
+        Animator animator,
+        AnimatorOverrideController animatorController,
+        PhysicsSystem physics,
+        MovementSystem movement,
+        GameObject parent) : base(animator, animatorController, physics, movement, parent)
     { 
         Manager = parent.GetComponent<EnemyManager>();
         abilities = new List<EnemyAbility>();

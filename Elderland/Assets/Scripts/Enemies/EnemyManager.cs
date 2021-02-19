@@ -69,6 +69,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     private float baseAgentSpeed;
 
+    private AnimatorOverrideController animatorController;
+
     public StateMachineBehaviour BehaviourLock { get; set; }
 
     public EnemyLevel Level { get; set; }
@@ -144,7 +146,9 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Capsule = GetComponent<CapsuleCollider>();
         Body = GetComponent<Rigidbody>();
         Agent = GetComponent<NavMeshAgent>();
-        AbilityManager = new EnemyAbilityManager(Animator, null, null, gameObject);
+        animatorController = new AnimatorOverrideController(Animator.runtimeAnimatorController);
+		Animator.runtimeAnimatorController = animatorController;
+        AbilityManager = new EnemyAbilityManager(Animator, animatorController, null, null, gameObject);
         BuffManager = new BuffManager<EnemyManager>(this);
         StatsManager = new EnemyStatsManager(this);
         State = EnemyState.None;

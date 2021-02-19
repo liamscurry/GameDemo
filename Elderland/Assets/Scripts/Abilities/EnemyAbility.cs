@@ -45,13 +45,13 @@ public abstract class EnemyAbility : Ability
 
             if (firstTimeCalling)
             {
-                system.ResetSegmentIndex();
+                system.AnimationLoop.ResetSegmentIndex();
                 system.Animator.SetTrigger("runAbility");
                 system.Animator.SetBool("exitAbility", false);
             }
 
             ActiveSegment = segments.Start;
-            system.SetNextSegmentClip(segments.Start.Clip);
+            system.AnimationLoop.SetNextSegmentClip(segments.Start.Clip);
             this.type = type;
 
             return true;
@@ -67,7 +67,7 @@ public abstract class EnemyAbility : Ability
         if (ActiveSegment.Next != null)
         {
             ActiveSegment = ActiveSegment.Next;
-            system.SetNextSegmentClip(ActiveSegment.Clip);
+            system.AnimationLoop.SetNextSegmentClip(ActiveSegment.Clip);
         }
         else
         {

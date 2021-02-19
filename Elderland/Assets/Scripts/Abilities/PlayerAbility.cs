@@ -60,13 +60,13 @@ public abstract class PlayerAbility : Ability
 
             if (firstTimeCalling)
             {
-                system.ResetSegmentIndex();
+                system.AnimationLoop.ResetSegmentIndex();
                 system.Animator.SetTrigger("runAbility");
                 system.Animator.SetBool("exitAbility", false);
             }
 
             ActiveSegment = segments.Start;
-            system.SetNextSegmentClip(segments.Start.Clip);
+            system.AnimationLoop.SetNextSegmentClip(segments.Start.Clip);
             fallUponFinish = false;
    
             if (slider != null)
@@ -98,7 +98,7 @@ public abstract class PlayerAbility : Ability
         if (ActiveSegment.Next != null)
         {
             ActiveSegment = ActiveSegment.Next;
-            system.SetNextSegmentClip(ActiveSegment.Clip);
+            system.AnimationLoop.SetNextSegmentClip(ActiveSegment.Clip);
 
             system.Animator.SetTrigger("proceedAbility");
         }
