@@ -28,7 +28,7 @@ public abstract class AbilitySystem
         Movement = movement;
         Parent = parent;
 
-        AnimationLoop = new AnimationLoop(animatorController, "Segment");
+        AnimationLoop = new AnimationLoop(animatorController, Animator, "Segment");
     }
 
 	public abstract void UpdateAbilities();

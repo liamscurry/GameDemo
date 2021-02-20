@@ -9,6 +9,7 @@ public class AnimationLoop
 {
     // Fields
     private AnimatorOverrideController controller;
+    private Animator animator;
     private List<KeyValuePair<AnimationClip, AnimationClip>> overrideClips;
     private string animationName;
 
@@ -16,9 +17,13 @@ public class AnimationLoop
     public Animator Animator { get; private set; }
     public int CurrentSegmentIndex { get; private set; }
 
-    public AnimationLoop(AnimatorOverrideController controller, string animationName)
+    public AnimationLoop(
+        AnimatorOverrideController controller,
+        Animator animator,
+        string animationName)
     {
         this.controller = controller;
+        this.animator = animator;
         this.animationName = animationName;
     }
 
@@ -47,5 +52,54 @@ public class AnimationLoop
 
         if (overrideClips.Count != 0)
             controller.ApplyOverrides(overrideClips);
+    }
+
+    /*
+    * Needed for more complex animation loops that use blend trees.
+    * Assigns clips to a state's blend tree.
+    */
+    public void SetNextSegmentClip(AnimationClip[] nextClips, string[] nextNames)
+    {
+        CurrentSegmentIndex = ((CurrentSegmentIndex + 1) % 3);
+
+        overrideClips =
+            new List<KeyValuePair<AnimationClip, AnimationClip>>(controller.overridesCount);
+        controller.GetOverrides(overrideClips);
+
+        for (int i = 0; i < nextClips.Length; i++)
+        {
+            int index =
+                overrideClips.FindIndex(
+                    clip => clip.Key.name == (nextNames[i] + (CurrentSegmentIndex + 1)));
+
+            if (index != -1)
+            {
+                overrideClips[index] =
+                    new KeyValuePair<AnimationClip, AnimationClip>(
+                        overrideClips[index].Key, nextClips[i]);
+            }
+        }
+
+        if (overrideClips.Count != 0)
+            controller.ApplyOverrides(overrideClips);
+    }
+
+    /*
+    * Needed to transition to wait clip after traveling.
+    */
+    public void SetCurrentSegmentSpeed(float value)
+    {
+        animator.SetFloat(("speedPartition" + (CurrentSegmentIndex + 1)), value);
+    }
+
+    /*
+    * Needed to transition to wait clip after traveling.
+    */
+    public void ChangeCurrentSegmentSpeed(float speed)
+    {
+        float currentSpeed = 
+            animator.GetFloat("speedPartition" + (CurrentSegmentIndex + 1));
+        currentSpeed = Mathf.Clamp01(currentSpeed + speed);
+        animator.SetFloat(("speedPartition" + (CurrentSegmentIndex + 1)), currentSpeed);
     }
 }

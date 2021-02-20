@@ -6,6 +6,8 @@ using UnityEngine.Events;
 public class GameplayCutscene 
 {
 	// Fields
+	private const float travelWaitSpeed = 5;
+
 	private bool turnWaypointUIOffOnEnd;
 
 	private Vector3 position;
@@ -13,6 +15,7 @@ public class GameplayCutscene
 	private Vector3 cameraDirection;
 	private GameplayCutsceneEvent invokee;
 	private AnimationLoop animationLoop;
+	private string[] loopNames;
 
 	// Properties
 	public LinkedListNode<GameplayCutsceneWaypoint> CurrentWaypointNode { get; private set; }
@@ -40,7 +43,9 @@ public class GameplayCutscene
 		this.turnWaypointUIOffOnEnd = turnWaypointUIOffOnEnd;
 		this.invokee = invokee;
 
-		animationLoop = new AnimationLoop(PlayerInfo.Controller, "GameplayCutsceneVertex");
+		animationLoop =
+			new AnimationLoop(PlayerInfo.Controller, PlayerInfo.Animator, "GameplayCutsceneVertex");
+		loopNames = new string[] { "GameplayCutsceneTravel", "GameplayCutsceneWait" };
 	}
 
 	public void Start()
@@ -51,6 +56,7 @@ public class GameplayCutscene
 		CurrentWaypointNode = Waypoints.First;
 		Timer = 0;
 		WaitTimer = 0;
+
 		GameInfo.CameraController.TargetDirection = 
 			-CurrentWaypointNode.Value.CameraDirection;
 		position = CurrentWaypointNode.Value.Position;
@@ -58,15 +64,13 @@ public class GameplayCutscene
 			Quaternion.LookRotation(CurrentWaypointNode.Value.Rotation, Vector3.up);
 		CurrentStateDuration = CalculateStateDuration();
 		CurrentStateNormDuration = CalculateStateNormDuration();
-		animationLoop.SetNextSegmentClip(CurrentWaypointNode.Value.travelClip);
 
-		foreach (CameraCutsceneWaypointEvent waypointEvent in CurrentWaypointNode.Value.events)
-		{
-			GameInfo.CameraController.StartCoroutine(
-				EventTimer(CurrentWaypointNode.Value, waypointEvent));
-		}
+		UpdateAnimationClips();
+		InvokeEventTimers();
 
 		PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.GameplayCutscene);
+		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.Proceed);
+		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.Exit);
 		GameInfo.Manager.FreezeInput(this);
 	}
 
@@ -107,6 +111,42 @@ public class GameplayCutscene
 			   CurrentWaypointNode.Value.clipsPerDistance;
 	}
 
+	/*
+	* Needed for joint animation blend assignment in vertex animation loop.
+	*/
+	private AnimationClip[] GetAnimationClips()
+	{
+		var clips =
+			new AnimationClip[] 
+			{ 
+				CurrentWaypointNode.Value.travelClip,
+				CurrentWaypointNode.Value.waitClip
+			};
+		return clips;
+	}
+
+	/*
+	* Helper method needed for initialization and updating during animation loop traversal.
+	*/
+	private void UpdateAnimationClips()
+	{
+		animationLoop.SetNextSegmentClip(
+			GetAnimationClips(), loopNames);
+		animationLoop.SetCurrentSegmentSpeed(0);
+	}
+
+	/*
+	* Helper needed for initialization and updating during animation loop traversal.
+	*/
+	private void InvokeEventTimers()
+	{
+		foreach (CameraCutsceneWaypointEvent waypointEvent in CurrentWaypointNode.Value.events)
+		{
+			GameInfo.CameraController.StartCoroutine(
+				EventTimer(CurrentWaypointNode.Value, waypointEvent));
+		}
+	}
+
 	public bool Update(bool completedMatch)
 	{
 		bool exiting = false;
@@ -114,6 +154,7 @@ public class GameplayCutscene
 		if (completedMatch)
 		{
 			WaitTimer += Time.deltaTime;
+			animationLoop.ChangeCurrentSegmentSpeed(travelWaitSpeed * Time.deltaTime);
 			if (WaitTimer > CurrentWaypointNode.Value.waitTime)
 			{
 				exiting = true;
@@ -135,14 +176,9 @@ public class GameplayCutscene
 
 					CurrentStateDuration = CalculateStateDuration();
 					CurrentStateNormDuration = CalculateStateNormDuration();
-					animationLoop.SetNextSegmentClip(CurrentWaypointNode.Value.travelClip);
 
-					foreach (CameraCutsceneWaypointEvent waypointEvent in
-							 CurrentWaypointNode.Value.events)
-					{
-						GameInfo.CameraController.StartCoroutine(
-							EventTimer(CurrentWaypointNode.Value, waypointEvent));
-					}
+					UpdateAnimationClips();
+					InvokeEventTimers();
 				}
 				else
 				{

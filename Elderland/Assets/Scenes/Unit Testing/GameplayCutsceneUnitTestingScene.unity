@@ -1062,7 +1062,7 @@ MonoBehaviour:
     cameraDirection: {x: -1, y: 0, z: 0}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: 83ac8baf689ca154aa7ddfacd43e078e, type: 2}
-    waitClip: {fileID: 0}
+    waitClip: {fileID: 7400000, guid: 826692ffc396cc54197330e1defa8524, type: 2}
     waitTime: 6
     connectionEvents:
     - methods:
@@ -1101,7 +1101,7 @@ MonoBehaviour:
     cameraDirection: {x: -1, y: 1, z: 2.79}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: eb37afc663664a648b8d935753eb9f6f, type: 2}
-    waitClip: {fileID: 0}
+    waitClip: {fileID: 7400000, guid: 4c9f6c631f3ccb74c9af7a8e37cde73c, type: 2}
     waitTime: 1
     connectionEvents:
     - methods:
@@ -1125,8 +1125,8 @@ MonoBehaviour:
     cameraDirection: {x: 0, y: -1, z: 1}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: 7eb751c5c7b954141b3f9a5e8a2b5f8b, type: 2}
-    waitClip: {fileID: 0}
-    waitTime: 0
+    waitClip: {fileID: 7400000, guid: eab8e5d6ab66491438afd9c33dfa1585, type: 2}
+    waitTime: 2
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -1143,6 +1143,21 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
       normalizedTime: 0.75
+    - methods:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 2106094722}
+            m_MethodName: Reset
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+      normalizedTime: 1
   turnWaypointUIOffOnEnd: 0
 --- !u!4 &1565937982
 Transform:
@@ -1655,6 +1670,18 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 17b8a148bd69b314a963015e160fd2ef, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6a7df9ab5d6efe34ba77613e323bc30d, type: 3}
+--- !u!114 &2106094722 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
+    type: 3}
+  m_PrefabInstance: {fileID: 2028439204}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bc0533c911318147a21fba3dab07193, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5986982542042455567
 PrefabInstance:
   m_ObjectHideFlags: 0

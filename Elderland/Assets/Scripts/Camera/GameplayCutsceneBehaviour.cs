@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations;
 
 // Needed to drive gameplay cutscene and sync match targets with current
 // cutscene waypoint.
@@ -22,10 +23,10 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
                 GameInfo.CameraController.GameplayCutscene.CurrentStateNormDuration
             );
 
-        Debug.Log(GameInfo.CameraController.GameplayCutscene.CurrentWaypointNode.Value.RotationWeight);
         PlayerInfo.AnimationManager.StartTarget(matchTarget);
         exiting = false;
         hasStartedMatching = false;
+        animator.SetFloat("speed", 0.5f);
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -37,6 +38,17 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
             {
                 hasStartedMatching = true;
             }
+
+            /*
+            var currentClips = 
+                animator.GetCurrentAnimatorClipInfo(0);
+            Debug.Log("start");
+            foreach (var clipInfo in currentClips)
+            {
+                Debug.Log(clipInfo.clip);
+            }
+            Debug.Log("end");
+            Debug.Log("");*/
 
 		    exiting =
                 GameInfo.CameraController.GameplayCutscene.Update(
