@@ -26,7 +26,7 @@ public class AnimationLoop
     {
         CurrentSegmentIndex = -1;
     }
-
+    
     public void SetNextSegmentClip(AnimationClip nextClip)
     {
         CurrentSegmentIndex = ((CurrentSegmentIndex + 1) % 3);

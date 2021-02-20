@@ -8,10 +8,11 @@ public class GameplayCutscene
 	// Fields
 	private bool turnWaypointUIOffOnEnd;
 
-	Vector3 position;
-	Quaternion rotationSpace;
-	Vector3 cameraDirection;
-	GameplayCutsceneEvent invokee;
+	private Vector3 position;
+	private Quaternion rotationSpace;
+	private Vector3 cameraDirection;
+	private GameplayCutsceneEvent invokee;
+	private AnimationLoop animationLoop;
 
 	// Properties
 	public LinkedListNode<GameplayCutsceneWaypoint> CurrentWaypointNode { get; private set; }
@@ -38,11 +39,14 @@ public class GameplayCutscene
 		this.cameraDirection = cameraDirection;
 		this.turnWaypointUIOffOnEnd = turnWaypointUIOffOnEnd;
 		this.invokee = invokee;
+
+		animationLoop = new AnimationLoop(PlayerInfo.Controller, "GameplayCutsceneVertex");
 	}
 
 	public void Start()
 	{
 		Camera camera = GameInfo.CameraController.Camera;
+		animationLoop.ResetSegmentIndex();
 
 		CurrentWaypointNode = Waypoints.First;
 		Timer = 0;
@@ -54,6 +58,7 @@ public class GameplayCutscene
 			Quaternion.LookRotation(CurrentWaypointNode.Value.Rotation, Vector3.up);
 		CurrentStateDuration = CalculateStateDuration();
 		CurrentStateNormDuration = CalculateStateNormDuration();
+		animationLoop.SetNextSegmentClip(CurrentWaypointNode.Value.travelClip);
 
 		foreach (CameraCutsceneWaypointEvent waypointEvent in CurrentWaypointNode.Value.events)
 		{
@@ -66,6 +71,7 @@ public class GameplayCutscene
 	}
 
 	/*
+	* Timer needed to invoke events at correct time in each target waypoint approach.
 	* Dev: Currently works when clip length is 1. Doesn't work otherwise. (Timing off)
 	* They seem to be called too early.
 	* Works, had clips different in animation controller from event inspector.
@@ -78,7 +84,6 @@ public class GameplayCutscene
 		yield return new WaitForSeconds(waypointEvent.normalizedTime * CurrentStateDuration);
 		waypointEvent.methods.Invoke();
 	}
-
 
 	/*
 	* Helper method needed for timing events.
@@ -130,6 +135,7 @@ public class GameplayCutscene
 
 					CurrentStateDuration = CalculateStateDuration();
 					CurrentStateNormDuration = CalculateStateNormDuration();
+					animationLoop.SetNextSegmentClip(CurrentWaypointNode.Value.travelClip);
 
 					foreach (CameraCutsceneWaypointEvent waypointEvent in
 							 CurrentWaypointNode.Value.events)
