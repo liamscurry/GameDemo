@@ -5,8 +5,10 @@ using UnityEngine.Events;
 
 public class GameplayCutscene 
 {
+	public enum TransitionChoice { WaitNext, TravelNext, Exit }
+
 	// Fields
-	private const float travelWaitSpeed = 5;
+	private const float minimumWaitTime = 0.1f;
 
 	private bool turnWaypointUIOffOnEnd;
 
@@ -132,7 +134,6 @@ public class GameplayCutscene
 	{
 		animationLoop.SetNextSegmentClip(
 			GetAnimationClips(), loopNames);
-		animationLoop.SetCurrentSegmentSpeed(0);
 	}
 
 	/*
@@ -147,53 +148,109 @@ public class GameplayCutscene
 		}
 	}
 
-	public bool Update(bool completedMatch)
+	/*
+	* Update method needed to run travel logic. May exit cutscene, go to next node or go to wait state.
+	*/
+	public bool UpdateTravel(bool completedMatch)
 	{
 		bool exiting = false;
 
 		if (completedMatch)
 		{
-			WaitTimer += Time.deltaTime;
-			animationLoop.ChangeCurrentSegmentSpeed(travelWaitSpeed * Time.deltaTime);
-			if (WaitTimer > CurrentWaypointNode.Value.waitTime)
-			{
-				exiting = true;
+			exiting = true;
 
+			if (CurrentWaypointNode.Value.waitTime > minimumWaitTime)
+			{
+				PlayerInfo.Animator.SetInteger(
+					AnimationConstants.Player.ChoiceSeparator,
+					(int) TransitionChoice.WaitNext);
+			}
+			else
+			{
 				if (CurrentWaypointNode.Next != null)
 				{
-					CurrentWaypointNode = CurrentWaypointNode.Next;
-					Timer = 0;
-					WaitTimer = 0;
-
-					invokee.GenerateConcreteNextWaypoint(
-						ref position,
-						ref rotationSpace,
-						ref cameraDirection,
-						CurrentWaypointNode.Value);
-
-					GameInfo.CameraController.TargetDirection = 
-						-cameraDirection;
-
-					CurrentStateDuration = CalculateStateDuration();
-					CurrentStateNormDuration = CalculateStateNormDuration();
-
-					UpdateAnimationClips();
-					InvokeEventTimers();
+					IncrementNode();
 				}
 				else
 				{
-					GameInfo.CameraController.TargetDirection = Vector3.zero;
-					GameInfo.CameraController.StartGameplay();
-					GameInfo.Manager.UnfreezeInput(this);
-					
-					PlayerInfo.PhysicsSystem.ForceTouchingFloor();
-					PlayerInfo.PhysicsSystem.Animating = false;
-
-					PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.Exit);
+					ExitNode();
 				}
 			}
 		}
 
 		return exiting;
+	}
+
+	/*
+	* Update method needed to run wait timer. May exit cutscene or go to next node.
+	*/
+	public bool UpdateWait()
+	{
+		bool exiting = false;
+
+		WaitTimer += Time.deltaTime;
+		if (WaitTimer > CurrentWaypointNode.Value.waitTime)
+		{
+			exiting = true;
+
+			if (CurrentWaypointNode.Next != null)
+			{
+				IncrementNode();
+			}
+			else
+			{
+				ExitNode();
+			}
+		}
+
+		return exiting;
+	}
+
+	/*
+	* Needed to properly go to next cutscene state. Moves animation loop to next travel segment.
+	*/
+	private void IncrementNode()
+	{
+		CurrentWaypointNode = CurrentWaypointNode.Next;
+		Timer = 0;
+		WaitTimer = 0;
+
+		invokee.GenerateConcreteNextWaypoint(
+			ref position,
+			ref rotationSpace,
+			ref cameraDirection,
+			CurrentWaypointNode.Value);
+
+		GameInfo.CameraController.TargetDirection = 
+			-cameraDirection;
+
+		CurrentStateDuration = CalculateStateDuration();
+		CurrentStateNormDuration = CalculateStateNormDuration();
+
+		UpdateAnimationClips();
+		InvokeEventTimers();
+
+		PlayerInfo.Animator.SetInteger(
+			AnimationConstants.Player.ChoiceSeparator,
+			(int) TransitionChoice.TravelNext);
+	}
+
+	/*
+	* Needed to properly exit cutscene and update player animator to do so.
+	*/
+	private void ExitNode()
+	{
+		GameInfo.CameraController.TargetDirection = Vector3.zero;
+		GameInfo.CameraController.StartGameplay();
+		GameInfo.Manager.UnfreezeInput(this);
+		
+		PlayerInfo.PhysicsSystem.ForceTouchingFloor();
+		PlayerInfo.PhysicsSystem.Animating = false;
+
+		PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.Exit);
+
+		PlayerInfo.Animator.SetInteger(
+			AnimationConstants.Player.ChoiceSeparator,
+			(int) TransitionChoice.Exit);
 	}
 }

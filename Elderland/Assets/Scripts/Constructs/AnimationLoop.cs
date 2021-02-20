@@ -56,7 +56,7 @@ public class AnimationLoop
 
     /*
     * Needed for more complex animation loops that use blend trees.
-    * Assigns clips to a state's blend tree.
+    * Assigns clips to a state's blend tree/multi-state segment.
     */
     public void SetNextSegmentClip(AnimationClip[] nextClips, string[] nextNames)
     {
@@ -82,24 +82,5 @@ public class AnimationLoop
 
         if (overrideClips.Count != 0)
             controller.ApplyOverrides(overrideClips);
-    }
-
-    /*
-    * Needed to transition to wait clip after traveling.
-    */
-    public void SetCurrentSegmentSpeed(float value)
-    {
-        animator.SetFloat(("speedPartition" + (CurrentSegmentIndex + 1)), value);
-    }
-
-    /*
-    * Needed to transition to wait clip after traveling.
-    */
-    public void ChangeCurrentSegmentSpeed(float speed)
-    {
-        float currentSpeed = 
-            animator.GetFloat("speedPartition" + (CurrentSegmentIndex + 1));
-        currentSpeed = Mathf.Clamp01(currentSpeed + speed);
-        animator.SetFloat(("speedPartition" + (CurrentSegmentIndex + 1)), currentSpeed);
     }
 }

@@ -26,7 +26,6 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
         PlayerInfo.AnimationManager.StartTarget(matchTarget);
         exiting = false;
         hasStartedMatching = false;
-        animator.SetFloat("speed", 0.5f);
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -51,7 +50,7 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
             Debug.Log("");*/
 
 		    exiting =
-                GameInfo.CameraController.GameplayCutscene.Update(
+                GameInfo.CameraController.GameplayCutscene.UpdateTravel(
                     hasStartedMatching && !inMatchTarget);
             
             if (exiting)
