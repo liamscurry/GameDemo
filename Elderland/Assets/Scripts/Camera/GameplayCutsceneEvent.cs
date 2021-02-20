@@ -34,6 +34,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 				new GameplayCutsceneWaypoint(
 					position,
 					rotationVector,
+					waypoints[0].rotationWeight,
 					cameraDirection,
 					waypoints[0].clipsPerDistance,
 					waypoints[0].waitTime,
@@ -49,6 +50,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 					new GameplayCutsceneWaypoint(
 						waypoints[i].position,
 						waypoints[i].rotation,
+						waypoints[i].rotationWeight,
 						waypoints[i].cameraDirection,
 						waypoints[i].clipsPerDistance,
 						waypoints[i].waitTime,
@@ -131,6 +133,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 			new GeneratedWaypoint(
 				waypoint.Position,
 				waypoint.Rotation,
+				waypoint.RotationWeight,
 				waypoint.CameraDirection,
 				waypoint.clipsPerDistance,
 				waypoint.waitTime,
@@ -231,6 +234,8 @@ public class GameplayCutsceneEvent : MonoBehaviour
 		[SerializeField]
 		public Vector3 rotation;
 		[SerializeField]
+		public float rotationWeight;
+		[SerializeField]
 		public Vector3 cameraDirection;
 		[SerializeField]
 		public float clipsPerDistance;
@@ -246,6 +251,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 		public GeneratedWaypoint(
 			Vector3 position,
 			Vector3 rotation,
+			float rotationWeight,
 			Vector3 cameraDirection,
 			float clipsPerDistance,
 			float waitTime,
@@ -255,6 +261,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 		{
 			this.position = position;
 			this.rotation = rotation;
+			this.rotationWeight = rotationWeight;
 			this.cameraDirection = cameraDirection;
 			this.clipsPerDistance = clipsPerDistance;
 			this.waitTime = waitTime;

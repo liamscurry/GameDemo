@@ -6,6 +6,7 @@ public class GameplayCutsceneWaypoint
 {
 	public Vector3 Position { get; set; }
 	public Vector3 Rotation { get; set; }
+	public float RotationWeight { get; set; }
 	public Vector3 CameraDirection { get; set; }
 	public readonly float clipsPerDistance;
 	public readonly float waitTime;
@@ -16,6 +17,7 @@ public class GameplayCutsceneWaypoint
 	public GameplayCutsceneWaypoint(
 		Vector3 position,
 		Vector3 rotation,
+		float rotationWeight,
 		Vector3 cameraDirection,
 		float time,
 		float waitTime,
@@ -25,6 +27,7 @@ public class GameplayCutsceneWaypoint
 	{
 		Position = position;
 		Rotation = rotation;
+		RotationWeight = rotationWeight;
 		CameraDirection = cameraDirection;
 		this.clipsPerDistance = time;
 		if (time < 0.1f)

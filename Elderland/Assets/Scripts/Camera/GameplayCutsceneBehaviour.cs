@@ -17,11 +17,12 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
                 GameInfo.CameraController.GameplayCutscene.TargetRotation,
                 AvatarTarget.Root,
                 Vector3.one,
-                1,
+                GameInfo.CameraController.GameplayCutscene.CurrentWaypointNode.Value.RotationWeight,
                 0,
                 GameInfo.CameraController.GameplayCutscene.CurrentStateNormDuration
             );
 
+        Debug.Log(GameInfo.CameraController.GameplayCutscene.CurrentWaypointNode.Value.RotationWeight);
         PlayerInfo.AnimationManager.StartTarget(matchTarget);
         exiting = false;
         hasStartedMatching = false;

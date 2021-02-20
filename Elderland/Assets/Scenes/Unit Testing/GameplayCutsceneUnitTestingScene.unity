@@ -153,6 +153,7 @@ MonoBehaviour:
   waypoints:
   - position: {x: 0, y: 0, z: 2.15}
     rotation: {x: 0, y: 0, z: 0}
+    rotationWeight: 0
     cameraDirection: {x: -1, y: 0, z: 0}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
@@ -176,6 +177,7 @@ MonoBehaviour:
       normalizedTime: 1
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: -43.54, z: 0}
+    rotationWeight: 0
     cameraDirection: {x: -1, y: 1, z: 2.79}
     clipsPerDistance: 0.3
     travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
@@ -199,6 +201,7 @@ MonoBehaviour:
       normalizedTime: 1
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: 90, z: 0}
+    rotationWeight: 0
     cameraDirection: {x: 0, y: -1, z: 1}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
@@ -481,6 +484,7 @@ MonoBehaviour:
   waypoints:
   - position: {x: 0, y: 0, z: 2.15}
     rotation: {x: 0, y: 0, z: 0}
+    rotationWeight: 0
     cameraDirection: {x: -1, y: 0, z: 0}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
@@ -504,6 +508,7 @@ MonoBehaviour:
       normalizedTime: 0
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: -43.54, z: 0}
+    rotationWeight: 0
     cameraDirection: {x: -1, y: 1, z: 2.79}
     clipsPerDistance: 0.3
     travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
@@ -527,6 +532,7 @@ MonoBehaviour:
       normalizedTime: 0
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: 90, z: 0}
+    rotationWeight: 0
     cameraDirection: {x: 0, y: -1, z: 1}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
@@ -673,6 +679,7 @@ MonoBehaviour:
   waypoints:
   - position: {x: 0, y: 0, z: 2.15}
     rotation: {x: 0, y: 0, z: 0}
+    rotationWeight: 0
     cameraDirection: {x: -1, y: 0, z: 0}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
@@ -696,6 +703,7 @@ MonoBehaviour:
       normalizedTime: 0.25
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: -43.54, z: 0}
+    rotationWeight: 0
     cameraDirection: {x: -1, y: 1, z: 2.79}
     clipsPerDistance: 0.3
     travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
@@ -719,6 +727,7 @@ MonoBehaviour:
       normalizedTime: 0.5
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: 90, z: 0}
+    rotationWeight: 0
     cameraDirection: {x: 0, y: -1, z: 1}
     clipsPerDistance: 2
     travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
@@ -1049,11 +1058,12 @@ MonoBehaviour:
   waypoints:
   - position: {x: 0, y: 0, z: 2.15}
     rotation: {x: 0, y: 0, z: 0}
+    rotationWeight: 1
     cameraDirection: {x: -1, y: 0, z: 0}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: 83ac8baf689ca154aa7ddfacd43e078e, type: 2}
     waitClip: {fileID: 0}
-    waitTime: 0
+    waitTime: 6
     connectionEvents:
     - methods:
         m_PersistentCalls:
@@ -1070,8 +1080,24 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
       normalizedTime: 0.25
+    - methods:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 1565937981}
+            m_MethodName: BeginningTest
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+      normalizedTime: 0.893
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: -43.54, z: 0}
+    rotationWeight: 7
     cameraDirection: {x: -1, y: 1, z: 2.79}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: eb37afc663664a648b8d935753eb9f6f, type: 2}
@@ -1095,11 +1121,12 @@ MonoBehaviour:
       normalizedTime: 0.5
   - position: {x: 0, y: 0, z: 3.84}
     rotation: {x: 0, y: 90, z: 0}
+    rotationWeight: 0.5
     cameraDirection: {x: 0, y: -1, z: 1}
     clipsPerDistance: 1
     travelClip: {fileID: 7400000, guid: 7eb751c5c7b954141b3f9a5e8a2b5f8b, type: 2}
     waitClip: {fileID: 0}
-    waitTime: 1
+    waitTime: 0
     connectionEvents:
     - methods:
         m_PersistentCalls:
