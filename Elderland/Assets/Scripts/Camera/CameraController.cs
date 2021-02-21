@@ -60,7 +60,9 @@ public class CameraController : MonoBehaviour
     public float TargetSpeed { get; set; }
     public float TargetZoom { get; set; }
     public float TargetLinearMultiplier { get; set; }
-    public Vector3 TargetDirection { get { return targetDirection; } set { targetDirection = value.normalized; } }
+    public Vector3 TargetDirection { 
+        get { return targetDirection; }
+        set { targetDirection = value.normalized; } }
 
     //Camera interactions
     public CameraArea Area { get; set; }

@@ -35,28 +35,33 @@ public class GameplayCutsceneEvent : MonoBehaviour
 					position,
 					rotationVector,
 					waypoints[0].rotationWeight,
+					true,
 					cameraDirection,
 					waypoints[0].clipsPerDistance,
 					waypoints[0].waitTime,
 					waypoints[0].travelClip,
 					waypoints[0].waitClip,
-					waypoints[0].connectionEvents));
+					waypoints[0].connectionEvents,
+					waypoints[0].onStateExit,
+					waypoints[0].onCompleteMatch));
 
 			for (int i = 1; i < waypoints.Length; i++)
 			{
 				waypoints[i].CheckConnectionTime();
-
 				linkedWaypoints.AddLast(
 					new GameplayCutsceneWaypoint(
 						waypoints[i].position,
 						waypoints[i].rotation,
 						waypoints[i].rotationWeight,
+						waypoints[i].useRotationAsGlobal,
 						waypoints[i].cameraDirection,
 						waypoints[i].clipsPerDistance,
 						waypoints[i].waitTime,
 						waypoints[i].travelClip,
 						waypoints[i].waitClip,
-						waypoints[i].connectionEvents));
+						waypoints[i].connectionEvents,
+						waypoints[i].onStateExit,
+						waypoints[i].onCompleteMatch));
 			}
 
 			GameInfo.CameraController.StartGameplayCutscene(
@@ -93,7 +98,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 				globalRotation,
 				Vector3.one).MultiplyPoint(Vector3.forward);
 		Vector3 globalCameraDirection = 
-			waypoints[0].cameraDirection;
+			SpaceMultiply(waypoints[0].cameraDirection, transform.rotation);
 
 		position = globalPosition;
 		rotationSpace = globalRotation;
@@ -110,9 +115,17 @@ public class GameplayCutsceneEvent : MonoBehaviour
 		ref Vector3 cameraDirection,
 		GeneratedWaypoint waypoint)
 	{
-		rotationSpace =
-			Quaternion.Euler(waypoint.rotation.x, waypoint.rotation.y, waypoint.rotation.z) *
-			rotationSpace;
+		if (!waypoint.useRotationAsGlobal)
+		{
+			rotationSpace =
+				Quaternion.Euler(waypoint.rotation.x, waypoint.rotation.y, waypoint.rotation.z) *
+				rotationSpace;
+		}
+		else
+		{
+			// need to rotate relative to target teleporter.
+			rotationSpace = transform.rotation * Quaternion.LookRotation(waypoint.rotation);
+		}
 		position =
 			position +
 			SpaceMultiply(waypoint.position, rotationSpace);
@@ -127,19 +140,23 @@ public class GameplayCutsceneEvent : MonoBehaviour
 		ref Vector3 position,
 		ref Quaternion rotationSpace,
 		ref Vector3 cameraDirection,
-		GameplayCutsceneWaypoint waypoint)
+		GameplayCutsceneWaypoint waypoint,
+		bool globalRotation = false)
 	{
 		var generatedWaypoint = 
 			new GeneratedWaypoint(
 				waypoint.Position,
 				waypoint.Rotation,
 				waypoint.RotationWeight,
+				waypoint.UseRotationAsGlobal,
 				waypoint.CameraDirection,
 				waypoint.clipsPerDistance,
 				waypoint.waitTime,
 				waypoint.travelClip,
 				waypoint.waitClip,
-				waypoint.events
+				waypoint.events,
+				waypoint.OnStateExit,
+				waypoint.OnCompleteMatch
 			);
 
 		GenerateNextWaypoint(
@@ -147,6 +164,23 @@ public class GameplayCutsceneEvent : MonoBehaviour
 			ref rotationSpace,
 			ref cameraDirection,
 			generatedWaypoint);
+	}
+
+	/*
+	* Needed to call ForceUpdateTransform from inspector in OnCompleteMatch.
+	*/
+	public void PostTeleportPlayer()
+	{
+		GameInfo.CameraController.GameplayCutscene.PostTeleportPlayer();
+	}
+
+	/*
+	* Needed to update transform backings yet not move player to retain trigger copy on
+	* real teleport.
+	*/
+	public void PreTeleportPlayer(PortalTeleporter teleporter)
+	{
+		GameInfo.CameraController.GameplayCutscene.PreTeleportPlayer(teleporter);
 	}
 
 	public void BeginningTest()
@@ -236,6 +270,8 @@ public class GameplayCutsceneEvent : MonoBehaviour
 		[SerializeField]
 		public float rotationWeight;
 		[SerializeField]
+		public bool useRotationAsGlobal;
+		[SerializeField]
 		public Vector3 cameraDirection;
 		[SerializeField]
 		public float clipsPerDistance;
@@ -247,27 +283,37 @@ public class GameplayCutsceneEvent : MonoBehaviour
 		public float waitTime;
 		[SerializeField]
 		public CameraCutsceneWaypointEvent[] connectionEvents;
+		[SerializeField]
+		public UnityEvent onStateExit;
+		[SerializeField]
+		public UnityEvent onCompleteMatch;
 
 		public GeneratedWaypoint(
 			Vector3 position,
 			Vector3 rotation,
 			float rotationWeight,
+			bool useRotationAsGlobal,
 			Vector3 cameraDirection,
 			float clipsPerDistance,
 			float waitTime,
 			AnimationClip travelClip,
 			AnimationClip waitClip,
-			CameraCutsceneWaypointEvent[] connectionEvents)
+			CameraCutsceneWaypointEvent[] connectionEvents,
+			UnityEvent onStateExit,
+			UnityEvent onCompleteMatch)
 		{
 			this.position = position;
 			this.rotation = rotation;
 			this.rotationWeight = rotationWeight;
+			this.useRotationAsGlobal = useRotationAsGlobal;
 			this.cameraDirection = cameraDirection;
 			this.clipsPerDistance = clipsPerDistance;
 			this.waitTime = waitTime;
 			this.travelClip = travelClip;
 			this.waitClip = waitClip;
 			this.connectionEvents = connectionEvents;
+			this.onStateExit = onStateExit;
+			this.onCompleteMatch = onCompleteMatch;
 		}
 
 		public void CheckConnectionTime()

@@ -19,6 +19,8 @@ public class GameplayCutscene
 	private AnimationLoop animationLoop;
 	private string[] loopNames;
 
+	private bool delayTargetDirection;
+
 	// Properties
 	public LinkedListNode<GameplayCutsceneWaypoint> CurrentWaypointNode { get; private set; }
 	public float Timer { get; private set; }
@@ -29,6 +31,7 @@ public class GameplayCutscene
 	public Quaternion TargetRotation { get { return rotationSpace; } }
 	public float CurrentStateDuration { get; private set; }
 	public float CurrentStateNormDuration { get; private set; }
+	public UnityEvent OnStateExit { get; private set; }
 
 	public GameplayCutscene(
 		LinkedList<GameplayCutsceneWaypoint> waypoints,
@@ -74,6 +77,8 @@ public class GameplayCutscene
 		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.Proceed);
 		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.Exit);
 		GameInfo.Manager.FreezeInput(this);
+
+		delayTargetDirection = false;
 	}
 
 	/*
@@ -92,6 +97,35 @@ public class GameplayCutscene
 	}
 
 	/*
+	* Needed to set final transform backings after teleporting player on a teleporter.
+	*/
+	public void PostTeleportPlayer()
+	{
+		//position = PlayerInfo.Player.transform.position;
+		//rotationSpace = PlayerInfo.Player.transform.rotation;
+		GameInfo.CameraController.TargetDirection = -cameraDirection;
+	}
+
+	/*
+	* Needed to update transform backings yet not move player to retain trigger copy on
+	* real teleport.
+	*/
+	public void PreTeleportPlayer(PortalTeleporter teleporter)
+	{
+		Vector3 tempPosition;
+		Quaternion tempRotation;
+		Vector3 tempForward;
+		teleporter.PreTeleportPlayer(
+			out tempPosition,
+			out tempRotation,
+			out tempForward);
+		position = tempPosition;
+		rotationSpace = tempRotation;
+		cameraDirection = tempForward;
+		delayTargetDirection = true;
+	}
+
+	/*
 	* Helper method needed for timing events.
 	*/
 	private float CalculateStateDuration()
@@ -106,8 +140,8 @@ public class GameplayCutscene
 	{
 		float distanceToTarget = 
             Vector3.Distance(
-                PlayerInfo.Player.transform.position,
-                GameInfo.CameraController.GameplayCutscene.TargetPosition);
+                position,
+                TargetPosition);
 
 		return distanceToTarget *
 			   CurrentWaypointNode.Value.clipsPerDistance;
@@ -157,6 +191,9 @@ public class GameplayCutscene
 
 		if (completedMatch)
 		{
+			OnStateExit = CurrentWaypointNode.Value.OnStateExit;
+			if (CurrentWaypointNode.Value.OnCompleteMatch != null)
+				CurrentWaypointNode.Value.OnCompleteMatch.Invoke();
 			exiting = true;
 
 			if (CurrentWaypointNode.Value.waitTime > minimumWaitTime)
@@ -214,15 +251,16 @@ public class GameplayCutscene
 		CurrentWaypointNode = CurrentWaypointNode.Next;
 		Timer = 0;
 		WaitTimer = 0;
-
+		
 		invokee.GenerateConcreteNextWaypoint(
 			ref position,
 			ref rotationSpace,
 			ref cameraDirection,
 			CurrentWaypointNode.Value);
 
-		GameInfo.CameraController.TargetDirection = 
-			-cameraDirection;
+		if (!delayTargetDirection)
+			GameInfo.CameraController.TargetDirection = -cameraDirection;
+		delayTargetDirection = false;
 
 		CurrentStateDuration = CalculateStateDuration();
 		CurrentStateNormDuration = CalculateStateNormDuration();
@@ -252,5 +290,8 @@ public class GameplayCutscene
 		PlayerInfo.Animator.SetInteger(
 			AnimationConstants.Player.ChoiceSeparator,
 			(int) TransitionChoice.Exit);
+
+		PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
+		PlayerInfo.MovementManager.SnapSpeed();
 	}
 }
