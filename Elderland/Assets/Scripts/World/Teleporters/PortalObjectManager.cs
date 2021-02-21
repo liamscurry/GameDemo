@@ -24,16 +24,7 @@ public class PortalObjectManager : MonoBehaviour
 
     private void LateUpdate()
     {
-        for (int i = 0; i < copiedObjects.Count; i++)
-        {
-            Transform armatureParent = 
-                copiedObjects[i].transform.Find("Armature");
-            Transform targetParent =
-                targetObjects[i].transform.Find("Armature");
-
-            teleporter.RootMirror(armatureParent, targetParent);
-            RecursiveMirror(armatureParent, targetParent);
-        }
+        UpdateCopies();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -43,6 +34,7 @@ public class PortalObjectManager : MonoBehaviour
         {
             touchingColliders.Add(other);
             CreateCopy(other);
+            UpdateCopies();
         }
     }
 
@@ -53,6 +45,23 @@ public class PortalObjectManager : MonoBehaviour
         {
             DeleteCopy(other);
             touchingColliders.Remove(other);
+        }
+    }
+
+    /*
+    * Needed to update every late update and when objects are copied.
+    */
+    private void UpdateCopies()
+    {
+        for (int i = 0; i < copiedObjects.Count; i++)
+        {
+            Transform armatureParent = 
+                copiedObjects[i].transform.Find("Armature");
+            Transform targetParent =
+                targetObjects[i].transform.Find("Armature");
+
+            teleporter.RootMirror(armatureParent, targetParent);
+            RecursiveMirror(armatureParent, targetParent);
         }
     }
 
@@ -82,6 +91,7 @@ public class PortalObjectManager : MonoBehaviour
             copiedObjects[indexToDelete];
         copiedObjects.RemoveAt(indexToDelete);
         targetObjects.RemoveAt(indexToDelete);
+        copyToDelete.SetActive(false);
         StartCoroutine(DeleteCopyCoroutine(copyToDelete));
     }
 
