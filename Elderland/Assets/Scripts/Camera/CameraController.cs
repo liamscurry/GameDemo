@@ -282,16 +282,6 @@ public class CameraController : MonoBehaviour
 
     private void AdjustZoom()
     {
-        /*
-        if (Input.GetAxis("Left Trigger") != 0 &&
-            AllowZoom &&
-            PlayerInfo.AbilityManager.RangedAvailable &&
-            GameInfo.Manager.ReceivingInput)
-        {
-            targetFov = 40;
-            zoomModifier = .4f;
-        }
-        else*/
         if (!ZoomIn.Value.Item1)
         {
             if (PlayerInfo.StatsManager.Sprinting)
@@ -351,20 +341,7 @@ public class CameraController : MonoBehaviour
     {
         if (TargetDirection.magnitude > 0.25)
         {
-            float targetHorizontalAngle =
-                Matho.Angle(Matho.StandardProjection2D(targetDirection)) + HorizontalOffset;
-            float reducedHorizontalAngle = 
-                Matho.ReduceAngle(HorizontalAngle);
-            float reducedTargetHorizontalAngle = 
-                Matho.ReduceAngle(targetHorizontalAngle);
-            HorizontalAngle =
-                Mathf.MoveTowardsAngle(reducedHorizontalAngle, reducedTargetHorizontalAngle, 100f * Time.deltaTime);
-
-            VerticalAngle =
-                Mathf.MoveTowardsAngle(VerticalAngle, 90, 60f * Time.deltaTime);
-
-            orientationDelta = 0;
-            sprintOrientation = Mathf.MoveTowards(sprintOrientation, orientationDelta, 1.8f * Time.deltaTime);
+            MoveOrientationToZero();
         }
         else
         {
@@ -402,6 +379,28 @@ public class CameraController : MonoBehaviour
                 VerticalAngle = Mathf.Clamp(VerticalAngle, 45, 135);
             }
         }    
+    }
+
+    /*
+    * Helper method for adjusting orientation value to zero over time. Used for gameplay and 
+    * gameplay cutscenes.
+    */
+    private void MoveOrientationToZero()
+    {
+        float targetHorizontalAngle =
+            Matho.Angle(Matho.StandardProjection2D(targetDirection)) + HorizontalOffset;
+        float reducedHorizontalAngle = 
+            Matho.ReduceAngle(HorizontalAngle);
+        float reducedTargetHorizontalAngle = 
+            Matho.ReduceAngle(targetHorizontalAngle);
+        HorizontalAngle =
+            Mathf.MoveTowardsAngle(reducedHorizontalAngle, reducedTargetHorizontalAngle, 100f * Time.deltaTime);
+
+        VerticalAngle =
+            Mathf.MoveTowardsAngle(VerticalAngle, 90, 60f * Time.deltaTime);
+
+        orientationDelta = 0;
+        sprintOrientation = Mathf.MoveTowards(sprintOrientation, orientationDelta, 1.8f * Time.deltaTime);
     }
 
     public void ShakeCamera()
@@ -518,14 +517,12 @@ public class CameraController : MonoBehaviour
     */
     private void UpdateGameplayCutscene()
     {
-        //gameplayCutscene.Update();
-
         UpdateCutsceneSettings();
         SeekTargetDirection();
 
         transform.rotation = GenerateRotation();
         transform.position =
-            GeneratePosition(FollowTarget.transform.position);
+            GeneratePosition(FollowTarget.transform.position + GenerateSprintOffset());
     }
 
     //Moves camera towards and interpolates camera settings based on the next and current waypoint.
@@ -621,8 +618,15 @@ public class CameraController : MonoBehaviour
 
     private void UpdateCutsceneSettings()
     {
+        MoveOrientationToZero();
+        
         fov = Mathf.SmoothDamp(fov, targetFov, ref fovVelocity, fovSpeedGradation, 100f);
         Camera.fieldOfView = fov;
+
+        sprintPercentage -= Time.deltaTime;
+        if (sprintPercentage < 0)
+            sprintPercentage = 0;
+        sprintTimer = 0;
     }
 
     public void ForceRadius()
