@@ -227,7 +227,7 @@ public class GameplayCutsceneEvent : MonoBehaviour
 					ref rotationSpace,
 					ref cameraDirection,
 					waypoints[i]);
-				
+				 
 				Gizmos.color = Color.cyan;	
 				Gizmos.DrawLine(position, oldGlobalPosition);		
 				Gizmos.DrawCube(position, Vector3.one * 0.5f);	

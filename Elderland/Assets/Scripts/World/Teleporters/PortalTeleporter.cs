@@ -14,7 +14,10 @@ public class PortalTeleporter : MonoBehaviour
     // Fields
     private bool drawPlane;
     private PortalObjectManager objectManager;
-    
+
+    private Vector3 teleportedPosition;
+    private Quaternion teleportedRotation;
+
     private void Start()
     {
         objectManager = 
@@ -50,18 +53,9 @@ public class PortalTeleporter : MonoBehaviour
 
     public void TeleportPlayer()
     {
-        UpdateMirroredCamera();
-        Vector3 modelOffset = 
-        PlayerInfo.Player.transform.Find("Model").Find("Armature").position - 
-            PlayerInfo.Player.transform.position;
-        Transform armature = 
-            objectManager.PlayerCopy.transform.Find("Armature");
-        PlayerInfo.Player.transform.position = 
-            armature.position;
-        PlayerInfo.Player.transform.position += modelOffset;
-        PlayerInfo.Player.transform.rotation =
-            Quaternion.LookRotation(targetTeleporter.transform.forward, Vector3.up);
-        
+        PlayerInfo.Player.transform.position = teleportedPosition;
+        PlayerInfo.Player.transform.rotation = teleportedRotation;
+
         GameInfo.CameraController.SetDirection(renderCamera.transform);
         GameInfo.CameraController.TargetDirection = Vector3.zero;
     }
@@ -90,6 +84,9 @@ public class PortalTeleporter : MonoBehaviour
         position += modelOffset;
         rotation =
             Quaternion.LookRotation(targetTeleporter.transform.forward, Vector3.up);
+
+        teleportedPosition = position;
+        teleportedRotation = rotation;
     }
 
     private void OnTriggerEnter(Collider other)

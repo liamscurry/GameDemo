@@ -67,8 +67,10 @@ public class GameplayCutscene
 		position = CurrentWaypointNode.Value.Position;
 		rotationSpace =
 			Quaternion.LookRotation(CurrentWaypointNode.Value.Rotation, Vector3.up);
-		CurrentStateDuration = CalculateStateDuration();
-		CurrentStateNormDuration = CalculateStateNormDuration();
+		CurrentStateDuration =
+			CalculateStateDuration(PlayerInfo.Player.transform.position);
+		CurrentStateNormDuration =
+			CalculateStateNormDuration(PlayerInfo.Player.transform.position);
 
 		UpdateAnimationClips();
 		InvokeEventTimers();
@@ -128,20 +130,21 @@ public class GameplayCutscene
 	/*
 	* Helper method needed for timing events.
 	*/
-	private float CalculateStateDuration()
+	private float CalculateStateDuration(Vector3 startPosition)
 	{
-		return CalculateStateNormDuration() * CurrentWaypointNode.Value.travelClip.length;
+		return CalculateStateNormDuration(startPosition) *
+			   CurrentWaypointNode.Value.travelClip.length;
 	}
 
 	/*
 	* Helper method needed for timing events.
 	*/
-	private float CalculateStateNormDuration()
+	private float CalculateStateNormDuration(Vector3 startPosition)
 	{
 		float distanceToTarget = 
             Vector3.Distance(
-                position,
-                TargetPosition);
+                startPosition,
+                position);
 
 		return distanceToTarget *
 			   CurrentWaypointNode.Value.clipsPerDistance;
@@ -252,6 +255,8 @@ public class GameplayCutscene
 		Timer = 0;
 		WaitTimer = 0;
 		
+		Vector3 positionBefore = position;
+
 		invokee.GenerateConcreteNextWaypoint(
 			ref position,
 			ref rotationSpace,
@@ -262,8 +267,8 @@ public class GameplayCutscene
 			GameInfo.CameraController.TargetDirection = -cameraDirection;
 		delayTargetDirection = false;
 
-		CurrentStateDuration = CalculateStateDuration();
-		CurrentStateNormDuration = CalculateStateNormDuration();
+		CurrentStateDuration = CalculateStateDuration(positionBefore);
+		CurrentStateNormDuration = CalculateStateNormDuration(positionBefore);
 
 		UpdateAnimationClips();
 		InvokeEventTimers();
