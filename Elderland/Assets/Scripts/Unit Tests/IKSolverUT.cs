@@ -32,15 +32,6 @@ public class IKSolverUT : MonoBehaviour
     [SerializeField]
     private Transform targetTransform;
     [SerializeField]
-    [HideInInspector]
-    private Vector3 lastTargetDirection;
-    [SerializeField]
-    [HideInInspector]
-    private Vector3 lastLocalTargetDirection;
-    [SerializeField]
-    [HideInInspector]
-    private Quaternion lastRootRotation;
-    [SerializeField]
     private Transform[] transforms;
     [SerializeField]
     private float[] transformLengths;
@@ -53,33 +44,39 @@ public class IKSolverUT : MonoBehaviour
 
     public static readonly float AngleThreshold = 2f;
 
+    private Vector3 startTargetPosition;
+    private Quaternion startRootRotation;
     private void Start()
     {
         StartCoroutine(TestCoroutine());
-
-        IKSolver.InitializeTransformIKSolver(
-            targetTransform,
-            ref lastTargetDirection,
-            transforms);
         
-        IKSolver.TransformIKSolveRaw(
-            targetTransform,
-            ref lastTargetDirection,
-            transforms,
-            transformLengths,
-            transformRidgity,
-            0);
+        IKSolver.InitializeTransformIKSolverRaw(
+                targetTransform,
+                transforms,
+                ref startRootRotation,
+                ref startTargetPosition);
     }
 
     private void Update()
     {
         IKSolver.TransformIKSolveRaw(
             targetTransform,
-            ref lastTargetDirection,
             transforms,
             transformLengths,
             transformRidgity,
             transformPoleAngle);
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            IKSolver.ResetTransformIKSolverRaw(
+                targetTransform,
+                transforms,
+                transformLengths,
+                transformRidgity,
+                transformPoleAngle,
+                startRootRotation,
+                startTargetPosition);
+        }
     }
 
     private IEnumerator TestCoroutine()

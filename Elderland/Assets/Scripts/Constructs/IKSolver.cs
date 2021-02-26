@@ -110,8 +110,7 @@ public class IKSolver : MonoBehaviour
 
     /*
     * Solves an n point IK problem given a set of points and lengths, where n > 3.
-    * Edits input point array via reference. k is the number of iterations for each step.
-    * ridgity is in the range 0.0 to 1.0. Increase ridgity if end bone is stretching.
+    * Edits input point array via reference. Increase ridgity if end bone is stretching.
     */
     private static void IKSolve(
         ref Vector2[] points,
@@ -181,7 +180,8 @@ public class IKSolver : MonoBehaviour
 
     /*
     * Solves a 3D IK problem given a set of joint points as transforms and a 
-    * space transform which specifies the limb rotation to map from 2D answer to 3D space.
+    * pole angle that specifies how tilted the limb is and maps from 2D answer to 3D space.
+    * In simple 
     */
     public static void TransformIKSolveAnimation(
         Transform spaceTransform,
@@ -230,9 +230,17 @@ public class IKSolver : MonoBehaviour
         }
     }
 
+    /*
+    * Solves a 3D IK problem given a set of joint points as transforms and a 
+    * pole angle that specifies how tilted the limb is and maps from 2D answer to 3D space.
+    * In this raw case, the limb should only be moved/rotated from the target transform and the pole angle
+    * and the parent transform of the whole IK rig subsystem (ex, parent of targetTransform)
+    * You can call ResetTransformIKSolver to reset the targetTransform and space transform locally.
+    * The IK target should not be in a position locally which rotates the top bone past vertical,
+    * ie, the targetTransform is high up locally along the y axis.
+    */
     public static void TransformIKSolveRaw(
         Transform targetTransform,
-        ref Vector3 lastTargetDirection,
         Transform[] transforms,
         float[] lengths,
         float ridgity,
@@ -241,30 +249,20 @@ public class IKSolver : MonoBehaviour
         Transform spaceTransform = 
             transforms[0];
 
-        /*if (!transforms[0].rotation.Equals(lastRootRotation))
-        {
-            // Rotate target with delta of root rotation
-            //targetTransform.position = 
-            //    spaceTransform.localToWorldMatrix.MultiplyPoint(lastLocalTargetDirection);
-        }
-        else*/
-        {
-            Vector3 targetDirection =
-                targetTransform.position - transforms[0].position;
-
-            Vector3 projectedLastTarget =
-                Matho.StandardProjection3D(lastTargetDirection);
-            Vector3 projectedTarget = 
-                Matho.StandardProjection3D(targetDirection);
-            Quaternion horizontalRotationDelta =
-                Quaternion.FromToRotation(
-                    projectedLastTarget,
-                    projectedTarget);
-
-            spaceTransform.rotation =   
-                horizontalRotationDelta *
-                spaceTransform.rotation;
-        }
+        Vector3 targetDirection =
+            targetTransform.parent.worldToLocalMatrix.MultiplyPoint(
+                targetTransform.position) -
+            targetTransform.parent.worldToLocalMatrix.MultiplyPoint(
+                transforms[0].position);
+        Vector2 projectedTarget = 
+            Matho.StandardProjection2D(targetDirection);
+        Vector3 currentEulerAngles =
+            transforms[0].localRotation.eulerAngles;
+        spaceTransform.localRotation =   
+            Quaternion.Euler(
+                currentEulerAngles.x,
+                -Matho.Angle(projectedTarget) + 90,
+                currentEulerAngles.z);
 
         // Solution from IKSolve maps to up and forward vectors of spaceTransform.
         // This is the offset from the first transform point.
@@ -312,20 +310,45 @@ public class IKSolver : MonoBehaviour
 
         for (int i = 1; i < points.Length; i++)
             transforms[i].position = storedPositions[i];
-
-        InitializeTransformIKSolver(
-            targetTransform,
-            ref lastTargetDirection,
-            transforms);
     }
 
-    public static void InitializeTransformIKSolver(
+    /*
+    * This method is needed in cases which you want to reset the state of the raw IK system via script
+    * or editor button/key input.
+    */
+    public static void ResetTransformIKSolverRaw(
         Transform targetTransform,
-        ref Vector3 lastTargetDirection,
-        Transform[] transforms)
+        Transform[] transforms,
+        float[] lengths,
+        float ridgity,
+        float poleAngle,
+        Quaternion startRootRotation,
+        Vector3 startTargetPosition)
     {
-        lastTargetDirection =
-            targetTransform.position - transforms[0].position;
+        transforms[0].localRotation =
+            startRootRotation;
+        targetTransform.position = 
+            transforms[0].localToWorldMatrix.MultiplyPoint(startTargetPosition);
+        TransformIKSolveRaw(
+            targetTransform,
+            transforms,
+            lengths,
+            ridgity,
+            poleAngle);
+    }
+
+    /*
+    * Needed to properly initialize raw IK system
+    */
+    public static void InitializeTransformIKSolverRaw(
+        Transform targetTransform,
+        Transform[] transforms,
+        ref Quaternion startRootRotation,
+        ref Vector3 startTargetPosition)
+    {
+        startTargetPosition = 
+            transforms[0].worldToLocalMatrix.MultiplyPoint(targetTransform.position);
+        startRootRotation = transforms[0].localRotation;
     }
 
     public static void TriangleAngleTests()
