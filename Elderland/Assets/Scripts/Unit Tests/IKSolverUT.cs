@@ -28,11 +28,58 @@ public class IKSolverUT : MonoBehaviour
     [Range(0.0f, 1.0f)]
     private float ridgity;
 
+    [Header("Transform Ik Solver Test")]
+    [SerializeField]
+    private Transform targetTransform;
+    [SerializeField]
+    [HideInInspector]
+    private Vector3 lastTargetDirection;
+    [SerializeField]
+    [HideInInspector]
+    private Vector3 lastLocalTargetDirection;
+    [SerializeField]
+    [HideInInspector]
+    private Quaternion lastRootRotation;
+    [SerializeField]
+    private Transform[] transforms;
+    [SerializeField]
+    private float[] transformLengths;
+    [SerializeField]
+    [Range(0.0f, 1.0f)]
+    private float transformRidgity;
+    [SerializeField]
+    [Range(-90, 90)]
+    private float transformPoleAngle;
+
     public static readonly float AngleThreshold = 2f;
 
     private void Start()
     {
         StartCoroutine(TestCoroutine());
+
+        IKSolver.InitializeTransformIKSolver(
+            targetTransform,
+            ref lastTargetDirection,
+            transforms);
+        
+        IKSolver.TransformIKSolveRaw(
+            targetTransform,
+            ref lastTargetDirection,
+            transforms,
+            transformLengths,
+            transformRidgity,
+            0);
+    }
+
+    private void Update()
+    {
+        IKSolver.TransformIKSolveRaw(
+            targetTransform,
+            ref lastTargetDirection,
+            transforms,
+            transformLengths,
+            transformRidgity,
+            transformPoleAngle);
     }
 
     private IEnumerator TestCoroutine()
@@ -46,6 +93,11 @@ public class IKSolverUT : MonoBehaviour
             IKSolver.GenerateOffsetTests();
             IKSolver.GeneratePointTests();
             IKSolver.DiscrepencyTests();
+            /*
+            Transform[] transforms = new Transform[2];
+            transforms[0] = transform.parent;
+            transforms[1] = transform;
+            IKSolver.TransformIKSolve(transform, transforms);*/
 
             Debug.Log("IKSolver: Success");
         } 

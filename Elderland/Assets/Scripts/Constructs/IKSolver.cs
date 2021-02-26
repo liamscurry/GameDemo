@@ -8,6 +8,8 @@ using UnityEngine;
 */
 public class IKSolver : MonoBehaviour
 {
+    public static readonly float IKRootRotationMin = 0.5f;
+
     /*
     * Generates a specific angle of a triangle with length d, l and h.
     * Specifically generates the angle between d and l segments.
@@ -175,6 +177,155 @@ public class IKSolver : MonoBehaviour
             if (isFlat)
                 points[points.Length - 1] = points[0] + endDirection * totalLength;
         }
+    }
+
+    /*
+    * Solves a 3D IK problem given a set of joint points as transforms and a 
+    * space transform which specifies the limb rotation to map from 2D answer to 3D space.
+    */
+    public static void TransformIKSolveAnimation(
+        Transform spaceTransform,
+        Transform targetTransform,
+        Transform[] transforms,
+        float[] lengths,
+        float ridgity,
+        bool adjustSpaceTransform = false)
+    {
+        // Solution from IKSolve maps to up and forward vectors of spaceTransform.
+        // This is the offset from the first transform point.
+        Vector2[] points = new Vector2[transforms.Length];
+        Vector3 startOffset =
+            (targetTransform.position - transforms[0].position);
+        Vector3 forwardProjection =
+            Matho.Project(startOffset, spaceTransform.forward);
+        Vector3 upProjection =
+            Matho.Project(startOffset, spaceTransform.up);
+        int forwardSign =
+            (Matho.AngleBetween(forwardProjection, spaceTransform.forward) < 90) ? 1 : -1;
+        int upSign =
+            (Matho.AngleBetween(upProjection, spaceTransform.up) < 90) ? 1 : -1;
+        points[points.Length - 1] =
+            new Vector2(
+                forwardProjection.magnitude * forwardSign,
+                upProjection.magnitude * upSign); // need signs for projections.
+
+        IKSolve(ref points, ref lengths, ridgity);
+
+        for (int i = 1; i < points.Length; i++)
+        {
+            transforms[i].position = 
+                transforms[0].position + 
+                points[i].y * spaceTransform.up +
+                points[i].x * spaceTransform.forward;
+        }
+
+        if (adjustSpaceTransform)
+        {
+            Vector3 startDirection =
+                transforms[1].position - transforms[0].position;
+
+            spaceTransform.rotation =
+                Quaternion.FromToRotation(spaceTransform.forward, startDirection) *
+                spaceTransform.rotation;
+        }
+    }
+
+    public static void TransformIKSolveRaw(
+        Transform targetTransform,
+        ref Vector3 lastTargetDirection,
+        Transform[] transforms,
+        float[] lengths,
+        float ridgity,
+        float poleAngle)
+    {
+        Transform spaceTransform = 
+            transforms[0];
+
+        /*if (!transforms[0].rotation.Equals(lastRootRotation))
+        {
+            // Rotate target with delta of root rotation
+            //targetTransform.position = 
+            //    spaceTransform.localToWorldMatrix.MultiplyPoint(lastLocalTargetDirection);
+        }
+        else*/
+        {
+            Vector3 targetDirection =
+                targetTransform.position - transforms[0].position;
+
+            Vector3 projectedLastTarget =
+                Matho.StandardProjection3D(lastTargetDirection);
+            Vector3 projectedTarget = 
+                Matho.StandardProjection3D(targetDirection);
+            Quaternion horizontalRotationDelta =
+                Quaternion.FromToRotation(
+                    projectedLastTarget,
+                    projectedTarget);
+
+            spaceTransform.rotation =   
+                horizontalRotationDelta *
+                spaceTransform.rotation;
+        }
+
+        // Solution from IKSolve maps to up and forward vectors of spaceTransform.
+        // This is the offset from the first transform point.
+        Vector2[] points = new Vector2[transforms.Length];
+        Vector3 startOffset =
+            (targetTransform.position - transforms[0].position);
+        Vector3 forwardProjection =
+            Matho.Project(startOffset, spaceTransform.forward);
+        Vector3 upProjection =
+            Matho.Project(startOffset, spaceTransform.up);
+        int forwardSign =
+            (Matho.AngleBetween(forwardProjection, spaceTransform.forward) < 90) ? 1 : -1;
+        int upSign =
+            (Matho.AngleBetween(upProjection, spaceTransform.up) < 90) ? 1 : -1;
+        points[points.Length - 1] =
+            new Vector2(
+                forwardProjection.magnitude * forwardSign,
+                upProjection.magnitude * upSign);
+
+        IKSolve(ref points, ref lengths, ridgity);
+
+        for (int i = 1; i < points.Length; i++)
+        {
+            transforms[i].position = 
+                transforms[0].position + 
+                points[i].y * spaceTransform.up +
+                points[i].x * spaceTransform.forward;
+        }
+
+        Vector3[] storedPositions = new Vector3[points.Length];
+        Vector3 ikDirection = targetTransform.position - transforms[0].position;
+        for (int i = 1; i < points.Length; i++)
+        {
+            storedPositions[i] = 
+                transforms[0].position +
+                Matho.Rotate(transforms[i].position - transforms[0].position, ikDirection, poleAngle);
+        }
+
+        Vector3 startDirection =
+            transforms[1].position - transforms[0].position;
+
+        spaceTransform.rotation =
+            Quaternion.FromToRotation(spaceTransform.forward, startDirection) *
+            spaceTransform.rotation;
+
+        for (int i = 1; i < points.Length; i++)
+            transforms[i].position = storedPositions[i];
+
+        InitializeTransformIKSolver(
+            targetTransform,
+            ref lastTargetDirection,
+            transforms);
+    }
+
+    public static void InitializeTransformIKSolver(
+        Transform targetTransform,
+        ref Vector3 lastTargetDirection,
+        Transform[] transforms)
+    {
+        lastTargetDirection =
+            targetTransform.position - transforms[0].position;
     }
 
     public static void TriangleAngleTests()
