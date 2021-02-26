@@ -82,31 +82,6 @@ public class IKSolver : MonoBehaviour
 
         return (Vector2.Distance(end, current) < Vector2.Distance(end, projCurrent));
     }
-    
-    /*
-    * Solves a three point IK problem given the bone length and end points.
-    * Edits input vectors via reference.
-    */
-    private static void IKSolveSimple(
-        ref Vector2 start,
-        ref Vector2 end,
-        ref Vector2 middle,
-        float l1,
-        float l2)
-    {
-        if (l1 + l2 < (start - end).magnitude)
-        {
-            middle = start + (end - start).normalized * (l1);
-            end =    start + (end - start).normalized * (l1 + l2);
-        }
-        else
-        {
-            float d = (start - end).magnitude;
-            float theta = TriangleAngle(d, l1, l2);
-            Vector2 solution = GeneratePoint(start, end, theta, l1);
-            middle = solution;
-        }
-    }
 
     /*
     * Solves an n point IK problem given a set of points and lengths, where n > 3.
@@ -118,64 +93,56 @@ public class IKSolver : MonoBehaviour
         float ridgity
     )
     {
-        if (points.Length <= 3)
+        float lower = 0;
+        float upper = 1;
+
+        Vector2 end = points[points.Length - 1];
+
+        float totalLength = 0;
+        for (int i = 0; i < lengths.Length; i++)
+            totalLength += lengths[i];
+        float lengthUsed = 0;
+
+        bool isFlat = false;
+        Vector2 endDirection = (points[points.Length - 1] - points[0]).normalized;
+        if ((points[0] - points[points.Length - 1]).magnitude > totalLength)
+            isFlat = true;
+
+        for (int i = 0; i < points.Length - 2; i++)
         {
-            throw new System.Exception(
-                "IKSolve must have n > 3 points. Consider using IKSolve simple.");
-        }
-        else
-        {
-            float lower = 0;
-            float upper = 1;
+            Vector2 currentPoint = Vector2.zero;
+            float dI = (points[i] - points[points.Length - 1]).magnitude;
+            lengthUsed += lengths[i];
 
-            Vector2 end = points[points.Length - 1];
+            float stiffness = 
+                (lower * (1 - ridgity) + upper * (ridgity));
 
-            float totalLength = 0;
-            for (int i = 0; i < lengths.Length; i++)
-                totalLength += lengths[i];
-            float lengthUsed = 0;
+            float theta = TriangleAngle(dI, lengths[i], totalLength - lengthUsed) * stiffness;
+            currentPoint = GeneratePoint(points[i], end, theta, lengths[i]);
 
-            bool isFlat = false;
-            Vector2 endDirection = (points[points.Length - 1] - points[0]).normalized;
-            if ((points[0] - points[points.Length - 1]).magnitude > totalLength)
-                isFlat = true;
+            float dINext = (currentPoint - points[points.Length - 1]).magnitude;
+            float nextTheta =
+                TriangleAngle(dINext, lengths[i + 1], totalLength - lengthUsed - lengths[i + 1]);
+            Vector2 nextPoint =
+                GeneratePoint(currentPoint, end, nextTheta, lengths[i + 1]);
 
-            for (int i = 0; i < points.Length - 2; i++)
+            if (Discrepency(end, points[i], currentPoint, nextPoint))
             {
-                Vector2 currentPoint = Vector2.zero;
-                float dI = (points[i] - points[points.Length - 1]).magnitude;
-                lengthUsed += lengths[i];
-
-                float stiffness = 
-                    (lower * (1 - ridgity) + upper * (ridgity));
-
-                float theta = TriangleAngle(dI, lengths[i], totalLength - lengthUsed) * stiffness;
-                currentPoint = GeneratePoint(points[i], end, theta, lengths[i]);
-
-                float dINext = (currentPoint - points[points.Length - 1]).magnitude;
-                float nextTheta =
-                    TriangleAngle(dINext, lengths[i + 1], totalLength - lengthUsed - lengths[i + 1]);
-                Vector2 nextPoint =
-                    GeneratePoint(currentPoint, end, nextTheta, lengths[i + 1]);
-
-                if (Discrepency(end, points[i], currentPoint, nextPoint))
-                {
-                    // true, joint bending against will.
-                    upper = (lower + upper) / 2;
-                }
-                else
-                {
-                    lower = (lower + upper) / 2;
-                }
-
-                lower = 0;
-                upper = 1;
-                points[i + 1] = currentPoint;
+                // true, joint bending against will.
+                upper = (lower + upper) / 2;
+            }
+            else
+            {
+                lower = (lower + upper) / 2;
             }
 
-            if (isFlat)
-                points[points.Length - 1] = points[0] + endDirection * totalLength;
+            lower = 0;
+            upper = 1;
+            points[i + 1] = currentPoint;
         }
+
+        if (isFlat)
+            points[points.Length - 1] = points[0] + endDirection * totalLength;
     }
 
     /*
@@ -236,6 +203,7 @@ public class IKSolver : MonoBehaviour
     * In this raw case, the limb should only be moved/rotated from the target transform and the pole angle
     * and the parent transform of the whole IK rig subsystem (ex, parent of targetTransform)
     * You can call ResetTransformIKSolver to reset the targetTransform and space transform locally.
+    * Call InitializeTransformIKSolver to initialize the rig subsystem.
     * The IK target should not be in a position locally which rotates the top bone past vertical,
     * ie, the targetTransform is high up locally along the y axis.
     */
@@ -249,13 +217,35 @@ public class IKSolver : MonoBehaviour
         Transform spaceTransform = 
             transforms[0];
 
-        Vector3 targetDirection =
-            targetTransform.parent.worldToLocalMatrix.MultiplyPoint(
-                targetTransform.position) -
+        Vector3 localRootPosition =
             targetTransform.parent.worldToLocalMatrix.MultiplyPoint(
                 transforms[0].position);
+        Vector3 targetDirection =
+            targetTransform.parent.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
+            localRootPosition;
         Vector2 projectedTarget = 
             Matho.StandardProjection2D(targetDirection);
+        float maxTargetX = 1f;
+        if (Mathf.Abs(targetDirection.x) > maxTargetX)
+        {
+            targetTransform.position = 
+                targetTransform.parent.localToWorldMatrix.MultiplyPoint(
+                    localRootPosition +
+                    new Vector3(maxTargetX * Matho.Sign(targetDirection.x), targetDirection.y, targetDirection.z));
+
+            targetDirection =
+                targetTransform.parent.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
+                localRootPosition;
+            projectedTarget = 
+                Matho.StandardProjection2D(targetDirection);
+        }
+        float targetAngle =
+            Matho.AngleBetween(projectedTarget, new Vector2(0, 1));
+        float signAngleV =
+            Matho.AngleBetween(projectedTarget, new Vector2(1, 0));
+        signAngleV = (signAngleV < 90) ? 1 : -1;
+        poleAngle += targetAngle * signAngleV;
+
         Vector3 currentEulerAngles =
             transforms[0].localRotation.eulerAngles;
         spaceTransform.localRotation =   
@@ -514,15 +504,5 @@ public class IKSolver : MonoBehaviour
     )
     {
         IKSolve(ref points, ref lengths, ridgity);
-    }
-
-    public static void IKSolveSimpleTests(
-        ref Vector2 start,
-        ref Vector2 end,
-        ref Vector2 middle,
-        float l1,
-        float l2)
-    {
-        IKSolveSimple(ref start, ref end, ref middle, l1, l2);
     }
 }

@@ -90,11 +90,6 @@ public class IKSolverUT : MonoBehaviour
             IKSolver.GenerateOffsetTests();
             IKSolver.GeneratePointTests();
             IKSolver.DiscrepencyTests();
-            /*
-            Transform[] transforms = new Transform[2];
-            transforms[0] = transform.parent;
-            transforms[1] = transform;
-            IKSolver.TransformIKSolve(transform, transforms);*/
 
             Debug.Log("IKSolver: Success");
         } 
@@ -106,20 +101,7 @@ public class IKSolverUT : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (testSimple)
-        {
-            Vector2 startCopy = start;
-            Vector2 endCopy = end;
-            Vector2 middle = Vector2.zero;
-            IKSolver.IKSolveSimpleTests(ref startCopy, ref endCopy, ref middle, l1, l2);
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(startCopy, middle);
-            Gizmos.DrawLine(middle, endCopy);
-            Gizmos.DrawCube(startCopy, Vector3.one * 0.25f);
-            Gizmos.DrawCube(middle, Vector3.one * 0.25f);
-            Gizmos.DrawCube(endCopy, Vector3.one * 0.25f);
-        }
-        else if (testGeneric)
+        if (testGeneric)
         {
             Vector2[] pointsCopy = new Vector2[points.Length];
             for (int i = 0; i < points.Length; i++)
