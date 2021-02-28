@@ -164,6 +164,8 @@ public class IKSolver : MonoBehaviour
         float ridgity,
         float poleAngle)
     {
+        float originalPoleAngle = poleAngle;
+
         Vector3 localRootPosition =
             targetTransform.parent.worldToLocalMatrix.MultiplyPoint(
                 transforms[0].position);
@@ -228,6 +230,7 @@ public class IKSolver : MonoBehaviour
                 points[i].y * spaceTransform.up +
                 points[i].x * spaceTransform.forward;
         } // flip position over parent z direction?
+        Vector3 spaceRightDirection = spaceTransform.right;
 
         Vector3[] storedPositions = new Vector3[points.Length];
         Vector3 ikDirection = targetTransform.position - transforms[0].position;
@@ -237,6 +240,8 @@ public class IKSolver : MonoBehaviour
                 transforms[0].position +
                 Matho.Rotate(transforms[i].position - transforms[0].position, ikDirection, poleAngle);
         }
+        spaceRightDirection = 
+            Matho.Rotate(spaceRightDirection, ikDirection, poleAngle);
 
         Vector3 startDirection =
             transforms[1].position - transforms[0].position;
@@ -248,13 +253,15 @@ public class IKSolver : MonoBehaviour
         for (int i = 1; i < points.Length; i++)
             transforms[i].position = storedPositions[i];
         
-        DirectTransformIK(targetTransform, transforms, poleAngle);
+        DirectTransformIK(spaceTransform, targetTransform, transforms, poleAngle, spaceRightDirection);
     }
 
     private static void DirectTransformIK(
+        Transform spaceTransform,
         Transform targetTransform,
         Transform[] transforms,
-        float poleAngle)
+        float poleAngle,
+        Vector3 spaceRightDirection)
     {
         Vector3[] storedPositions = new Vector3[transforms.Length];
         for (int i = 0; i < transforms.Length; i++)
@@ -262,16 +269,18 @@ public class IKSolver : MonoBehaviour
             storedPositions[i] = transforms[i].position;
         }
 
+        Vector3 targetDirection = targetTransform.position - storedPositions[0];
         for (int i = transforms.Length - 2; i >= 0; i--)
         {
             Vector3 lookDirection =
-                transforms[i + 1].position - transforms[i].position;
-            Vector3 up = Matho.Rotate(lookDirection, transforms[0].parent.right, 90); // need to be based on parent.right rotated
-            // by pole angle
+                storedPositions[i + 1] - storedPositions[i];
+            //right = Matho.Rotate(right, );
+            Vector3 up = Matho.Rotate(lookDirection, spaceRightDirection, 90); // need to be based on parent.right rotated
+            // by pole angle, error in direction is somewhere, up direction in quaternion is wrong.
             transforms[i].rotation =
                 Quaternion.LookRotation(
-                    Matho.Rotate(up, lookDirection, 180),//Vector3.Cross(lookDirection, up)
-                    lookDirection);
+                    Matho.Rotate(up, lookDirection, 180),
+                    lookDirection);  
         }
 
         transforms[transforms.Length - 1].rotation = targetTransform.rotation;
