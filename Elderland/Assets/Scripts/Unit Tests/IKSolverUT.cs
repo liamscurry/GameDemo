@@ -5,18 +5,6 @@ using UnityEngine;
 
 public class IKSolverUT : MonoBehaviour
 {
-    [Header("Simple IK Solver Test")]
-    [SerializeField]
-    private bool testSimple;
-    [SerializeField]
-    private Vector2 start;
-    [SerializeField]
-    private Vector2 end;
-    [SerializeField]
-    private float l1;
-    [SerializeField]
-    private float l2;
-
     [Header("Generic IK Solver Test")]
     [SerializeField]
     private bool testGeneric;
@@ -30,11 +18,11 @@ public class IKSolverUT : MonoBehaviour
 
     [Header("Transform Ik Solver Test")]
     [SerializeField]
+    private Transform spaceTransform;
+    [SerializeField]
     private Transform targetTransform;
     [SerializeField]
     private Transform[] transforms;
-    [SerializeField]
-    private float[] transformLengths;
     [SerializeField]
     [Range(0.0f, 1.0f)]
     private float transformRidgity;
@@ -44,22 +32,26 @@ public class IKSolverUT : MonoBehaviour
 
     public static readonly float AngleThreshold = 2f;
 
+    private float[] transformLengths;
     private Vector3 startTargetPosition;
     private Quaternion startRootRotation;
     private void Start()
     {
         StartCoroutine(TestCoroutine());
         
-        IKSolver.InitializeTransformIKSolverRaw(
+        IKSolver.InitializeTransformIKSolver(
+                spaceTransform,
                 targetTransform,
                 transforms,
+                ref transformLengths,
                 ref startRootRotation,
                 ref startTargetPosition);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        IKSolver.TransformIKSolveRaw(
+        IKSolver.TransformIKSolve(
+            spaceTransform,
             targetTransform,
             transforms,
             transformLengths,
@@ -68,7 +60,8 @@ public class IKSolverUT : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R))
         {
-            IKSolver.ResetTransformIKSolverRaw(
+            IKSolver.ResetTransformIKSolver(
+                spaceTransform,
                 targetTransform,
                 transforms,
                 transformLengths,

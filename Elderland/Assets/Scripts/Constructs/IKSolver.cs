@@ -148,58 +148,6 @@ public class IKSolver : MonoBehaviour
     /*
     * Solves a 3D IK problem given a set of joint points as transforms and a 
     * pole angle that specifies how tilted the limb is and maps from 2D answer to 3D space.
-    * In simple 
-    */
-    public static void TransformIKSolveAnimation(
-        Transform spaceTransform,
-        Transform targetTransform,
-        Transform[] transforms,
-        float[] lengths,
-        float ridgity,
-        bool adjustSpaceTransform = false)
-    {
-        // Solution from IKSolve maps to up and forward vectors of spaceTransform.
-        // This is the offset from the first transform point.
-        Vector2[] points = new Vector2[transforms.Length];
-        Vector3 startOffset =
-            (targetTransform.position - transforms[0].position);
-        Vector3 forwardProjection =
-            Matho.Project(startOffset, spaceTransform.forward);
-        Vector3 upProjection =
-            Matho.Project(startOffset, spaceTransform.up);
-        int forwardSign =
-            (Matho.AngleBetween(forwardProjection, spaceTransform.forward) < 90) ? 1 : -1;
-        int upSign =
-            (Matho.AngleBetween(upProjection, spaceTransform.up) < 90) ? 1 : -1;
-        points[points.Length - 1] =
-            new Vector2(
-                forwardProjection.magnitude * forwardSign,
-                upProjection.magnitude * upSign); // need signs for projections.
-
-        IKSolve(ref points, ref lengths, ridgity);
-
-        for (int i = 1; i < points.Length; i++)
-        {
-            transforms[i].position = 
-                transforms[0].position + 
-                points[i].y * spaceTransform.up +
-                points[i].x * spaceTransform.forward;
-        }
-
-        if (adjustSpaceTransform)
-        {
-            Vector3 startDirection =
-                transforms[1].position - transforms[0].position;
-
-            spaceTransform.rotation =
-                Quaternion.FromToRotation(spaceTransform.forward, startDirection) *
-                spaceTransform.rotation;
-        }
-    }
-
-    /*
-    * Solves a 3D IK problem given a set of joint points as transforms and a 
-    * pole angle that specifies how tilted the limb is and maps from 2D answer to 3D space.
     * In this raw case, the limb should only be moved/rotated from the target transform and the pole angle
     * and the parent transform of the whole IK rig subsystem (ex, parent of targetTransform)
     * You can call ResetTransformIKSolver to reset the targetTransform and space transform locally.
@@ -207,16 +155,15 @@ public class IKSolver : MonoBehaviour
     * The IK target should not be in a position locally which rotates the top bone past vertical,
     * ie, the targetTransform is high up locally along the y axis.
     */
-    public static void TransformIKSolveRaw(
+    // IK works with blender, just need to rotate system so up direction is pointing towards next bone end.
+    public static void TransformIKSolve(
+        Transform spaceTransform,
         Transform targetTransform,
         Transform[] transforms,
         float[] lengths,
         float ridgity,
         float poleAngle)
     {
-        Transform spaceTransform = 
-            transforms[0];
-
         Vector3 localRootPosition =
             targetTransform.parent.worldToLocalMatrix.MultiplyPoint(
                 transforms[0].position);
@@ -247,7 +194,7 @@ public class IKSolver : MonoBehaviour
         poleAngle += targetAngle * signAngleV;
 
         Vector3 currentEulerAngles =
-            transforms[0].localRotation.eulerAngles;
+            spaceTransform.localRotation.eulerAngles;
         spaceTransform.localRotation =   
             Quaternion.Euler(
                 currentEulerAngles.x,
@@ -280,7 +227,7 @@ public class IKSolver : MonoBehaviour
                 transforms[0].position + 
                 points[i].y * spaceTransform.up +
                 points[i].x * spaceTransform.forward;
-        }
+        } // flip position over parent z direction?
 
         Vector3[] storedPositions = new Vector3[points.Length];
         Vector3 ikDirection = targetTransform.position - transforms[0].position;
@@ -300,13 +247,52 @@ public class IKSolver : MonoBehaviour
 
         for (int i = 1; i < points.Length; i++)
             transforms[i].position = storedPositions[i];
+        
+        DirectTransformIK(targetTransform, transforms, poleAngle);
+    }
+
+    private static void DirectTransformIK(
+        Transform targetTransform,
+        Transform[] transforms,
+        float poleAngle)
+    {
+        Vector3[] storedPositions = new Vector3[transforms.Length];
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            storedPositions[i] = transforms[i].position;
+        }
+
+        for (int i = transforms.Length - 2; i >= 0; i--)
+        {
+            Vector3 lookDirection =
+                transforms[i + 1].position - transforms[i].position;
+            Vector3 up = Matho.Rotate(lookDirection, transforms[0].parent.right, 90); // need to be based on parent.right rotated
+            // by pole angle
+            transforms[i].rotation =
+                Quaternion.LookRotation(
+                    Matho.Rotate(up, lookDirection, 180),//Vector3.Cross(lookDirection, up)
+                    lookDirection);
+        }
+
+        transforms[transforms.Length - 1].rotation = targetTransform.rotation;
+        //Vector3 currentScale =
+        //    transforms[transforms.Length - 1].localScale;
+        //transforms[transforms.Length - 1].localScale = 
+        //    new Vector3(-currentScale.x, currentScale.y, currentScale.z);
+
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            transforms[i].position = storedPositions[i];
+        }
+
     }
 
     /*
     * This method is needed in cases which you want to reset the state of the raw IK system via script
     * or editor button/key input.
     */
-    public static void ResetTransformIKSolverRaw(
+    public static void ResetTransformIKSolver(
+        Transform spaceTransform,
         Transform targetTransform,
         Transform[] transforms,
         float[] lengths,
@@ -315,11 +301,12 @@ public class IKSolver : MonoBehaviour
         Quaternion startRootRotation,
         Vector3 startTargetPosition)
     {
-        transforms[0].localRotation =
+        spaceTransform.localRotation =
             startRootRotation;
         targetTransform.position = 
-            transforms[0].localToWorldMatrix.MultiplyPoint(startTargetPosition);
-        TransformIKSolveRaw(
+            spaceTransform.localToWorldMatrix.MultiplyPoint(startTargetPosition);
+        TransformIKSolve(
+            spaceTransform,
             targetTransform,
             transforms,
             lengths,
@@ -330,15 +317,23 @@ public class IKSolver : MonoBehaviour
     /*
     * Needed to properly initialize raw IK system
     */
-    public static void InitializeTransformIKSolverRaw(
+    // import as fbx with coord system and have the animator for bone vertex groups.
+    public static void InitializeTransformIKSolver(
+        Transform spaceTransform,
         Transform targetTransform,
         Transform[] transforms,
+        ref float[] lengths,
         ref Quaternion startRootRotation,
         ref Vector3 startTargetPosition)
     {
+        lengths = new float[transforms.Length - 1];
+        for (int i = 0; i < transforms.Length - 1; i++)
+        {
+            lengths[i] = Vector3.Distance(transforms[i].position, transforms[i + 1].position);
+        }
         startTargetPosition = 
-            transforms[0].worldToLocalMatrix.MultiplyPoint(targetTransform.position);
-        startRootRotation = transforms[0].localRotation;
+            spaceTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position);
+        startRootRotation = spaceTransform.localRotation;
     }
 
     public static void TriangleAngleTests()
