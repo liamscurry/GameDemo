@@ -162,7 +162,8 @@ public class IKSolver : MonoBehaviour
         Transform[] transforms,
         float[] lengths,
         float ridgity,
-        float poleAngle)
+        float poleAngle,
+        float maxX)
     {
         float originalPoleAngle = poleAngle;
 
@@ -171,16 +172,15 @@ public class IKSolver : MonoBehaviour
                 transforms[0].position);
         Vector3 targetDirection =
             targetTransform.parent.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
-            localRootPosition;
+            localRootPosition; // changing?
         Vector2 projectedTarget = 
             Matho.StandardProjection2D(targetDirection);
-        float maxTargetX = 1f;
-        if (Mathf.Abs(targetDirection.x) > maxTargetX)
+        if (Mathf.Abs(targetDirection.x) > maxX)
         {
             targetTransform.position = 
                 targetTransform.parent.localToWorldMatrix.MultiplyPoint(
                     localRootPosition +
-                    new Vector3(maxTargetX * Matho.Sign(targetDirection.x), targetDirection.y, targetDirection.z));
+                    new Vector3(maxX * Matho.Sign(targetDirection.x), targetDirection.y, targetDirection.z));
 
             targetDirection =
                 targetTransform.parent.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
@@ -195,13 +195,13 @@ public class IKSolver : MonoBehaviour
         signAngleV = (signAngleV < 90) ? 1 : -1;
         poleAngle += targetAngle * signAngleV;
 
-        Vector3 currentEulerAngles =
-            spaceTransform.localRotation.eulerAngles;
-        spaceTransform.localRotation =   
-            Quaternion.Euler(
-                currentEulerAngles.x,
-                -Matho.Angle(projectedTarget) + 90,
-                currentEulerAngles.z);
+        if (projectedTarget.magnitude != 0)
+        {
+            Vector3 currentEulerAngles =
+                spaceTransform.localRotation.eulerAngles;
+            spaceTransform.localRotation =   
+                Quaternion.LookRotation(Matho.StandardProjection3D(targetDirection), Vector3.up);
+        }
 
         // Solution from IKSolve maps to up and forward vectors of spaceTransform.
         // This is the offset from the first transform point.
@@ -230,7 +230,12 @@ public class IKSolver : MonoBehaviour
                 points[i].y * spaceTransform.up +
                 points[i].x * spaceTransform.forward;
         } // flip position over parent z direction?
-        Vector3 spaceRightDirection = spaceTransform.right;
+        Vector3 spaceRightDirection = spaceTransform.right; // space right changinc each call
+        // definitely spaceTransform.right that is changing and thus changing sign of spaceRightDirection rotate
+        // by pole normal. IKDirection fine.
+
+        // Simplify code, only have effective pole angle, no need to rotate space rotatiokn by new pole angle.
+        // Simple is better.
 
         Vector3[] storedPositions = new Vector3[points.Length];
         Vector3 ikDirection = targetTransform.position - transforms[0].position;
@@ -240,22 +245,26 @@ public class IKSolver : MonoBehaviour
                 transforms[0].position +
                 Matho.Rotate(transforms[i].position - transforms[0].position, ikDirection, poleAngle);
         }
-        spaceRightDirection = 
-            Matho.Rotate(spaceRightDirection, ikDirection, poleAngle);
-
-        Vector3 startDirection =
-            transforms[1].position - transforms[0].position;
-
-        spaceTransform.rotation =
-            Quaternion.FromToRotation(spaceTransform.forward, startDirection) *
-            spaceTransform.rotation;
 
         for (int i = 1; i < points.Length; i++)
             transforms[i].position = storedPositions[i];
+
+        spaceRightDirection = 
+            spaceRightDirection - Matho.Project(spaceRightDirection, ikDirection);
+        spaceRightDirection.Normalize();
+        spaceRightDirection = 
+            Matho.Rotate(spaceRightDirection, ikDirection, poleAngle);
+        // Goal now is to make sure plane right (normal) is correct with pole angle.
+        // Need to apply gram schmidt to get orthogonal vector then rotate it.
         
         DirectTransformIK(spaceTransform, targetTransform, transforms, poleAngle, spaceRightDirection);
+        // so far I know spaceRightDirection is changing on each call.
     }
 
+    /*
+    * Needed to specify rotation for animator and skinned mesh renderer to know which way the
+    * armatures bones are rotated.
+    */
     private static void DirectTransformIK(
         Transform spaceTransform,
         Transform targetTransform,
@@ -274,9 +283,7 @@ public class IKSolver : MonoBehaviour
         {
             Vector3 lookDirection =
                 storedPositions[i + 1] - storedPositions[i];
-            //right = Matho.Rotate(right, );
-            Vector3 up = Matho.Rotate(lookDirection, spaceRightDirection, 90); // need to be based on parent.right rotated
-            // by pole angle, error in direction is somewhere, up direction in quaternion is wrong.
+            Vector3 up = Matho.Rotate(lookDirection, spaceRightDirection, 90);
             transforms[i].rotation =
                 Quaternion.LookRotation(
                     Matho.Rotate(up, lookDirection, 180),
@@ -284,16 +291,11 @@ public class IKSolver : MonoBehaviour
         }
 
         transforms[transforms.Length - 1].rotation = targetTransform.rotation;
-        //Vector3 currentScale =
-        //    transforms[transforms.Length - 1].localScale;
-        //transforms[transforms.Length - 1].localScale = 
-        //    new Vector3(-currentScale.x, currentScale.y, currentScale.z);
 
         for (int i = 0; i < transforms.Length; i++)
         {
             transforms[i].position = storedPositions[i];
         }
-
     }
 
     /*
@@ -307,6 +309,7 @@ public class IKSolver : MonoBehaviour
         float[] lengths,
         float ridgity,
         float poleAngle,
+        float maxX,
         Quaternion startRootRotation,
         Vector3 startTargetPosition)
     {
@@ -320,7 +323,8 @@ public class IKSolver : MonoBehaviour
             transforms,
             lengths,
             ridgity,
-            poleAngle);
+            poleAngle,
+            maxX);
     }
 
     /*

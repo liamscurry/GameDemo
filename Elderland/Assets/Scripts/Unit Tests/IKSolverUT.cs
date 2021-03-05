@@ -29,6 +29,8 @@ public class IKSolverUT : MonoBehaviour
     [SerializeField]
     [Range(-90, 90)]
     private float transformPoleAngle;
+    [SerializeField]
+    private float transformMaxX;
 
     public static readonly float AngleThreshold = 2f;
 
@@ -46,17 +48,40 @@ public class IKSolverUT : MonoBehaviour
                 ref transformLengths,
                 ref startRootRotation,
                 ref startTargetPosition);
-    }
-
-    private void LateUpdate()
-    {
+        
         IKSolver.TransformIKSolve(
             spaceTransform,
             targetTransform,
             transforms,
             transformLengths,
             transformRidgity,
-            transformPoleAngle);
+            transformPoleAngle,
+            transformMaxX);
+    }
+
+    private void LateUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            IKSolver.TransformIKSolve(
+                spaceTransform,
+                targetTransform,
+                transforms,
+                transformLengths,
+                transformRidgity,
+                transformPoleAngle,
+                transformMaxX);
+            Debug.Log("called once");
+        }
+        
+        IKSolver.TransformIKSolve(
+            spaceTransform,
+            targetTransform,
+            transforms,
+            transformLengths,
+            transformRidgity,
+            transformPoleAngle,
+            transformMaxX);
 
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -67,6 +92,7 @@ public class IKSolverUT : MonoBehaviour
                 transformLengths,
                 transformRidgity,
                 transformPoleAngle,
+                transformMaxX,
                 startRootRotation,
                 startTargetPosition);
         }
