@@ -195,7 +195,7 @@ public class IKSolver : MonoBehaviour
         signAngleV = (signAngleV < 90) ? 1 : -1;
         poleAngle += targetAngle * signAngleV;
 
-        if (projectedTarget.magnitude != 0)
+        if (Matho.StandardProjection3D(targetDirection).magnitude != 0)
         {
             Vector3 currentEulerAngles =
                 spaceTransform.localRotation.eulerAngles;
