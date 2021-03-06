@@ -159,6 +159,7 @@ public class IKSolver : MonoBehaviour
     public static void TransformIKSolve(
         Transform spaceTransform,
         Transform targetTransform,
+        Transform targetEndTransform,
         Transform[] transforms,
         float[] lengths,
         float ridgity,
@@ -205,9 +206,22 @@ public class IKSolver : MonoBehaviour
 
         // Solution from IKSolve maps to up and forward vectors of spaceTransform.
         // This is the offset from the first transform point.
+        Vector3 limitedTargetPosition = targetTransform.position;
+        RaycastHit limitTarget;
+        bool hitLimit = Physics.Raycast(
+            transforms[0].position,
+            (targetTransform.position - transforms[0].position).normalized,
+            out limitTarget,
+            (targetTransform.position - transforms[0].position).magnitude,
+            LayerConstants.GroundCollision);
+        if (hitLimit)
+            limitedTargetPosition = limitTarget.point;
+        Vector3 limitedTargetDirection =
+            (limitedTargetPosition - transforms[0].position).normalized;
+
         Vector2[] points = new Vector2[transforms.Length];
         Vector3 startOffset =
-            (targetTransform.position - transforms[0].position);
+            (limitedTargetPosition - transforms[0].position);
         Vector3 forwardProjection =
             Matho.Project(startOffset, spaceTransform.forward);
         Vector3 upProjection =
@@ -229,16 +243,11 @@ public class IKSolver : MonoBehaviour
                 transforms[0].position + 
                 points[i].y * spaceTransform.up +
                 points[i].x * spaceTransform.forward;
-        } // flip position over parent z direction?
-        Vector3 spaceRightDirection = spaceTransform.right; // space right changinc each call
-        // definitely spaceTransform.right that is changing and thus changing sign of spaceRightDirection rotate
-        // by pole normal. IKDirection fine.
-
-        // Simplify code, only have effective pole angle, no need to rotate space rotatiokn by new pole angle.
-        // Simple is better.
+        }
+        Vector3 spaceRightDirection = spaceTransform.right;
 
         Vector3[] storedPositions = new Vector3[points.Length];
-        Vector3 ikDirection = targetTransform.position - transforms[0].position;
+        Vector3 ikDirection = limitedTargetDirection;
         for (int i = 1; i < points.Length; i++)
         {
             storedPositions[i] = 
@@ -254,11 +263,19 @@ public class IKSolver : MonoBehaviour
         spaceRightDirection.Normalize();
         spaceRightDirection = 
             Matho.Rotate(spaceRightDirection, ikDirection, poleAngle);
-        // Goal now is to make sure plane right (normal) is correct with pole angle.
-        // Need to apply gram schmidt to get orthogonal vector then rotate it.
         
-        DirectTransformIK(spaceTransform, targetTransform, transforms, poleAngle, spaceRightDirection);
-        // so far I know spaceRightDirection is changing on each call.
+        //Debug.Log(limitedTargetEndDirection);
+        //Debug.DrawLine(transforms[0].position, targetEndTransform.position, Color.magenta, 1f);
+
+        DirectTransformIK(
+            spaceTransform,
+            targetTransform,
+            targetEndTransform,
+            transforms,
+            poleAngle,
+            spaceRightDirection,
+            limitedTargetDirection,
+            limitedTargetPosition);
     }
 
     /*
@@ -268,9 +285,12 @@ public class IKSolver : MonoBehaviour
     private static void DirectTransformIK(
         Transform spaceTransform,
         Transform targetTransform,
+        Transform foodEndTransform,
         Transform[] transforms,
         float poleAngle,
-        Vector3 spaceRightDirection)
+        Vector3 spaceRightDirection,
+        Vector3 limitedTargetDirection,
+        Vector3 limitedTargetPosition)
     {
         Vector3[] storedPositions = new Vector3[transforms.Length];
         for (int i = 0; i < transforms.Length; i++)
@@ -278,7 +298,7 @@ public class IKSolver : MonoBehaviour
             storedPositions[i] = transforms[i].position;
         }
 
-        Vector3 targetDirection = targetTransform.position - storedPositions[0];
+        Vector3 targetDirection = limitedTargetDirection;
         for (int i = transforms.Length - 2; i >= 0; i--)
         {
             Vector3 lookDirection =
@@ -290,12 +310,33 @@ public class IKSolver : MonoBehaviour
                     lookDirection);  
         }
 
-        transforms[transforms.Length - 1].rotation = targetTransform.rotation;
-
         for (int i = 0; i < transforms.Length; i++)
         {
             transforms[i].position = storedPositions[i];
         }
+
+        transforms[transforms.Length - 1].rotation = targetTransform.rotation;
+
+        Vector3 footPosition = transforms[transforms.Length - 1].position;
+        Vector3 footEndPosition = foodEndTransform.position;
+        RaycastHit limitTargetEnd;
+        bool hitLimitEnd = Physics.Raycast(
+            transforms[0].position,
+            (footEndPosition - transforms[0].position).normalized,
+            out limitTargetEnd,
+            (footEndPosition - transforms[0].position).magnitude,
+            LayerConstants.GroundCollision);
+        if (hitLimitEnd)
+            footEndPosition = limitTargetEnd.point;
+        Vector3 limitedTargetEndDirection = 
+            (footEndPosition - footPosition).normalized;
+        Debug.DrawLine(footEndPosition, footPosition, Color.magenta, 5f);
+
+        //transforms[transforms.Length - 1].rotation = targetTransform.rotation;
+        Vector3 footUp = Matho.Rotate(spaceRightDirection, limitedTargetEndDirection, 90);
+        Debug.Log(spaceRightDirection + ", " + limitedTargetEndDirection + ", " + footUp);
+        transforms[transforms.Length - 1].rotation = 
+            Quaternion.LookRotation(footUp, limitedTargetEndDirection);
     }
 
     /*
@@ -305,6 +346,7 @@ public class IKSolver : MonoBehaviour
     public static void ResetTransformIKSolver(
         Transform spaceTransform,
         Transform targetTransform,
+        Transform targetEndTransform,
         Transform[] transforms,
         float[] lengths,
         float ridgity,
@@ -320,6 +362,7 @@ public class IKSolver : MonoBehaviour
         TransformIKSolve(
             spaceTransform,
             targetTransform,
+            targetEndTransform,
             transforms,
             lengths,
             ridgity,

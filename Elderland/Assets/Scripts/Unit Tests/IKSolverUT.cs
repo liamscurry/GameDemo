@@ -22,6 +22,8 @@ public class IKSolverUT : MonoBehaviour
     [SerializeField]
     private Transform targetTransform;
     [SerializeField]
+    private Transform targetEndTransform;
+    [SerializeField]
     private Transform[] transforms;
     [SerializeField]
     [Range(0.0f, 1.0f)]
@@ -52,6 +54,7 @@ public class IKSolverUT : MonoBehaviour
         IKSolver.TransformIKSolve(
             spaceTransform,
             targetTransform,
+            targetEndTransform,
             transforms,
             transformLengths,
             transformRidgity,
@@ -66,6 +69,7 @@ public class IKSolverUT : MonoBehaviour
             IKSolver.TransformIKSolve(
                 spaceTransform,
                 targetTransform,
+                targetEndTransform,
                 transforms,
                 transformLengths,
                 transformRidgity,
@@ -77,6 +81,7 @@ public class IKSolverUT : MonoBehaviour
         IKSolver.TransformIKSolve(
             spaceTransform,
             targetTransform,
+            targetEndTransform,
             transforms,
             transformLengths,
             transformRidgity,
@@ -88,6 +93,7 @@ public class IKSolverUT : MonoBehaviour
             IKSolver.ResetTransformIKSolver(
                 spaceTransform,
                 targetTransform,
+                targetEndTransform,
                 transforms,
                 transformLengths,
                 transformRidgity,
