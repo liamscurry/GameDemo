@@ -3713,7 +3713,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1278222411}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.11992552, y: -0.17544378, z: -0.107857116, w: 0.971187}
   m_LocalPosition: {x: 16.48, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -3724,7 +3724,7 @@ Transform:
   - {fileID: 52736810}
   m_Father: {fileID: 1298015704}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 11.250001, y: -21.952002, z: -14.863001}
 --- !u!114 &1278222413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5047,6 +5047,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: LegIKTest
+      objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: f1e9f3a0bde659b45a3315908283479a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f1e9f3a0bde659b45a3315908283479a, type: 3}

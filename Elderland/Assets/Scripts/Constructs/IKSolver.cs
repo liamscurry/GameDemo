@@ -9,6 +9,7 @@ using UnityEngine;
 public class IKSolver : MonoBehaviour
 {
     public static readonly float IKRootRotationMin = 0.5f;
+    private static readonly float footSmoothSpeed = 3;
 
     /*
     * Generates a specific angle of a triangle with length d, l and h.
@@ -155,7 +156,6 @@ public class IKSolver : MonoBehaviour
     * The IK target should not be in a position locally which rotates the top bone past vertical,
     * ie, the targetTransform is high up locally along the y axis.
     */
-    // IK works with blender, just need to rotate system so up direction is pointing towards next bone end.
     public static void TransformIKSolve(
         Transform spaceTransform,
         Transform targetTransform,
@@ -164,7 +164,9 @@ public class IKSolver : MonoBehaviour
         float[] lengths,
         float ridgity,
         float poleAngle,
-        float maxX)
+        float maxX,
+        ref float currentFootPercent,
+        ref Vector3 lastNormal)
     {
         float originalPoleAngle = poleAngle;
 
@@ -173,7 +175,7 @@ public class IKSolver : MonoBehaviour
                 transforms[0].position);
         Vector3 targetDirection =
             targetTransform.parent.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
-            localRootPosition; // changing?
+            localRootPosition;
         Vector2 projectedTarget = 
             Matho.StandardProjection2D(targetDirection);
         if (Mathf.Abs(targetDirection.x) > maxX)
@@ -218,6 +220,16 @@ public class IKSolver : MonoBehaviour
             limitedTargetPosition = limitTarget.point;
         Vector3 limitedTargetDirection =
             (limitedTargetPosition - transforms[0].position).normalized;
+        if (hitLimit)
+        {
+            currentFootPercent =
+                Mathf.MoveTowards(currentFootPercent, 1, footSmoothSpeed * Time.deltaTime);
+        }
+        else
+        {
+            currentFootPercent =
+                Mathf.MoveTowards(currentFootPercent, 0, footSmoothSpeed * Time.deltaTime);
+        }
 
         Vector2[] points = new Vector2[transforms.Length];
         Vector3 startOffset =
@@ -267,6 +279,9 @@ public class IKSolver : MonoBehaviour
         //Debug.Log(limitedTargetEndDirection);
         //Debug.DrawLine(transforms[0].position, targetEndTransform.position, Color.magenta, 1f);
 
+        if (hitLimit)
+            lastNormal = limitTarget.normal;
+
         DirectTransformIK(
             spaceTransform,
             targetTransform,
@@ -275,7 +290,9 @@ public class IKSolver : MonoBehaviour
             poleAngle,
             spaceRightDirection,
             limitedTargetDirection,
-            limitedTargetPosition);
+            limitedTargetPosition,
+            currentFootPercent,
+            lastNormal);
     }
 
     /*
@@ -290,7 +307,9 @@ public class IKSolver : MonoBehaviour
         float poleAngle,
         Vector3 spaceRightDirection,
         Vector3 limitedTargetDirection,
-        Vector3 limitedTargetPosition)
+        Vector3 limitedTargetPosition,
+        float currentFootPercent,
+        Vector3 footNormal)
     {
         Vector3[] storedPositions = new Vector3[transforms.Length];
         for (int i = 0; i < transforms.Length; i++)
@@ -330,13 +349,19 @@ public class IKSolver : MonoBehaviour
             footEndPosition = limitTargetEnd.point;
         Vector3 limitedTargetEndDirection = 
             (footEndPosition - footPosition).normalized;
-        Debug.DrawLine(footEndPosition, footPosition, Color.magenta, 5f);
 
         //transforms[transforms.Length - 1].rotation = targetTransform.rotation;
         Vector3 footUp = Matho.Rotate(spaceRightDirection, limitedTargetEndDirection, 90);
-        Debug.Log(spaceRightDirection + ", " + limitedTargetEndDirection + ", " + footUp);
-        transforms[transforms.Length - 1].rotation = 
+
+        Quaternion limitedRotation = 
             Quaternion.LookRotation(footUp, limitedTargetEndDirection);
+
+        // Normal rotation
+        Quaternion normalRotation = 
+            Quaternion.LookRotation(footNormal, limitedTargetEndDirection);
+
+        transforms[transforms.Length - 1].rotation = 
+            Quaternion.Lerp(limitedRotation, normalRotation, currentFootPercent);
     }
 
     /*
@@ -353,7 +378,9 @@ public class IKSolver : MonoBehaviour
         float poleAngle,
         float maxX,
         Quaternion startRootRotation,
-        Vector3 startTargetPosition)
+        Vector3 startTargetPosition,
+        ref float currentFootPercent,
+        ref Vector3 lastNormal)
     {
         spaceTransform.localRotation =
             startRootRotation;
@@ -367,7 +394,9 @@ public class IKSolver : MonoBehaviour
             lengths,
             ridgity,
             poleAngle,
-            maxX);
+            maxX,
+            ref currentFootPercent,
+            ref lastNormal);
     }
 
     /*
@@ -380,7 +409,9 @@ public class IKSolver : MonoBehaviour
         Transform[] transforms,
         ref float[] lengths,
         ref Quaternion startRootRotation,
-        ref Vector3 startTargetPosition)
+        ref Vector3 startTargetPosition,
+        ref float currentFootPercent,
+        ref Vector3 lastNormal)
     {
         lengths = new float[transforms.Length - 1];
         for (int i = 0; i < transforms.Length - 1; i++)
@@ -390,6 +421,8 @@ public class IKSolver : MonoBehaviour
         startTargetPosition = 
             spaceTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position);
         startRootRotation = spaceTransform.localRotation;
+        currentFootPercent = 0;
+        lastNormal = Vector3.forward;
     }
 
     public static void TriangleAngleTests()

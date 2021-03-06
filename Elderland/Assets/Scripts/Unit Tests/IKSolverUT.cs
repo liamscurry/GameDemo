@@ -39,6 +39,8 @@ public class IKSolverUT : MonoBehaviour
     private float[] transformLengths;
     private Vector3 startTargetPosition;
     private Quaternion startRootRotation;
+    private float currentFootPercent;
+    private Vector3 lastNormal;
     private void Start()
     {
         StartCoroutine(TestCoroutine());
@@ -49,7 +51,9 @@ public class IKSolverUT : MonoBehaviour
                 transforms,
                 ref transformLengths,
                 ref startRootRotation,
-                ref startTargetPosition);
+                ref startTargetPosition,
+                ref currentFootPercent,
+                ref lastNormal);
         
         IKSolver.TransformIKSolve(
             spaceTransform,
@@ -59,7 +63,9 @@ public class IKSolverUT : MonoBehaviour
             transformLengths,
             transformRidgity,
             transformPoleAngle,
-            transformMaxX);
+            transformMaxX,
+            ref currentFootPercent,
+            ref lastNormal);
     }
 
     private void LateUpdate()
@@ -74,7 +80,9 @@ public class IKSolverUT : MonoBehaviour
                 transformLengths,
                 transformRidgity,
                 transformPoleAngle,
-                transformMaxX);
+                transformMaxX,
+                ref currentFootPercent,
+                ref lastNormal);
             Debug.Log("called once");
         }
         
@@ -86,7 +94,9 @@ public class IKSolverUT : MonoBehaviour
             transformLengths,
             transformRidgity,
             transformPoleAngle,
-            transformMaxX);
+            transformMaxX,
+            ref currentFootPercent,
+            ref lastNormal);
 
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -100,7 +110,9 @@ public class IKSolverUT : MonoBehaviour
                 transformPoleAngle,
                 transformMaxX,
                 startRootRotation,
-                startTargetPosition);
+                startTargetPosition,
+                ref currentFootPercent,
+                ref lastNormal);
         }
     }
 
