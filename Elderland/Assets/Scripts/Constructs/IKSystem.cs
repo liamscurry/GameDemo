@@ -25,6 +25,8 @@ public class IKSystem : MonoBehaviour
     */
     [Header("References")]
     [SerializeField]
+    private Transform parent;
+    [SerializeField]
     private Transform space;
     [SerializeField]
     private Transform target;
@@ -40,7 +42,11 @@ public class IKSystem : MonoBehaviour
     [Range(-90, 90)]
     private float poleAngle;
     [SerializeField]
+    private float basePoleAngle;
+    [SerializeField]
     private float maxX;
+    [SerializeField]
+    private bool flipZ;
 
     // Fields
     private float[] transformLengths;
@@ -62,6 +68,7 @@ public class IKSystem : MonoBehaviour
                 ref lastNormal);
         
         IKSolver.TransformIKSolve(
+            parent,
             space,
             target,
             footEnd,
@@ -69,14 +76,17 @@ public class IKSystem : MonoBehaviour
             transformLengths,
             ridgity,
             poleAngle,
+            basePoleAngle,
             maxX,
             ref currentFootPercent,
-            ref lastNormal);
+            ref lastNormal,
+            flipZ);
     }
 
     public void Reset()
     {
         IKSolver.ResetTransformIKSolver(
+            parent,
             space,
             target,
             footEnd,
@@ -84,16 +94,19 @@ public class IKSystem : MonoBehaviour
             transformLengths,
             ridgity,
             poleAngle,
+            basePoleAngle,
             maxX,
             startRootRotation,
             startTargetPosition,
             ref currentFootPercent,
-            ref lastNormal);
+            ref lastNormal,
+            flipZ);
     }
 
     private void LateUpdate()
     {
         IKSolver.TransformIKSolve(
+            parent,
             space,
             target,
             footEnd,
@@ -101,8 +114,10 @@ public class IKSystem : MonoBehaviour
             transformLengths,
             ridgity,
             poleAngle,
+            basePoleAngle,
             maxX,
             ref currentFootPercent,
-            ref lastNormal);
+            ref lastNormal,
+            flipZ);
     }
 }

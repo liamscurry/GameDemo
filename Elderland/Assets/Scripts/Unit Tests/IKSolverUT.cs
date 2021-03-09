@@ -32,6 +32,8 @@ public class IKSolverUT : MonoBehaviour
     [Range(-90, 90)]
     private float transformPoleAngle;
     [SerializeField]
+    private float transformBasePoleAngle;
+    [SerializeField]
     private float transformMaxX;
 
     public static readonly float AngleThreshold = 2f;
@@ -41,8 +43,10 @@ public class IKSolverUT : MonoBehaviour
     private Quaternion startRootRotation;
     private float currentFootPercent;
     private Vector3 lastNormal;
+    private Transform parentTransform;
     private void Start()
     {
+        parentTransform = transforms[0].parent;
         StartCoroutine(TestCoroutine());
         
         IKSolver.InitializeTransformIKSolver(
@@ -56,6 +60,7 @@ public class IKSolverUT : MonoBehaviour
                 ref lastNormal);
         
         IKSolver.TransformIKSolve(
+            parentTransform,
             spaceTransform,
             targetTransform,
             targetEndTransform,
@@ -63,9 +68,11 @@ public class IKSolverUT : MonoBehaviour
             transformLengths,
             transformRidgity,
             transformPoleAngle,
+            transformBasePoleAngle,
             transformMaxX,
             ref currentFootPercent,
-            ref lastNormal);
+            ref lastNormal,
+            false);
     }
 
     private void LateUpdate()
@@ -73,6 +80,7 @@ public class IKSolverUT : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C))
         {
             IKSolver.TransformIKSolve(
+                parentTransform,
                 spaceTransform,
                 targetTransform,
                 targetEndTransform,
@@ -80,13 +88,16 @@ public class IKSolverUT : MonoBehaviour
                 transformLengths,
                 transformRidgity,
                 transformPoleAngle,
+                transformBasePoleAngle,
                 transformMaxX,
                 ref currentFootPercent,
-                ref lastNormal);
+                ref lastNormal,
+                false);
             Debug.Log("called once");
         }
         
         IKSolver.TransformIKSolve(
+            parentTransform,
             spaceTransform,
             targetTransform,
             targetEndTransform,
@@ -94,13 +105,16 @@ public class IKSolverUT : MonoBehaviour
             transformLengths,
             transformRidgity,
             transformPoleAngle,
+            transformBasePoleAngle,
             transformMaxX,
             ref currentFootPercent,
-            ref lastNormal);
+            ref lastNormal,
+            false);
 
         if (Input.GetKeyDown(KeyCode.R))
         {
             IKSolver.ResetTransformIKSolver(
+                parentTransform,
                 spaceTransform,
                 targetTransform,
                 targetEndTransform,
@@ -108,11 +122,13 @@ public class IKSolverUT : MonoBehaviour
                 transformLengths,
                 transformRidgity,
                 transformPoleAngle,
+                transformBasePoleAngle,
                 transformMaxX,
                 startRootRotation,
                 startTargetPosition,
                 ref currentFootPercent,
-                ref lastNormal);
+                ref lastNormal,
+                false);
         }
     }
 

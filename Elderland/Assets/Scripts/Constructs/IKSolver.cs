@@ -157,6 +157,7 @@ public class IKSolver : MonoBehaviour
     * ie, the targetTransform is high up locally along the y axis.
     */
     public static void TransformIKSolve(
+        Transform parentTransform,
         Transform spaceTransform,
         Transform targetTransform,
         Transform targetEndTransform,
@@ -164,29 +165,29 @@ public class IKSolver : MonoBehaviour
         float[] lengths,
         float ridgity,
         float poleAngle,
+        float basePoleAngle,
         float maxX,
         ref float currentFootPercent,
-        ref Vector3 lastNormal)
+        ref Vector3 lastNormal,
+        bool flipZ)
     {
-        float originalPoleAngle = poleAngle;
-
         Vector3 localRootPosition =
-            targetTransform.parent.worldToLocalMatrix.MultiplyPoint(
+            parentTransform.worldToLocalMatrix.MultiplyPoint(
                 transforms[0].position);
         Vector3 targetDirection =
-            targetTransform.parent.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
+            parentTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
             localRootPosition;
         Vector2 projectedTarget = 
             Matho.StandardProjection2D(targetDirection);
         if (Mathf.Abs(targetDirection.x) > maxX)
         {
             targetTransform.position = 
-                targetTransform.parent.localToWorldMatrix.MultiplyPoint(
+                parentTransform.localToWorldMatrix.MultiplyPoint(
                     localRootPosition +
                     new Vector3(maxX * Matho.Sign(targetDirection.x), targetDirection.y, targetDirection.z));
 
             targetDirection =
-                targetTransform.parent.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
+                parentTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
                 localRootPosition;
             projectedTarget = 
                 Matho.StandardProjection2D(targetDirection);
@@ -196,13 +197,16 @@ public class IKSolver : MonoBehaviour
         float signAngleV =
             Matho.AngleBetween(projectedTarget, new Vector2(1, 0));
         signAngleV = (signAngleV < 90) ? 1 : -1;
+        poleAngle += basePoleAngle;
         poleAngle += targetAngle * signAngleV;
 
         if (Matho.StandardProjection3D(targetDirection).magnitude != 0)
         {
+            int flipZSign = (flipZ) ? -1 : 1;
             Vector3 currentEulerAngles =
                 spaceTransform.localRotation.eulerAngles;
             spaceTransform.localRotation =   
+                Quaternion.Euler(0,0, -90 * (1 - (flipZSign * 0.5f + 0.5f))) *
                 Quaternion.LookRotation(Matho.StandardProjection3D(targetDirection), Vector3.up);
         }
 
@@ -242,6 +246,7 @@ public class IKSolver : MonoBehaviour
             (Matho.AngleBetween(forwardProjection, spaceTransform.forward) < 90) ? 1 : -1;
         int upSign =
             (Matho.AngleBetween(upProjection, spaceTransform.up) < 90) ? 1 : -1;
+
         points[points.Length - 1] =
             new Vector2(
                 forwardProjection.magnitude * forwardSign,
@@ -292,7 +297,8 @@ public class IKSolver : MonoBehaviour
             limitedTargetDirection,
             limitedTargetPosition,
             currentFootPercent,
-            lastNormal);
+            lastNormal,
+            flipZ);
     }
 
     /*
@@ -309,13 +315,16 @@ public class IKSolver : MonoBehaviour
         Vector3 limitedTargetDirection,
         Vector3 limitedTargetPosition,
         float currentFootPercent,
-        Vector3 footNormal)
+        Vector3 footNormal,
+        bool flipZ)
     {
         Vector3[] storedPositions = new Vector3[transforms.Length];
         for (int i = 0; i < transforms.Length; i++)
         {
             storedPositions[i] = transforms[i].position;
         }
+
+        int flipZSign = (flipZ) ? -1 : 1;
 
         Vector3 targetDirection = limitedTargetDirection;
         for (int i = transforms.Length - 2; i >= 0; i--)
@@ -325,7 +334,7 @@ public class IKSolver : MonoBehaviour
             Vector3 up = Matho.Rotate(lookDirection, spaceRightDirection, 90);
             transforms[i].rotation =
                 Quaternion.LookRotation(
-                    Matho.Rotate(up, lookDirection, 180),
+                    Matho.Rotate(up, lookDirection, 180) * flipZSign,
                     lookDirection);  
         }
 
@@ -354,11 +363,11 @@ public class IKSolver : MonoBehaviour
         Vector3 footUp = Matho.Rotate(spaceRightDirection, limitedTargetEndDirection, 90);
 
         Quaternion limitedRotation = 
-            Quaternion.LookRotation(footUp, limitedTargetEndDirection);
+            Quaternion.LookRotation(flipZSign * footUp, limitedTargetEndDirection);
 
         // Normal rotation
         Quaternion normalRotation = 
-            Quaternion.LookRotation(footNormal, limitedTargetEndDirection);
+            Quaternion.LookRotation(flipZSign * footNormal, limitedTargetEndDirection);
 
         transforms[transforms.Length - 1].rotation = 
             Quaternion.Lerp(limitedRotation, normalRotation, currentFootPercent);
@@ -369,6 +378,7 @@ public class IKSolver : MonoBehaviour
     * or editor button/key input.
     */
     public static void ResetTransformIKSolver(
+        Transform parentTransform,
         Transform spaceTransform,
         Transform targetTransform,
         Transform targetEndTransform,
@@ -376,17 +386,20 @@ public class IKSolver : MonoBehaviour
         float[] lengths,
         float ridgity,
         float poleAngle,
+        float basePoleAngle,
         float maxX,
         Quaternion startRootRotation,
         Vector3 startTargetPosition,
         ref float currentFootPercent,
-        ref Vector3 lastNormal)
+        ref Vector3 lastNormal,
+        bool flipZ)
     {
         spaceTransform.localRotation =
             startRootRotation;
         targetTransform.position = 
             spaceTransform.localToWorldMatrix.MultiplyPoint(startTargetPosition);
         TransformIKSolve(
+            parentTransform,
             spaceTransform,
             targetTransform,
             targetEndTransform,
@@ -394,9 +407,11 @@ public class IKSolver : MonoBehaviour
             lengths,
             ridgity,
             poleAngle,
+            basePoleAngle,
             maxX,
             ref currentFootPercent,
-            ref lastNormal);
+            ref lastNormal,
+            flipZ);
     }
 
     /*
