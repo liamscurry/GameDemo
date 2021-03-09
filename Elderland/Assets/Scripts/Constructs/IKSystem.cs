@@ -56,7 +56,10 @@ public class IKSystem : MonoBehaviour
     private Vector3 lastNormal;
 
     private void Start()
-    {
+    {     
+        parent.transform.localRotation = 
+            bones[0].localRotation * Quaternion.Euler(90, 0, 0);
+
         IKSolver.InitializeTransformIKSolver(
                 space,
                 target,

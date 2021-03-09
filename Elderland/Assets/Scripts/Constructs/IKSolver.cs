@@ -155,6 +155,11 @@ public class IKSolver : MonoBehaviour
     * Call InitializeTransformIKSolver to initialize the rig subsystem.
     * The IK target should not be in a position locally which rotates the top bone past vertical,
     * ie, the targetTransform is high up locally along the y axis.
+    * The space transform should be a sibling a child of the parent transform. This parent
+    * transform should have the z pointing in the opposite direction of the first bone in the IK
+    * system. In addition, the up vector should be facing behind the IK system. The parent
+    * transform should be a sibling of the first bone and a child of the script this IKSystem
+    * is on.
     */
     public static void TransformIKSolve(
         Transform parentTransform,
@@ -206,9 +211,9 @@ public class IKSolver : MonoBehaviour
             Vector3 currentEulerAngles =
                 spaceTransform.localRotation.eulerAngles;
             spaceTransform.localRotation =   
-                Quaternion.Euler(0,0, -90 * (1 - (flipZSign * 0.5f + 0.5f))) *
+                Quaternion.Euler(0,0, 0 * -90 * (1 - (flipZSign * 0.5f + 0.5f))) *
                 Quaternion.LookRotation(Matho.StandardProjection3D(targetDirection), Vector3.up);
-        }
+        } // last issue is that space transform needs to be in line with parent transform.
 
         // Solution from IKSolve maps to up and forward vectors of spaceTransform.
         // This is the offset from the first transform point.
