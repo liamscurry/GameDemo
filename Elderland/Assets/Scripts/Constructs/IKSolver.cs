@@ -155,7 +155,7 @@ public class IKSolver : MonoBehaviour
     * Call InitializeTransformIKSolver to initialize the rig subsystem.
     * The IK target should not be in a position locally which rotates the top bone past vertical,
     * ie, the targetTransform is high up locally along the y axis.
-    * The space transform should be a sibling a child of the parent transform. This parent
+    * The space transform should be a child of the parent transform. This parent
     * transform should have the z pointing in the opposite direction of the first bone in the IK
     * system. In addition, the up vector should be facing behind the IK system. The parent
     * transform should be a sibling of the first bone and a child of the script this IKSystem
