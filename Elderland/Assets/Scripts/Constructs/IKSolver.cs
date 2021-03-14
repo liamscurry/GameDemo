@@ -332,7 +332,7 @@ public class IKSolver : MonoBehaviour
         int flipZSign = (flipZ) ? -1 : 1;
 
         Vector3 targetDirection = limitedTargetDirection;
-        for (int i = transforms.Length - 2; i >= 0; i--)
+        for (int i = 0; i < transforms.Length - 1; i++)
         {
             Vector3 lookDirection =
                 storedPositions[i + 1] - storedPositions[i];
