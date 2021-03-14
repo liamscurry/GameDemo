@@ -76,7 +76,7 @@ public class IKCopyRotation : MonoBehaviour
         GeneratePercentages();
     }
 
-    private void Update()
+    public void UpdateTwist()
     {
         Track();
         ForwardRotate();

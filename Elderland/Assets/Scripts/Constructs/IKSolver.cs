@@ -174,36 +174,41 @@ public class IKSolver : MonoBehaviour
         float maxX,
         ref float currentFootPercent,
         ref Vector3 lastNormal,
-        bool flipZ)
+        bool flipZ,
+        bool autoPole)
     {
         Vector3 localRootPosition =
-            parentTransform.worldToLocalMatrix.MultiplyPoint(
-                transforms[0].position);
-        Vector3 targetDirection =
-            parentTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
-            localRootPosition;
-        Vector2 projectedTarget = 
-            Matho.StandardProjection2D(targetDirection);
-        if (Mathf.Abs(targetDirection.x) > maxX)
-        {
-            targetTransform.position = 
-                parentTransform.localToWorldMatrix.MultiplyPoint(
-                    localRootPosition +
-                    new Vector3(maxX * Matho.Sign(targetDirection.x), targetDirection.y, targetDirection.z));
-
-            targetDirection =
+                parentTransform.worldToLocalMatrix.MultiplyPoint(
+                    transforms[0].position);
+            Vector3 targetDirection =
                 parentTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
                 localRootPosition;
-            projectedTarget = 
+
+        if (autoPole)
+        {
+            Vector2 projectedTarget = 
                 Matho.StandardProjection2D(targetDirection);
+            if (Mathf.Abs(targetDirection.x) > maxX)
+            {
+                targetTransform.position = 
+                    parentTransform.localToWorldMatrix.MultiplyPoint(
+                        localRootPosition +
+                        new Vector3(maxX * Matho.Sign(targetDirection.x), targetDirection.y, targetDirection.z));
+
+                targetDirection =
+                    parentTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
+                    localRootPosition;
+                projectedTarget = 
+                    Matho.StandardProjection2D(targetDirection);
+            }
+            float targetAngle =
+                Matho.AngleBetween(projectedTarget, new Vector2(0, 1));
+            float signAngleV =
+                Matho.AngleBetween(projectedTarget, new Vector2(1, 0));
+            signAngleV = (signAngleV < 90) ? 1 : -1;
+            poleAngle += basePoleAngle;
+            poleAngle += targetAngle * signAngleV;
         }
-        float targetAngle =
-            Matho.AngleBetween(projectedTarget, new Vector2(0, 1));
-        float signAngleV =
-            Matho.AngleBetween(projectedTarget, new Vector2(1, 0));
-        signAngleV = (signAngleV < 90) ? 1 : -1;
-        poleAngle += basePoleAngle;
-        poleAngle += targetAngle * signAngleV;
 
         if (Matho.StandardProjection3D(targetDirection).magnitude != 0)
         {
@@ -349,7 +354,7 @@ public class IKSolver : MonoBehaviour
         }
 
         transforms[transforms.Length - 1].rotation = targetTransform.rotation;
-
+        
         Vector3 footPosition = transforms[transforms.Length - 1].position;
         Vector3 footEndPosition = foodEndTransform.position;
         RaycastHit limitTargetEnd;
@@ -365,8 +370,11 @@ public class IKSolver : MonoBehaviour
             (footEndPosition - footPosition).normalized;
 
         //transforms[transforms.Length - 1].rotation = targetTransform.rotation;
-        Vector3 footUp = Matho.Rotate(spaceRightDirection, limitedTargetEndDirection, 90);
-
+        Matrix4x4 footMatrix =
+            Matrix4x4.Rotate(Quaternion.FromToRotation(limitedTargetEndDirection, targetTransform.up) *
+            targetTransform.rotation);
+        Vector3 footUp = -footMatrix.MultiplyPoint(Vector3.forward);
+        // direction of foot is wrong as spaceRightDirection may not be perp to limitedTargetEndDirection.
         Quaternion limitedRotation = 
             Quaternion.LookRotation(flipZSign * footUp, limitedTargetEndDirection);
 
@@ -397,7 +405,8 @@ public class IKSolver : MonoBehaviour
         Vector3 startTargetPosition,
         ref float currentFootPercent,
         ref Vector3 lastNormal,
-        bool flipZ)
+        bool flipZ,
+        bool autoPole)
     {
         spaceTransform.localRotation =
             startRootRotation;
@@ -416,7 +425,8 @@ public class IKSolver : MonoBehaviour
             maxX,
             ref currentFootPercent,
             ref lastNormal,
-            flipZ);
+            flipZ,
+            autoPole);
     }
 
     /*
@@ -443,6 +453,19 @@ public class IKSolver : MonoBehaviour
         startRootRotation = spaceTransform.localRotation;
         currentFootPercent = 0;
         lastNormal = Vector3.forward;
+    }
+
+    public static void CalculatePoleAngle(
+        Transform pole,
+        float basePoleAngle,
+        float scale,
+        ref float poleAngle)
+    {
+        Vector2 projectedPos = 
+            new Vector2(pole.localPosition.x, pole.localPosition.y);
+        int angleSign =
+            (Matho.AngleBetween(projectedPos, Vector2.right) < 90) ? -1 : 1;
+        poleAngle = Matho.AngleBetween(projectedPos, Vector2.up) * scale * angleSign + basePoleAngle;
     }
 
     public static void TriangleAngleTests()

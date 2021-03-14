@@ -72,7 +72,8 @@ public class IKSolverUT : MonoBehaviour
             transformMaxX,
             ref currentFootPercent,
             ref lastNormal,
-            false);
+            false,
+            true);
     }
 
     private void LateUpdate()
@@ -92,7 +93,8 @@ public class IKSolverUT : MonoBehaviour
                 transformMaxX,
                 ref currentFootPercent,
                 ref lastNormal,
-                false);
+                false,
+                true);
             Debug.Log("called once");
         }
         
@@ -109,7 +111,8 @@ public class IKSolverUT : MonoBehaviour
             transformMaxX,
             ref currentFootPercent,
             ref lastNormal,
-            false);
+            false,
+            true);
 
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -128,7 +131,8 @@ public class IKSolverUT : MonoBehaviour
                 startTargetPosition,
                 ref currentFootPercent,
                 ref lastNormal,
-                false);
+                false,
+                true);
         }
     }
 

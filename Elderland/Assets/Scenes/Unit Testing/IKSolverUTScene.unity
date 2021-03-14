@@ -121,6 +121,12 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 23800000, guid: 75c7b321564843748bd86408e6d49bf3, type: 2}
+--- !u!1 &26349195 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -1741204807349781562, guid: b7605dbd8acdd4a44b32b96c58d75b59,
+    type: 3}
+  m_PrefabInstance: {fileID: 1073473303}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &27135152
 GameObject:
   m_ObjectHideFlags: 0
@@ -818,7 +824,10 @@ MonoBehaviour:
   - {fileID: 7722621662058301091}
   - {fileID: 8921100048663381578}
   ridgity: 1
+  pole: {fileID: 0}
   poleAngle: 0
+  poleScale: 0
+  twistSystems: []
   basePoleAngle: 180
   maxX: 5
   flipZ: 0
@@ -1078,7 +1087,10 @@ MonoBehaviour:
   - {fileID: 7411134726816282696}
   - {fileID: 4717861441384957237}
   ridgity: 1
+  pole: {fileID: 0}
   poleAngle: 0
+  poleScale: 0
+  twistSystems: []
   basePoleAngle: 0
   maxX: 5
   flipZ: 1
@@ -3521,6 +3533,12 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!4 &1067089907 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -3885462431082986811, guid: b7605dbd8acdd4a44b32b96c58d75b59,
+    type: 3}
+  m_PrefabInstance: {fileID: 1073473303}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1073473303
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3546,7 +3564,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.75
+      value: 2.25
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
@@ -3614,7 +3632,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1073473304}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 6514d2f7662211c4ba1be065ab594813, type: 3}
   m_Controller: {fileID: 9100000, guid: 13d0de4af1149d04bb889ec85e767beb, type: 2}
   m_CullingMode: 1
@@ -3832,8 +3850,12 @@ MonoBehaviour:
   - {fileID: 722013744}
   - {fileID: 489865631}
   ridgity: 1
+  pole: {fileID: 1067089907}
   poleAngle: 0
-  basePoleAngle: 0
+  poleScale: 1
+  twistSystems:
+  - {fileID: 1285636376}
+  basePoleAngle: -175.1
   maxX: 5
   flipZ: 1
 --- !u!1 &1146799220
@@ -4044,6 +4066,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85715b503b3633e4386ce2d7e727620f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1197038489 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7408438664063996818, guid: b7605dbd8acdd4a44b32b96c58d75b59,
+    type: 3}
+  m_PrefabInstance: {fileID: 1073473303}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1246189743
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4195,7 +4223,10 @@ MonoBehaviour:
   - {fileID: 1246189748}
   - {fileID: 1246189747}
   ridgity: 1
+  pole: {fileID: 0}
   poleAngle: 0
+  poleScale: 0
+  twistSystems: []
   basePoleAngle: 180
   maxX: 10
   flipZ: 0
@@ -4476,6 +4507,36 @@ MonoBehaviour:
   transformPoleAngle: 0
   transformBasePoleAngle: 0
   transformMaxX: 0
+--- !u!1 &1285636374 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 874820602195921970, guid: b7605dbd8acdd4a44b32b96c58d75b59,
+    type: 3}
+  m_PrefabInstance: {fileID: 1073473303}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1285636376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1285636374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc3833095f9ea504085bb452910906dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 2010299417}
+  targetChild: {fileID: 26349195}
+  fromBone: {fileID: 1765941665}
+  twistBones:
+  - {fileID: 1285636374}
+  - {fileID: 1197038489}
+  - {fileID: 1426168415}
+  weights:
+  - 1
+  - 1
+  copyType: 1
+  twist: 0
 --- !u!1 &1298015703
 GameObject:
   m_ObjectHideFlags: 0
@@ -4975,6 +5036,12 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1388663991}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1426168415 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -8156900515062244103, guid: b7605dbd8acdd4a44b32b96c58d75b59,
+    type: 3}
+  m_PrefabInstance: {fileID: 1073473303}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1430864997
 GameObject:
   m_ObjectHideFlags: 0
@@ -5575,6 +5642,36 @@ MonoBehaviour:
   eventSystem: {fileID: 0}
   leftNeighborMenu: {fileID: 0}
   rightNeighborMenu: {fileID: 2018742669}
+--- !u!1 &1765941665
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1765941666}
+  m_Layer: 0
+  m_Name: 'Ankle Twist L '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1765941666
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1765941665}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1953704482}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1835954538
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6028,10 +6125,19 @@ MonoBehaviour:
   - {fileID: 2006753796}
   - {fileID: 2006753794}
   ridgity: 1
+  pole: {fileID: 0}
   poleAngle: 0
+  poleScale: 0
+  twistSystems: []
   basePoleAngle: 0
   maxX: 4
   flipZ: 0
+--- !u!1 &2010299417 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -8456361014116672246, guid: b7605dbd8acdd4a44b32b96c58d75b59,
+    type: 3}
+  m_PrefabInstance: {fileID: 1073473303}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2018742669
 GameObject:
   m_ObjectHideFlags: 0
@@ -7632,7 +7738,10 @@ MonoBehaviour:
   - {fileID: 182280131062569223}
   - {fileID: 1018931497033581373}
   ridgity: 1
+  pole: {fileID: 0}
   poleAngle: 0
+  poleScale: 0
+  twistSystems: []
   basePoleAngle: 0
   maxX: 5
   flipZ: 1
