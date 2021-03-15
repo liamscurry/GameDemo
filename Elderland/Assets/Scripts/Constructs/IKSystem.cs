@@ -5,6 +5,7 @@ using UnityEngine;
 
 /*
 * IK Monobehaviour that packages the IKSolver together to work automatically at runtime.
+* Requires an fbx model.
 */
 public class IKSystem : MonoBehaviour
 {

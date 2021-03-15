@@ -7,6 +7,7 @@ using UnityEngine;
 * Ex: a twist bone sets its direction in line with its target and 
 * sets its rotation along that axis based on its own rotation and the targets rotation
 * along the same axis.
+* Requires an fbx model/IKSystem.
 */
 public class IKCopyRotation : MonoBehaviour
 {
