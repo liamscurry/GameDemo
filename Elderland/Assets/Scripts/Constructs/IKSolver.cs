@@ -155,11 +155,7 @@ public class IKSolver : MonoBehaviour
     * Call InitializeTransformIKSolver to initialize the rig subsystem.
     * The IK target should not be in a position locally which rotates the top bone past vertical,
     * ie, the targetTransform is high up locally along the y axis.
-    * The space transform should be a child of the parent transform. This parent
-    * transform should have the z pointing in the opposite direction of the first bone in the IK
-    * system. In addition, the up vector should be facing behind the IK system. The parent
-    * transform should be a sibling of the first bone and a child of the script this IKSystem
-    * is on.
+    * See IKSystem.cs for an example.
     */
     public static void TransformIKSolve(
         Transform parentTransform,
@@ -419,6 +415,7 @@ public class IKSolver : MonoBehaviour
             startRootRotation;
         targetTransform.position = 
             spaceTransform.localToWorldMatrix.MultiplyPoint(startTargetPosition);
+
         TransformIKSolve(
             parentTransform,
             spaceTransform,
@@ -438,9 +435,8 @@ public class IKSolver : MonoBehaviour
     }
 
     /*
-    * Needed to properly initialize raw IK system
+    * Needed to properly initialize IK system
     */
-    // import as fbx with coord system and have the animator for bone vertex groups.
     public static void InitializeTransformIKSolver(
         Transform spaceTransform,
         Transform targetTransform,
@@ -463,6 +459,9 @@ public class IKSolver : MonoBehaviour
         lastNormal = Vector3.forward;
     }
 
+    /*
+    * Needed for systems that use a pole transform from Blender.
+    */ 
     public static void CalculatePoleAngle(
         Transform pole,
         float basePoleAngle,

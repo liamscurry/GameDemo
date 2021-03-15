@@ -19,9 +19,10 @@ public class IKCopyRotation : MonoBehaviour
     private GameObject targetChild;
     // Bone used to make sure rotations don't converge to one value.
     // This is the bone that follows the target bone.
+    // Should be an empty transform that is a sibling of this gameObject.
     [SerializeField]
     private GameObject fromBone;
-    // Twist bones this object is attached to and linear gameobject hierarchy
+    // Twist bones this object is attached to a linear transform hierarchy
     // including the end transform.
     [SerializeField]
     private GameObject[] twistBones; 
@@ -29,8 +30,6 @@ public class IKCopyRotation : MonoBehaviour
     private float[] weights; 
     [SerializeField]
     private CopyType copyType;
-    [SerializeField]
-    private float twist;
 
     private float targetPercentage;
     private float[] twistPercentages;
@@ -79,7 +78,7 @@ public class IKCopyRotation : MonoBehaviour
     public void UpdateTwist()
     {
         Track();
-        ForwardRotate();
+        Rotate();
     }
 
     // Tested initially, passed.
@@ -112,7 +111,7 @@ public class IKCopyRotation : MonoBehaviour
             fromBone.transform.rotation;
     }
 
-    private void ForwardRotate()
+    private void Rotate()
     {
         Quaternion targetR = target.transform.rotation;
         Quaternion currentR = fromBone.transform.rotation;
@@ -133,71 +132,6 @@ public class IKCopyRotation : MonoBehaviour
                     Quaternion.Lerp(currentR, targetR, percentage);
 
                 percentageUsed += twistPercentages[i];
-            }
-        }
-    }
-
-    private void Rotate()
-    {
-        float targetEuler = target.transform.localRotation.eulerAngles.y + twist;
-        float rootEuler = 0;//twistBones[0].transform.localRotation.eulerAngles.y
-        float percentageLeft = 1;
-        
-        for (int i = twistPercentages.Length - 1; i >= 0; i--)
-        {
-            Vector3 currentEuler = twistBones[i].transform.localRotation.eulerAngles;
-            
-            if (i == twistPercentages.Length - 1)
-            {
-                // End bone
-                twistBones[i].transform.localRotation = 
-                    Quaternion.Euler(currentEuler.x, targetEuler, currentEuler.z);
-
-                percentageLeft -= twistPercentages[i];
-            }
-            else if (i == 0)
-            {
-                // Root bone
-                Vector3 childEuler = twistBones[i + 1].transform.localRotation.eulerAngles;
-
-                twistBones[i].transform.localRotation = 
-                    Quaternion.Euler(currentEuler.x, 0, currentEuler.z);
-
-                float lerpEuler = 
-                    Mathf.LerpAngle(rootEuler, targetEuler, percentageLeft); // want to rotate other way.
-                twistBones[i].transform.localRotation = 
-                    Quaternion.Euler(currentEuler.x, lerpEuler, currentEuler.z);
-
-                // Rotate child with opposite operation
-                childEuler = twistBones[i + 1].transform.localRotation.eulerAngles;
-                twistBones[i + 1].transform.localRotation =
-                    Quaternion.Euler(childEuler.x, childEuler.y - lerpEuler, childEuler.z);
-            }
-            else
-            {
-                Vector3 childEuler = twistBones[i + 1].transform.localRotation.eulerAngles;
-
-                twistBones[i].transform.localRotation = 
-                    Quaternion.Euler(currentEuler.x, 0, currentEuler.z);
-
-                // Rotate child with opposite operation, THIS has to not be working, 120 to 120 and spinning 180 degrees.
-                // all reading as same value in inspector (local all has 114 etc)
-                //twistBones[i + 1].transform.localRotation =
-                //    Quaternion.Euler(childEuler.x, childEuler.y + currentEuler.y, childEuler.z);
-                // Now its only angle, 0, 0. No change in angle per bone.
-                // won't work for last assignment on root bone, local is weird (parent is not in line)
-
-                float lerpEuler = 
-                    Mathf.LerpAngle(rootEuler, targetEuler, percentageLeft); // want to rotate other way.
-                twistBones[i].transform.localRotation = 
-                    Quaternion.Euler(currentEuler.x, lerpEuler, currentEuler.z);
-
-                // Rotate child with opposite operation
-                childEuler = twistBones[i + 1].transform.localRotation.eulerAngles;
-                twistBones[i + 1].transform.localRotation =
-                    Quaternion.Euler(childEuler.x, childEuler.y - lerpEuler, childEuler.z);
-
-                percentageLeft -= twistPercentages[i];
             }
         }
     }

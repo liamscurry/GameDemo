@@ -823,16 +823,15 @@ MonoBehaviour:
   - {fileID: 6284974410888328024}
   - {fileID: 7722621662058301091}
   - {fileID: 8921100048663381578}
-  ridgity: 1
+  twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
   poleAngle: 0
   poleScale: 0
-  twistSystems: []
   basePoleAngle: 180
-  maxX: 5
-  flipZ: 0
+  ridgity: 1
   endBoneFollowTarget: 0
+  maxX: 5
 --- !u!1 &188978045
 GameObject:
   m_ObjectHideFlags: 0
@@ -1148,16 +1147,15 @@ MonoBehaviour:
   - {fileID: 3856126629767873052}
   - {fileID: 7411134726816282696}
   - {fileID: 4717861441384957237}
-  ridgity: 1
+  twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
   poleAngle: 0
   poleScale: 0
-  twistSystems: []
   basePoleAngle: 0
-  maxX: 5
-  flipZ: 1
+  ridgity: 1
   endBoneFollowTarget: 0
+  maxX: 5
 --- !u!1 &334885307
 GameObject:
   m_ObjectHideFlags: 0
@@ -3492,7 +3490,6 @@ MonoBehaviour:
   - 2
   - 1
   copyType: 1
-  twist: 0
 --- !u!1 &1062779586
 GameObject:
   m_ObjectHideFlags: 0
@@ -3680,6 +3677,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerAnatomyRig (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 874820602195921970, guid: b7605dbd8acdd4a44b32b96c58d75b59,
+        type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b7605dbd8acdd4a44b32b96c58d75b59, type: 3}
 --- !u!1 &1073473304 stripped
@@ -3792,7 +3794,6 @@ MonoBehaviour:
   - 2
   - 2
   copyType: 1
-  twist: 0
 --- !u!114 &1073473317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3818,7 +3819,6 @@ MonoBehaviour:
   - 1
   - 1
   copyType: 1
-  twist: 0
 --- !u!114 &1073473318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3839,18 +3839,17 @@ MonoBehaviour:
   - {fileID: 1073473308}
   - {fileID: 1073473314}
   - {fileID: 1073473312}
-  ridgity: 1
+  twistSystems:
+  - {fileID: 1073473316}
+  - {fileID: 1073473317}
   pole: {fileID: 1073473307}
   isPoleArm: 1
   poleAngle: 0
   poleScale: 0.33
-  twistSystems:
-  - {fileID: 1073473316}
-  - {fileID: 1073473317}
   basePoleAngle: 66.8
-  maxX: 25
-  flipZ: 1
+  ridgity: 1
   endBoneFollowTarget: 0
+  maxX: 25
 --- !u!1 &1073473319 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 658841412075762881, guid: b7605dbd8acdd4a44b32b96c58d75b59,
@@ -4111,17 +4110,16 @@ MonoBehaviour:
   - {fileID: 1953704482}
   - {fileID: 722013744}
   - {fileID: 489865631}
-  ridgity: 1
+  twistSystems:
+  - {fileID: 1285636376}
   pole: {fileID: 1067089907}
   isPoleArm: 0
   poleAngle: 0
   poleScale: 1
-  twistSystems:
-  - {fileID: 1285636376}
   basePoleAngle: -175.1
-  maxX: 5
-  flipZ: 1
+  ridgity: 1
   endBoneFollowTarget: 1
+  maxX: 5
 --- !u!1 &1146799220
 GameObject:
   m_ObjectHideFlags: 0
@@ -4516,16 +4514,15 @@ MonoBehaviour:
   - {fileID: 1246189744}
   - {fileID: 1246189748}
   - {fileID: 1246189747}
-  ridgity: 1
+  twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
   poleAngle: 0
   poleScale: 0
-  twistSystems: []
   basePoleAngle: 180
-  maxX: 10
-  flipZ: 0
+  ridgity: 1
   endBoneFollowTarget: 0
+  maxX: 10
 --- !u!4 &1246189751 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -113746605279655811, guid: 6514d2f7662211c4ba1be065ab594813,
@@ -4587,7 +4584,6 @@ MonoBehaviour:
   - 2
   - 1
   copyType: 1
-  twist: 0
 --- !u!1 &1246189758 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -4544233971835316378, guid: 6514d2f7662211c4ba1be065ab594813,
@@ -4832,7 +4828,6 @@ MonoBehaviour:
   - 1
   - 1
   copyType: 1
-  twist: 0
 --- !u!1 &1298015703
 GameObject:
   m_ObjectHideFlags: 0
@@ -6451,16 +6446,15 @@ MonoBehaviour:
   - {fileID: 2006753797}
   - {fileID: 2006753796}
   - {fileID: 2006753794}
-  ridgity: 1
+  twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
   poleAngle: 0
   poleScale: 0
-  twistSystems: []
   basePoleAngle: 0
-  maxX: 4
-  flipZ: 0
+  ridgity: 1
   endBoneFollowTarget: 0
+  maxX: 4
 --- !u!1 &2010299417 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -8456361014116672246, guid: b7605dbd8acdd4a44b32b96c58d75b59,
@@ -8066,16 +8060,15 @@ MonoBehaviour:
   - {fileID: 900505694493504801}
   - {fileID: 182280131062569223}
   - {fileID: 1018931497033581373}
-  ridgity: 1
+  twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
   poleAngle: 0
   poleScale: 0
-  twistSystems: []
   basePoleAngle: 0
-  maxX: 5
-  flipZ: 1
+  ridgity: 1
   endBoneFollowTarget: 0
+  maxX: 5
 --- !u!4 &3198422570656309591
 Transform:
   m_ObjectHideFlags: 0

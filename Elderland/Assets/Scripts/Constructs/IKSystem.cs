@@ -5,64 +5,66 @@ using UnityEngine;
 
 /*
 * IK Monobehaviour that packages the IKSolver together to work automatically at runtime.
-* Can turn off IK limiting for animations etc.
 */
 public class IKSystem : MonoBehaviour
 {
-    /*
-    * Hierarchy requirements:
-    * Bones are a tree hierarchy with branching factor 1.
-    * Bones starts at root bone (last to get effected) and goes to the foot bone.
-    * The target transform is the IK transform. This should be a sibling of the bone hierarchy.
-    * Space transform should also be a plain transform that is a sibling of the target transform.
-    * All of these should be the child of this object (The one with the component on it).
-    * Usually then the sibling of this object is the skinned mesh renderer and these two objects
-    * are children of the mesh parent which has the animator on it.
-    *
-    * Pole angle is the angle of the limb in which way it is pivoting.
-    * MaxX specified how far the target transform can be on its parent's local X axis.
-    * Ridgity specifies how bendy the system is. Lower = more bendy.
-    */
     [Header("References")]
+    // Empty transform (created manually). 
+    // Child of this gameObject.
+    // Rotation (in terms of first bone in hierarchy (such as hip or upperarm)):
+    // Z up, Y behind limb and X is right of limb.
     [SerializeField]
     private Transform parent;
+    // Empty transform (created manually).
+    // Child of parent.
+    // Rotation: any, as it will get overriden in IKSolver.
     [SerializeField]
     private Transform space;
+    // Empty object (Imported from Blender, called ### IK)
     [SerializeField]
     private Transform target;
+    // Empty transform. (Imported from Blender, last bone in bones hierarchy (suffixed with _end))
     [SerializeField]
     private Transform footEnd;
+    // Empty transform hierarchy. (Imported from Blender.)
+    // Imported Rotation: Y facing towards next bone, Z facing behind limb, X facing to right of limb.
+    // If rotation is Z in front of limb and X to the right of the limb and Y in direction of next bone,
+    // Check isPoleArm to true.
     [SerializeField]
     private Transform[] bones;
+    // Any twist systems under this system.
+    [SerializeField]
+    private IKCopyRotation[] twistSystems;
+
+    [Header("Pole")]
+    // Empty transform. (Imported from Blender. Suffixed with Pole)
+    [SerializeField]
+    private Transform pole;
+    // Needed so poleAngle is calculated based on pole correctly. See documentation above bones.
+    [SerializeField]
+    private bool isPoleArm; 
+    [SerializeField]
+    [HideInInspector]
+    [Range(-90, 90)]
+    private float poleAngle; // In system, poleAngle is calculated from the pole transform. Ignore.
+    // Needed to make sure rest pose is facing correct direction (conversion from Blender to Unity).
+    [SerializeField]
+    private float poleScale;
+    [SerializeField]
+    private float basePoleAngle; 
+
     [Header("Settings")]
     [SerializeField]
     [Range(0.0f, 1.0f)]
     private float ridgity;
-
-    // Calculate poleAngle for system based on pole
-    // position around the system.
-    [SerializeField]
-    private Transform pole;
-    [SerializeField]
-    private bool isPoleArm;
-    [SerializeField]
-    [HideInInspector]
-    [Range(-90, 90)]
-    private float poleAngle;
-    [SerializeField]
-    private float poleScale;
-
-    [SerializeField]
-    private IKCopyRotation[] twistSystems;
-
-    [SerializeField]
-    private float basePoleAngle;
-    [SerializeField]
-    private float maxX;
-    [SerializeField]
-    private bool flipZ;
+    // Should the last bone in the hierarchy copy the rotation of the IK target.
+    // Generall true for arm limbs and false for leg limbs.
     [SerializeField]
     private bool endBoneFollowTarget;
+
+    [HideInInspector]
+    [SerializeField]
+    private float maxX; // Not used in system. Ignore.
 
     // Fields
     private float[] transformLengths;
@@ -102,7 +104,7 @@ public class IKSystem : MonoBehaviour
             maxX,
             ref currentFootPercent,
             ref lastNormal,
-            flipZ, 
+            true, 
             false,
             endBoneFollowTarget);
     }
@@ -124,7 +126,7 @@ public class IKSystem : MonoBehaviour
             startTargetPosition,
             ref currentFootPercent,
             ref lastNormal,
-            flipZ,
+            true,
             false,
             endBoneFollowTarget);
     }
@@ -145,7 +147,7 @@ public class IKSystem : MonoBehaviour
             maxX,
             ref currentFootPercent,
             ref lastNormal,
-            flipZ,
+            true,
             false,
             endBoneFollowTarget);
 
