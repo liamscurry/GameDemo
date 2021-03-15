@@ -44,6 +44,8 @@ public class IKSystem : MonoBehaviour
     [SerializeField]
     private Transform pole;
     [SerializeField]
+    private bool isPoleArm;
+    [SerializeField]
     [HideInInspector]
     [Range(-90, 90)]
     private float poleAngle;
@@ -59,6 +61,8 @@ public class IKSystem : MonoBehaviour
     private float maxX;
     [SerializeField]
     private bool flipZ;
+    [SerializeField]
+    private bool endBoneFollowTarget;
 
     // Fields
     private float[] transformLengths;
@@ -73,7 +77,7 @@ public class IKSystem : MonoBehaviour
         parent.transform.localRotation = 
             bones[0].localRotation * Quaternion.Euler(90, 0, 0);
 
-        IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle);
+        IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle, isPoleArm);
         IKSolver.InitializeTransformIKSolver(
                 space,
                 target,
@@ -84,7 +88,7 @@ public class IKSystem : MonoBehaviour
                 ref currentFootPercent,
                 ref lastNormal);
 
-        IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle);
+        IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle, isPoleArm);
         IKSolver.TransformIKSolve(
             parent,
             space,
@@ -99,7 +103,8 @@ public class IKSystem : MonoBehaviour
             ref currentFootPercent,
             ref lastNormal,
             flipZ, 
-            false);
+            false,
+            endBoneFollowTarget);
     }
 
     public void Reset()
@@ -120,12 +125,13 @@ public class IKSystem : MonoBehaviour
             ref currentFootPercent,
             ref lastNormal,
             flipZ,
-            false);
+            false,
+            endBoneFollowTarget);
     }
 
     private void LateUpdate()
     {
-        IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle);
+        IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle, isPoleArm);
         IKSolver.TransformIKSolve(
             parent,
             space,
@@ -140,7 +146,8 @@ public class IKSystem : MonoBehaviour
             ref currentFootPercent,
             ref lastNormal,
             flipZ,
-            false);
+            false,
+            endBoneFollowTarget);
 
         foreach (IKCopyRotation twistSystem in twistSystems)
         {

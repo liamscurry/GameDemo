@@ -73,6 +73,7 @@ public class IKSolverUT : MonoBehaviour
             ref currentFootPercent,
             ref lastNormal,
             false,
+            true,
             true);
     }
 
@@ -94,6 +95,7 @@ public class IKSolverUT : MonoBehaviour
                 ref currentFootPercent,
                 ref lastNormal,
                 false,
+                true,
                 true);
             Debug.Log("called once");
         }
@@ -112,6 +114,7 @@ public class IKSolverUT : MonoBehaviour
             ref currentFootPercent,
             ref lastNormal,
             false,
+            true,
             true);
 
         if (Input.GetKeyDown(KeyCode.R))
@@ -132,6 +135,7 @@ public class IKSolverUT : MonoBehaviour
                 ref currentFootPercent,
                 ref lastNormal,
                 false,
+                true,
                 true);
         }
     }

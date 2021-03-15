@@ -175,7 +175,8 @@ public class IKSolver : MonoBehaviour
         ref float currentFootPercent,
         ref Vector3 lastNormal,
         bool flipZ,
-        bool autoPole)
+        bool autoPole,
+        bool endBoneFollowTarget)
     {
         Vector3 localRootPosition =
                 parentTransform.worldToLocalMatrix.MultiplyPoint(
@@ -308,7 +309,8 @@ public class IKSolver : MonoBehaviour
             limitedTargetPosition,
             currentFootPercent,
             lastNormal,
-            flipZ);
+            flipZ,
+            endBoneFollowTarget);
     }
 
     /*
@@ -326,7 +328,8 @@ public class IKSolver : MonoBehaviour
         Vector3 limitedTargetPosition,
         float currentFootPercent,
         Vector3 footNormal,
-        bool flipZ)
+        bool flipZ,
+        bool endBoneFollowTarget)
     {
         Vector3[] storedPositions = new Vector3[transforms.Length];
         for (int i = 0; i < transforms.Length; i++)
@@ -353,37 +356,40 @@ public class IKSolver : MonoBehaviour
             transforms[i].position = storedPositions[i];
         }
 
-        transforms[transforms.Length - 1].rotation = targetTransform.rotation;
-        
-        Vector3 footPosition = transforms[transforms.Length - 1].position;
-        Vector3 footEndPosition = foodEndTransform.position;
-        RaycastHit limitTargetEnd;
-        bool hitLimitEnd = Physics.Raycast(
-            transforms[0].position,
-            (footEndPosition - transforms[0].position).normalized,
-            out limitTargetEnd,
-            (footEndPosition - transforms[0].position).magnitude,
-            LayerConstants.GroundCollision);
-        if (hitLimitEnd)
-            footEndPosition = limitTargetEnd.point;
-        Vector3 limitedTargetEndDirection = 
-            (footEndPosition - footPosition).normalized;
+        if (endBoneFollowTarget)
+        {
+            transforms[transforms.Length - 1].rotation = targetTransform.rotation;
+            
+            Vector3 footPosition = transforms[transforms.Length - 1].position;
+            Vector3 footEndPosition = foodEndTransform.position;
+            RaycastHit limitTargetEnd;
+            bool hitLimitEnd = Physics.Raycast(
+                transforms[0].position,
+                (footEndPosition - transforms[0].position).normalized,
+                out limitTargetEnd,
+                (footEndPosition - transforms[0].position).magnitude,
+                LayerConstants.GroundCollision);
+            if (hitLimitEnd)
+                footEndPosition = limitTargetEnd.point;
+            Vector3 limitedTargetEndDirection = 
+                (footEndPosition - footPosition).normalized;
 
-        //transforms[transforms.Length - 1].rotation = targetTransform.rotation;
-        Matrix4x4 footMatrix =
-            Matrix4x4.Rotate(Quaternion.FromToRotation(limitedTargetEndDirection, targetTransform.up) *
-            targetTransform.rotation);
-        Vector3 footUp = -footMatrix.MultiplyPoint(Vector3.forward);
-        // direction of foot is wrong as spaceRightDirection may not be perp to limitedTargetEndDirection.
-        Quaternion limitedRotation = 
-            Quaternion.LookRotation(flipZSign * footUp, limitedTargetEndDirection);
+            //transforms[transforms.Length - 1].rotation = targetTransform.rotation;
+            Matrix4x4 footMatrix =
+                Matrix4x4.Rotate(Quaternion.FromToRotation(limitedTargetEndDirection, targetTransform.up) *
+                targetTransform.rotation);
+            Vector3 footUp = -footMatrix.MultiplyPoint(Vector3.forward);
+            // direction of foot is wrong as spaceRightDirection may not be perp to limitedTargetEndDirection.
+            Quaternion limitedRotation = 
+                Quaternion.LookRotation(flipZSign * footUp, limitedTargetEndDirection);
 
-        // Normal rotation
-        Quaternion normalRotation = 
-            Quaternion.LookRotation(flipZSign * footNormal, limitedTargetEndDirection);
+            // Normal rotation
+            Quaternion normalRotation = 
+                Quaternion.LookRotation(flipZSign * footNormal, limitedTargetEndDirection);
 
-        transforms[transforms.Length - 1].rotation = 
-            Quaternion.Lerp(limitedRotation, normalRotation, currentFootPercent);
+            transforms[transforms.Length - 1].rotation = 
+                Quaternion.Lerp(limitedRotation, normalRotation, currentFootPercent);
+        }
     }
 
     /*
@@ -406,7 +412,8 @@ public class IKSolver : MonoBehaviour
         ref float currentFootPercent,
         ref Vector3 lastNormal,
         bool flipZ,
-        bool autoPole)
+        bool autoPole,
+        bool endBoneFollowTarget)
     {
         spaceTransform.localRotation =
             startRootRotation;
@@ -426,7 +433,8 @@ public class IKSolver : MonoBehaviour
             ref currentFootPercent,
             ref lastNormal,
             flipZ,
-            autoPole);
+            autoPole,
+            endBoneFollowTarget);
     }
 
     /*
@@ -459,9 +467,11 @@ public class IKSolver : MonoBehaviour
         Transform pole,
         float basePoleAngle,
         float scale,
-        ref float poleAngle)
+        ref float poleAngle,
+        bool armBone)
     {
-        Vector2 projectedPos = 
+        Vector2 projectedPos = (armBone) ?
+            new Vector2(-pole.localPosition.x, pole.localPosition.z) :
             new Vector2(pole.localPosition.x, pole.localPosition.y);
         int angleSign =
             (Matho.AngleBetween(projectedPos, Vector2.right) < 90) ? -1 : 1;
