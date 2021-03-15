@@ -69,15 +69,21 @@ public class IKSystem : MonoBehaviour
     // Fields
     private float[] transformLengths;
     private Vector3 startTargetPosition;
+    private Quaternion startTargetRotation;
     private Quaternion startRootRotation;
     private float currentFootPercent;
     private Vector3 lastNormal;
-    private Vector3 localPoleStartPosition;
+
+    private Vector3 startPolePosition;
+    private Quaternion startPoleRotation;
 
     private void Start()
     {     
         parent.transform.localRotation = 
             bones[0].localRotation * Quaternion.Euler(90, 0, 0);
+
+        startPolePosition = pole.position;
+        startPoleRotation = pole.rotation;
 
         IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle, isPoleArm);
         IKSolver.InitializeTransformIKSolver(
@@ -87,6 +93,7 @@ public class IKSystem : MonoBehaviour
                 ref transformLengths,
                 ref startRootRotation,
                 ref startTargetPosition,
+                ref startTargetRotation,
                 ref currentFootPercent,
                 ref lastNormal);
 
@@ -111,6 +118,9 @@ public class IKSystem : MonoBehaviour
 
     public void Reset()
     {
+        pole.position = startPolePosition;
+        pole.rotation = startPoleRotation;
+
         IKSolver.ResetTransformIKSolver(
             parent,
             space,
@@ -124,6 +134,7 @@ public class IKSystem : MonoBehaviour
             maxX,
             startRootRotation,
             startTargetPosition,
+            startTargetRotation,
             ref currentFootPercent,
             ref lastNormal,
             true,
@@ -133,6 +144,9 @@ public class IKSystem : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+            Reset();
+
         IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle, isPoleArm);
         IKSolver.TransformIKSolve(
             parent,

@@ -40,6 +40,7 @@ public class IKSolverUT : MonoBehaviour
 
     private float[] transformLengths;
     private Vector3 startTargetPosition;
+    private Quaternion startTargetRotation;
     private Quaternion startRootRotation;
     private float currentFootPercent;
     private Vector3 lastNormal;
@@ -56,6 +57,7 @@ public class IKSolverUT : MonoBehaviour
                 ref transformLengths,
                 ref startRootRotation,
                 ref startTargetPosition,
+                ref startTargetRotation,
                 ref currentFootPercent,
                 ref lastNormal);
         
@@ -132,6 +134,7 @@ public class IKSolverUT : MonoBehaviour
                 transformMaxX,
                 startRootRotation,
                 startTargetPosition,
+                startTargetRotation,
                 ref currentFootPercent,
                 ref lastNormal,
                 false,

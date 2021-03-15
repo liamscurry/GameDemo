@@ -405,6 +405,7 @@ public class IKSolver : MonoBehaviour
         float maxX,
         Quaternion startRootRotation,
         Vector3 startTargetPosition,
+        Quaternion startTargetRotation,
         ref float currentFootPercent,
         ref Vector3 lastNormal,
         bool flipZ,
@@ -415,6 +416,7 @@ public class IKSolver : MonoBehaviour
             startRootRotation;
         targetTransform.position = 
             spaceTransform.localToWorldMatrix.MultiplyPoint(startTargetPosition);
+        targetTransform.rotation = startTargetRotation;
 
         TransformIKSolve(
             parentTransform,
@@ -444,6 +446,7 @@ public class IKSolver : MonoBehaviour
         ref float[] lengths,
         ref Quaternion startRootRotation,
         ref Vector3 startTargetPosition,
+        ref Quaternion startTargetRotation,
         ref float currentFootPercent,
         ref Vector3 lastNormal)
     {
@@ -454,6 +457,7 @@ public class IKSolver : MonoBehaviour
         }
         startTargetPosition = 
             spaceTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position);
+        startTargetRotation = targetTransform.rotation;
         startRootRotation = spaceTransform.localRotation;
         currentFootPercent = 0;
         lastNormal = Vector3.forward;
