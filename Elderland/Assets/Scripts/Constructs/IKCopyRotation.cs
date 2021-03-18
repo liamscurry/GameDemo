@@ -21,6 +21,8 @@ public class IKCopyRotation : MonoBehaviour
     // Bone used to make sure rotations don't converge to one value.
     // This is the bone that follows the target bone.
     // Should be an empty transform that is a sibling of this gameObject.
+    // This bone should rotated in its local space such that the z is facing with the direction
+    // of the limb bend at run time.
     [SerializeField]
     private GameObject fromBone;
     // Twist bones this object is attached to a linear transform hierarchy

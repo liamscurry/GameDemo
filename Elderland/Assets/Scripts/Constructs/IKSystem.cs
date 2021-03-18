@@ -24,6 +24,10 @@ public class IKSystem : MonoBehaviour
     // Empty object (Imported from Blender, called ### IK)
     [SerializeField]
     private Transform target;
+    // Empty transform (Imported from Blender, object in blender with IK bone constraint on it.
+    // but must be tail of bone (so child of this object mentioned))
+    [SerializeField]
+    private Transform IK;
     // Empty transform. (Imported from Blender, last bone in bones hierarchy (suffixed with _end))
     [SerializeField]
     private Transform footEnd;
@@ -44,6 +48,9 @@ public class IKSystem : MonoBehaviour
     // Needed so poleAngle is calculated based on pole correctly. See documentation above bones.
     [SerializeField]
     private bool isPoleArm; 
+    // X axis may be flipped on "right" limb. If so, set to true.
+    [SerializeField]
+    private bool isPoleArmFlipped;
     [SerializeField]
     [HideInInspector]
     [Range(-90, 90)]
@@ -78,6 +85,9 @@ public class IKSystem : MonoBehaviour
     private Vector3 startPolePosition;
     private Quaternion startPoleRotation;
 
+    private Vector2 startPoleLocalPosition;
+    private Vector3 spaceForward, spaceUp, spaceRight;
+
     private void Start()
     {     
         parent.transform.localRotation = 
@@ -85,8 +95,14 @@ public class IKSystem : MonoBehaviour
 
         startPolePosition = pole.position;
         startPoleRotation = pole.rotation;
-
-        IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle, isPoleArm);
+        
+        IKSolver.CalculatePoleSpace(
+            pole,
+            IK,
+            bones,
+            ref spaceForward,
+            ref spaceUp,
+            ref spaceRight);
         IKSolver.InitializeTransformIKSolver(
                 space,
                 target,
@@ -98,7 +114,13 @@ public class IKSystem : MonoBehaviour
                 ref currentFootPercent,
                 ref lastNormal);
 
-        IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle, isPoleArm);
+        IKSolver.CalculatePoleSpace(
+            pole,
+            IK,
+            bones,
+            ref spaceForward,
+            ref spaceUp,
+            ref spaceRight);
         IKSolver.TransformIKSolve(
             parent,
             space,
@@ -112,9 +134,11 @@ public class IKSystem : MonoBehaviour
             maxX,
             ref currentFootPercent,
             ref lastNormal,
-            true, 
             false,
-            endBoneFollowTarget);
+            endBoneFollowTarget,
+            spaceForward,
+            spaceUp,
+            spaceRight);
     }
 
     public void Reset()
@@ -139,16 +163,21 @@ public class IKSystem : MonoBehaviour
             ref currentFootPercent,
             ref lastNormal,
             true,
-            false,
-            endBoneFollowTarget);
+            endBoneFollowTarget,
+            spaceForward,
+            spaceUp,
+            spaceRight);
     }
 
     private void LateUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-            Reset();
-
-        IKSolver.CalculatePoleAngle(pole, basePoleAngle, poleScale, ref poleAngle, isPoleArm);
+        IKSolver.CalculatePoleSpace(
+            pole,
+            IK,
+            bones,
+            ref spaceForward,
+            ref spaceUp,
+            ref spaceRight);
         IKSolver.TransformIKSolve(
             parent,
             space,
@@ -162,9 +191,11 @@ public class IKSystem : MonoBehaviour
             maxX,
             ref currentFootPercent,
             ref lastNormal,
-            true,
             false,
-            endBoneFollowTarget);
+            endBoneFollowTarget,
+            spaceForward,
+            spaceUp,
+            spaceRight);
 
         foreach (IKCopyRotation twistSystem in twistSystems)
         {

@@ -5,6 +5,36 @@ using UnityEngine;
 
 public class IKSolverUT : MonoBehaviour
 {
+    public static readonly float AngleThreshold = 2f;
+
+    private void Start()
+    {
+        StartCoroutine(TestCoroutine());
+    }
+
+    private IEnumerator TestCoroutine()
+    {
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+
+        try
+        {
+            IKSolver.TriangleAngleTests();
+            IKSolver.GenerateOffsetTests();
+            IKSolver.GeneratePointTests();
+            IKSolver.DiscrepencyTests();
+
+            Debug.Log("IKSolver: Success");
+        } 
+        catch (Exception e)
+        {
+            Debug.Log("IKSolver: Failed. " + e.Message + " " + e.StackTrace);
+        }
+    }
+}
+
+/*
+Auto IK tests: No supported anymore:
     [Header("Generic IK Solver Test")]
     [SerializeField]
     private bool testGeneric;
@@ -142,27 +172,7 @@ public class IKSolverUT : MonoBehaviour
                 true);
         }
     }
-
-    private IEnumerator TestCoroutine()
-    {
-        yield return new WaitForEndOfFrame();
-        yield return new WaitForEndOfFrame();
-
-        try
-        {
-            IKSolver.TriangleAngleTests();
-            IKSolver.GenerateOffsetTests();
-            IKSolver.GeneratePointTests();
-            IKSolver.DiscrepencyTests();
-
-            Debug.Log("IKSolver: Success");
-        } 
-        catch (Exception e)
-        {
-            Debug.Log("IKSolver: Failed. " + e.Message + " " + e.StackTrace);
-        }
-    }
-
+    
     private void OnDrawGizmosSelected()
     {
         if (testGeneric)
@@ -181,4 +191,4 @@ public class IKSolverUT : MonoBehaviour
                 Gizmos.DrawCube(pointsCopy[i], Vector3.one * 0.25f);
         }
     }
-}
+*/
