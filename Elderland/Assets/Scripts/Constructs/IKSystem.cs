@@ -48,16 +48,13 @@ public class IKSystem : MonoBehaviour
     // Needed so poleAngle is calculated based on pole correctly. See documentation above bones.
     [SerializeField]
     private bool isPoleArm; 
-    // X axis may be flipped on "right" limb. If so, set to true.
+    // Pole axis may be flipped in a limb so that the start bone isn't twisted.
     [SerializeField]
-    private bool isPoleArmFlipped;
+    private bool flipPole;
     [SerializeField]
     [HideInInspector]
     [Range(-90, 90)]
     private float poleAngle; // In system, poleAngle is calculated from the pole transform. Ignore.
-    // Needed to make sure rest pose is facing correct direction (conversion from Blender to Unity).
-    [SerializeField]
-    private float poleScale;
     [SerializeField]
     private float basePoleAngle; 
 
@@ -102,7 +99,8 @@ public class IKSystem : MonoBehaviour
             bones,
             ref spaceForward,
             ref spaceUp,
-            ref spaceRight);
+            ref spaceRight,
+            flipPole);
         IKSolver.InitializeTransformIKSolver(
                 space,
                 target,
@@ -120,7 +118,8 @@ public class IKSystem : MonoBehaviour
             bones,
             ref spaceForward,
             ref spaceUp,
-            ref spaceRight);
+            ref spaceRight,
+            flipPole);
         IKSolver.TransformIKSolve(
             parent,
             space,
@@ -177,7 +176,8 @@ public class IKSystem : MonoBehaviour
             bones,
             ref spaceForward,
             ref spaceUp,
-            ref spaceRight);
+            ref spaceRight,
+            flipPole);
         IKSolver.TransformIKSolve(
             parent,
             space,

@@ -271,6 +271,9 @@ public class IKSolver : MonoBehaviour
         if (hitLimit)
             lastNormal = limitTarget.normal;
 
+        Vector3 rotatedSpaceUp = 
+            Matho.Rotate(spaceUp, limitedTargetDirection, basePoleAngle);
+
         DirectTransformIK(
             spaceTransform,
             targetTransform,
@@ -284,9 +287,7 @@ public class IKSolver : MonoBehaviour
             lastNormal,
             flipZ,
             endBoneFollowTarget,
-            spaceForward,
-            spaceUp,
-            spaceRight);
+            rotatedSpaceUp);
     }
 
     /*
@@ -306,9 +307,7 @@ public class IKSolver : MonoBehaviour
         Vector3 footNormal,
         bool flipZ,
         bool endBoneFollowTarget,
-        Vector3 spaceForward,
-        Vector3 spaceUp,
-        Vector3 spaceRight)
+        Vector3 spaceUp)
     {
         Vector3[] storedPositions = new Vector3[transforms.Length];
         for (int i = 0; i < transforms.Length; i++)
@@ -459,7 +458,8 @@ public class IKSolver : MonoBehaviour
         Transform[] bones,
         ref Vector3 spaceForward,
         ref Vector3 spaceUp,
-        ref Vector3 spaceRight)
+        ref Vector3 spaceRight,
+        bool reverseRight)
     {
         Vector3 planeDirection = target.position - bones[0].position;
         Vector3 poleNormDir = 
@@ -471,7 +471,14 @@ public class IKSolver : MonoBehaviour
         {
             spaceForward = planeDirection;
             spaceUp = poleNormDir;
-            spaceRight = Vector3.Cross(planeDirection, poleNormDir);
+            if (!reverseRight)
+            {
+                spaceRight = Vector3.Cross(planeDirection, poleNormDir);
+            }
+            else
+            {
+                spaceRight = Vector3.Cross(poleNormDir, planeDirection);
+            }
         }
     }
 

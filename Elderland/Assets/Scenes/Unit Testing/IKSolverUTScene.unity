@@ -788,9 +788,8 @@ MonoBehaviour:
   twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
-  isPoleArmFlipped: 0
+  flipPole: 0
   poleAngle: 0
-  poleScale: 0
   basePoleAngle: 180
   ridgity: 1
   endBoneFollowTarget: 0
@@ -1145,9 +1144,8 @@ MonoBehaviour:
   twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
-  isPoleArmFlipped: 0
+  flipPole: 0
   poleAngle: 0
-  poleScale: 0
   basePoleAngle: 0
   ridgity: 1
   endBoneFollowTarget: 0
@@ -3591,7 +3589,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15.67
+      value: 12.105
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
@@ -3601,27 +3599,27 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -9.98
+      value: -9.58
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0.70710677
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
@@ -3636,7 +3634,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -90.00001
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
@@ -3674,7 +3672,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1073473304}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 6514d2f7662211c4ba1be065ab594813, type: 3}
   m_Controller: {fileID: 9100000, guid: 13d0de4af1149d04bb889ec85e767beb, type: 2}
   m_CullingMode: 1
@@ -3766,9 +3764,9 @@ MonoBehaviour:
   - {fileID: 1073473323}
   - {fileID: 1073473322}
   weights:
+  - 3
+  - 2
   - 1
-  - 2
-  - 2
   copyType: 1
 --- !u!114 &1073473317
 MonoBehaviour:
@@ -3802,7 +3800,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1073473306}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d98bca97494ade44282aa22f0a04b457, type: 3}
   m_Name: 
@@ -3821,10 +3819,9 @@ MonoBehaviour:
   - {fileID: 1073473317}
   pole: {fileID: 1073473307}
   isPoleArm: 1
-  isPoleArmFlipped: 0
+  flipPole: 1
   poleAngle: 0
-  poleScale: 1
-  basePoleAngle: 164.81
+  basePoleAngle: -68
   ridgity: 1
   endBoneFollowTarget: 0
   maxX: 25
@@ -4002,9 +3999,8 @@ MonoBehaviour:
   - {fileID: 1073473335}
   pole: {fileID: 1073473342}
   isPoleArm: 0
-  isPoleArmFlipped: 0
+  flipPole: 0
   poleAngle: 0
-  poleScale: 1
   basePoleAngle: -80.88
   ridgity: 1
   endBoneFollowTarget: 1
@@ -4053,9 +4049,8 @@ MonoBehaviour:
   - {fileID: 1073473364}
   pole: {fileID: 1073473347}
   isPoleArm: 1
-  isPoleArmFlipped: 0
+  flipPole: 0
   poleAngle: 0
-  poleScale: 1
   basePoleAngle: 57.6
   ridgity: 1
   endBoneFollowTarget: 0
@@ -4423,9 +4418,8 @@ MonoBehaviour:
   - {fileID: 1285636376}
   pole: {fileID: 1067089907}
   isPoleArm: 0
-  isPoleArmFlipped: 0
+  flipPole: 0
   poleAngle: 0
-  poleScale: 1
   basePoleAngle: -92.27
   ridgity: 1
   endBoneFollowTarget: 1
@@ -4667,13 +4661,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1217411651}
-  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1073473343}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &1229871603
 GameObject:
   m_ObjectHideFlags: 0
@@ -4697,13 +4691,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1229871603}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1073473315}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 1073473308}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &1243444200
 GameObject:
   m_ObjectHideFlags: 0
@@ -4888,9 +4882,8 @@ MonoBehaviour:
   twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
-  isPoleArmFlipped: 0
+  flipPole: 0
   poleAngle: 0
-  poleScale: 0
   basePoleAngle: 180
   ridgity: 1
   endBoneFollowTarget: 0
@@ -6913,9 +6906,8 @@ MonoBehaviour:
   twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
-  isPoleArmFlipped: 0
+  flipPole: 0
   poleAngle: 0
-  poleScale: 0
   basePoleAngle: 0
   ridgity: 1
   endBoneFollowTarget: 0
@@ -8505,9 +8497,8 @@ MonoBehaviour:
   twistSystems: []
   pole: {fileID: 0}
   isPoleArm: 0
-  isPoleArmFlipped: 0
+  flipPole: 0
   poleAngle: 0
-  poleScale: 0
   basePoleAngle: 0
   ridgity: 1
   endBoneFollowTarget: 0

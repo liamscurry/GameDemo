@@ -21,8 +21,9 @@ public class IKCopyRotation : MonoBehaviour
     // Bone used to make sure rotations don't converge to one value.
     // This is the bone that follows the target bone.
     // Should be an empty transform that is a sibling of this gameObject.
-    // This bone should rotated in its local space such that the z is facing with the direction
-    // of the limb bend at run time.
+    // This bone should rotated in its local space around its local axis so that the bone
+    // is not twisted at the joint. The rest should be zero rotation and position locally.
+    // This can be paired with the systems flipPole option.
     [SerializeField]
     private GameObject fromBone;
     // Twist bones this object is attached to a linear transform hierarchy
@@ -36,6 +37,8 @@ public class IKCopyRotation : MonoBehaviour
 
     private float targetPercentage;
     private float[] twistPercentages;
+
+    private Quaternion currentRotation;
 
     private Vector3 Direction
     {
@@ -109,7 +112,7 @@ public class IKCopyRotation : MonoBehaviour
     // Tested initially, passed.
     private void Track()
     {
-        fromBone.transform.rotation = 
+        currentRotation = 
             Quaternion.FromToRotation(Direction, TargetDirection) *
             fromBone.transform.rotation;
     }
@@ -117,7 +120,6 @@ public class IKCopyRotation : MonoBehaviour
     private void Rotate()
     {
         Quaternion targetR = target.transform.rotation;
-        Quaternion currentR = fromBone.transform.rotation;
         float percentageUsed = 0;
 
         for (int i = 0; i < twistPercentages.Length; i++)
@@ -132,7 +134,7 @@ public class IKCopyRotation : MonoBehaviour
                 float percentage = 
                     percentageUsed + twistPercentages[i];
                 twistBones[i].transform.rotation =
-                    Quaternion.Lerp(currentR, targetR, percentage);
+                    Quaternion.Lerp(currentRotation, targetR, percentage);
 
                 percentageUsed += twistPercentages[i];
             }
