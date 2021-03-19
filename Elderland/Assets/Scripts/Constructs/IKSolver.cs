@@ -171,8 +171,8 @@ public class IKSolver : MonoBehaviour
         float maxX,
         ref float currentFootPercent,
         ref Vector3 lastNormal,
-        bool flipZ,
-        bool endBoneFollowTarget,
+        bool flipFoot,
+        bool ignoreNormalFootRotation,
         Vector3 spaceForward,
         Vector3 spaceUp,
         Vector3 spaceRight)
@@ -186,7 +186,7 @@ public class IKSolver : MonoBehaviour
 
         if (Matho.StandardProjection3D(targetDirection).magnitude != 0)
         {
-            int flipZSign = (flipZ) ? -1 : 1;
+            int flipZSign = (flipFoot) ? -1 : 1;
             Vector3 currentEulerAngles =
                 spaceTransform.localRotation.eulerAngles;
             spaceTransform.localRotation =   
@@ -285,8 +285,8 @@ public class IKSolver : MonoBehaviour
             limitedTargetPosition,
             currentFootPercent,
             lastNormal,
-            flipZ,
-            endBoneFollowTarget,
+            flipFoot,
+            ignoreNormalFootRotation,
             rotatedSpaceUp);
     }
 
@@ -305,8 +305,8 @@ public class IKSolver : MonoBehaviour
         Vector3 limitedTargetPosition,
         float currentFootPercent,
         Vector3 footNormal,
-        bool flipZ,
-        bool endBoneFollowTarget,
+        bool flipFoot,
+        bool ignoreNormalFootRotation,
         Vector3 spaceUp)
     {
         Vector3[] storedPositions = new Vector3[transforms.Length];
@@ -314,8 +314,6 @@ public class IKSolver : MonoBehaviour
         {
             storedPositions[i] = transforms[i].position;
         }
-
-        int flipZSign = (flipZ) ? -1 : 1;
 
         Vector3 targetDirection = limitedTargetDirection;
         for (int i = 0; i < transforms.Length - 1; i++)
@@ -334,10 +332,10 @@ public class IKSolver : MonoBehaviour
             transforms[i].position = storedPositions[i];
         }
 
-        if (endBoneFollowTarget)
+        if (!ignoreNormalFootRotation)
         {
             transforms[transforms.Length - 1].rotation = targetTransform.rotation;
-            
+        
             Vector3 footPosition = transforms[transforms.Length - 1].position;
             Vector3 footEndPosition = foodEndTransform.position;
             RaycastHit limitTargetEnd;
@@ -352,6 +350,8 @@ public class IKSolver : MonoBehaviour
             Vector3 limitedTargetEndDirection = 
                 (footEndPosition - footPosition).normalized;
 
+            int footSign = (flipFoot) ? 1 : -1;
+
             //transforms[transforms.Length - 1].rotation = targetTransform.rotation;
             Matrix4x4 footMatrix =
                 Matrix4x4.Rotate(Quaternion.FromToRotation(limitedTargetEndDirection, targetTransform.up) *
@@ -359,14 +359,14 @@ public class IKSolver : MonoBehaviour
             Vector3 footUp = -footMatrix.MultiplyPoint(Vector3.forward);
             // direction of foot is wrong as spaceRightDirection may not be perp to limitedTargetEndDirection.
             Quaternion limitedRotation = 
-                Quaternion.LookRotation(flipZSign * footUp, limitedTargetEndDirection);
+                Quaternion.LookRotation(-footUp, limitedTargetEndDirection);
 
             // Normal rotation
             Quaternion normalRotation = 
-                Quaternion.LookRotation(flipZSign * footNormal, limitedTargetEndDirection);
+                Quaternion.LookRotation(-footSign * footNormal, limitedTargetEndDirection);
 
             transforms[transforms.Length - 1].rotation = 
-                Quaternion.Lerp(limitedRotation, normalRotation, currentFootPercent);
+                    Quaternion.Lerp(limitedRotation, normalRotation, currentFootPercent);
         }
     }
 

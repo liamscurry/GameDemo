@@ -65,7 +65,9 @@ public class IKSystem : MonoBehaviour
     // Should the last bone in the hierarchy copy the rotation of the IK target.
     // Generall true for arm limbs and false for leg limbs.
     [SerializeField]
-    private bool endBoneFollowTarget;
+    private bool flipFoot;
+    [SerializeField]
+    private bool ignoreNormalFootRotation;
 
     [HideInInspector]
     [SerializeField]
@@ -133,8 +135,8 @@ public class IKSystem : MonoBehaviour
             maxX,
             ref currentFootPercent,
             ref lastNormal,
-            false,
-            endBoneFollowTarget,
+            flipFoot,
+            ignoreNormalFootRotation,
             spaceForward,
             spaceUp,
             spaceRight);
@@ -161,8 +163,8 @@ public class IKSystem : MonoBehaviour
             startTargetRotation,
             ref currentFootPercent,
             ref lastNormal,
-            true,
-            endBoneFollowTarget,
+            flipFoot,
+            ignoreNormalFootRotation,
             spaceForward,
             spaceUp,
             spaceRight);
@@ -191,8 +193,8 @@ public class IKSystem : MonoBehaviour
             maxX,
             ref currentFootPercent,
             ref lastNormal,
-            false,
-            endBoneFollowTarget,
+            flipFoot,
+            ignoreNormalFootRotation,
             spaceForward,
             spaceUp,
             spaceRight);
