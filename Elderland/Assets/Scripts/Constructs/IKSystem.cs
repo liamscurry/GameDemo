@@ -26,6 +26,7 @@ public class IKSystem : MonoBehaviour
 
     [Header("Pole")]
     // Empty transform. (Imported from Blender. Suffixed with Pole)
+    // Should be in front of character rig/limb.
     [SerializeField]
     private Transform pole;
     // Pole axis may be flipped in a limb so that the start bone isn't twisted.

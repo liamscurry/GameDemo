@@ -176,10 +176,6 @@ public class IKSolver : MonoBehaviour
     /*
     * Solves a 3D IK problem given a set of joint points as transforms and a 
     * pole angle that specifies how tilted the limb is and maps from 2D answer to 3D space.
-    * In this raw case, the limb should only be moved/rotated from the target transform and the pole angle
-    * and the parent transform of the whole IK rig subsystem (ex, parent of targetTransform)
-    * You can call ResetTransformIKSolver to reset the targetTransform and space transform locally.
-    * Call InitializeTransformIKSolver to initialize the rig subsystem.
     * The IK target should not be in a position locally which rotates the top bone past vertical,
     * ie, the targetTransform is high up locally along the y axis.
     * See IKSystem.cs for an example.

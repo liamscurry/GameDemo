@@ -1,3 +1,11 @@
 In order to set up a model to support IK, please reference the IK Rig Example Blender in this file
-for the rig itself. In addition, use the files IKSystem and IKCopyRotation, which have their own
+for the rig itself. The IK Rig Setup Example prefab here is the blender file but converted to support
+this custom IK. In addition, use the files IKSystem and IKCopyRotation, which have their own
 documentation in their files for how to set them up with the rig.
+
+General steps to setup IK:
+1) Apply the components and setup like in the IK Rig Setup Example prefab.
+2) Alter flipPole, flipfoot and the local y rotation of any IK twist setups (IKCopyRotation components).
+   This is complete when there are no twists at runtime without an animation.
+3) Calibrate the basePoleAngle with a test animation, make sure that in atleast two points in the
+   animation have correct pole rotation in Unity.

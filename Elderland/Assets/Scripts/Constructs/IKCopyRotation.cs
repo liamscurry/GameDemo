@@ -21,7 +21,7 @@ public class IKCopyRotation : MonoBehaviour
     // Bone used to make sure rotations don't converge to one value.
     // This is the bone that follows the target bone.
     // Should be an empty transform that is a sibling of this gameObject.
-    // This bone should rotated in its local space around its local axis so that the bone
+    // This bone should rotated in its local space around its local y axis so that the bone
     // is not twisted at the joint. The rest should be zero rotation and position locally.
     // This can be paired with the systems flipPole option.
     [SerializeField]
@@ -30,6 +30,7 @@ public class IKCopyRotation : MonoBehaviour
     // including the end transform.
     [SerializeField]
     private GameObject[] twistBones; 
+    // Higher weights means more twist at that bone.
     [SerializeField]
     private float[] weights; 
     [SerializeField]
@@ -37,7 +38,6 @@ public class IKCopyRotation : MonoBehaviour
 
     private float targetPercentage;
     private float[] twistPercentages;
-
     private Quaternion currentRotation;
 
     private Vector3 Direction
@@ -88,6 +88,9 @@ public class IKCopyRotation : MonoBehaviour
     }
 
     // Tested initially, passed.
+    /*
+    * Needed to apply weights in rotate method.
+    */
     private void GeneratePercentages()
     {
         targetPercentage = 0;
