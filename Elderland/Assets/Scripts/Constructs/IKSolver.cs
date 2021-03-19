@@ -8,6 +8,32 @@ using UnityEngine;
 */
 public class IKSolver : MonoBehaviour
 {
+    public class IKPackage 
+    {
+        public Transform[] Transforms { get; set; }
+        public float[] Lengths { get; set; }
+        public Transform TargetTransform { get; set; }
+        public Transform PoleTransform { get; set; }
+        public Transform FootEndTransform { get; set; }
+        
+        public float Ridgity { get; set; }
+        public float BasePoleAngle { get; set; }
+        public bool FlipFoot { get; set; }
+        public bool ReverseRight { get; set; }
+        public bool IgnoreNormalFootRotation { get; set; }
+
+        public float CurrentFootPercent { get; set; }
+        public Vector3 LastNormal { get; set; }
+        public Vector3 SpaceForward { get; set; }
+        public Vector3 SpaceUp { get; set; }
+        public Vector3 SpaceRight { get; set; }
+
+        public IKPackage(int numberOfBones)
+        {
+            Lengths = new float[numberOfBones];
+        }
+    }
+
     public static readonly float IKRootRotationMin = 0.5f;
     private static readonly float footSmoothSpeed = 3;
     private static readonly float poleMagMin = 0.01f;
@@ -91,7 +117,7 @@ public class IKSolver : MonoBehaviour
     */
     private static void IKSolve(
         ref Vector2[] points,
-        ref float[] lengths,
+        float[] lengths,
         float ridgity
     )
     {
@@ -158,91 +184,58 @@ public class IKSolver : MonoBehaviour
     * ie, the targetTransform is high up locally along the y axis.
     * See IKSystem.cs for an example.
     */
-    public static void TransformIKSolve(
-        Transform parentTransform,
-        Transform spaceTransform,
-        Transform targetTransform,
-        Transform targetEndTransform,
-        Transform[] transforms,
-        float[] lengths,
-        float ridgity,
-        float poleAngle,
-        float basePoleAngle,
-        float maxX,
-        ref float currentFootPercent,
-        ref Vector3 lastNormal,
-        bool flipFoot,
-        bool ignoreNormalFootRotation,
-        Vector3 spaceForward,
-        Vector3 spaceUp,
-        Vector3 spaceRight)
+    public static void TransformIKSolve(IKPackage p)
     {
-        Vector3 localRootPosition =
-                parentTransform.worldToLocalMatrix.MultiplyPoint(
-                    transforms[0].position);
-        Vector3 targetDirection =
-            parentTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position) -
-            localRootPosition;
-
-        if (Matho.StandardProjection3D(targetDirection).magnitude != 0)
-        {
-            int flipZSign = (flipFoot) ? -1 : 1;
-            Vector3 currentEulerAngles =
-                spaceTransform.localRotation.eulerAngles;
-            spaceTransform.localRotation =   
-                Quaternion.Euler(0,0, 0 * -90 * (1 - (flipZSign * 0.5f + 0.5f))) *
-                Quaternion.LookRotation(Matho.StandardProjection3D(targetDirection), Vector3.up);
-        } // last issue is that space transform needs to be in line with parent transform.
-
         // Solution from IKSolve maps to up and forward vectors of spaceTransform.
         // This is the offset from the first transform point.
-        Vector3 limitedTargetPosition = targetTransform.position;
+        Vector3 limitedTargetPosition = p.TargetTransform.position;
         RaycastHit limitTarget;
         bool hitLimit = Physics.Raycast(
-            transforms[0].position,
-            (targetTransform.position - transforms[0].position).normalized,
+            p.Transforms[0].position,
+            (p.TargetTransform.position - p.Transforms[0].position).normalized,
             out limitTarget,
-            (targetTransform.position - transforms[0].position).magnitude,
+            (p.TargetTransform.position - p.Transforms[0].position).magnitude,
             LayerConstants.GroundCollision);
         if (hitLimit)
             limitedTargetPosition = limitTarget.point;
         Vector3 limitedTargetDirection =
-            (limitedTargetPosition - transforms[0].position).normalized;
+            (limitedTargetPosition - p.Transforms[0].position).normalized;
         if (hitLimit)
         {
-            currentFootPercent =
-                Mathf.MoveTowards(currentFootPercent, 1, footSmoothSpeed * Time.deltaTime);
+            p.CurrentFootPercent =
+                Mathf.MoveTowards(p.CurrentFootPercent, 1, footSmoothSpeed * Time.deltaTime);
         }
         else
         {
-            currentFootPercent =
-                Mathf.MoveTowards(currentFootPercent, 0, footSmoothSpeed * Time.deltaTime);
+            p.CurrentFootPercent =
+                Mathf.MoveTowards(p.CurrentFootPercent, 0, footSmoothSpeed * Time.deltaTime);
         }
 
         // space directions
-        Vector2[] points = new Vector2[transforms.Length];
+        Vector2[] points = new Vector2[p.Transforms.Length];
         Matrix4x4 spaceMatrix = 
-            Matrix4x4.Rotate(Quaternion.Inverse(Quaternion.LookRotation(spaceForward, spaceUp)));
+            Matrix4x4.Rotate(Quaternion.Inverse(Quaternion.LookRotation(p.SpaceForward, p.SpaceUp)));
         Vector3 targetSpacePos = 
-            spaceMatrix.MultiplyPoint(limitedTargetPosition - transforms[0].position);
-        Debug.DrawLine(transforms[0].position, limitedTargetPosition);
-        Debug.DrawLine(transforms[0].position, transforms[0].position + spaceForward, Color.blue);
-        Debug.DrawLine(transforms[0].position, transforms[0].position + spaceUp, Color.yellow);
-        Debug.DrawLine(transforms[0].position, transforms[0].position + spaceRight, Color.red);
+            spaceMatrix.MultiplyPoint(limitedTargetPosition - p.Transforms[0].position);
+
+        Debug.DrawLine(p.Transforms[0].position, limitedTargetPosition);
+        Debug.DrawLine(p.Transforms[0].position, p.Transforms[0].position + p.SpaceForward, Color.blue);
+        Debug.DrawLine(p.Transforms[0].position, p.Transforms[0].position + p.SpaceUp, Color.yellow);
+        Debug.DrawLine(p.Transforms[0].position, p.Transforms[0].position + p.SpaceRight, Color.red);
 
         points[points.Length - 1] =
             new Vector2(
                 targetSpacePos.z,
                 targetSpacePos.x);
 
-        IKSolve(ref points, ref lengths, ridgity);
+        IKSolve(ref points, p.Lengths, p.Ridgity);
 
         for (int i = 1; i < points.Length; i++)
         {
-            transforms[i].position = 
-                transforms[0].position + 
-                points[i].x * spaceForward +
-                points[i].y * spaceRight;
+            p.Transforms[i].position = 
+                p.Transforms[0].position + 
+                points[i].x * p.SpaceForward +
+                points[i].y * p.SpaceRight;
         }
 
         Vector3[] storedPositions = new Vector3[points.Length];
@@ -250,44 +243,23 @@ public class IKSolver : MonoBehaviour
         for (int i = 1; i < points.Length; i++)
         {
             storedPositions[i] = 
-                transforms[0].position +
-                Matho.Rotate(transforms[i].position - transforms[0].position, limitedTargetDirection, basePoleAngle);
+                p.Transforms[0].position +
+                Matho.Rotate(
+                    p.Transforms[i].position - p.Transforms[0].position,
+                    limitedTargetDirection,
+                    p.BasePoleAngle);
         }
 
         for (int i = 1; i < points.Length; i++)
-            transforms[i].position = storedPositions[i];
-
-        /*
-        spaceRightDirection = 
-            spaceRightDirection - Matho.Project(spaceRightDirection, ikDirection);
-        spaceRightDirection.Normalize();
-        spaceRightDirection = 
-            Matho.Rotate(spaceRightDirection, ikDirection, poleAngle);
-        */
-        
-        //Debug.Log(limitedTargetEndDirection);
-        //Debug.DrawLine(transforms[0].position, targetEndTransform.position, Color.magenta, 1f);
+            p.Transforms[i].position = storedPositions[i];
 
         if (hitLimit)
-            lastNormal = limitTarget.normal;
+            p.LastNormal = limitTarget.normal;
 
         Vector3 rotatedSpaceUp = 
-            Matho.Rotate(spaceUp, limitedTargetDirection, basePoleAngle);
+            Matho.Rotate(p.SpaceUp, limitedTargetDirection, p.BasePoleAngle);
 
-        DirectTransformIK(
-            spaceTransform,
-            targetTransform,
-            targetEndTransform,
-            transforms,
-            poleAngle,
-            spaceUp,
-            limitedTargetDirection,
-            limitedTargetPosition,
-            currentFootPercent,
-            lastNormal,
-            flipFoot,
-            ignoreNormalFootRotation,
-            rotatedSpaceUp);
+        DirectTransformIK(p, limitedTargetDirection, rotatedSpaceUp);
     }
 
     /*
@@ -295,67 +267,56 @@ public class IKSolver : MonoBehaviour
     * armatures bones are rotated.
     */
     private static void DirectTransformIK(
-        Transform spaceTransform,
-        Transform targetTransform,
-        Transform foodEndTransform,
-        Transform[] transforms,
-        float poleAngle,
-        Vector3 spaceRightDirection,
+        IKPackage p,
         Vector3 limitedTargetDirection,
-        Vector3 limitedTargetPosition,
-        float currentFootPercent,
-        Vector3 footNormal,
-        bool flipFoot,
-        bool ignoreNormalFootRotation,
         Vector3 spaceUp)
     {
-        Vector3[] storedPositions = new Vector3[transforms.Length];
-        for (int i = 0; i < transforms.Length; i++)
+        Vector3[] storedPositions = new Vector3[p.Transforms.Length];
+        for (int i = 0; i < p.Transforms.Length; i++)
         {
-            storedPositions[i] = transforms[i].position;
+            storedPositions[i] = p.Transforms[i].position;
         }
 
         Vector3 targetDirection = limitedTargetDirection;
-        for (int i = 0; i < transforms.Length - 1; i++)
+        for (int i = 0; i < p.Transforms.Length - 1; i++)
         {
             Vector3 lookDirection =
                 storedPositions[i + 1] - storedPositions[i];
             Vector3 up = Vector3.Cross(lookDirection, spaceUp);
-            transforms[i].rotation =
+            p.Transforms[i].rotation =
                 Quaternion.LookRotation(
                     up,
                     lookDirection);  
         }
 
-        for (int i = 0; i < transforms.Length; i++)
+        for (int i = 0; i < p.Transforms.Length; i++)
         {
-            transforms[i].position = storedPositions[i];
+            p.Transforms[i].position = storedPositions[i];
         }
 
-        if (!ignoreNormalFootRotation)
+        if (!p.IgnoreNormalFootRotation)
         {
-            transforms[transforms.Length - 1].rotation = targetTransform.rotation;
+            p.Transforms[p.Transforms.Length - 1].rotation = p.TargetTransform.rotation;
         
-            Vector3 footPosition = transforms[transforms.Length - 1].position;
-            Vector3 footEndPosition = foodEndTransform.position;
+            Vector3 footPosition = p.Transforms[p.Transforms.Length - 1].position;
+            Vector3 footEndPosition = p.FootEndTransform.position;
             RaycastHit limitTargetEnd;
             bool hitLimitEnd = Physics.Raycast(
-                transforms[0].position,
-                (footEndPosition - transforms[0].position).normalized,
+                p.Transforms[0].position,
+                (footEndPosition - p.Transforms[0].position).normalized,
                 out limitTargetEnd,
-                (footEndPosition - transforms[0].position).magnitude,
+                (footEndPosition - p.Transforms[0].position).magnitude,
                 LayerConstants.GroundCollision);
             if (hitLimitEnd)
                 footEndPosition = limitTargetEnd.point;
             Vector3 limitedTargetEndDirection = 
                 (footEndPosition - footPosition).normalized;
 
-            int footSign = (flipFoot) ? 1 : -1;
+            int footSign = (p.FlipFoot) ? 1 : -1;
 
-            //transforms[transforms.Length - 1].rotation = targetTransform.rotation;
             Matrix4x4 footMatrix =
-                Matrix4x4.Rotate(Quaternion.FromToRotation(limitedTargetEndDirection, targetTransform.up) *
-                targetTransform.rotation);
+                Matrix4x4.Rotate(Quaternion.FromToRotation(limitedTargetEndDirection, p.TargetTransform.up) *
+                p.TargetTransform.rotation);
             Vector3 footUp = -footMatrix.MultiplyPoint(Vector3.forward);
             // direction of foot is wrong as spaceRightDirection may not be perp to limitedTargetEndDirection.
             Quaternion limitedRotation = 
@@ -363,121 +324,51 @@ public class IKSolver : MonoBehaviour
 
             // Normal rotation
             Quaternion normalRotation = 
-                Quaternion.LookRotation(-footSign * footNormal, limitedTargetEndDirection);
+                Quaternion.LookRotation(-footSign * p.LastNormal, limitedTargetEndDirection);
 
-            transforms[transforms.Length - 1].rotation = 
-                    Quaternion.Lerp(limitedRotation, normalRotation, currentFootPercent);
+            p.Transforms[p.Transforms.Length - 1].rotation = 
+                    Quaternion.Lerp(limitedRotation, normalRotation, p.CurrentFootPercent);
         }
-    }
-
-    /*
-    * This method is needed in cases which you want to reset the state of the raw IK system via script
-    * or editor button/key input.
-    */
-    public static void ResetTransformIKSolver(
-        Transform parentTransform,
-        Transform spaceTransform,
-        Transform targetTransform,
-        Transform targetEndTransform,
-        Transform[] transforms,
-        float[] lengths,
-        float ridgity,
-        float poleAngle,
-        float basePoleAngle,
-        float maxX,
-        Quaternion startRootRotation,
-        Vector3 startTargetPosition,
-        Quaternion startTargetRotation,
-        ref float currentFootPercent,
-        ref Vector3 lastNormal,
-        bool flipZ,
-        bool endBoneFollowTarget,
-        Vector3 spaceForward,
-        Vector3 spaceUp,
-        Vector3 spaceRight)
-    {
-        spaceTransform.localRotation =
-            startRootRotation;
-        targetTransform.position = 
-            spaceTransform.localToWorldMatrix.MultiplyPoint(startTargetPosition);
-        targetTransform.rotation = startTargetRotation;
-
-        TransformIKSolve(
-            parentTransform,
-            spaceTransform,
-            targetTransform,
-            targetEndTransform,
-            transforms,
-            lengths,
-            ridgity,
-            poleAngle,
-            basePoleAngle,
-            maxX,
-            ref currentFootPercent,
-            ref lastNormal,
-            flipZ,
-            endBoneFollowTarget,
-            spaceForward,
-            spaceUp,
-            spaceRight);
     }
 
     /*
     * Needed to properly initialize IK system
     */
-    public static void InitializeTransformIKSolver(
-        Transform spaceTransform,
-        Transform targetTransform,
-        Transform[] transforms,
-        ref float[] lengths,
-        ref Quaternion startRootRotation,
-        ref Vector3 startTargetPosition,
-        ref Quaternion startTargetRotation,
-        ref float currentFootPercent,
-        ref Vector3 lastNormal)
+    public static void InitializeTransformIKSolver(IKPackage p)
     {
-        lengths = new float[transforms.Length - 1];
-        for (int i = 0; i < transforms.Length - 1; i++)
+        p.Lengths = new float[p.Transforms.Length - 1];
+        for (int i = 0; i < p.Transforms.Length - 1; i++)
         {
-            lengths[i] = Vector3.Distance(transforms[i].position, transforms[i + 1].position);
+            p.Lengths[i] = Vector3.Distance(p.Transforms[i].position, p.Transforms[i + 1].position);
         }
-        startTargetPosition = 
-            spaceTransform.worldToLocalMatrix.MultiplyPoint(targetTransform.position);
-        startTargetRotation = targetTransform.rotation;
-        startRootRotation = spaceTransform.localRotation;
-        currentFootPercent = 0;
-        lastNormal = Vector3.forward;
+       
+        p.CurrentFootPercent = 0;
+        p.LastNormal = Vector3.forward;
     }
 
     /*
     * Needed for systems that use a pole transform from Blender.
     */ 
-    public static void CalculatePoleSpace(
-        Transform pole,
-        Transform target, // base pole angle based on location in terms of IK space.
-        Transform[] bones,
-        ref Vector3 spaceForward,
-        ref Vector3 spaceUp,
-        ref Vector3 spaceRight,
-        bool reverseRight)
+    public static void CalculatePoleSpace(IKPackage p)
     {
-        Vector3 planeDirection = target.position - bones[0].position;
+        Vector3 planeDirection = p.TargetTransform.position - p.Transforms[0].position;
         Vector3 poleNormDir = 
-            (pole.position - target.position) - 
-            Matho.Project(pole.position - target.position, planeDirection);
+            (p.PoleTransform.position - p.TargetTransform.position) - 
+            Matho.Project(p.PoleTransform.position - p.TargetTransform.position, planeDirection);
         poleNormDir.Normalize();
         planeDirection.Normalize();
+
         if (poleNormDir.magnitude >= poleMagMin)
         {
-            spaceForward = planeDirection;
-            spaceUp = poleNormDir;
-            if (!reverseRight)
+            p.SpaceForward = planeDirection;
+            p.SpaceUp = poleNormDir;
+            if (!p.ReverseRight)
             {
-                spaceRight = Vector3.Cross(planeDirection, poleNormDir);
+                p.SpaceRight = Vector3.Cross(planeDirection, poleNormDir);
             }
             else
             {
-                spaceRight = Vector3.Cross(poleNormDir, planeDirection);
+                p.SpaceRight = Vector3.Cross(poleNormDir, planeDirection);
             }
         }
     }
@@ -644,7 +535,7 @@ public class IKSolver : MonoBehaviour
         float ridgity
     )
     {
-        IKSolve(ref points, ref lengths, ridgity);
+        IKSolve(ref points, lengths, ridgity);
     }
 }
 
