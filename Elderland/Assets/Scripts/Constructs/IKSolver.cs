@@ -186,42 +186,31 @@ public class IKSolver : MonoBehaviour
     */
     public static void TransformIKSolve(IKPackage p)
     {
-        // Solution from IKSolve maps to up and forward vectors of spaceTransform.
-        // This is the offset from the first transform point.
-        Vector3 limitedTargetPosition = p.TargetTransform.position;
-        RaycastHit limitTarget;
-        bool hitLimit = Physics.Raycast(
-            p.Transforms[0].position,
-            (p.TargetTransform.position - p.Transforms[0].position).normalized,
-            out limitTarget,
-            (p.TargetTransform.position - p.Transforms[0].position).magnitude,
-            LayerConstants.GroundCollision);
-        if (hitLimit)
-            limitedTargetPosition = limitTarget.point;
-        Vector3 limitedTargetDirection =
-            (limitedTargetPosition - p.Transforms[0].position).normalized;
-        if (hitLimit)
-        {
-            p.CurrentFootPercent =
-                Mathf.MoveTowards(p.CurrentFootPercent, 1, footSmoothSpeed * Time.deltaTime);
-        }
-        else
-        {
-            p.CurrentFootPercent =
-                Mathf.MoveTowards(p.CurrentFootPercent, 0, footSmoothSpeed * Time.deltaTime);
-        }
+        // Need to obscure target position to geometry so limbs don't go through geometry.
+        Vector3 limitedTargetPosition;
+        Vector3 limitedTargetDirection;
+        RaycastHit hit;
+        bool hitLimit =
+            FindTransformIKLimit(
+                p,
+                out limitedTargetPosition,
+                out limitedTargetDirection,
+                out hit);
 
-        // space directions
+        // 2D initialization for IKSolve
         Vector2[] points = new Vector2[p.Transforms.Length];
         Matrix4x4 spaceMatrix = 
             Matrix4x4.Rotate(Quaternion.Inverse(Quaternion.LookRotation(p.SpaceForward, p.SpaceUp)));
         Vector3 targetSpacePos = 
             spaceMatrix.MultiplyPoint(limitedTargetPosition - p.Transforms[0].position);
 
+        /*
+        Debug space:
         Debug.DrawLine(p.Transforms[0].position, limitedTargetPosition);
         Debug.DrawLine(p.Transforms[0].position, p.Transforms[0].position + p.SpaceForward, Color.blue);
         Debug.DrawLine(p.Transforms[0].position, p.Transforms[0].position + p.SpaceUp, Color.yellow);
         Debug.DrawLine(p.Transforms[0].position, p.Transforms[0].position + p.SpaceRight, Color.red);
+        */
 
         points[points.Length - 1] =
             new Vector2(
@@ -230,6 +219,7 @@ public class IKSolver : MonoBehaviour
 
         IKSolve(ref points, p.Lengths, p.Ridgity);
 
+        // Map 2D solution to 3D space based on space in the IKPackage.
         for (int i = 1; i < points.Length; i++)
         {
             p.Transforms[i].position = 
@@ -238,6 +228,7 @@ public class IKSolver : MonoBehaviour
                 points[i].y * p.SpaceRight;
         }
 
+        // Need to rotate limb by basePoleAngle for animation calibration.
         Vector3[] storedPositions = new Vector3[points.Length];
 
         for (int i = 1; i < points.Length; i++)
@@ -254,7 +245,7 @@ public class IKSolver : MonoBehaviour
             p.Transforms[i].position = storedPositions[i];
 
         if (hitLimit)
-            p.LastNormal = limitTarget.normal;
+            p.LastNormal = hit.normal;
 
         Vector3 rotatedSpaceUp = 
             Matho.Rotate(p.SpaceUp, limitedTargetDirection, p.BasePoleAngle);
@@ -263,6 +254,45 @@ public class IKSolver : MonoBehaviour
     }
 
     /*
+    * Helper method for TransformIKSolve
+    */
+    private static bool FindTransformIKLimit(
+        IKPackage p,
+        out Vector3 limitedTargetPosition,
+        out Vector3 limitedTargetDirection,
+        out RaycastHit hit)
+    {
+        limitedTargetPosition = p.TargetTransform.position;
+        RaycastHit limitTarget;
+        bool hitLimit = Physics.Raycast(
+            p.Transforms[0].position,
+            (p.TargetTransform.position - p.Transforms[0].position).normalized,
+            out limitTarget,
+            (p.TargetTransform.position - p.Transforms[0].position).magnitude,
+            LayerConstants.GroundCollision);
+
+        if (hitLimit)
+            limitedTargetPosition = limitTarget.point;
+        limitedTargetDirection =
+            (limitedTargetPosition - p.Transforms[0].position).normalized;
+
+        if (hitLimit)
+        {
+            p.CurrentFootPercent =
+                Mathf.MoveTowards(p.CurrentFootPercent, 1, footSmoothSpeed * Time.deltaTime);
+        }
+        else
+        {
+            p.CurrentFootPercent =
+                Mathf.MoveTowards(p.CurrentFootPercent, 0, footSmoothSpeed * Time.deltaTime);
+        }
+
+        hit = limitTarget;
+        return hitLimit;
+    }
+
+    /*
+    * Helper method for TransformIKSolve.
     * Needed to specify rotation for animator and skinned mesh renderer to know which way the
     * armatures bones are rotated.
     */
@@ -295,40 +325,46 @@ public class IKSolver : MonoBehaviour
         }
 
         if (!p.IgnoreNormalFootRotation)
-        {
-            p.Transforms[p.Transforms.Length - 1].rotation = p.TargetTransform.rotation;
+            DirectNormalFootRotation(p);
+    }
+
+    /*
+    * Helper method for DirectTransformIK
+    */
+    private static void DirectNormalFootRotation(IKPackage p)
+    {
+        p.Transforms[p.Transforms.Length - 1].rotation = p.TargetTransform.rotation;
         
-            Vector3 footPosition = p.Transforms[p.Transforms.Length - 1].position;
-            Vector3 footEndPosition = p.FootEndTransform.position;
-            RaycastHit limitTargetEnd;
-            bool hitLimitEnd = Physics.Raycast(
-                p.Transforms[0].position,
-                (footEndPosition - p.Transforms[0].position).normalized,
-                out limitTargetEnd,
-                (footEndPosition - p.Transforms[0].position).magnitude,
-                LayerConstants.GroundCollision);
-            if (hitLimitEnd)
-                footEndPosition = limitTargetEnd.point;
-            Vector3 limitedTargetEndDirection = 
-                (footEndPosition - footPosition).normalized;
+        Vector3 footPosition = p.Transforms[p.Transforms.Length - 1].position;
+        Vector3 footEndPosition = p.FootEndTransform.position;
+        RaycastHit limitTargetEnd;
+        bool hitLimitEnd = Physics.Raycast(
+            p.Transforms[0].position,
+            (footEndPosition - p.Transforms[0].position).normalized,
+            out limitTargetEnd,
+            (footEndPosition - p.Transforms[0].position).magnitude,
+            LayerConstants.GroundCollision);
+        if (hitLimitEnd)
+            footEndPosition = limitTargetEnd.point;
+        Vector3 limitedTargetEndDirection = 
+            (footEndPosition - footPosition).normalized;
 
-            int footSign = (p.FlipFoot) ? 1 : -1;
+        int footSign = (p.FlipFoot) ? 1 : -1;
 
-            Matrix4x4 footMatrix =
-                Matrix4x4.Rotate(Quaternion.FromToRotation(limitedTargetEndDirection, p.TargetTransform.up) *
-                p.TargetTransform.rotation);
-            Vector3 footUp = -footMatrix.MultiplyPoint(Vector3.forward);
-            // direction of foot is wrong as spaceRightDirection may not be perp to limitedTargetEndDirection.
-            Quaternion limitedRotation = 
-                Quaternion.LookRotation(-footUp, limitedTargetEndDirection);
+        Matrix4x4 footMatrix =
+            Matrix4x4.Rotate(Quaternion.FromToRotation(limitedTargetEndDirection, p.TargetTransform.up) *
+            p.TargetTransform.rotation);
+        Vector3 footUp = -footMatrix.MultiplyPoint(Vector3.forward);
 
-            // Normal rotation
-            Quaternion normalRotation = 
-                Quaternion.LookRotation(-footSign * p.LastNormal, limitedTargetEndDirection);
+        Quaternion limitedRotation = 
+            Quaternion.LookRotation(-footUp, limitedTargetEndDirection);
 
-            p.Transforms[p.Transforms.Length - 1].rotation = 
-                    Quaternion.Lerp(limitedRotation, normalRotation, p.CurrentFootPercent);
-        }
+        // Normal rotation
+        Quaternion normalRotation = 
+            Quaternion.LookRotation(-footSign * p.LastNormal, limitedTargetEndDirection);
+
+        p.Transforms[p.Transforms.Length - 1].rotation = 
+                Quaternion.Lerp(limitedRotation, normalRotation, p.CurrentFootPercent);
     }
 
     /*

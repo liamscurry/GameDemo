@@ -18,8 +18,6 @@ public class IKSystem : MonoBehaviour
     private Transform footEnd;
     // Empty transform hierarchy. (Imported from Blender.)
     // Imported Rotation: Y facing towards next bone, Z facing behind limb, X facing to right of limb.
-    // If rotation is Z in front of limb and X to the right of the limb and Y in direction of next bone,
-    // Check isPoleArm to true.
     [SerializeField]
     private Transform[] bones;
     // Any twist systems under this system.
@@ -33,6 +31,8 @@ public class IKSystem : MonoBehaviour
     // Pole axis may be flipped in a limb so that the start bone isn't twisted.
     [SerializeField]
     private bool flipPole;
+    // Sync this field with test animations from blender so that the limb is in correct positions
+    // in at least two places in the animation.
     [SerializeField]
     private float basePoleAngle; 
 
@@ -40,10 +40,9 @@ public class IKSystem : MonoBehaviour
     [SerializeField]
     [Range(0.0f, 1.0f)]
     private float ridgity;
-    // Should the last bone in the hierarchy copy the rotation of the IK target.
-    // Generall true for arm limbs and false for leg limbs.
     [SerializeField]
     private bool flipFoot;
+    // Generally true for arms and false for legs.
     [SerializeField]
     private bool ignoreNormalFootRotation;
 
