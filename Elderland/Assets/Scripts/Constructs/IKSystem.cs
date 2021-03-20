@@ -18,6 +18,7 @@ public class IKSystem : MonoBehaviour
     private Transform footEnd;
     // Empty transform hierarchy. (Imported from Blender.)
     // Imported Rotation: Y facing towards next bone, Z facing behind limb, X facing to right of limb.
+    // Does not include _end.
     [SerializeField]
     private Transform[] bones;
     // Any twist systems under this system.
