@@ -35,7 +35,7 @@ public class IKSolver : MonoBehaviour
     }
 
     public static readonly float IKRootRotationMin = 0.5f;
-    private static readonly float footSmoothSpeed = 3;
+    private static readonly float footSmoothSpeed = 15;
     private static readonly float poleMagMin = 0.01f;
 
     /*
@@ -182,6 +182,8 @@ public class IKSolver : MonoBehaviour
     */
     public static void TransformIKSolve(IKPackage p)
     {
+        Quaternion startFootRot = p.Transforms[p.Transforms.Length - 1].rotation;
+
         // Need to obscure target position to geometry so limbs don't go through geometry.
         Vector3 limitedTargetPosition;
         Vector3 limitedTargetDirection;
@@ -247,6 +249,9 @@ public class IKSolver : MonoBehaviour
             Matho.Rotate(p.SpaceUp, limitedTargetDirection, p.BasePoleAngle);
 
         DirectTransformIK(p, limitedTargetDirection, rotatedSpaceUp);
+
+        if (p.IgnoreNormalFootRotation)
+            p.Transforms[p.Transforms.Length - 1].rotation = startFootRot;
     }
 
     /*
@@ -344,16 +349,21 @@ public class IKSolver : MonoBehaviour
             footEndPosition = limitTargetEnd.point;
         Vector3 limitedTargetEndDirection = 
             (footEndPosition - footPosition).normalized;
-
+        
         int footSign = (p.FlipFoot) ? 1 : -1;
 
         Matrix4x4 footMatrix =
             Matrix4x4.Rotate(Quaternion.FromToRotation(limitedTargetEndDirection, p.TargetTransform.up) *
             p.TargetTransform.rotation);
-        Vector3 footUp = -footMatrix.MultiplyPoint(Vector3.forward);
+        Vector3 footRight = footMatrix.MultiplyPoint(Vector3.right);
+        Vector3 footUp = Vector3.Cross(footRight, limitedTargetEndDirection);
+
+        //Debug space:
+        //Debug.DrawLine(footPosition, footPosition + limitedTargetEndDirection, Color.magenta);
+        //Debug.DrawLine(footPosition, footPosition + footUp, Color.blue);
 
         Quaternion limitedRotation = 
-            Quaternion.LookRotation(-footUp, limitedTargetEndDirection);
+            Quaternion.LookRotation(footUp, limitedTargetEndDirection);
 
         // Normal rotation
         Quaternion normalRotation = 

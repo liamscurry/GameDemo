@@ -5,7 +5,7 @@ using UnityEngine;
 
 /*
 * IK Monobehaviour that packages the IKSolver together to work automatically at runtime.
-* Requires an fbx model.
+* Requires an fbx model. Updated by an IKSystemManager
 */
 public class IKSystem : MonoBehaviour
 {
@@ -51,7 +51,7 @@ public class IKSystem : MonoBehaviour
     private Vector3 spaceForward, spaceUp, spaceRight;
     private IKSolver.IKPackage iKPackage;
 
-    private void Start()
+    public void InitializeSystem()
     {     
         iKPackage = new IKSolver.IKPackage(bones.Length - 1);
         iKPackage.Transforms = bones;
@@ -71,7 +71,7 @@ public class IKSystem : MonoBehaviour
         IKSolver.TransformIKSolve(iKPackage);
     }
 
-    private void LateUpdate()
+    public void UpdateSystem()
     {
         IKSolver.CalculatePoleSpace(iKPackage);
         IKSolver.TransformIKSolve(iKPackage);

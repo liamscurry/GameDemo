@@ -11,6 +11,10 @@ public class CameraController : MonoBehaviour
     public enum State { Gameplay, GameplayCutscene, Cutscene, Idle }
 
     //Fields//
+    [Header("References")]
+    [SerializeField]
+    private Transform gameplayTargetTransform;
+
     [Header("Default Gameplay Settings")]
     [SerializeField]
     private float defaultSpeed;
@@ -208,7 +212,7 @@ public class CameraController : MonoBehaviour
     public void StartGameplay()
     {
         state = State.Gameplay;
-        FollowTarget = PlayerInfo.Player.transform;
+        FollowTarget = gameplayTargetTransform;
         sprintTimer = 0;
         sprintPercentage = 0;
         sprintOrientation = 0;
