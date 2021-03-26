@@ -8,6 +8,16 @@ public class MovementBehaviour : StateMachineBehaviour
     private float movespeedVelocity;
 
     private bool sprinting;
+    private float currentReverse;
+    private Vector2 positionAnalogDirection;
+    private Vector2 reverseAnalogDirection;
+    private const float positionAnalogSpeed = 3.7f;
+    private const float reverseAnalogSpeed = 1.2f;
+
+    private const float reverseSpeed = 42.5f;
+    private const float reverseSpeedSlow = 0.0f;
+    private const float reverseZeroMin = 0.05f;
+    private const float reverseMargin = 0.05f;
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
@@ -15,6 +25,8 @@ public class MovementBehaviour : StateMachineBehaviour
         movespeedVelocity = 0;
         sprinting = false;
         PlayerInfo.StatsManager.Sprinting = false;
+        currentReverse = 0;
+        positionAnalogDirection = Vector2.zero;
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -56,7 +68,10 @@ public class MovementBehaviour : StateMachineBehaviour
 
             PlayerInfo.MovementSystem.Move(PlayerInfo.MovementManager.CurrentDirection, PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed);
 
-            animator.SetFloat("speed", PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.MovespeedMultiplier.Value);
+            UpdateAnimatorProperties(
+                animator,
+                projectedCameraDirection,
+                Matho.Rotate(projectedCameraDirection, 90));
 
             //Transitions//
             if (!animator.IsInTransition(0) && PlayerInfo.AbilityManager.CurrentAbility == null)
@@ -70,6 +85,88 @@ public class MovementBehaviour : StateMachineBehaviour
             }
         }
 	}
+
+    private void UpdateAnimatorProperties(
+        Animator animator,
+        Vector2 forwardDir,
+        Vector2 rightDir)
+    {
+        if (forwardDir.magnitude == 0 ||
+            rightDir.magnitude == 0 || 
+            PlayerInfo.MovementManager.TargetDirection.magnitude == 0 ||
+            PlayerInfo.MovementManager.CurrentDirection.magnitude == 0)
+            return;
+
+        float speed = 
+            PlayerInfo.MovementManager.CurrentPercentileSpeed *
+            PlayerInfo.StatsManager.MovespeedMultiplier.Value;
+
+        Vector2 scaledCurrentDir = 
+            PlayerInfo.MovementManager.CurrentDirection * PlayerInfo.MovementManager.CurrentPercentileSpeed;
+        Vector2 analogDirection = 
+            new Vector2(
+                Matho.ProjectScalar(scaledCurrentDir, forwardDir),
+                Matho.ProjectScalar(scaledCurrentDir, rightDir));
+
+        Debug.Log(analogDirection);
+        Vector2 rAnalogDirection = reverseAnalogDirection;
+        //if (rAnalogDirection.x < 0)   
+        //    rAnalogDirection.x *= 3;
+        if (analogDirection.x < 0)   
+            analogDirection.x *= 3;
+
+        positionAnalogDirection =
+            Vector2.MoveTowards(positionAnalogDirection, analogDirection, positionAnalogSpeed * Time.deltaTime);
+        reverseAnalogDirection =
+            Vector2.MoveTowards(reverseAnalogDirection, analogDirection, reverseAnalogSpeed * Time.deltaTime);
+
+        animator.SetFloat(
+            "speed",
+            positionAnalogDirection.x);
+        animator.SetFloat(
+            "strafe",
+            positionAnalogDirection.y);
+        
+        CalculateReverseParameters(animator, forwardDir, rightDir, analogDirection);
+        //animator.SetFloat("reverse", currentReverse);
+    }
+
+    private void CalculateReverseParameters(
+        Animator animator,
+        Vector2 forwardDir,
+        Vector2 rightDir,
+        Vector2 analogDirection)
+    {
+        Vector2 reverseOffset = analogDirection - reverseAnalogDirection;
+        if (reverseOffset.magnitude > 1)
+            reverseOffset.Normalize();
+            
+        if (reverseOffset.magnitude < reverseMargin)
+        {
+            animator.SetFloat(
+                "speedReverse",
+                0);
+            animator.SetFloat(
+                "strafeReverse",
+                0);
+            return;
+        }
+        
+        float reverseLimiter = Matho.AngleBetween(reverseAnalogDirection, reverseOffset) / 180f;
+        reverseLimiter -= 0.5f;
+        if (reverseLimiter < 0)
+            reverseLimiter = 0;
+        reverseLimiter *= 2f;
+
+        reverseLimiter *= 3f;
+
+        animator.SetFloat(
+            "speedReverse",
+            reverseOffset.x * reverseLimiter);
+        animator.SetFloat(
+            "strafeReverse",
+            reverseOffset.y * reverseLimiter);
+    }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{

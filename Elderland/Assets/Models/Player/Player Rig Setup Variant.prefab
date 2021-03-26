@@ -225,8 +225,6 @@ MonoBehaviour:
   ridgity: 1
   flipFoot: 0
   ignoreNormalFootRotation: 0
-  clampCapsule: {fileID: 0}
-  clampModelParent: {fileID: 851725591628124118}
 --- !u!114 &1035937352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,8 +274,6 @@ MonoBehaviour:
   ridgity: 1
   flipFoot: 1
   ignoreNormalFootRotation: 0
-  clampCapsule: {fileID: 0}
-  clampModelParent: {fileID: 851725591628124118}
 --- !u!114 &1035937365
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,8 +324,6 @@ MonoBehaviour:
   ridgity: 1
   flipFoot: 0
   ignoreNormalFootRotation: 1
-  clampCapsule: {fileID: 0}
-  clampModelParent: {fileID: 851725591628124118}
 --- !u!114 &1035937389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -407,8 +401,6 @@ MonoBehaviour:
   ridgity: 1
   flipFoot: 0
   ignoreNormalFootRotation: 1
-  clampCapsule: {fileID: 0}
-  clampModelParent: {fileID: 851725591628124118}
 --- !u!114 &1078763684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -559,6 +551,11 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: b7605dbd8acdd4a44b32b96c58d75b59,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -3750415913246469868, guid: b7605dbd8acdd4a44b32b96c58d75b59,
+        type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -2403179317153538509, guid: b7605dbd8acdd4a44b32b96c58d75b59,
