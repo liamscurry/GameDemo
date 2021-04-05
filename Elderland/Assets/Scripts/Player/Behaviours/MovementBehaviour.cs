@@ -11,7 +11,7 @@ public class MovementBehaviour : StateMachineBehaviour
     private float currentReverse;
     private Vector2 positionAnalogDirection;
     private Vector2 reverseAnalogDirection;
-    private const float positionAnalogSpeed = 3.7f;
+    private const float positionAnalogSpeed = 1.9f;
     private const float reverseAnalogSpeed = 1.2f;
 
     private const float reverseSpeed = 42.5f;
@@ -114,6 +114,15 @@ public class MovementBehaviour : StateMachineBehaviour
         //    rAnalogDirection.x *= 3;
         //if (analogDirection.x < 0)   
         //    analogDirection.x *= 3;
+
+        if (analogDirection.x < 0.3f && analogDirection.x > 0)
+        {
+            analogDirection.x = 0;
+        }
+        else if (analogDirection.x > 0.3f * -0.3f && analogDirection.x < 0)
+        {
+            analogDirection.x = 0;
+        }
 
         positionAnalogDirection =
             Vector2.MoveTowards(positionAnalogDirection, analogDirection, positionAnalogSpeed * Time.deltaTime);
