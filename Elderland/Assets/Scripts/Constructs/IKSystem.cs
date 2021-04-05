@@ -73,6 +73,8 @@ public class IKSystem : MonoBehaviour
 
     public void UpdateSystem()
     {
+        iKPackage.BasePoleAngle = basePoleAngle;
+
         IKSolver.CalculatePoleSpace(iKPackage);
         IKSolver.TransformIKSolve(iKPackage);
 

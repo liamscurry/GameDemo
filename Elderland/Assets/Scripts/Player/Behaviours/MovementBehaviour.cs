@@ -112,8 +112,8 @@ public class MovementBehaviour : StateMachineBehaviour
         Vector2 rAnalogDirection = reverseAnalogDirection;
         //if (rAnalogDirection.x < 0)   
         //    rAnalogDirection.x *= 3;
-        if (analogDirection.x < 0)   
-            analogDirection.x *= 3;
+        //if (analogDirection.x < 0)   
+        //    analogDirection.x *= 3;
 
         positionAnalogDirection =
             Vector2.MoveTowards(positionAnalogDirection, analogDirection, positionAnalogSpeed * Time.deltaTime);
