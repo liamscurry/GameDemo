@@ -54,6 +54,12 @@ ModelImporter:
   - first:
       74: 2258348603828194111
     second: Armature|WalkBackwardRight
+  - first:
+      74: -4230791068898037050
+    second: Armature|WalkBackwardLeft
+  - first:
+      74: 1589235912372564019
+    second: Armature|WalkForwardLeft
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -208,7 +214,7 @@ ModelImporter:
       takeName: Armature|JogForwardStop
       internalID: 0
       firstFrame: 0
-      lastFrame: 60
+      lastFrame: 43
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -303,35 +309,6 @@ ModelImporter:
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: Armature|WalkRightForward
-      takeName: Armature|WalkRightForward
-      internalID: 0
-      firstFrame: 0
-      lastFrame: 43
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0
@@ -465,11 +442,11 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature|WalkRightBackward
-      takeName: Armature|WalkRightBackward
+      name: Armature|WalkRight
+      takeName: Armature|WalkRight
       internalID: 0
       firstFrame: 0
-      lastFrame: 40
+      lastFrame: 43
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -494,15 +471,44 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature|WalkRight
-      takeName: Armature|WalkRight
+      name: Armature|WalkBackwardLeft
+      takeName: Armature|WalkBackwardLeft
       internalID: 0
       firstFrame: 0
       lastFrame: 43
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
-      cycleOffset: 0
+      cycleOffset: 24
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Armature|WalkForwardLeft
+      takeName: Armature|WalkForwardLeft
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 43
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 24
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1

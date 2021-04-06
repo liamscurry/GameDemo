@@ -64,7 +64,8 @@ public class PlayerStatsManager
 	{
 		//Base values
 		//7.25f
-		movespeed = 1.59544f * 2.55f;
+		//movespeed = 1.59544f * 2.55f;
+		movespeed = 2f;
 		jumpspeed = 7;
 
 		//Modifiers
