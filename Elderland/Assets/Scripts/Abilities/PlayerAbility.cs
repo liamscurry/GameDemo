@@ -296,6 +296,43 @@ public abstract class PlayerAbility : Ability
             slider.value = 0;
     }
 
+    protected AnimationClip GetDirAnim(string key, Vector2 direction)
+    {
+        float dirAngle;
+        if (direction.x >= 0)
+        {
+            dirAngle = Matho.AngleBetween(Vector2.right, direction);
+        }
+        else
+        {
+            dirAngle = Matho.AngleBetween(-Vector2.right, direction);
+        }
+
+        if (direction.y >= 0 && dirAngle > 45 + 45f / 2)
+        {
+            return PlayerInfo.AnimationManager.GetAnim(
+                ResourceConstants.Player.Art.Dodge + "Forward");
+        }
+        else if (direction.y < 0 && dirAngle > 45 + 45f / 2)
+        {
+            return PlayerInfo.AnimationManager.GetAnim(
+                ResourceConstants.Player.Art.Dodge + "Backward");
+        }
+        else
+        {   
+            if (direction.x >= 0)
+            {
+                return PlayerInfo.AnimationManager.GetAnim(
+                    ResourceConstants.Player.Art.Dodge + "Right");
+            }
+            else
+            {
+                return PlayerInfo.AnimationManager.GetAnim(
+                    ResourceConstants.Player.Art.Dodge + "Left");
+            }
+        }
+    }
+
     public void UpdateStaminaCostIcons()
     {
         if (slider != null)

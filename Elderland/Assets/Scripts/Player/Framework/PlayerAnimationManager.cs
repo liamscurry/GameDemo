@@ -13,8 +13,11 @@ public class PlayerAnimationManager
 	public bool IgnoreFallingAnimation { get; set; }
 	public bool Interuptable { get; set; }
 
+	private AnimationClip[] playerAnims;
+
 	public PlayerAnimationManager()
 	{
+		playerAnims = Resources.LoadAll<AnimationClip>(ResourceConstants.Player.Art.Model);
 		matchTargets = new Queue<MatchTarget>();
 		Interuptable = true;
 	}
@@ -62,6 +65,20 @@ public class PlayerAnimationManager
 		}
 
 		PlayerInfo.TeleportingThisFrame = false;
+	}
+
+	/*
+	* Helper getter to find animation clips from the player's fbx model.
+	*/
+	public AnimationClip GetAnim(string key)
+	{
+		foreach (var anim in playerAnims)
+		{
+			if (anim.name == key)
+				return anim;
+		}
+		
+		throw new System.ArgumentException("Animation Key does not exist in player fbx model");
 	}
 
 	public void EnqueueTarget(MatchTarget target)

@@ -8,7 +8,7 @@ public sealed class PlayerDodge : PlayerAbility
 {
     //Fields
     private Vector2 direction;
-    private float speed = 13f;
+    private float speed = 8f;
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
@@ -19,10 +19,8 @@ public sealed class PlayerDodge : PlayerAbility
     {
         this.system = abilityManager;
 
-        AnimationClip actClip = Resources.Load<AnimationClip>("Player/Abilities/Dodge/DodgeAct");
-
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1);
-        act = new AbilitySegment(actClip, actProcess);
+        act = new AbilitySegment(null, actProcess);
         act.Type = AbilitySegmentType.Physics;
 
         segments = new AbilitySegmentList();
@@ -57,6 +55,10 @@ public sealed class PlayerDodge : PlayerAbility
             abilitySpeed = 1 / (PlayerInfo.StatsManager.AttackSpeedMultiplier.Value);
             Debug.Log(PlayerInfo.StatsManager.AttackSpeedMultiplier.Value);
         }*/
+
+        AnimationClip actClip =
+            GetDirAnim(ResourceConstants.Player.Art.Dodge, GameInfo.Settings.LeftDirectionalInput);
+        act.Clip = actClip;
     }
 
     private void ActBegin()

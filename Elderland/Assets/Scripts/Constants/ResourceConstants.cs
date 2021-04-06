@@ -86,5 +86,11 @@ public static class ResourceConstants
             // Clips
             public const string SwordHoldClip = "Player/Abilities/Sword/SwordHoldClip";
         }
+
+        public static class Art
+        {
+            public const string Model = "Player/PlayerAnatomyRig";
+            public const string Dodge = "Dodge";
+        }
     }
 }

@@ -108,7 +108,6 @@ public class MovementBehaviour : StateMachineBehaviour
                 Matho.ProjectScalar(scaledCurrentDir, forwardDir),
                 Matho.ProjectScalar(scaledCurrentDir, rightDir));
 
-        Debug.Log(analogDirection);
         Vector2 rAnalogDirection = reverseAnalogDirection;
         //if (rAnalogDirection.x < 0)   
         //    rAnalogDirection.x *= 3;
