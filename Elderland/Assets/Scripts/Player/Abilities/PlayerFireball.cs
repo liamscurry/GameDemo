@@ -25,8 +25,10 @@ public sealed class PlayerFireball : PlayerAbility
         //Specifications
         this.system = abilitySystem;
 
-        AnimationClip chargeClip = Resources.Load<AnimationClip>("Player/Abilities/Fireball/FireballCharge");
-        AnimationClip actClip = Resources.Load<AnimationClip>("Player/Abilities/Fireball/FireballAct");
+        AnimationClip chargeClip = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballLeftCharge);
+        AnimationClip actClip =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballLeftAct);
 
         chargeProcess = new AbilityProcess(ChargeStart, ChargeUpdate, ChargeEnd, 1, true);
         chargeSegment = new AbilitySegment(chargeClip, chargeProcess);

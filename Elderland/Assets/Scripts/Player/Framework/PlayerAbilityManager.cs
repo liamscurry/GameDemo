@@ -142,7 +142,7 @@ public class PlayerAbilityManager : AbilitySystem
 
     public override bool Ready()
     {
-        return Physics.TouchingFloor && !PlayerInfo.Animator.GetBool("jump") && !PlayerInfo.Animator.GetBool("falling");;
+        return Physics.TouchingFloor && !PlayerInfo.Animator.GetBool("jump") && !PlayerInfo.Animator.GetBool("falling");
     }
 
     //Equip an ability to an ability slot, overriding the current ability if available.

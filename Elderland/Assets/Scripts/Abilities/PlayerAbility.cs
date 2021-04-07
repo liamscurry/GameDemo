@@ -60,13 +60,17 @@ public abstract class PlayerAbility : Ability
 
             if (firstTimeCalling)
             {
-                system.AnimationLoop.ResetSegmentIndex();
+                //system.AnimationLoop.ResetSegmentIndex();
                 system.Animator.SetTrigger("runAbility");
                 system.Animator.SetBool("exitAbility", false);
             }
+            system.Animator.ResetTrigger("proceedAbility");
 
             ActiveSegment = segments.Start;
             system.AnimationLoop.SetNextSegmentClip(segments.Start.Clip);
+            PlayerInfo.Animator.SetInteger(
+                "choiceSeparator",
+                PlayerInfo.AbilityManager.AnimationLoop.CurrentSegmentIndex);
             fallUponFinish = false;
    
             if (slider != null)
@@ -109,7 +113,7 @@ public abstract class PlayerAbility : Ability
                 ContinousWait();
             }
             else
-            {
+            {   
                 system.Animator.SetBool("exitAbility", true);
                 ToCoolDown();
             }
