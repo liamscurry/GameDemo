@@ -63,8 +63,8 @@ public abstract class PlayerAbility : Ability
                 //system.AnimationLoop.ResetSegmentIndex();
                 system.Animator.SetTrigger("runAbility");
                 system.Animator.SetBool("exitAbility", false);
+                system.Animator.ResetTrigger("proceedAbility");
             }
-            system.Animator.ResetTrigger("proceedAbility");
 
             ActiveSegment = segments.Start;
             system.AnimationLoop.SetNextSegmentClip(segments.Start.Clip);
@@ -145,7 +145,7 @@ public abstract class PlayerAbility : Ability
         state = AbilityState.Waiting;
 
         bool replayed = Wait(false);
-
+        
         if (!replayed)
         {
             ActiveSegment = null;

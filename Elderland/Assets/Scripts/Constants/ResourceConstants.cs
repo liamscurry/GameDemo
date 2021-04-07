@@ -94,6 +94,15 @@ public static class ResourceConstants
 
             public const string FireballLeftCharge = "FireballLeftCharge";
             public const string FireballLeftAct = "FireballLeftAct";
+            public const string FireballRightCharge = "FireballRightCharge";
+            public const string FireballRightAct = "FireballRightAct";
+
+            public const string Firewall = "Firewall";
+
+            public const string LightSword1Charge = "LightSword1Charge";
+            public const string LightSword1Act = "LightSword1Act";
+            public const string LightSword1MirrorCharge = "LightSword1MirrorCharge";
+            public const string LightSword1MirrorAct = "LightSword1MirrorAct";
         }
     }
 }

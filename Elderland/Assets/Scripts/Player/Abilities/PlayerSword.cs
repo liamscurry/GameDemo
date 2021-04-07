@@ -16,6 +16,8 @@ public sealed class PlayerSword : PlayerAbility
     private AnimationClip actCloseClip;
     private AnimationClip chargeNoTargetClip;
     private AnimationClip actNoTargetClip;
+    private AnimationClip chargeNoTargetClipMirror;
+    private AnimationClip actNoTargetClipMirror;
 
     private float damage = 0.5f;//0.5
     private float strength = 18;
@@ -58,6 +60,11 @@ public sealed class PlayerSword : PlayerAbility
     private PlayerAbilityHold holdSegmentHold;
     private KeyCode keyUsed;
 
+    // Swing Direction
+    private int flipSign;
+    private float rotationSign;
+    private int verticalSign;
+
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         //Animation assignment
@@ -72,8 +79,15 @@ public sealed class PlayerSword : PlayerAbility
         chargeCloseClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeCloseLightAttack");
         actCloseClip = Resources.Load<AnimationClip>("Player/Abilities/ActCloseLightAttack");
 
-        chargeNoTargetClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeNoTargetLightAttack");
-        actNoTargetClip = Resources.Load<AnimationClip>("Player/Abilities/ActNoTargetLightAttack");
+        chargeNoTargetClip =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1Charge);
+        actNoTargetClip =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1Act);
+
+        chargeNoTargetClipMirror =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1MirrorCharge);
+        actNoTargetClipMirror =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1MirrorAct);
 
         holdProcess = new AbilityProcess(HoldBegin, DuringHold, HoldEnd, 1, true);
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
@@ -201,6 +215,8 @@ public sealed class PlayerSword : PlayerAbility
 
     protected override void GlobalStart()
     {
+        GenRanDirection();
+
         interuptedTarget = false;
           
         playerDirection = (GameInfo.Settings.LeftDirectionalInput.magnitude > 0.5f) ?
@@ -289,8 +305,8 @@ public sealed class PlayerSword : PlayerAbility
         {
             //No target
             //PlayerInfo.Animator.SetBool("targetMatch", true);
-            charge.Clip = chargeNoTargetClip;
-            act.Clip = actNoTargetClip;
+            //charge.Clip = chargeNoTargetClip;
+            //act.Clip = actNoTargetClip;
 
             type = Type.NoTarget;
         }
@@ -335,7 +351,7 @@ public sealed class PlayerSword : PlayerAbility
 
     public void ChargeBegin()
     {
-        if (type == Type.NoTarget)
+        if (type == Type.NoTarget)// target is inconsistent when there is type==Type.NoTarget.
         {
             RaycastHit distanceHit;
             bool distanceRegistered =
@@ -364,13 +380,15 @@ public sealed class PlayerSword : PlayerAbility
             matchTarget = new PlayerAnimationManager.MatchTarget(targetPosition, targetRotation, AvatarTarget.Root, new Vector3(1, 0, 1), 1);//1 / 0.25f
             charge.LoopFactor = 1;
             //PlayerInfo.AnimationManager.AnimationPhysicsEnable();
+            Debug.DrawLine(transform.position, targetPosition, Color.red, 3f);
 
             dashPosition = targetPosition;
 
             if (CheckForGround())
                 matchTarget.positionWeight = Vector3.zero;
                 
-            PlayerInfo.AnimationManager.StartTarget(matchTarget);
+            PlayerInfo.AnimationManager.StartDirectTarget(matchTarget); // not match targeting on normal calls (non continous) as there is a 
+            // transition in place.
         }
         else if (type == Type.CloseTarget)
         {
@@ -453,6 +471,81 @@ public sealed class PlayerSword : PlayerAbility
         hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
         hitboxParticles.transform.position = hitbox.transform.position;
 
+        //hitboxParticles.transform.localScale = new Vector3(flipSign, 1, 1);
+        UseRanDirection();
+
+        hitboxParticles.Play();
+    }
+
+    /*
+    * Helper function to randomly generate swing direction, assigning rotation to sword particles
+    * and animation to animator
+    */ 
+    private void GenRanDirection()
+    {
+        Quaternion horizontalRotation = Quaternion.identity;
+
+        horizontalRotation = Quaternion.FromToRotation(new Vector3(0, 0, 1), PlayerInfo.Player.transform.forward);
+
+        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
+
+        float verticalRandom = Random.value;
+        verticalSign = (verticalRandom > 0.5) ? 1 : -1;
+
+        float rotationRandom = Random.value;
+        rotationSign = (rotationRandom > 0.5) ? 0.5f : 1;
+
+        float flipRandom = Random.value;
+        flipSign = (flipRandom > 0.5) ? 1 : 0;
+
+        rotationSign = 1;
+        verticalSign = -1;
+
+        if (flipSign == 0) 
+            verticalSign *= -1;
+
+        // Animation Sync
+        if (flipSign == 1)
+        {
+            // Left Side
+            if (rotationSign > 0.75f)
+            {
+                if (verticalSign == -1)
+                {
+                    // Top to bottom swing
+                    charge.Clip = chargeNoTargetClip;
+                    act.Clip = actNoTargetClip;
+                }
+                else
+                {
+
+                }
+            }
+        }
+        else
+        {
+            // Right Side
+            if (rotationSign > 0.75f)
+            {
+                if (verticalSign * -1 == -1)
+                {
+                    // Top to bottom swing
+                    charge.Clip = chargeNoTargetClipMirror;
+                    act.Clip = actNoTargetClipMirror;
+                }
+                else
+                {
+                    
+                }
+            }
+        }
+    }
+
+    /*
+    * Need a separate method for using the random direction generated as the player may have match targeted.
+    */
+    private void UseRanDirection()
+    {
         Quaternion horizontalRotation = Quaternion.identity;
 
         horizontalRotation = Quaternion.FromToRotation(new Vector3(0, 0, 1), PlayerInfo.Player.transform.forward);
@@ -460,16 +553,6 @@ public sealed class PlayerSword : PlayerAbility
         Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
         hitbox.transform.rotation = normalRotation * horizontalRotation;
 
-        float verticalSign = Random.value;
-        verticalSign = (verticalSign > 0.5) ? 1 : -1;
-
-        float rotationSign = Random.value;
-        rotationSign = (rotationSign > 0.5) ? 0.5f : 1;
-
-        float flipSign = Random.value;
-        flipSign = (flipSign > 0.5) ? 1 : 0;
-
-        // * Mathf.Clamp((Random.value * 2f - 1), -1, 1)
         Quaternion tiltRotation =
             Quaternion.Euler(
                 180 * flipSign,
@@ -478,10 +561,6 @@ public sealed class PlayerSword : PlayerAbility
         hitboxParticles.transform.rotation = normalRotation * horizontalRotation * tiltRotation;
         hitboxParticles.transform.localScale = Vector3.one;
         hitboxParticlesColors.color = hitboxParticlesNormalGradient;
-
-        //hitboxParticles.transform.localScale = new Vector3(flipSign, 1, 1);
-
-        hitboxParticles.Play();
     }
 
     public void DuringAct()

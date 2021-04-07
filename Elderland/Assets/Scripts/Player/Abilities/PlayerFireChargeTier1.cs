@@ -28,7 +28,8 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
     {
         this.system = abilityManager;
 
-        AnimationClip actClip = Resources.Load<AnimationClip>("Player/Abilities/FireCharge/FireChargeTier1");
+        AnimationClip actClip = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.Firewall);
 
         actProcess = new AbilityProcess(ActBegin, null, null, 1);
         act = new AbilitySegment(actClip, actProcess);

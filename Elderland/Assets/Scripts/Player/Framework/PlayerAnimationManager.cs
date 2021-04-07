@@ -15,6 +15,8 @@ public class PlayerAnimationManager
 
 	private AnimationClip[] playerAnims;
 
+	private Coroutine directTargetCorou;
+
 	public PlayerAnimationManager()
 	{
 		playerAnims = Resources.LoadAll<AnimationClip>(ResourceConstants.Player.Art.Model);
@@ -111,12 +113,13 @@ public class PlayerAnimationManager
 	{
 		if (PlayerInfo.Animator.IsInTransition(0))
 		{
-			AnimatorTransitionInfo transitionInfo = PlayerInfo.Animator.GetAnimatorTransitionInfo(0);
-			float offset = transitionInfo.duration / PlayerInfo.Animator.speed * (1 - transitionInfo.normalizedTime);
-			yield return new WaitForSeconds(offset);
+			yield return new WaitUntil(() => !PlayerInfo.Animator.IsInTransition(0));
 		}
 
 		yield return new WaitForFixedUpdate();
+	
+		// essentially, the transition duration is a percentage of the current state, not the target state.
+		// thus when the current state is longer than the target state, it  doesn't get called until the state is over.
 
 		MatchTargetWeightMask mask = new MatchTargetWeightMask(target.positionWeight, target.rotationWeight);
 		float startTime = PlayerInfo.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
@@ -139,6 +142,61 @@ public class PlayerAnimationManager
 		controller["Interaction"] = interactionClip;
 	}
 	*/
+	
+	/*
+	* Direct target methods are for abilities. These are custom target coroutines that allow for
+	* movement even when the player animator is in a transition.
+	*/
+	public void StartDirectTarget(MatchTarget target)
+	{
+		if (directTargetCorou != null)
+			PlayerInfo.Manager.StopCoroutine(directTargetCorou);
+		
+		directTargetCorou = PlayerInfo.Manager.StartCoroutine(DirectTargetCoroutine(target));
+	}
+
+	private IEnumerator DirectTargetCoroutine(MatchTarget target)
+	{
+		float startTime = 0;
+		float animDuration = 0;
+		if (PlayerInfo.Animator.IsInTransition(0))
+		{
+			var nextState = 
+				PlayerInfo.Animator.GetNextAnimatorStateInfo(0);
+			var nextClip = 
+				PlayerInfo.Animator.GetNextAnimatorClipInfo(0);
+			startTime = nextState.normalizedTime;
+			animDuration = nextClip[0].clip.length;
+		}
+		else
+		{
+			var currentState = 
+				PlayerInfo.Animator.GetCurrentAnimatorStateInfo(0);
+			var currentClip = 
+				PlayerInfo.Animator.GetCurrentAnimatorClipInfo(0);
+			startTime = currentState.normalizedTime;
+			animDuration = currentClip[0].clip.length;
+		}
+		
+		float currentTime = startTime * animDuration;
+		Vector3 startPosition = PlayerInfo.Player.transform.position;
+		Quaternion startRotation = PlayerInfo.Player.transform.rotation;
+		while (currentTime < animDuration)
+		{
+			float percentage = currentTime / animDuration;
+			PlayerInfo.Player.transform.position =
+				startPosition * (1 - percentage) + target.position * percentage;
+			PlayerInfo.Player.transform.rotation = 
+				Quaternion.Lerp(startRotation, target.rotation, percentage);
+			float deltaTimeStart = Time.time;
+			yield return new WaitForEndOfFrame();
+			currentTime += Time.time - deltaTimeStart;
+		}
+
+		PlayerInfo.Player.transform.position = target.position;
+		PlayerInfo.Player.transform.rotation = target.rotation;
+		directTargetCorou = null;
+	}
 
 	public void KinematicEnable()
 	{

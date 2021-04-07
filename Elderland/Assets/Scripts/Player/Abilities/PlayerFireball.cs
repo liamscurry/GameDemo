@@ -20,22 +20,19 @@ public sealed class PlayerFireball : PlayerAbility
 
     private PlayerAbilityHold chargeSegmentHold;
 
+    private int animCounter;
+
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
         //Specifications
         this.system = abilitySystem;
 
-        AnimationClip chargeClip = 
-            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballLeftCharge);
-        AnimationClip actClip =
-            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballLeftAct);
-
         chargeProcess = new AbilityProcess(ChargeStart, ChargeUpdate, ChargeEnd, 1, true);
-        chargeSegment = new AbilitySegment(chargeClip, chargeProcess);
+        chargeSegment = new AbilitySegment(null, chargeProcess);
 
         waitProcess = new AbilityProcess(null, null, null, 0.25f);
         shootProcess = new AbilityProcess(ActBegin, null, null, 0.75f);
-        actSegment = new AbilitySegment(actClip, waitProcess, shootProcess);
+        actSegment = new AbilitySegment(null, waitProcess, shootProcess);
         actSegment.Type = AbilitySegmentType.Normal;
 
         segments = new AbilitySegmentList();
@@ -62,6 +59,8 @@ public sealed class PlayerFireball : PlayerAbility
             staminaCost,
             Resources.Load<Sprite>(ResourceConstants.Player.Abilities.FireballTier1Icon),
             "I");
+
+        animCounter = 0;
     }
 
     protected override bool WaitCondition()
@@ -74,6 +73,27 @@ public sealed class PlayerFireball : PlayerAbility
     {
         walkSpeedModifier = 1;
         GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.32f));
+
+        if (animCounter == 0)
+        {
+            AnimationClip chargeClip = 
+                PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightCharge);
+            AnimationClip actClip =
+                PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightAct);
+            chargeSegment.Clip = chargeClip;
+            actSegment.Clip = actClip;
+            animCounter = 1;
+        }
+        else if (animCounter == 1)
+        {
+            AnimationClip chargeClip = 
+                PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballLeftCharge);
+            AnimationClip actClip =
+                PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballLeftAct);
+            chargeSegment.Clip = chargeClip;
+            actSegment.Clip = actClip;
+            animCounter = 0;
+        }
     }
 
     public override void GlobalConstantUpdate()
