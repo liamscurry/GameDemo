@@ -181,20 +181,24 @@ public class PlayerAnimationManager
 		float currentTime = startTime * animDuration;
 		Vector3 startPosition = PlayerInfo.Player.transform.position;
 		Quaternion startRotation = PlayerInfo.Player.transform.rotation;
+		Vector3 percTargetPos =
+			startPosition * (1 - target.positionWeight.x) + target.position * target.positionWeight.x;
+		Quaternion percTargetRot =
+			Quaternion.Lerp(startRotation, target.rotation, target.rotationWeight);
 		while (currentTime < animDuration)
 		{
 			float percentage = currentTime / animDuration;
 			PlayerInfo.Player.transform.position =
-				startPosition * (1 - percentage) + target.position * percentage;
+				startPosition * (1 - percentage) + percTargetPos * percentage;
 			PlayerInfo.Player.transform.rotation = 
-				Quaternion.Lerp(startRotation, target.rotation, percentage);
+				Quaternion.Lerp(startRotation, percTargetRot, percentage);
 			float deltaTimeStart = Time.time;
 			yield return new WaitForEndOfFrame();
 			currentTime += Time.time - deltaTimeStart;
 		}
 
-		PlayerInfo.Player.transform.position = target.position;
-		PlayerInfo.Player.transform.rotation = target.rotation;
+		PlayerInfo.Player.transform.position = percTargetPos;
+		PlayerInfo.Player.transform.rotation = percTargetRot;
 		directTargetCorou = null;
 	}
 

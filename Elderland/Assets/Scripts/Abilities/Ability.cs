@@ -99,7 +99,7 @@ public abstract class Ability : MonoBehaviour
         }
 
         ResetAnimatorSettings();
-        ActiveSegment.Finished = true;
+        
         //Make active segment a member of each segment to eliminate overlap
         
         if (system.Animator.isMatchingTarget)
@@ -162,6 +162,8 @@ public abstract class Ability : MonoBehaviour
             }
         }
 
+        ActiveSegment.Finished = true;
+
         if (ActiveSegment.NormalizedDuration < 1)
         {
             yield return TimeProcessEnd();
@@ -202,6 +204,8 @@ public abstract class Ability : MonoBehaviour
                     ActiveProcess.End();
             }
         }
+
+        ActiveSegment.Finished = true;
 
         if (ActiveSegment.NormalizedDuration < 1)
         {

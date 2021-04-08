@@ -82,6 +82,9 @@ public sealed class PlayerSword : PlayerAbility
     private float rotationSign;
     private int verticalSign;
 
+    private float hitboxTimer;
+    private const float hitboxDelay = 0.25f;
+
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         //Animation assignment
@@ -136,7 +139,7 @@ public sealed class PlayerSword : PlayerAbility
 
         holdProcess = new AbilityProcess(HoldBegin, DuringHold, HoldEnd, 1, true);
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
-        actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.15f);
+        actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1f);
         hold = new AbilitySegment(null, holdProcess);
         charge = new AbilitySegment(null, chargeProcess);
         charge.Type = AbilitySegmentType.RootMotion;
@@ -355,8 +358,6 @@ public sealed class PlayerSword : PlayerAbility
             type = Type.NoTarget;
         }
 
-        type = Type.NoTarget;
-
         if (Input.GetKey(GameInfo.Settings.MeleeAbilityKey))
         {
             castDirection = 0;
@@ -395,7 +396,7 @@ public sealed class PlayerSword : PlayerAbility
 
     public void ChargeBegin()
     {
-        if (type == Type.NoTarget)// target is inconsistent when there is type==Type.NoTarget.
+        if (type == Type.NoTarget)
         {
             RaycastHit distanceHit;
             bool distanceRegistered =
@@ -441,7 +442,7 @@ public sealed class PlayerSword : PlayerAbility
             charge.LoopFactor = 1;
 
             //PlayerInfo.AnimationManager.AnimationPhysicsEnable();
-            PlayerInfo.AnimationManager.StartTarget(matchTarget);
+            PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
 
             dashPosition = PlayerInfo.Player.transform.position;
         }
@@ -476,7 +477,7 @@ public sealed class PlayerSword : PlayerAbility
             matchTarget = new PlayerAnimationManager.MatchTarget(targetPosition, targetRotation, AvatarTarget.Root, Vector3.one, loopFactor / 0.25f, 0, loopFactor);
             charge.LoopFactor = loopFactor;
             //PlayerInfo.AnimationManager.AnimationPhysicsEnable();
-            PlayerInfo.AnimationManager.StartTarget(matchTarget);
+            PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
 
             dashPosition = targetPosition;
         }
@@ -503,22 +504,15 @@ public sealed class PlayerSword : PlayerAbility
     public void ActBegin()
     {
         //print("act begin called");
-        hitbox.gameObject.SetActive(true);
-        if (type == Type.CloseTarget || type == Type.FarTarget)
-        {
-            hitbox.Invoke(this, target);
-        }
-        else
-        {
-            hitbox.Invoke(this);
-        }
-        hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
-        hitboxParticles.transform.position = hitbox.transform.position;
+        hitboxParticles.transform.position =
+            PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
 
         //hitboxParticles.transform.localScale = new Vector3(flipSign, 1, 1);
         UseRanDirection();
 
         hitboxParticles.Play();
+
+        hitboxTimer = 0;
     }
 
     /*
@@ -644,6 +638,23 @@ public sealed class PlayerSword : PlayerAbility
     public void DuringAct()
     {
         hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
+    
+        hitboxTimer += Time.deltaTime;
+
+        if (hitboxTimer > hitboxDelay && !hitbox.gameObject.activeInHierarchy)
+        {
+            hitbox.gameObject.SetActive(true);
+            if (type == Type.CloseTarget || type == Type.FarTarget)
+            {
+                hitbox.Invoke(this, target);
+            }
+            else
+            {
+                hitbox.Invoke(this);
+            }
+            hitbox.gameObject.transform.position =
+                PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
+        }
     }
 
     public void ActEnd()
@@ -673,6 +684,7 @@ public sealed class PlayerSword : PlayerAbility
     Vector3 dashPosition;
     private void OnDrawGizmosSelected()
     {
+        Gizmos.DrawLine(dashPosition, PlayerInfo.Player.transform.position);
         //scan
         Matrix4x4 customMatrix = Matrix4x4.TRS(scanCenter, scanRotation, Vector3.one);
         Gizmos.matrix = customMatrix;
