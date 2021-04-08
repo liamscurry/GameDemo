@@ -17,18 +17,24 @@ public sealed class PlayerSword : PlayerAbility
 
     private AnimationClip chargeNoTargetClip;
     private AnimationClip actNoTargetClip;
+    private AnimationClip holdNoTargetClip;
     private AnimationClip chargeNoTargetClipMirror;
     private AnimationClip actNoTargetClipMirror;
+    private AnimationClip holdNoTargetClipMirror;
 
     private AnimationClip chargeNoTarget2Clip;
     private AnimationClip actNoTarget2Clip;
+    private AnimationClip holdNoTarget2Clip;
     private AnimationClip chargeNoTarget2ClipMirror;
     private AnimationClip actNoTarget2ClipMirror;
+    private AnimationClip holdNoTarget2ClipMirror;
 
     private AnimationClip chargeNoTarget3Clip;
     private AnimationClip actNoTarget3Clip;
+    private AnimationClip holdNoTarget3Clip;
     private AnimationClip chargeNoTarget3ClipMirror;
     private AnimationClip actNoTarget3ClipMirror;
+    private AnimationClip holdNoTarget3ClipMirror;
 
     private float damage = 0.5f;//0.5
     private float strength = 18;
@@ -79,8 +85,6 @@ public sealed class PlayerSword : PlayerAbility
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         //Animation assignment
-        holdClip = Resources.Load<AnimationClip>(ResourceConstants.Player.Abilities.SwordHoldClip);
-
         chargeFarDashClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeFarDashLightAttack");
         actFarDashClip = Resources.Load<AnimationClip>("Player/Abilities/ActFarDashLightAttack");
 
@@ -94,34 +98,46 @@ public sealed class PlayerSword : PlayerAbility
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1Charge);
         actNoTargetClip =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1Act);
+        holdNoTargetClip = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1Hold);
         chargeNoTargetClipMirror =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1MirrorCharge);
         actNoTargetClipMirror =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1MirrorAct);
+        holdNoTargetClipMirror = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1Hold_M);
 
         chargeNoTarget2Clip =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2Charge);
         actNoTarget2Clip =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2Act);
+        holdNoTarget2Clip = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2Hold);
         chargeNoTarget2ClipMirror =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2MirrorCharge);
         actNoTarget2ClipMirror =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2MirrorAct);
+        holdNoTarget2ClipMirror = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2Hold_M);
 
         chargeNoTarget3Clip =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3Charge);
         actNoTarget3Clip =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3Act);
+        holdNoTarget3Clip = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3Hold);
         chargeNoTarget3ClipMirror =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3MirrorCharge);
         actNoTarget3ClipMirror =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3MirrorAct);
+        holdNoTarget3ClipMirror = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3Hold_M);
 
 
         holdProcess = new AbilityProcess(HoldBegin, DuringHold, HoldEnd, 1, true);
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.15f);
-        hold = new AbilitySegment(holdClip, holdProcess);
+        hold = new AbilitySegment(null, holdProcess);
         charge = new AbilitySegment(null, chargeProcess);
         charge.Type = AbilitySegmentType.RootMotion;
         act = new AbilitySegment(null, actProcess);
@@ -171,18 +187,17 @@ public sealed class PlayerSword : PlayerAbility
 
     public override bool Wait(bool firstTimeCalling)
     {
-        bool success = base.Wait(firstTimeCalling);
-        if (success)
+        if (Input.GetKey(GameInfo.Settings.MeleeAbilityKey))
         {
-            if (Input.GetKey(GameInfo.Settings.MeleeAbilityKey))
-            {
-                keyUsed = GameInfo.Settings.MeleeAbilityKey;
-            }
-            else
-            {
-                keyUsed = GameInfo.Settings.AlternateMeleeAbilityKey;
-            }
+            keyUsed = GameInfo.Settings.MeleeAbilityKey;
         }
+        else
+        {
+            keyUsed = GameInfo.Settings.AlternateMeleeAbilityKey;
+        }
+
+        bool success = base.Wait(firstTimeCalling);
+
         return success;
     }
 
@@ -307,7 +322,7 @@ public sealed class PlayerSword : PlayerAbility
                 //PlayerInfo.Animator.SetBool("targetMatch", true);
 
                 float distance = targetHorizontalDistance - PlayerInfo.Capsule.radius - targetWidth;
-                if (distance > (hitboxScale.z / 2) && distance < (2.5f * hitboxScale.z / 2))
+                /*if (distance > (hitboxScale.z / 2) && distance < (2.5f * hitboxScale.z / 2))
                 {
                     charge.Clip = chargeFarDashClip;
                     act.Clip = actFarDashClip;
@@ -316,7 +331,7 @@ public sealed class PlayerSword : PlayerAbility
                 {
                     charge.Clip = chargeFarRunClip;
                     act.Clip = actFarRunClip;
-                }
+                }*/
 
                 type = Type.FarTarget;
             }
@@ -324,8 +339,8 @@ public sealed class PlayerSword : PlayerAbility
             {
                 //Close target
                 //PlayerInfo.Animator.SetBool("targetMatch", true);
-                charge.Clip = chargeCloseClip;
-                act.Clip = actCloseClip;
+                //charge.Clip = chargeCloseClip;
+                //act.Clip = actCloseClip;
 
                 type = Type.CloseTarget;
             }
@@ -340,7 +355,7 @@ public sealed class PlayerSword : PlayerAbility
             type = Type.NoTarget;
         }
 
-        //charge.Clip.apparentSpeed
+        type = Type.NoTarget;
 
         if (Input.GetKey(GameInfo.Settings.MeleeAbilityKey))
         {
@@ -518,18 +533,29 @@ public sealed class PlayerSword : PlayerAbility
 
         Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
 
-        float verticalRandom = Random.value;
-        verticalSign = (verticalRandom > 0.5) ? 1 : -1;
+        //float verticalRandom = Random.value;
+        //verticalSign = (verticalRandom > 0.5) ? 1 : -1;
 
         float rotationRandom = Random.value;
         rotationSign = (rotationRandom > 0.5) ? 0.5f : 1;
 
-        float flipRandom = Random.value;
-        flipSign = (flipRandom > 0.5) ? 1 : 0;
+        //float flipRandom = Random.value;
+        //flipSign = (flipRandom > 0.5) ? 1 : 0;
+        flipSign = (flipSign == 1) ? 0 : 1;
 
-        //flipSign = 0;
-        //rotationSign = 0.5f;
-        //verticalSign = 1;
+        // X Input
+        if (keyUsed == GameInfo.Settings.MeleeAbilityKey)
+        {
+            verticalSign = (flipSign == 0) ? 1 : -1;
+            if (flipSign == 0)
+                rotationSign = 1;
+        }
+        else
+        {
+            verticalSign = (flipSign == 0) ? -1 : 1;
+            if (flipSign == 1)
+                rotationSign = 1;
+        }
 
         if (flipSign == 0) 
             verticalSign *= -1;
@@ -545,11 +571,13 @@ public sealed class PlayerSword : PlayerAbility
                     // Top to bottom swing
                     charge.Clip = chargeNoTargetClip;
                     act.Clip = actNoTargetClip;
+                    hold.Clip = holdNoTargetClip;
                 }
                 else
                 {
                     charge.Clip = chargeNoTarget3Clip;
                     act.Clip = actNoTarget3Clip;
+                    hold.Clip = holdNoTarget3Clip;
                 }
             }
             else
@@ -557,6 +585,7 @@ public sealed class PlayerSword : PlayerAbility
                 // Top to bottom swing
                 charge.Clip = chargeNoTarget2Clip;
                 act.Clip = actNoTarget2Clip;
+                hold.Clip = holdNoTarget2Clip;
             }
         }
         else
@@ -569,17 +598,20 @@ public sealed class PlayerSword : PlayerAbility
                     // Top to bottom swing
                     charge.Clip = chargeNoTargetClipMirror;
                     act.Clip = actNoTargetClipMirror;
+                    hold.Clip = holdNoTargetClipMirror;
                 }
                 else
                 {
                     charge.Clip = chargeNoTarget3ClipMirror;
                     act.Clip = actNoTarget3ClipMirror;
+                    hold.Clip = holdNoTarget3ClipMirror;
                 }
             }
             else
             {
                 charge.Clip = chargeNoTarget2ClipMirror;
                 act.Clip = actNoTarget2ClipMirror;
+                hold.Clip = holdNoTarget2ClipMirror;
             }
         }
 
