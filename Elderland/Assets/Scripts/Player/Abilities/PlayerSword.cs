@@ -14,10 +14,21 @@ public sealed class PlayerSword : PlayerAbility
     private AnimationClip actFarRunClip;
     private AnimationClip chargeCloseClip;
     private AnimationClip actCloseClip;
+
     private AnimationClip chargeNoTargetClip;
     private AnimationClip actNoTargetClip;
     private AnimationClip chargeNoTargetClipMirror;
     private AnimationClip actNoTargetClipMirror;
+
+    private AnimationClip chargeNoTarget2Clip;
+    private AnimationClip actNoTarget2Clip;
+    private AnimationClip chargeNoTarget2ClipMirror;
+    private AnimationClip actNoTarget2ClipMirror;
+
+    private AnimationClip chargeNoTarget3Clip;
+    private AnimationClip actNoTarget3Clip;
+    private AnimationClip chargeNoTarget3ClipMirror;
+    private AnimationClip actNoTarget3ClipMirror;
 
     private float damage = 0.5f;//0.5
     private float strength = 18;
@@ -83,11 +94,29 @@ public sealed class PlayerSword : PlayerAbility
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1Charge);
         actNoTargetClip =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1Act);
-
         chargeNoTargetClipMirror =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1MirrorCharge);
         actNoTargetClipMirror =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1MirrorAct);
+
+        chargeNoTarget2Clip =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2Charge);
+        actNoTarget2Clip =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2Act);
+        chargeNoTarget2ClipMirror =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2MirrorCharge);
+        actNoTarget2ClipMirror =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword2MirrorAct);
+
+        chargeNoTarget3Clip =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3Charge);
+        actNoTarget3Clip =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3Act);
+        chargeNoTarget3ClipMirror =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3MirrorCharge);
+        actNoTarget3ClipMirror =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword3MirrorAct);
+
 
         holdProcess = new AbilityProcess(HoldBegin, DuringHold, HoldEnd, 1, true);
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
@@ -498,8 +527,9 @@ public sealed class PlayerSword : PlayerAbility
         float flipRandom = Random.value;
         flipSign = (flipRandom > 0.5) ? 1 : 0;
 
-        rotationSign = 1;
-        verticalSign = -1;
+        //flipSign = 0;
+        //rotationSign = 0.5f;
+        //verticalSign = 1;
 
         if (flipSign == 0) 
             verticalSign *= -1;
@@ -518,8 +548,15 @@ public sealed class PlayerSword : PlayerAbility
                 }
                 else
                 {
-
+                    charge.Clip = chargeNoTarget3Clip;
+                    act.Clip = actNoTarget3Clip;
                 }
+            }
+            else
+            {
+                // Top to bottom swing
+                charge.Clip = chargeNoTarget2Clip;
+                act.Clip = actNoTarget2Clip;
             }
         }
         else
@@ -535,10 +572,19 @@ public sealed class PlayerSword : PlayerAbility
                 }
                 else
                 {
-                    
+                    charge.Clip = chargeNoTarget3ClipMirror;
+                    act.Clip = actNoTarget3ClipMirror;
                 }
             }
+            else
+            {
+                charge.Clip = chargeNoTarget2ClipMirror;
+                act.Clip = actNoTarget2ClipMirror;
+            }
         }
+
+        if (rotationSign < 0.75f)
+            verticalSign = (flipSign == 0) ? 1 : -1;
     }
 
     /*
@@ -557,7 +603,7 @@ public sealed class PlayerSword : PlayerAbility
             Quaternion.Euler(
                 180 * flipSign,
                 180 * flipSign,
-                30 * verticalSign * rotationSign);
+                45 * verticalSign * rotationSign);
         hitboxParticles.transform.rotation = normalRotation * horizontalRotation * tiltRotation;
         hitboxParticles.transform.localScale = Vector3.one;
         hitboxParticlesColors.color = hitboxParticlesNormalGradient;

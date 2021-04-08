@@ -103,6 +103,16 @@ public static class ResourceConstants
             public const string LightSword1Act = "LightSword1Act";
             public const string LightSword1MirrorCharge = "LightSword1MirrorCharge";
             public const string LightSword1MirrorAct = "LightSword1MirrorAct";
+
+            public const string LightSword2Charge = "LightSword2Charge";
+            public const string LightSword2Act = "LightSword2Act";
+            public const string LightSword2MirrorCharge = "LightSword2MirrorCharge";
+            public const string LightSword2MirrorAct = "LightSword2MirrorAct";
+
+            public const string LightSword3Charge = "LightSword3Charge";
+            public const string LightSword3Act = "LightSword3Act";
+            public const string LightSword3MirrorCharge = "LightSword3MirrorCharge";
+            public const string LightSword3MirrorAct = "LightSword3MirrorAct";
         }
     }
 }
