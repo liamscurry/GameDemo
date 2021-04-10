@@ -28,7 +28,7 @@ Shader "Custom/SemiFlatShader"
         _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1 
         _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
 
-        _ReflectedIntensity ("ReflectedIntensity", Range(0, 3)) = 1
+        _ReflectedIntensity ("ReflectedIntensity", Range(0, 6)) = 1
 
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0

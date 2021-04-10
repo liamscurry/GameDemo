@@ -19,6 +19,15 @@
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0
 
+        // Properties from Shading Helper
+        _FlatShading ("FlatShading", Range(0, 1)) = 0
+        _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
+        _BakedLightLevel ("BakedLightLevel", Range(0, 1)) = 1
+
+        _ReflectedIntensity ("ReflectedIntensity", Range(0, 6)) = 1
+
+        _WorldMaxHeight ("WorldMaxHeight", float) = 10000
+
         // Glitch properties
         _Glitch ("Glitch", Range(0.0, 1.0)) = 1.0
         _FresnelColor ("FresnelColor", Color) = (1,1,1,1)
