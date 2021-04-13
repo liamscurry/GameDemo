@@ -8,7 +8,7 @@ public sealed class PlayerDodge : PlayerAbility
 {
     //Fields
     private Vector2 direction;
-    private float speed = 8f;
+    private float speed = 7f;
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
@@ -19,7 +19,7 @@ public sealed class PlayerDodge : PlayerAbility
     {
         this.system = abilityManager;
 
-        actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1);
+        actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.82f);
         act = new AbilitySegment(null, actProcess);
         act.Type = AbilitySegmentType.Physics;
 
