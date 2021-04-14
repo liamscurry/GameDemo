@@ -18,12 +18,17 @@ public class PlayerMovementManager
     private float directionSpeed = 500;
 
     private float speedVelocity;
-    private float speedGradation = 0.15f; // 0.2f
+    private float speedGradation = 0.2f; // 0.2f
+
+    // For animator property percentileSpeed
+    private const float percentileSpeedMin = 0.125f;
+    private const float percentileSpeedSpeed = 1.5f;
 
     private bool sprintAvailable;
-
+    
     public Vector2 CurrentDirection { get; private set; }
     public float CurrentPercentileSpeed { get; private set; }
+    public float PercentileSpeed { get; set; }
     public bool SprintAvailable { get { return sprintAvailable; } }
 
     public Vector2 TargetDirection 
@@ -56,6 +61,7 @@ public class PlayerMovementManager
         CurrentDirection = Vector2.right;
         TargetPercentileSpeed = 0;
         CurrentPercentileSpeed = 0;
+        PercentileSpeed = 0;
 
         PlayerInfo.PhysicsSystem.SlidIntoGround += OnSlidIntoGround;
     }
@@ -71,6 +77,17 @@ public class PlayerMovementManager
         {
             TargetPercentileSpeed = 0;
             SnapSpeed();
+        }
+
+        if (CurrentPercentileSpeed < percentileSpeedMin)
+        {
+            PercentileSpeed = 
+                Mathf.MoveTowards(PercentileSpeed, 0, percentileSpeedSpeed * Time.deltaTime);
+        }
+        else
+        {
+            PercentileSpeed = 
+                Mathf.MoveTowards(PercentileSpeed, 1, percentileSpeedSpeed * Time.deltaTime);
         }
     }
 

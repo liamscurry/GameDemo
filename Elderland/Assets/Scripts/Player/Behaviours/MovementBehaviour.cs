@@ -11,8 +11,9 @@ public class MovementBehaviour : StateMachineBehaviour
     private float currentReverse;
     private Vector2 positionAnalogDirection;
     private Vector2 reverseAnalogDirection;
-    private const float positionAnalogSpeed = 1.2f;
-    private const float reverseAnalogSpeed = 1.2f;
+
+    private const float positionAnalogSpeed = 2.2f;
+    private const float reverseAnalogSpeed = 1.35f;
 
     private const float reverseSpeed = 42.5f;
     private const float reverseSpeedSlow = 0.0f;
@@ -27,6 +28,8 @@ public class MovementBehaviour : StateMachineBehaviour
         PlayerInfo.StatsManager.Sprinting = false;
         currentReverse = 0;
         positionAnalogDirection = Vector2.zero;
+        PlayerInfo.MovementManager.PercentileSpeed = 
+            PlayerInfo.MovementManager.CurrentPercentileSpeed;
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -109,24 +112,30 @@ public class MovementBehaviour : StateMachineBehaviour
                 Matho.ProjectScalar(scaledCurrentDir, rightDir));
 
         Vector2 rAnalogDirection = reverseAnalogDirection;
-        //if (rAnalogDirection.x < 0)   
-        //    rAnalogDirection.x *= 3;
-        //if (analogDirection.x < 0)   
-        //    analogDirection.x *= 3;
 
-        if (analogDirection.x < 0.45f && analogDirection.x > 0)
+        if (analogDirection.x > 0 &&
+            Matho.AngleBetween(Vector2.up, new Vector2(analogDirection.y, analogDirection.x)) > 45f)
         {
             analogDirection.x = 0;
         }
-        else if (analogDirection.x > 0.45f * -0.3f && analogDirection.x < 0)
+        else if (
+            analogDirection.x < 0 &&
+            Matho.AngleBetween(Vector2.down, new Vector2(analogDirection.y, analogDirection.x)) > 45f)
         {
             analogDirection.x = 0;
         }
+
+        if (analogDirection.x < 0)
+            analogDirection.x *= 3;
+        Vector2 effectiveAnalogDir = reverseAnalogDirection;
+        if (effectiveAnalogDir.x < 0)
+            effectiveAnalogDir.x *= 3;
 
         positionAnalogDirection =
             Vector2.MoveTowards(positionAnalogDirection, analogDirection, positionAnalogSpeed * Time.deltaTime);
         reverseAnalogDirection =
             Vector2.MoveTowards(reverseAnalogDirection, analogDirection, reverseAnalogSpeed * Time.deltaTime);
+
 
         animator.SetFloat(
             "speed",
@@ -134,8 +143,17 @@ public class MovementBehaviour : StateMachineBehaviour
         animator.SetFloat(
             "strafe",
             positionAnalogDirection.y);
+        animator.SetFloat(
+            "percentileSpeed",
+            PlayerInfo.MovementManager.PercentileSpeed);
         
-        CalculateReverseParameters(animator, forwardDir, rightDir, analogDirection);
+        /*
+        CalculateReverseParameters(
+            animator,
+            forwardDir,
+            rightDir,
+            analogDirection);
+            */
         //animator.SetFloat("reverse", currentReverse);
     }
 
@@ -161,12 +179,12 @@ public class MovementBehaviour : StateMachineBehaviour
         }
         
         float reverseLimiter = Matho.AngleBetween(reverseAnalogDirection, reverseOffset) / 180f;
+
         reverseLimiter -= 0.5f;
         if (reverseLimiter < 0)
             reverseLimiter = 0;
         reverseLimiter *= 2f;
-
-        reverseLimiter *= 3f;
+        reverseLimiter *= reverseAnalogDirection.magnitude;
 
         animator.SetFloat(
             "speedReverse",
