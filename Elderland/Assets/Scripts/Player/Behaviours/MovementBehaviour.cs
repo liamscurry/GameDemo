@@ -8,11 +8,12 @@ public class MovementBehaviour : StateMachineBehaviour
     private float movespeedVelocity;
 
     private bool sprinting;
+    private const float sprintDisableAngle = 50;
     private float currentReverse;
     private Vector2 positionAnalogDirection;
     private Vector2 reverseAnalogDirection;
 
-    private const float positionAnalogSpeed = 2.2f;
+    private const float positionAnalogSpeed = 1.7f;
     private const float reverseAnalogSpeed = 1.35f;
 
     private const float reverseSpeed = 42.5f;
@@ -64,12 +65,15 @@ public class MovementBehaviour : StateMachineBehaviour
                 float forwardsAngle = Matho.AngleBetween(Matho.StandardProjection2D(targetRotation), movementDirection);
                 float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
                 
-                float sprintingModifier = (sprinting) ? 1.5f : 1f;
+                float sprintingModifier = (sprinting) ? 2f : 1f;
            
-                PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
+                PlayerInfo.MovementManager.TargetPercentileSpeed =
+                    GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
             }
 
-            PlayerInfo.MovementSystem.Move(PlayerInfo.MovementManager.CurrentDirection, PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed);
+            PlayerInfo.MovementSystem.Move(
+                PlayerInfo.MovementManager.CurrentDirection,
+                PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed);
 
             UpdateAnimatorProperties(
                 animator,
@@ -113,23 +117,23 @@ public class MovementBehaviour : StateMachineBehaviour
 
         Vector2 rAnalogDirection = reverseAnalogDirection;
 
-        if (analogDirection.x > 0 &&
-            Matho.AngleBetween(Vector2.up, new Vector2(analogDirection.y, analogDirection.x)) > 45f)
-        {
-            analogDirection.x = 0;
-        }
-        else if (
-            analogDirection.x < 0 &&
-            Matho.AngleBetween(Vector2.down, new Vector2(analogDirection.y, analogDirection.x)) > 45f)
-        {
-            analogDirection.x = 0;
-        }
-
         if (analogDirection.x < 0)
             analogDirection.x *= 3;
         Vector2 effectiveAnalogDir = reverseAnalogDirection;
         if (effectiveAnalogDir.x < 0)
             effectiveAnalogDir.x *= 3;
+
+        if (analogDirection.x > 0 &&
+            Matho.AngleBetween(Vector2.up, new Vector2(analogDirection.y, analogDirection.x)) > 60f)
+        {
+            analogDirection.x = 0;
+        }
+        else if (
+            analogDirection.x < 0 &&
+            Matho.AngleBetween(Vector2.down, new Vector2(analogDirection.y, analogDirection.x)) > 60f)
+        {
+            analogDirection.x = 0;
+        }
 
         positionAnalogDirection =
             Vector2.MoveTowards(positionAnalogDirection, analogDirection, positionAnalogSpeed * Time.deltaTime);
@@ -202,7 +206,7 @@ public class MovementBehaviour : StateMachineBehaviour
 
     private void UpdateSprinting(Vector2 analogMovementDirection)
     {
-        if (analogMovementDirection.y < 0)
+        if (Matho.AngleBetween(Vector2.up, analogMovementDirection) > sprintDisableAngle)
         {
             sprinting = false;
             PlayerInfo.StatsManager.Sprinting = false;

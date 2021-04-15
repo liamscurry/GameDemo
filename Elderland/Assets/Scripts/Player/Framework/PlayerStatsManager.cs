@@ -53,7 +53,7 @@ public class PlayerStatsManager
 			else if (!sprinting & value)
 			{
 				// Started sprinting
-				GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, 5, 0.9f));
+				GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -2.5f, 0.9f));
 			}
 			sprinting = value;
 		}
