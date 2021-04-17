@@ -27,6 +27,14 @@ public class PlayerMovementManager
     private bool sprintAvailable;
     
     public Vector2 CurrentDirection { get; private set; }
+
+    // 0 is stationary, 1 is rotation to the right of the character, -1 is rotating left.
+    public float CurrentRotationSpeed { get; private set; }
+    public const float RotationStartMin = 45f;
+    public const float RotationStopMin = 2f;
+    private const float rotationSpeedSpeedIncrease = 7f;
+    private const float rotationSpeedSpeedDecrease = 3f;
+
     public float CurrentPercentileSpeed { get; private set; }
     public float PercentileSpeed { get; set; }
     public bool SprintAvailable { get { return sprintAvailable; } }
@@ -89,6 +97,38 @@ public class PlayerMovementManager
             PercentileSpeed = 
                 Mathf.MoveTowards(PercentileSpeed, 1, percentileSpeedSpeed * Time.deltaTime);
         }
+        
+        UpdateRotationSpeed();
+    }
+
+    private void UpdateRotationSpeed()
+    {
+        int targetRotationSpeed = 0;
+        Vector3 targetDirection3D = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
+        Vector3 currentDirection3D = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
+   
+        if (Matho.AngleBetween(targetDirection3D, currentDirection3D) > RotationStartMin)
+        {
+            Vector3 zenith = Vector3.Cross(targetDirection3D, currentDirection3D);
+            
+            if (Matho.AngleBetween(zenith, Vector3.up) < 90f)
+            {
+                targetRotationSpeed = -1;
+            }
+            else
+            {
+                targetRotationSpeed = 1;
+            }
+        }
+
+        float usedRotSpeed = (targetRotationSpeed != 0) ? rotationSpeedSpeedIncrease : rotationSpeedSpeedDecrease;
+        CurrentRotationSpeed =
+            Mathf.MoveTowards(
+                CurrentRotationSpeed,
+                targetRotationSpeed,
+                usedRotSpeed * Time.deltaTime);
+        
+        PlayerInfo.Animator.SetFloat("rotationSpeed", CurrentRotationSpeed);
     }
 
     public void LockDirection()

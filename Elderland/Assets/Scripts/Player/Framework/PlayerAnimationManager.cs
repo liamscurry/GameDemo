@@ -17,6 +17,9 @@ public class PlayerAnimationManager
 
 	private Coroutine directTargetCorou;
 
+	public const float ModelRotSpeedIdle = 2f;
+	public const float ModelRotSpeedMoving = 9f;
+
 	public PlayerAnimationManager()
 	{
 		playerAnims = Resources.LoadAll<AnimationClip>(ResourceConstants.Player.Art.Model);

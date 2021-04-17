@@ -16,10 +16,7 @@ public class MovementBehaviour : StateMachineBehaviour
     private const float positionAnalogSpeed = 1.7f;
     private const float reverseAnalogSpeed = 1.35f;
 
-    private const float reverseSpeed = 42.5f;
-    private const float reverseSpeedSlow = 0.0f;
-    private const float reverseZeroMin = 0.05f;
-    private const float reverseMargin = 0.05f;
+    private bool rotatingModel;
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
@@ -30,7 +27,8 @@ public class MovementBehaviour : StateMachineBehaviour
         currentReverse = 0;
         positionAnalogDirection = Vector2.zero;
         PlayerInfo.MovementManager.PercentileSpeed = 
-            PlayerInfo.MovementManager.CurrentPercentileSpeed;
+        PlayerInfo.MovementManager.CurrentPercentileSpeed;
+        rotatingModel = false;
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -51,14 +49,11 @@ public class MovementBehaviour : StateMachineBehaviour
                 PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
                 sprinting = false;
                 PlayerInfo.StatsManager.Sprinting = false;
+                UpdateRotation(false);
             }
             else
             {
                 Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
-                Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
-                Vector3 incrementedRotation = Vector3.RotateTowards(currentRotation, targetRotation, 10 * Time.deltaTime, 0f);
-                Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
-                PlayerInfo.Player.transform.rotation = rotation;
 
                 PlayerInfo.MovementManager.TargetDirection = movementDirection;
 
@@ -69,6 +64,7 @@ public class MovementBehaviour : StateMachineBehaviour
            
                 PlayerInfo.MovementManager.TargetPercentileSpeed =
                     GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
+                UpdateRotation(true);
             }
 
             PlayerInfo.MovementSystem.Move(
@@ -150,52 +146,49 @@ public class MovementBehaviour : StateMachineBehaviour
         animator.SetFloat(
             "percentileSpeed",
             PlayerInfo.MovementManager.PercentileSpeed);
-        
-        /*
-        CalculateReverseParameters(
-            animator,
-            forwardDir,
-            rightDir,
-            analogDirection);
-            */
-        //animator.SetFloat("reverse", currentReverse);
     }
 
-    private void CalculateReverseParameters(
-        Animator animator,
-        Vector2 forwardDir,
-        Vector2 rightDir,
-        Vector2 analogDirection)
+    private void UpdateRotation(bool moving)
     {
-        Vector2 reverseOffset = analogDirection - reverseAnalogDirection;
-        if (reverseOffset.magnitude > 1)
-            reverseOffset.Normalize();
-            
-        if (reverseOffset.magnitude < reverseMargin)
+        if (!moving)
         {
-            animator.SetFloat(
-                "speedReverse",
-                0);
-            animator.SetFloat(
-                "strafeReverse",
-                0);
-            return;
+            Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
+            Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
+
+            if (Matho.AngleBetween(targetRotation, currentRotation) > PlayerMovementManager.RotationStartMin)
+                rotatingModel = true;  
+
+            if (rotatingModel)
+            {
+                Vector3 incrementedRotation =
+                    Vector3.RotateTowards(
+                        currentRotation,
+                        targetRotation,
+                        PlayerAnimationManager.ModelRotSpeedIdle * Time.deltaTime,
+                        0f);
+                Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
+                PlayerInfo.Player.transform.rotation = rotation;
+
+                if (Matho.AngleBetween(targetRotation, currentRotation) < PlayerMovementManager.RotationStopMin)
+                    rotatingModel = false;
+            }
         }
-        
-        float reverseLimiter = Matho.AngleBetween(reverseAnalogDirection, reverseOffset) / 180f;
+        else
+        {
+            rotatingModel = false;
 
-        reverseLimiter -= 0.5f;
-        if (reverseLimiter < 0)
-            reverseLimiter = 0;
-        reverseLimiter *= 2f;
-        reverseLimiter *= reverseAnalogDirection.magnitude;
+            Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
+            Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
 
-        animator.SetFloat(
-            "speedReverse",
-            reverseOffset.x * reverseLimiter);
-        animator.SetFloat(
-            "strafeReverse",
-            reverseOffset.y * reverseLimiter);
+            Vector3 incrementedRotation =
+                Vector3.RotateTowards(
+                    currentRotation,
+                    targetRotation,
+                    PlayerAnimationManager.ModelRotSpeedMoving * Time.deltaTime,
+                    0f);
+            Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
+            PlayerInfo.Player.transform.rotation = rotation;
+        }
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
