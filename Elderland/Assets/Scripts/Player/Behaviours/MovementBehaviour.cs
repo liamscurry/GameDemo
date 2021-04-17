@@ -131,11 +131,61 @@ public class MovementBehaviour : StateMachineBehaviour
             analogDirection.x = 0;
         }
 
+        // Geometry check.
+        float geometryModifier = 1;
+        Vector3 center = PlayerInfo.Player.transform.position;
+        center += Vector3.up * PlayerInfo.Capsule.height / 4f;
+        Vector3 currentDirection3D = 
+            new Vector3(
+                PlayerInfo.MovementManager.CurrentDirection.x,
+                0,
+                PlayerInfo.MovementManager.CurrentDirection.y);
+        //center += currentDirection3D * 0.5f;
+        float sizeSideLength =
+            PlayerInfo.Capsule.radius * 0.75f;
+        Vector3 size = new Vector3(sizeSideLength, PlayerInfo.Capsule.height / 2f, sizeSideLength * 0.25f);
+        Quaternion rotation = Quaternion.LookRotation(currentDirection3D, Vector3.up);
+        RaycastHit obstructionHit;
+        if (Physics.BoxCast(
+            center,
+            size, 
+            currentDirection3D, 
+            out obstructionHit,
+            rotation, 
+            1f,
+            LayerConstants.GroundCollision))
+        {
+            Vector3 projectedNormal =
+                Matho.StandardProjection3D(-obstructionHit.normal);
+            if (projectedNormal.magnitude != 0)
+            {
+                geometryModifier = Matho.AngleBetween(projectedNormal, currentDirection3D) / 180f;
+                geometryModifier *= 4f;
+                if (geometryModifier > 1)
+                    geometryModifier = 1;
+            }
+        }
+
+        analogDirection *= geometryModifier;
+
+        PlayerInfo.MovementManager.PercSpeedObstructedModifier = geometryModifier;
+
+        // Debug geometry check
+        /*
+        Debug.DrawLine(PlayerInfo.Player.transform.position, center, Color.gray, 3f);
+        Debug.DrawLine(center, center + currentDirection3D, Color.gray, 3f);
+        Debug.DrawLine(center, center + Vector3.up * size.y / 2, Color.gray, 3f);
+        Debug.DrawLine(
+            center + Vector3.up * size.y / 2,
+            center + Vector3.up * size.y / 2 + Vector3.Cross(Vector3.up, currentDirection3D) * size.x / 2f,
+            Color.gray,
+            3f);
+        */
+
         positionAnalogDirection =
             Vector2.MoveTowards(positionAnalogDirection, analogDirection, positionAnalogSpeed * Time.deltaTime);
         reverseAnalogDirection =
             Vector2.MoveTowards(reverseAnalogDirection, analogDirection, reverseAnalogSpeed * Time.deltaTime);
-
 
         animator.SetFloat(
             "speed",
@@ -195,6 +245,7 @@ public class MovementBehaviour : StateMachineBehaviour
 	{
         sprinting = false;
         PlayerInfo.StatsManager.Sprinting = false;
+        PlayerInfo.MovementManager.PercSpeedObstructedModifier = 0;
 	}
 
     private void UpdateSprinting(Vector2 analogMovementDirection)

@@ -37,6 +37,7 @@ public class PlayerMovementManager
 
     public float CurrentPercentileSpeed { get; private set; }
     public float PercentileSpeed { get; set; }
+    public float PercSpeedObstructedModifier { get; set; }
     public bool SprintAvailable { get { return sprintAvailable; } }
 
     public Vector2 TargetDirection 
@@ -95,7 +96,10 @@ public class PlayerMovementManager
         else
         {
             PercentileSpeed = 
-                Mathf.MoveTowards(PercentileSpeed, 1, percentileSpeedSpeed * Time.deltaTime);
+                Mathf.MoveTowards(
+                    PercentileSpeed,
+                    1 * PercSpeedObstructedModifier,
+                    percentileSpeedSpeed * Time.deltaTime);
         }
         
         UpdateRotationSpeed();

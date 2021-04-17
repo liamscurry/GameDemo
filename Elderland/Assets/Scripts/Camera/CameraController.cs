@@ -338,7 +338,8 @@ public class CameraController : MonoBehaviour
         float verticalOffset = -0.0009f * Mathf.Pow((Mathf.Sin(sprintTimer * 22 + periodScalerVertical) - 1), 5);
         float horizontalOffset = 0.5f * 0.05f * Mathf.Sin(sprintTimer * 12);
         //Debug.Log(Matho.AngleBetween(PlayerInfo.MovementManager.CurrentDirection, PlayerInfo.MovementManager.TargetDirection));
-        return (verticalOffset * transform.up + horizontalOffset * transform.right) * sprintPercentage * 0.75f;
+        Vector3 result = (verticalOffset * transform.up + horizontalOffset * transform.right) * sprintPercentage * 0.75f;
+        return Vector3.Lerp(Vector3.zero, result, PlayerInfo.MovementManager.PercSpeedObstructedModifier);
     }
 
     private void AdjustOrientation()
@@ -489,7 +490,12 @@ public class CameraController : MonoBehaviour
         Quaternion sprintTilt = Quaternion.Euler(0,0, -3 * sprintOrientation);
         Quaternion shakeTilt = Quaternion.Euler(-currentShake / 2, 0, currentShake / 2);
 
-        Quaternion q = Quaternion.LookRotation(rotationDirection) * sprintTilt * shakeTilt;
+        Quaternion q =
+            Quaternion.LookRotation(rotationDirection) *
+            Quaternion.Lerp(
+                Quaternion.identity,
+                sprintTilt * shakeTilt,
+                PlayerInfo.MovementManager.PercSpeedObstructedModifier);
 
         //Debug.Log(HorizontalAngle);
         return q;
