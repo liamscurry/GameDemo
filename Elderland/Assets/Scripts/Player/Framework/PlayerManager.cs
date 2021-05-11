@@ -203,7 +203,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         if (1 << other.collider.gameObject.layer == LayerConstants.GroundCollision.value)
             PhysicsSystem.HandleOverlapCollisions(PlayerInfo.PhysicsSystem, PlayerInfo.Capsule, transform.position, other);
     }
-    
+
     public void ChangeHealth(float value, bool unblockable = false)
     {
         if (PlayerInfo.AnimationManager.Interuptable && (!PlayerInfo.StatsManager.Blocking || unblockable))

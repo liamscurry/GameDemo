@@ -90,6 +90,7 @@ public static class ResourceConstants
         public static class Art
         {
             public const string Model = "Player/PlayerAnatomyRig";
+            public const string Idle = "Armature|Idle";
             public const string Dodge = "Dodge";
 
             public const string FireballLeftCharge = "FireballLeftCharge";

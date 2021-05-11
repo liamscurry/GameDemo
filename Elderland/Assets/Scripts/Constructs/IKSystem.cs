@@ -69,6 +69,11 @@ public class IKSystem : MonoBehaviour
 
         IKSolver.CalculatePoleSpace(iKPackage);
         IKSolver.TransformIKSolve(iKPackage);
+
+        foreach (IKCopyRotation twistSystem in twistSystems)
+        {
+            twistSystem.InitializeTwist();
+        }
     }
 
     public void UpdateSystem()
