@@ -4,28 +4,19 @@ using UnityEngine;
 using UnityEditor.SceneManagement;
 
 // A helper script that simulates prop movement locally on a character.
+// This can remove clipping that occurs when a prop is a child of a moving mesh.
 public class CharacterProp : MonoBehaviour
 {
-    [SerializeField]
-    private float speed;
-    [SerializeField]
-    private Transform colliderParent;
-    [SerializeField]
-    private Transform[] colliderTransforms;
-    [SerializeField]
-    private Vector3[] colliderTransformsNormal;
-    [SerializeField]
-    private Vector3[] colliderStartPos;
+    public enum Axis { X, Y, Z }
 
-    private const float sampleDuration = 0.125f;
-    private float sampleTimer;
+    // A list of transforms that are not along the arch of the axis the prop is attached to.
+    // Example: a backpack on a character has tilt transforms of the two shoulder bones.
+    // This prop should be a child of a rotating joint bone (ex spine)
+    [SerializeField]
+    private Transform[] tiltTransforms;
+    [SerializeField]
+    private Vector3 tiltDirection;
 
-    private Quaternion lastSample;
-    private Quaternion lastlastSample;
-
-    private Vector3 startEulerAngles;
-    private Quaternion targetRot;
-    private Quaternion currentRot;
     private Quaternion startRot;
 
     [SerializeField]
@@ -34,35 +25,15 @@ public class CharacterProp : MonoBehaviour
 
     private void Start()
     {
-        sampleTimer = 0;
-
-        startEulerAngles = transform.localRotation.eulerAngles;
-        currentRot = Quaternion.identity;
         startRot = transform.localRotation;
-        targetRot = Quaternion.identity;
-        lastSample = transform.parent.rotation;
-        lastlastSample = transform.parent.rotation;
-
         ReadColliderRot();
     }
 
     private void LateUpdate()
     {
-        sampleTimer += Time.deltaTime;
-        if (sampleTimer > sampleDuration)
-        {
-            sampleTimer = 0;
-
-            lastlastSample = lastSample;
-            lastSample = transform.parent.rotation;
-
-            targetRot = lastSample * Quaternion.Inverse(lastlastSample);
-        }
-
+        transform.localRotation = startRot;
         UpdateColliderRot();
-        currentRot = Quaternion.RotateTowards(currentRot, targetRot, speed * Time.deltaTime);
-        transform.localRotation =
-            colliderRot * startRot;//Quaternion.Slerp(currentRot, Quaternion.identity, 0.6f) 
+        transform.rotation = colliderRot * transform.rotation;
     }
 
     /*
@@ -77,12 +48,10 @@ public class CharacterProp : MonoBehaviour
     [ContextMenu("PrintColliderRot")]
     public void PrintColliderRot()
     {
-        foreach (Transform otherCollider in colliderTransforms)
-        {
-            Vector3 offset = otherCollider.transform.position;
-            offset = colliderParent.worldToLocalMatrix.MultiplyPoint(offset);
-            Debug.Log(otherCollider.name + ": " + offset.x + ", " + offset.y + ", " + offset.z);
-        }
+        Vector3 tiltSum = GenerateNetTiltDir();
+        Vector3 localTiltSum =
+            transform.parent.worldToLocalMatrix.MultiplyPoint(tiltSum + transform.parent.position);
+        Debug.Log("Tilt Sum Dir : " + localTiltSum.x +", " + localTiltSum.y + ", " + localTiltSum.z);
     }
 
     /*
@@ -91,94 +60,56 @@ public class CharacterProp : MonoBehaviour
     public void ReadColliderRot()
     {
         colliderRot = Quaternion.identity;
-        /*List<Vector3> startPos = new List<Vector3>();
-        foreach (Transform otherCollider in colliderTransforms)
-        {
-            Vector3 offset = otherCollider.transform.position;
-            offset = colliderParent.worldToLocalMatrix.MultiplyPoint(offset);
-            offset = Vector3.up;
-            //startPos.Add(offset);
-        }
-        startPos.Add(new Vector3(-0.154456f, 0.573054f, -0.05880374f));*/
-        
-        //colliderStartPos = startPos;
     }
 
     /*
-    * Adds a delta rotation based on the directional offset from the transform to this transform
+    * Adds a delta rotation based on the directional offset from each tilt transform to this transform
     * in degrees rotated about this center.
     */
     private void UpdateColliderRot()
     {
         colliderRot = Quaternion.identity;
-        for (int i = 0; i < colliderTransforms.Length; i++)
+        Vector3 tiltSum = GenerateNetTiltDir();
+        colliderRot *= GenerateTilt(tiltSum, tiltDirection, Axis.Z);
+        colliderRot *= GenerateTilt(tiltSum, tiltDirection, Axis.Y);
+    }
+
+    private Vector3 GenerateNetTiltDir()
+    {
+        Vector3 tiltSum = Vector3.zero;
+        for (int i = 1; i < tiltTransforms.Length; i++)
         { 
-            Vector3 startOffset = colliderStartPos[i];
-            startOffset = colliderParent.localToWorldMatrix.MultiplyPoint(startOffset);
-            
-            Vector3 currentOffset =
-                colliderTransforms[i].transform.position;
-            /*
-            Debug.Log("start");
-            Debug.Log(startOffset.x + ", " + startOffset.y + ", " + startOffset.z);
-            Debug.Log(currentOffset.x + ", " + currentOffset.y + ", " + currentOffset.z);
-            */
-
-            Vector3 objectNormal =
-                colliderParent.localToWorldMatrix.MultiplyPoint(colliderTransformsNormal[i]) -
-                colliderParent.transform.position;
-            objectNormal.Normalize();
-
-            Vector3 rotAxis = Vector3.Cross(startOffset - transform.position, objectNormal);
-            rotAxis.Normalize();
-            currentOffset -= transform.position;
-            currentOffset = currentOffset - Matho.Project(currentOffset, rotAxis);
-            float objectCurrentAngle = Matho.AngleBetween(currentOffset, objectNormal);
-            float startCurrentAngle =
-                Matho.AngleBetween(startOffset - colliderParent.transform.position, currentOffset);
-            currentOffset += transform.position;
-
-            float objectStartAngle = 
-                Matho.AngleBetween(
-                    startOffset - colliderParent.transform.position,
-                    objectNormal);
-            
-            /*
-            if (!(objectCurrentAngle < objectStartAngle && startCurrentAngle < objectStartAngle)) 
-            // outside of valid range, clamp
-            {
-                // current clamp incorrect.
-                if (objectCurrentAngle < startCurrentAngle)
-                {
-                    currentOffset = transform.position + objectNormal;
-                }
-                else
-                {
-                    currentOffset = colliderTransforms[i].transform.position;
-                    // this is wrong
-                }
-            }*/
-            Debug.Log("max: " + objectStartAngle);
-            Debug.Log("start to current : " + startCurrentAngle);
-            Debug.Log("back to current : " + objectCurrentAngle);
-
-
-            startOffset = transform.worldToLocalMatrix.MultiplyPoint(startOffset);
-            currentOffset =
-                transform.worldToLocalMatrix.MultiplyPoint(currentOffset);
-            
-            /*if (currentOffset.y > startOffset.y)
-            {
-                currentOffset = startOffset;
-            }
-            
-            else if (startOffset.y < -1 * defaultPoseMargin)
-            {
-                startOffset.y = 
-            }*/
-           
-            Quaternion limitRot = Quaternion.FromToRotation(startOffset, currentOffset);
-            colliderRot *= limitRot;
+            tiltSum += tiltTransforms[i].position - tiltTransforms[0].position;
         }
+        tiltSum *= 1 / (tiltTransforms.Length - 1);
+        return tiltSum;
+    }
+
+    // Generates a rotation about the parent transform only considering one local axis of the parent
+    // of this gameObject's transform.
+    private Quaternion GenerateTilt(Vector3 tiltDirection, Vector3 startTiltDir, Axis axis)
+    {
+        Vector3 yPlaneProjection =
+            transform.parent.worldToLocalMatrix.MultiplyPoint(tiltDirection + transform.parent.position);
+        if (axis == Axis.X)
+            yPlaneProjection.x = 0;
+        if (axis == Axis.Y)
+            yPlaneProjection.y = 0;
+        if (axis == Axis.Z)
+            yPlaneProjection.z = 0;
+        
+        yPlaneProjection = transform.parent.localToWorldMatrix.MultiplyPoint(yPlaneProjection);
+        Vector3 projectedTiltDir = startTiltDir;
+        if (axis == Axis.X)
+            projectedTiltDir.x = 0;
+        if (axis == Axis.Y)
+            projectedTiltDir.y = 0;
+        if (axis == Axis.Z)
+            projectedTiltDir.z = 0;
+        Vector3 worldTiltDirection = transform.parent.localToWorldMatrix.MultiplyPoint(projectedTiltDir);
+        
+        return Quaternion.FromToRotation(
+                worldTiltDirection - transform.parent.position,
+                yPlaneProjection - transform.parent.position);
     }
 }
