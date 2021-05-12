@@ -3,24 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor.SceneManagement;
 
+// Todo: bone transforms from blender do not have their rotations set.
+
 // A helper script that simulates prop movement locally on a character.
 // This can remove clipping that occurs when a prop is a child of a moving mesh.
 public class CharacterProp : MonoBehaviour
 {
-    public enum Axis { X, Y, Z }
+    public enum Axis { X, Y, Z, nX, nY, nZ }
 
     // A list of transforms that are not along the arch of the axis the prop is attached to.
     // Example: a backpack on a character has tilt transforms of the two shoulder bones.
     // This prop should be a child of a rotating joint bone (ex spine)
     [SerializeField]
-    private Transform[] tiltTransforms;
+    private Transform[] barLeftTransforms;
     [SerializeField]
-    private Vector3 tiltDirection;
+    private Transform[] barRightTransforms;
+    [SerializeField]
+    private Transform mountingTransform;
+    [SerializeField]
+    private Transform mountingAboveTransform;
+    [SerializeField]
+    private Transform mountingBelowTransform;
+    [SerializeField]
+    private float mountingDistance;
+    [SerializeField]
+    private float mountingHeight;
+    [SerializeField]
+    private float mountingHorizontal;
 
     private Quaternion startRot;
-
-    [SerializeField]
-    [HideInInspector]
     private Quaternion colliderRot;
 
     private void Start()
@@ -31,9 +42,16 @@ public class CharacterProp : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.localRotation = startRot;
-        UpdateColliderRot();
-        transform.rotation = colliderRot * transform.rotation;
+        Vector3 mountNormal = GenerateMountNormal();
+        Vector3 mountUp = (mountingTransform.position - mountingBelowTransform.position).normalized;
+        Quaternion mountRot =
+            Quaternion.LookRotation(-mountNormal, mountUp);
+        transform.rotation = mountRot;
+        transform.localRotation *= startRot;
+        transform.position = mountingTransform.position;
+        transform.position += mountNormal.normalized * mountingDistance;
+        transform.position += mountUp * mountingHeight;
+        transform.position += Vector3.Cross(mountNormal, mountUp) * -mountingHorizontal;
     }
 
     /*
@@ -49,6 +67,7 @@ public class CharacterProp : MonoBehaviour
     public void PrintColliderRot()
     {
         Vector3 tiltSum = GenerateNetTiltDir();
+        Debug.Log(tiltSum);
         Vector3 localTiltSum =
             transform.parent.worldToLocalMatrix.MultiplyPoint(tiltSum + transform.parent.position);
         Debug.Log("Tilt Sum Dir : " + localTiltSum.x +", " + localTiltSum.y + ", " + localTiltSum.z);
@@ -62,31 +81,45 @@ public class CharacterProp : MonoBehaviour
         colliderRot = Quaternion.identity;
     }
 
-    /*
-    * Adds a delta rotation based on the directional offset from each tilt transform to this transform
-    * in degrees rotated about this center.
-    */
-    private void UpdateColliderRot()
+    private Vector3 GenerateMountNormal()
     {
-        colliderRot = Quaternion.identity;
-        Vector3 tiltSum = GenerateNetTiltDir();
-        colliderRot *= GenerateTilt(tiltSum, tiltDirection, Axis.Z);
-        colliderRot *= GenerateTilt(tiltSum, tiltDirection, Axis.Y);
+        Vector3 mountNormal = Vector3.zero;
+        for (int i = 0; i < barRightTransforms.Length; i++)
+        { 
+            mountNormal +=
+                Vector3.Cross(
+                    (barRightTransforms[i].position - mountingTransform.position).normalized, 
+                    (mountingAboveTransform.position - mountingTransform.position).normalized);
+        }
+        
+        for (int i = 0; i < barLeftTransforms.Length; i++)
+        { 
+            mountNormal +=
+                Vector3.Cross( 
+                    (mountingAboveTransform.position - mountingTransform.position).normalized,
+                    (barLeftTransforms[i].position - mountingTransform.position).normalized);
+        }
+
+        mountNormal *= 1.0f / (barLeftTransforms.Length + barRightTransforms.Length);
+        
+        return mountNormal;
     }
 
+    [System.Obsolete]
     private Vector3 GenerateNetTiltDir()
     {
         Vector3 tiltSum = Vector3.zero;
-        for (int i = 1; i < tiltTransforms.Length; i++)
+        for (int i = 1; i < barRightTransforms.Length; i++)
         { 
-            tiltSum += tiltTransforms[i].position - tiltTransforms[0].position;
+            tiltSum += barRightTransforms[i].position - barRightTransforms[0].position;
         }
-        tiltSum *= 1 / (tiltTransforms.Length - 1);
+        tiltSum *= 1 / (barRightTransforms.Length - 1);
         return tiltSum;
     }
 
     // Generates a rotation about the parent transform only considering one local axis of the parent
     // of this gameObject's transform.
+    [System.Obsolete]
     private Quaternion GenerateTilt(Vector3 tiltDirection, Vector3 startTiltDir, Axis axis)
     {
         Vector3 yPlaneProjection =
