@@ -10,10 +10,15 @@ public class PlayerAnimationManager
 
 	public StateMachineBehaviour AnimationPhysicsBehaviour { get; set; }
 	public StateMachineBehaviour KinematicBehaviour { get; set; }
+	public PlayerAnimationUpper UpperLayer { get; private set; }
 	public bool IgnoreFallingAnimation { get; set; }
 	public bool Interuptable { get; set; }
 
 	private AnimationClip[] playerAnims;
+	private List<KeyValuePair<AnimationClip, AnimationClip>> overrideClips;
+
+	// Anim layers
+	private PlayerAnimationPersistLayer combatLayer;
 
 	private Coroutine directTargetCorou;
 
@@ -24,11 +29,24 @@ public class PlayerAnimationManager
 	{
 		playerAnims = Resources.LoadAll<AnimationClip>(ResourceConstants.Player.Art.Model);
 		matchTargets = new Queue<MatchTarget>();
+		combatLayer = new PlayerAnimationPersistLayer(0.5f, "CombatPersistLayer");
+		UpperLayer = new PlayerAnimationUpper();
 		Interuptable = true;
 	}
 
 	public void UpdateAnimations()
 	{
+		if (Input.GetKeyDown(KeyCode.M))
+		{
+			//combatLayer.TryTurnOn();
+			UpperLayer.RequestAction(GetAnim("Armature|WalkForwardRight"));
+		}
+		if (Input.GetKeyDown(KeyCode.N))
+		{
+			//combatLayer.TryTurnOff();
+			//UpperLayer.RequestAction(GetAnim("Armature|WalkForwardRight"));
+		}
+
         if (!PlayerInfo.Animator.GetBool("falling") &&
 			PlayerInfo.PhysicsSystem.ExitedFloor &&
 			!PlayerInfo.Animator.GetBool("jump") &&
@@ -85,6 +103,32 @@ public class PlayerAnimationManager
 		
 		throw new System.ArgumentException("Animation Key does not exist in player fbx model");
 	}
+
+	/*
+    * Helper function for assigning clips to player animator. Only use when overriding one animation.
+	* POSS: If need to override multiple clips at a time, make a function SetAnims that loops through an array
+	* of names and clips and applies the overrides at the end of them method.
+    */
+    public void SetAnim(AnimationClip newClip, string genericName)
+    {
+        overrideClips =
+            new List<KeyValuePair<AnimationClip, AnimationClip>>(PlayerInfo.Controller.overridesCount);
+        PlayerInfo.Controller.GetOverrides(overrideClips);
+        
+		int index =
+			overrideClips.FindIndex(
+				clip => clip.Key.name == genericName);
+
+		if (index != -1)
+		{
+			overrideClips[index] =
+				new KeyValuePair<AnimationClip, AnimationClip>(
+					overrideClips[index].Key, newClip);
+		}
+     
+        if (overrideClips.Count != 0)
+            PlayerInfo.Controller.ApplyOverrides(overrideClips);
+    }
 
 	public void EnqueueTarget(MatchTarget target)
 	{

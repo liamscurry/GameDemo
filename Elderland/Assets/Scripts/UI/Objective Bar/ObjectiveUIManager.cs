@@ -45,7 +45,8 @@ public class ObjectiveUIManager : MonoBehaviour
     {
         waypointsEnabledSetter = setter;
         waypointsEnabled = false;
-        objectiveWaypoints.gameObject.SetActive(false);
+        if (objectiveWaypoints != null)
+            objectiveWaypoints.gameObject.SetActive(false);
     }
 
     public void EnableWaypoints(object setter)
@@ -54,7 +55,8 @@ public class ObjectiveUIManager : MonoBehaviour
         {
             waypointsEnabledSetter = null;
             waypointsEnabled = true;
-            objectiveWaypoints.gameObject.SetActive(true);
+            if (objectiveWaypoints != null)
+                objectiveWaypoints.gameObject.SetActive(true);
         }
     }
 
