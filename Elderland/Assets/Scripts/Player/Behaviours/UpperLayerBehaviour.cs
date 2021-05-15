@@ -39,5 +39,6 @@ public class UpperLayerBehaviour : StateMachineBehaviour
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
         PlayerInfo.Animator.SetLayerWeight(layerIndex, 0);
+        PlayerInfo.AnimationManager.Interuptable = true;
 	}
 }

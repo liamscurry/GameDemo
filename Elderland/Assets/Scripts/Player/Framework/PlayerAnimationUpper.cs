@@ -26,6 +26,7 @@ public class PlayerAnimationUpper
             PlayerInfo.AbilityManager.CurrentAbility == null && 
             PlayerInfo.AnimationManager.Interuptable)
         {
+            PlayerInfo.AnimationManager.Interuptable = false;
             PlayerInfo.AnimationManager.SetAnim(actionClip, AnimationConstants.Player.GenericUpperAction);
             PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.UpperAction);
             return true;

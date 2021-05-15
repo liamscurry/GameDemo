@@ -81,7 +81,8 @@ public class PlayerAnimationManager
 			 	(Input.GetKeyDown(GameInfo.Settings.UseKey) ||
 				 PlayerInfo.Sensor.Interaction.Access == StandardInteraction.AccessType.Trigger) &&
 				PlayerInfo.AbilityManager.CurrentAbility == null &&
-				!PlayerInfo.TeleportingThisFrame)
+				!PlayerInfo.TeleportingThisFrame && 
+				Interuptable)
 			{
 				PlayerInfo.Sensor.Interaction.Exit();
 			}
