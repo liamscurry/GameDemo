@@ -38,13 +38,11 @@ public class PlayerAnimationManager
 	{
 		if (Input.GetKeyDown(KeyCode.M))
 		{
-			//combatLayer.TryTurnOn();
-			UpperLayer.RequestAction(GetAnim("Armature|WalkForwardRight"));
+			TryToCombatStance();
 		}
-		if (Input.GetKeyDown(KeyCode.N))
+		else if (Input.GetKeyDown(KeyCode.N))
 		{
-			//combatLayer.TryTurnOff();
-			//UpperLayer.RequestAction(GetAnim("Armature|WalkForwardRight"));
+			TryAwayCombatStance();
 		}
 
         if (!PlayerInfo.Animator.GetBool("falling") &&
@@ -89,6 +87,36 @@ public class PlayerAnimationManager
 		}
 
 		PlayerInfo.TeleportingThisFrame = false;
+	}
+
+	/*
+	* The following two methods are helper methods for combat layer that transitions from and to
+	* the combat layers when fighting enemies. This is needed to pull out the sword and put it away.
+	*/
+	public bool TryToCombatStance()
+	{
+		if (combatLayer.TryTurnOn())
+		{
+			UpperLayer.RequestAction(GetAnim("TakeOutSword"));
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public bool TryAwayCombatStance()
+	{
+		if (combatLayer.TryTurnOff())
+		{
+			UpperLayer.RequestAction(GetAnim("PutAwaySword"));
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	/*
