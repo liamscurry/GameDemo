@@ -13,11 +13,6 @@ public class IKCopyRotation : MonoBehaviour
 {
     private enum CopyType { Forward, Up, Right }
 
-    [SerializeField]
-    private GameObject target;
-    // The next bone in the chain under the target bone.
-    [SerializeField]
-    private GameObject targetChild;
     // Bone used to make sure rotations don't converge to one value.
     // This is the bone that follows the target bone.
     // Should be an empty transform that is a sibling of this gameObject.
@@ -65,11 +60,11 @@ public class IKCopyRotation : MonoBehaviour
             switch(copyType)
             {
                 case CopyType.Forward:
-                    return target.transform.forward;
+                    return twistBones[twistBones.Length - 2].transform.forward;
                 case CopyType.Up:
-                    return target.transform.up;
+                    return twistBones[twistBones.Length - 2].transform.up;
                 case CopyType.Right:
-                    return target.transform.right;
+                    return twistBones[twistBones.Length - 2].transform.right;
                 default:
                     throw new System.Exception("Must set copy type to forward, up or right.");
             }
@@ -84,7 +79,7 @@ public class IKCopyRotation : MonoBehaviour
     public void UpdateTwist()
     {
         Track();
-        Rotate();
+        //Rotate();
     }
 
     // Tested initially, passed.
@@ -122,7 +117,7 @@ public class IKCopyRotation : MonoBehaviour
 
     private void Rotate()
     {
-        Quaternion targetR = target.transform.rotation;
+        Quaternion targetR = twistBones[twistBones.Length - 2].transform.rotation;
         float percentageUsed = 0;
 
         for (int i = 0; i < twistPercentages.Length; i++)
@@ -130,7 +125,7 @@ public class IKCopyRotation : MonoBehaviour
             if (i == twistPercentages.Length - 1)
             {
                 // last bone
-                twistBones[i].transform.rotation = targetR;
+                //twistBones[i].transform.rotation = targetR;
             }
             else
             {
