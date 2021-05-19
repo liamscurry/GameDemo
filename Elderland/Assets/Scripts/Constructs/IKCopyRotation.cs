@@ -22,10 +22,11 @@ public class IKCopyRotation : MonoBehaviour
     [SerializeField]
     private GameObject fromBone;
     // Twist bones this object is attached to a linear transform hierarchy
-    // including the end transform.
+    // including the end transform (such as the hand or foot).
     [SerializeField]
     private GameObject[] twistBones; 
-    // Higher weights means more twist at that bone.
+    // Higher weights means more twist at that bone (includes the second to last bone. So if there
+    // are three bones, there are two weights).
     [SerializeField]
     private float[] weights; 
     [SerializeField]
