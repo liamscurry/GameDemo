@@ -20,14 +20,14 @@
 #include "Assets/Shaders/HelperCgincFiles/LODHelper.cginc"
 #include "Assets/Shaders/HelperCgincFiles/CharacterEffectsHelper.cginc"
 
-struct appdata
+struct customInput
 {
     float4 vertex : POSITION;
     float2 uv : TEXCOORD0;
     float4 color : COLOR;
 };
 
-struct v2f
+struct customV2F
 {
     float2 uv : TEXCOORD0;
     //float4 _ShadowCoord : TEXCOORD1;
@@ -40,11 +40,12 @@ struct v2f
     DECLARE_TANGENT_SPACE(6, 7, 8)
     float4 objectPos : TEXCOORD9;
     float3 worldView : TEXCOORD10;
+    float3 worldNormal : TEXCOORD11;
 };
 
-v2f vert (appdata v, float3 normal : NORMAL, float4 tangent : TANGENT)
+customV2F vert (customInput v, float3 normal : NORMAL, float4 tangent : TANGENT)
 {
-    v2f o;
+    customV2F o;
     o.pos = UnityObjectToClipPos(v.vertex);
     o.screenPos = ComputeScreenPos(o.pos);
     TRANSFER_SHADOW(o)
@@ -57,6 +58,7 @@ v2f vert (appdata v, float3 normal : NORMAL, float4 tangent : TANGENT)
     
     o.objectPos = GenerateWorldOffset(v.vertex);
     o.worldView = WorldSpaceViewDir(v.vertex);
+    o.worldNormal = UnityObjectToWorldNormal(normal);
     return o;
 }
 
@@ -73,7 +75,7 @@ float _WarmColorStrength;
 
 float _WorldMaxHeight;
 
-fixed4 semiFlatFrag(v2f i, fixed facingCamera : VFACE) : SV_Target
+fixed4 semiFlatFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
 {
     // Normal mapping
     half3 tangentNormal = UnpackNormal(tex2D(_BumpMap, i.uv));

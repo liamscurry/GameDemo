@@ -44,6 +44,7 @@
         float3 normal : TEXCOORD5;
         float4 objectPos : TEXCOORD6;
         float2 uv : TEXCOORD7;
+        float3 worldView : TEXCOORD8;
     };
 
     v2f vert (appdata_full v)
@@ -56,6 +57,7 @@
         o.normal = UnityObjectToWorldNormal(v.normal);
         o.objectPos = GenerateWorldOffset(v.vertex);
         o.uv = v.texcoord;
+        o.worldView = WorldSpaceViewDir(v.vertex);
         return o;
     }
 

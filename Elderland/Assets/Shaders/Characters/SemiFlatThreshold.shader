@@ -50,11 +50,13 @@
             float _CutoutThreshold;
 
             #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderShadowCaster.cginc"
-            fixed4 frag(v2f i) : SV_Target
+            #include "../HelperCgincFiles/SemiFlatThresholdHelper.cginc"
+            fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
-                float cutoutColor = tex2D(_CutoutTexture, i.uv).r;
-                float clipped = cutoutColor - _CutoutThreshold;
+                float clipped =
+                    SFFresnelThreshold(i.screenPos, i.worldView, i.worldNormal, i.uv, facingCamera);
                 clip(clipped);
+
                 return semiFlatFrag(i);
             }
             ENDCG
@@ -84,28 +86,12 @@
             float _CutoutThreshold;
 
             #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderBase.cginc"
-            #include "../HelperCgincFiles/MathHelper.cginc"
-            fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
+            #include "../HelperCgincFiles/SemiFlatThresholdHelper.cginc"
+            fixed4 frag(customV2F i, fixed facingCamera : VFACE) : SV_Target
             {
-                float cutoutColor = tex2D(_CutoutTexture, i.uv).r;
-                float scaledClipThreshold = _CutoutThreshold;
-                float clipped = cutoutColor - scaledClipThreshold;
+                float clipped =
+                    SFFresnelThreshold(i.screenPos, i.worldView, i.worldNormal, i.uv, facingCamera);
                 clip(clipped);
-
-                float2 screenPosPercentage = i.screenPos.xy / i.screenPos.w;
-
-                float fresnel = 
-                    AngleBetween(i.worldView, i.worldNormal) / (PI / 2);
-                float alteredFresnel = 
-                    pow(fresnel, 1);
-                if (alteredFresnel < 0.5)
-                {
-                    alteredFresnel = 0;
-                }
-                else
-                {
-                    alteredFresnel = (alteredFresnel - 0.5) / 0.5;
-                }
 
                 return semiFlatFrag(i, facingCamera);
             }
@@ -135,11 +121,13 @@
             float _CutoutThreshold;
 
             #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderAdditive.cginc"
+            #include "../HelperCgincFiles/SemiFlatThresholdHelper.cginc"
             fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
             {
-                float cutoutColor = tex2D(_CutoutTexture, i.uv).r;
-                float clipped = cutoutColor - _CutoutThreshold;
+                float clipped =
+                    SFFresnelThreshold(i.screenPos, i.worldView, i.normal, i.uv, facingCamera);
                 clip(clipped);
+
                 return lightHelperFrag(i, facingCamera);
             }
             ENDCG
