@@ -35,9 +35,15 @@ public class PlayerAnimEventConnector : MonoBehaviour
         meleeWeapon.transform.parent = meleeHand.transform;
         meleeWeapon.transform.localRotation = Quaternion.identity * Quaternion.Euler(0, 180f, 90);
         meleeWeapon.GetComponent<CharacterProp>().enabled = false;
+        meleeWeapon.GetComponent<Animator>().Play("Fade In");
     }
 
-    public void PutAwayMelee()
+    public void FadeOutMelee()
+    {
+        meleeWeapon.GetComponent<Animator>().Play("Fade Out");
+    }
+
+    public void DisableMelee()
     {
         meleeWeapon.transform.parent = meleeWeaponStartParent;
         meleeWeapon.GetComponent<CharacterProp>().enabled = true;

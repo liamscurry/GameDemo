@@ -223,6 +223,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Skin
     second: {fileID: 2100000, guid: 27c263cf4cb394f479743bff9aebef67, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Sword
+    second: {fileID: 2100000, guid: 1b6932314a7852d45bc56814922c3c95, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0
@@ -1125,7 +1130,7 @@ ModelImporter:
       takeName: Armature|LightSword2Mirror
       internalID: 0
       firstFrame: 0
-      lastFrame: 6
+      lastFrame: 7
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1153,8 +1158,8 @@ ModelImporter:
       name: LightSword2MirrorAct
       takeName: Armature|LightSword2Mirror
       internalID: 0
-      firstFrame: 6
-      lastFrame: 19
+      firstFrame: 7
+      lastFrame: 33
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1667,7 +1672,7 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.49557528
+      - time: 0.29493833
         functionName: GraspMelee
         data: 
         objectReferenceParameter: {instanceID: 0}
@@ -1732,8 +1737,15 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.4985251
-        functionName: PutAwayMelee
+      - time: 0.28514937
+        functionName: FadeOutMelee
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.4745066
+        functionName: DisableMelee
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0

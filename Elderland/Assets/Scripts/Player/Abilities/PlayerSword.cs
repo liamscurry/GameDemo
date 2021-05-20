@@ -555,7 +555,7 @@ public sealed class PlayerSword : PlayerAbility
             verticalSign *= -1;
 
         flipSign = 0;
-        rotationSign = 1;
+        rotationSign = 0.5f;
         verticalSign = 1;
 
         // Animation Sync
@@ -633,7 +633,7 @@ public sealed class PlayerSword : PlayerAbility
             Quaternion.Euler(
                 180 * flipSign,
                 180 * flipSign,
-                45 * verticalSign * rotationSign);
+                45 * verticalSign * (rotationSign - 0.5f) * 2);
         hitboxParticles.transform.rotation = normalRotation * horizontalRotation * tiltRotation;
         hitboxParticles.transform.localScale = Vector3.one;
         hitboxParticlesColors.color = hitboxParticlesNormalGradient;
