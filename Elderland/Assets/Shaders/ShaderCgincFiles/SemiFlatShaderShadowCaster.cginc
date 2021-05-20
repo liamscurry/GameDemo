@@ -25,7 +25,6 @@ struct v2f
 sampler2D _MainTex;
 float _CrossFade;
 float _Threshold;
-sampler2D _CutoutTex;
 
 float _WorldMaxHeight;
 
@@ -41,12 +40,9 @@ v2f vert (appdata v)
     return o;
 }
 
-fixed4 frag (v2f i) : SV_Target
+fixed4 semiFlatFrag (v2f i) : SV_Target
 {
     ApplyDither(i.screenPos, _CrossFade);
     ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
-
     SHADOW_CASTER_FRAGMENT(i)
-    //return 0;
 }
-//ENDCG

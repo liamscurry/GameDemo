@@ -381,7 +381,7 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
             float _ApplyLight;
 
             #pragma vertex vert
-            #pragma fragment frag
+            #pragma fragment lightHelperFrag
             #pragma multi_compile_fwdadd_fullshadows
             #pragma multi_compile_shadowcaster
             #include "/HelperCgincFiles/LightHelper.cginc"

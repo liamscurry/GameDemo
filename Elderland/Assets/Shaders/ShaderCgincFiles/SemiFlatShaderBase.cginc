@@ -39,6 +39,7 @@ struct v2f
     float4 screenPos : TEXCOORD5;
     DECLARE_TANGENT_SPACE(6, 7, 8)
     float4 objectPos : TEXCOORD9;
+    float3 worldView : TEXCOORD10;
 };
 
 v2f vert (appdata v, float3 normal : NORMAL, float4 tangent : TANGENT)
@@ -55,7 +56,7 @@ v2f vert (appdata v, float3 normal : NORMAL, float4 tangent : TANGENT)
     ComputeTangentSpace(normal, tangent, o.tanX1, o.tanX2, o.tanX3);
     
     o.objectPos = GenerateWorldOffset(v.vertex);
-
+    o.worldView = WorldSpaceViewDir(v.vertex);
     return o;
 }
 
@@ -64,7 +65,6 @@ sampler2D _MainTex;
 sampler2D _BumpMap;
 float _BumpMapIntensity;
 
-sampler2D _CutoutTex;
 float _Threshold;
 
 float _CrossFade;
@@ -73,7 +73,7 @@ float _WarmColorStrength;
 
 float _WorldMaxHeight;
 
-fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
+fixed4 semiFlatFrag(v2f i, fixed facingCamera : VFACE) : SV_Target
 {
     // Normal mapping
     half3 tangentNormal = UnpackNormal(tex2D(_BumpMap, i.uv));
@@ -87,11 +87,6 @@ fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
     float4 textureColor = tex2D(_MainTex, i.uv);
     if (textureColor.a < _Threshold)
         clip(textureColor.a - _Threshold);
-
-    //Remove later? Not used?
-    float4 cutoutColor = tex2D(_CutoutTex, i.uv);
-    float underThreshold = _Threshold > cutoutColor;
-    clip(-underThreshold);
     
     ApplyDither(i.screenPos, _CrossFade);
 
@@ -108,10 +103,6 @@ fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
     float fadeValue = CompositeShadeFade(inShadow, fadeDistance);
 
     float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
-    STANDARD_FOG(shadedColor, worldNormal);
 
-    //STANDARD_FOG_TEMPERATURE(fadedShadowColor * (1 - shadeFade) + lightColor * shadeFade, _WarmColorStrength);
-    //inShadow = (1 - fadeValue) * inShadow + (fadeValue) * 1;
-    //STANDARD_SHADOWSIDE_FOG_TEMPERATURE(localShadowColor * _ShadowStrength + localColor * (1 - _ShadowStrength), _WarmColorStrength);
+    STANDARD_FOG(shadedColor, worldNormal);
 }
-//ENDCG

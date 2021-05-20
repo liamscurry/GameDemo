@@ -43,6 +43,7 @@
         float4 screenPos : TEXCOORD4;
         float3 normal : TEXCOORD5;
         float4 objectPos : TEXCOORD6;
+        float2 uv : TEXCOORD7;
     };
 
     v2f vert (appdata_full v)
@@ -54,13 +55,14 @@
         o.worldPos = mul(unity_ObjectToWorld, v.vertex);
         o.normal = UnityObjectToWorldNormal(v.normal);
         o.objectPos = GenerateWorldOffset(v.vertex);
+        o.uv = v.texcoord;
         return o;
     }
 
     float _CrossFade;
     float _WorldMaxHeight;
 
-    fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
+    fixed4 lightHelperFrag(v2f i, fixed facingCamera : VFACE) : SV_Target
     {
         // Learned in AutoLight.cginc
         // Shadow Fade

@@ -5,7 +5,6 @@
         _MainTex ("Texture", 2D) = "white" {}
         _BumpMap ("BumpMap", 2D) = "white" {}
         _BumpMapIntensity ("BumpMapIntensity", Range(0, 1)) = 0
-        _CutoutTex ("CutoutTex", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _CrossFade ("CrossFade", float) = 0
@@ -50,7 +49,7 @@
 
             CGPROGRAM
             #pragma vertex vert
-            #pragma fragment frag
+            #pragma fragment semiFlatFrag
             #pragma multi_compile_shadowcaster
             
             #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderShadowCaster.cginc"
@@ -68,7 +67,7 @@
 
             CGPROGRAM
             #pragma vertex vert
-            #pragma fragment frag
+            #pragma fragment semiFlatFrag
             #pragma multi_compile_fwdbase
 
             #pragma multi_compile_local __ _ALPHATEST_ON
@@ -94,9 +93,8 @@
             ZTest LEqual
             
             CGPROGRAM
-
             #pragma vertex vert
-            #pragma fragment frag
+            #pragma fragment lightHelperFrag
             #pragma multi_compile_fwdadd_fullshadows
             #pragma multi_compile_shadowcaster
 
@@ -179,7 +177,6 @@
             float4 _EndFogColor;
             float _HighlightStrength;
             sampler2D _BumpMap;
-            sampler2D _CutoutTex;
             float _WarmColorStrength;
 
             // Glitch properties

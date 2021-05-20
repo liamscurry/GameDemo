@@ -11,6 +11,8 @@ public class PlayerAnimEventConnector : MonoBehaviour
     private GameObject meleeWeapon;
     [SerializeField]
     private GameObject meleeHand;
+    [SerializeField]
+    private Vector3 meleeHandOffset;
 
     private Transform meleeWeaponStartParent;
     private Vector3 startLocalMeleePos;
@@ -25,7 +27,13 @@ public class PlayerAnimEventConnector : MonoBehaviour
 
     public void GraspMelee()
     {
+        meleeWeapon.transform.position =
+            meleeHand.transform.position + 
+            meleeHand.transform.up * meleeHandOffset.y +
+            meleeHand.transform.forward * meleeHandOffset.z +
+            meleeHand.transform.right * meleeHandOffset.x;
         meleeWeapon.transform.parent = meleeHand.transform;
+        meleeWeapon.transform.localRotation = Quaternion.identity * Quaternion.Euler(0, 180f, 90);
         meleeWeapon.GetComponent<CharacterProp>().enabled = false;
     }
 
