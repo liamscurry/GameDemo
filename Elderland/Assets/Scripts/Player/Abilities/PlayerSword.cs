@@ -505,7 +505,8 @@ public sealed class PlayerSword : PlayerAbility
     {
         //print("act begin called");
         hitboxParticles.transform.position =
-            PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
+            PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f +
+            PlayerInfo.Player.transform.up * 0.125f;
 
         //hitboxParticles.transform.localScale = new Vector3(flipSign, 1, 1);
         UseRanDirection();
@@ -554,9 +555,9 @@ public sealed class PlayerSword : PlayerAbility
         if (flipSign == 0) 
             verticalSign *= -1;
 
-        flipSign = 1;
-        rotationSign = 1f;
-        verticalSign = -1;
+        flipSign = 0;
+        rotationSign = 0.5f;
+        verticalSign = 1;
 
         // Animation Sync
         if (flipSign == 1)
@@ -629,11 +630,12 @@ public sealed class PlayerSword : PlayerAbility
         Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
         hitbox.transform.rotation = normalRotation * horizontalRotation;
 
+        float tiltRot = (rotationSign < 0.75f) ? 0.125f : 1f;
         Quaternion tiltRotation =
             Quaternion.Euler(
                 180 * flipSign,
                 180 * flipSign,
-                45 * verticalSign * (rotationSign - 0.5f) * 2);
+                45 * verticalSign * tiltRot);
         hitboxParticles.transform.rotation = normalRotation * horizontalRotation * tiltRotation;
         hitboxParticles.transform.localScale = Vector3.one;
         hitboxParticlesColors.color = hitboxParticlesNormalGradient;
@@ -641,7 +643,8 @@ public sealed class PlayerSword : PlayerAbility
 
     public void DuringAct()
     {
-        hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
+        hitbox.gameObject.transform.position =
+            PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;
     
         hitboxTimer += Time.deltaTime;
 
