@@ -555,9 +555,9 @@ public sealed class PlayerSword : PlayerAbility
         if (flipSign == 0) 
             verticalSign *= -1;
 
-        flipSign = 0;
-        rotationSign = 0.5f;
-        verticalSign = 1;
+        //flipSign = 1;
+        //rotationSign = 1f;
+        //verticalSign = 1;
 
         // Animation Sync
         if (flipSign == 1)
