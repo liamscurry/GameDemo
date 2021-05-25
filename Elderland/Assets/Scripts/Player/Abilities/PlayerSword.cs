@@ -83,7 +83,7 @@ public sealed class PlayerSword : PlayerAbility
     private int verticalSign;
 
     private float hitboxTimer;
-    private const float hitboxDelay = 0.25f;
+    private const float hitboxDelay = 0.05f;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -146,7 +146,7 @@ public sealed class PlayerSword : PlayerAbility
         act = new AbilitySegment(null, actProcess);
         segments = new AbilitySegmentList();
         segments.AddSegment(charge);
-        segments.AddSegment(hold);
+        //segments.AddSegment(hold);
         segments.AddSegment(act);
         segments.NormalizeSegments();
 
@@ -273,8 +273,8 @@ public sealed class PlayerSword : PlayerAbility
         playerPlanarDirection = Matho.PlanarDirectionalDerivative(playerDirection, PlayerInfo.PhysicsSystem.Normal).normalized;
 
         //Scan for enemies
-        Vector3 center = 3f * playerPlanarDirection;
-        Vector3 size = new Vector3(6f, 2, 4);
+        Vector3 center = 2f * playerPlanarDirection;
+        Vector3 size = new Vector3(2.25f, 2, 2);
         Quaternion rotation = Quaternion.FromToRotation(Vector3.right, playerPlanarDirection);
         Collider[] hitboxColliders = Physics.OverlapBox(PlayerInfo.Player.transform.position + center, size / 2, rotation, LayerConstants.Hitbox);
 
@@ -528,32 +528,23 @@ public sealed class PlayerSword : PlayerAbility
 
         Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
 
-        //float verticalRandom = Random.value;
-        //verticalSign = (verticalRandom > 0.5) ? 1 : -1;
+        float verticalRandom = Random.value;
+        verticalSign = (verticalRandom > 0.5) ? 1 : -1;
 
         float rotationRandom = Random.value;
         rotationSign = (rotationRandom > 0.5) ? 0.5f : 1;
 
         //float flipRandom = Random.value;
         //flipSign = (flipRandom > 0.5) ? 1 : 0;
-        flipSign = (flipSign == 1) ? 0 : 1;
-
-        // X Input
-        if (keyUsed == GameInfo.Settings.MeleeAbilityKey)
+        //flipSign = (flipSign == 1) ? 0 : 1;
+        if (flipSign == 1)
         {
-            verticalSign = (flipSign == 0) ? 1 : -1;
-            if (flipSign == 0)
-                rotationSign = 1;
+            flipSign = 0;
         }
         else
         {
-            verticalSign = (flipSign == 0) ? -1 : 1;
-            if (flipSign == 1)
-                rotationSign = 1;
+            flipSign = 1;
         }
-
-        if (flipSign == 0) 
-            verticalSign *= -1;
 
         //flipSign = 1;
         //rotationSign = 1f;
@@ -697,12 +688,12 @@ public sealed class PlayerSword : PlayerAbility
         Gizmos.matrix = customMatrix;
 
         Gizmos.color = Color.green;
-        //Gizmos.DrawCube(Vector3.zero, scanSize);
+        Gizmos.DrawCube(Vector3.zero, scanSize);
 
         Gizmos.matrix = Matrix4x4.identity;
 
         //target
-        Gizmos.color = Color.green;
+        //Gizmos.color = Color.green;
         //Gizmos.DrawCube(targetPosition, Vector3.one);
     }
 
