@@ -8,10 +8,11 @@ public sealed class PlayerDodge : PlayerAbility
 {
     //Fields
     private Vector2 direction;
-    private float speed = 7f;
+    private float speed = 4f;
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
+    private AbilityProcess slideProcess;
 
     private float swordSpeedModifier;
 
@@ -20,7 +21,8 @@ public sealed class PlayerDodge : PlayerAbility
         this.system = abilityManager;
 
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.82f);
-        act = new AbilitySegment(null, actProcess);
+        slideProcess = new AbilityProcess(null, DuringSlide, null, 1 - 0.82f);
+        act = new AbilitySegment(null, actProcess, slideProcess);
         act.Type = AbilitySegmentType.Physics;
 
         segments = new AbilitySegmentList();
@@ -68,6 +70,7 @@ public sealed class PlayerDodge : PlayerAbility
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;
         system.Movement.ExitEnabled = false;
+        PlayerInfo.AnimationManager.Interuptable = false;
     }
 
     private void DuringAct()
@@ -85,12 +88,25 @@ public sealed class PlayerDodge : PlayerAbility
         }  
     }
 
+    private void DuringSlide()
+    {
+        if (system.Physics.TouchingFloor)
+        {
+            float compositeSpeed = 
+                speed * (1 / abilitySpeed) * PlayerInfo.StatsManager.MovespeedMultiplier.Value * 0.5f;
+            actVelocity = system.Movement.Move(direction, compositeSpeed, false);
+        } 
+    }
+
     private void ActEnd()
     {  
-        PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
+        PlayerInfo.MovementManager.TargetDirection = direction;
+        PlayerInfo.MovementManager.SnapDirection();
+        PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude;
         PlayerInfo.MovementManager.SnapSpeed();
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
         system.Movement.ExitEnabled = true;
+        PlayerInfo.AnimationManager.Interuptable = true;
     }
 
     public override bool OnHit(GameObject character)

@@ -22,6 +22,13 @@ public class PlayerAbilityManager : AbilitySystem
     private Transform cooldownOriginTransform;
     private float cooldownHeightDelta;
 
+    private bool inCombatStance;
+    private bool inCombatTransition;
+    private float combatTimer;
+    private const float combatDuration = 1.5f;
+    private float notUsedTimer;
+    private const float notUsedDuration = 4f;
+
     //Ability Properties
     public PlayerAbility Melee { get { return melee; } }
     public PlayerAbility Dodge { get { return dodge; } }
@@ -75,6 +82,7 @@ public class PlayerAbilityManager : AbilitySystem
         #endif
         
         AbilitiesAvailable = true;
+        inCombatStance = false;
         //Stamina = 0;
     }
 
@@ -118,27 +126,66 @@ public class PlayerAbilityManager : AbilitySystem
         if (finisherInput)
             weaponHeldDown = finisher;
 
-        if (ranged != null)
-            ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
+        if (!inCombatStance)
+        {
+            if (!inCombatTransition && 
+                (weaponHeldDown != null || GameInfo.Manager.InCombat))
+            {
+                PlayerInfo.AnimationManager.TryToCombatStance(OnCombatStanceOn);
+                inCombatTransition = true;
+            }
+        }
+        else
+        {
+            if (ranged != null)
+                ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
 
-        if (aoe != null)
-            aoe.UpdateAbility(aoe == weaponHeldDown, aoeInput);
+            if (aoe != null)
+                aoe.UpdateAbility(aoe == weaponHeldDown, aoeInput);
 
-        if (melee != null)
-            melee.UpdateAbility(melee == weaponHeldDown, meleeInput);
+            if (melee != null)
+                melee.UpdateAbility(melee == weaponHeldDown, meleeInput);
 
-        if (dash != null)
-            dash.UpdateAbility(dash == weaponHeldDown, dashInput);
+            if (dash != null)
+                dash.UpdateAbility(dash == weaponHeldDown, dashInput);
 
-        if (dodge != null)
-            dodge.UpdateAbility(dodge == weaponHeldDown, dodgeInput);
+            if (dodge != null)
+                dodge.UpdateAbility(dodge == weaponHeldDown, dodgeInput);
 
-        if (block != null)
-            block.UpdateAbility(block == weaponHeldDown, blockInput);
-        
-        if (finisher != null)
-            finisher.UpdateAbility(finisher == weaponHeldDown, finisherInput);
+            if (block != null)
+                block.UpdateAbility(block == weaponHeldDown, blockInput);
+            
+            if (finisher != null)
+                finisher.UpdateAbility(finisher == weaponHeldDown, finisherInput);
+            
+            if (currentAbility == null && !GameInfo.Manager.InCombat)
+            {
+                notUsedTimer += Time.deltaTime;
+                if (notUsedTimer > notUsedDuration)
+                {
+                    inCombatStance = false;
+                    inCombatTransition = true;
+                    PlayerInfo.AnimationManager.TryAwayCombatStance(OnCombatStanceOff);
+                }
+            }
+            else
+            {
+                notUsedTimer = 0;
+            }
+        }
 	}
+
+    public void OnCombatStanceOn()
+    {
+        inCombatStance = true;
+        inCombatTransition = false;
+        notUsedTimer = 0;
+    }
+
+    public void OnCombatStanceOff()
+    {
+        inCombatTransition = false;
+    }
 
     public override bool Ready()
     {

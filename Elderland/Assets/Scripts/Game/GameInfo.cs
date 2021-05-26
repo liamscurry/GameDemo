@@ -22,7 +22,6 @@ public static class GameInfo
     public static bool Panning { get; set; }
     public static bool Paused { get; set; }
 
-
     //Initializes references, called from GameInitializer.
     public static void Initialize(
         GameObject menuManager,

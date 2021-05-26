@@ -40,5 +40,7 @@ public class UpperLayerBehaviour : StateMachineBehaviour
 	{
         PlayerInfo.Animator.SetLayerWeight(layerIndex, 0);
         PlayerInfo.AnimationManager.Interuptable = true;
+        if (PlayerInfo.AnimationManager.UpperLayer.OnEnd != null)
+            PlayerInfo.AnimationManager.UpperLayer.OnEnd();
 	}
 }

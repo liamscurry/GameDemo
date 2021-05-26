@@ -10,6 +10,8 @@ public class PlayerAnimationUpper
     // Fields
     private int layerIndex;
 
+    public Action OnEnd { get; private set; }
+
     public PlayerAnimationUpper()
     {
         layerIndex = PlayerInfo.Animator.GetLayerIndex("UpperAction");
@@ -21,7 +23,7 @@ public class PlayerAnimationUpper
     * Returns true.
     * If not, returns false.
     */
-    public bool RequestAction(AnimationClip actionClip)
+    public bool RequestAction(AnimationClip actionClip, Action onEnd)
     {
         if (GameInfo.CameraController.CameraState == CameraController.State.Gameplay &&
             PlayerInfo.AbilityManager.CurrentAbility == null && 
@@ -30,6 +32,7 @@ public class PlayerAnimationUpper
             PlayerInfo.AnimationManager.Interuptable = false;
             PlayerInfo.AnimationManager.SetAnim(actionClip, AnimationConstants.Player.GenericUpperAction);
             PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.UpperAction);
+            OnEnd = onEnd;
             return true;
         }
         else

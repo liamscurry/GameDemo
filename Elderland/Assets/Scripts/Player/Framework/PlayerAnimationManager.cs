@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 //Implement a queue based match target that is consumed by the target match behaviour (1 dequeue per state). 
 
@@ -36,15 +37,6 @@ public class PlayerAnimationManager
 
 	public void UpdateAnimations()
 	{
-		if (Input.GetKeyDown(KeyCode.M))
-		{
-			TryToCombatStance();
-		}
-		else if (Input.GetKeyDown(KeyCode.N))
-		{
-			TryAwayCombatStance();
-		}
-
         if (!PlayerInfo.Animator.GetBool("falling") &&
 			PlayerInfo.PhysicsSystem.ExitedFloor &&
 			!PlayerInfo.Animator.GetBool("jump") &&
@@ -93,11 +85,11 @@ public class PlayerAnimationManager
 	* The following two methods are helper methods for combat layer that transitions from and to
 	* the combat layers when fighting enemies. This is needed to pull out the sword and put it away.
 	*/
-	public bool TryToCombatStance()
+	public bool TryToCombatStance(Action onEnd)
 	{
 		if (combatLayer.TryTurnOn())
 		{
-			UpperLayer.RequestAction(GetAnim("TakeOutSword"));
+			UpperLayer.RequestAction(GetAnim("TakeOutSword"), onEnd);
 			return true;
 		}
 		else
@@ -106,11 +98,11 @@ public class PlayerAnimationManager
 		}
 	}
 
-	public bool TryAwayCombatStance()
+	public bool TryAwayCombatStance(Action onEnd)
 	{
 		if (combatLayer.TryTurnOff())
 		{
-			UpperLayer.RequestAction(GetAnim("PutAwaySword"));
+			UpperLayer.RequestAction(GetAnim("PutAwaySword"), onEnd);
 			return true;
 		}
 		else

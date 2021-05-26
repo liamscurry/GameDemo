@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+// Behaviour needed in order to cause enemy to return to spawn location when reaching too far away 
+// from encounter.
 public class GruntEnemySpawnReturn : StateMachineBehaviour
 {
     private GruntEnemyManager manager;

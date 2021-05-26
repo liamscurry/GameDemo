@@ -32,8 +32,13 @@ public class GameManager : MonoBehaviour
 
     private bool respawning;
 
+    private float combatCheckTimer;
+    private const float combatCheckDuration = 3f;
+    private const float combatCheckRadius = 30f;
+
     public bool ReceivingInput { get { return receivingInput; } }
     public bool Respawning { get { return respawning; } }
+    public bool InCombat { get; private set; }
 
     public event EventHandler OnRespawn;
 
@@ -54,6 +59,27 @@ public class GameManager : MonoBehaviour
         if (eventSystem.currentSelectedGameObject == null)
         {
             eventSystem.SetSelectedGameObject(eventSystem.firstSelectedGameObject);
+        }
+
+        CheckForCombat();
+    }
+
+    public void CheckForCombat()
+    {
+        combatCheckTimer += Time.deltaTime;
+        if (combatCheckTimer > combatCheckDuration)
+        {
+            combatCheckTimer = 0;
+            
+            Collider[] nearbyEnemies = 
+                Physics.OverlapSphere(
+                    PlayerInfo.Player.transform.position,
+                    combatCheckRadius,
+                    LayerConstants.Enemy);
+            
+            // Will parse to only include enemies that are attacking player.
+
+            InCombat = nearbyEnemies.Length > 0;
         }
     }
 

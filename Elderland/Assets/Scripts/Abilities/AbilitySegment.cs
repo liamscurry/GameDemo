@@ -11,7 +11,7 @@ public class AbilitySegment
 	public float LoopFactor { get; set; }
 	public float NormalizedDuration { get; private set; }
 	public bool Finished { get; set; }
-	
+
 	public AbilitySegment(AnimationClip clip, params AbilityProcess[] processes)
 	{
 		Clip = clip;
@@ -24,7 +24,7 @@ public class AbilitySegment
 
 		Finished = false;
 	}
-
+	
 	public void Normalize()
 	{
 		if (NormalizedDuration == 0)
