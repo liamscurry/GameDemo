@@ -128,8 +128,11 @@ public class PlayerAbilityManager : AbilitySystem
 
         if (!inCombatStance)
         {
+            bool tryingToUseWeapon = 
+                weaponHeldDown != null &&
+                weaponHeldDown == melee;
             if (!inCombatTransition && 
-                (weaponHeldDown != null || GameInfo.Manager.InCombat))
+                (tryingToUseWeapon || GameInfo.Manager.InCombat))
             {
                 PlayerInfo.AnimationManager.TryToCombatStance(OnCombatStanceOn);
                 inCombatTransition = true;
@@ -137,23 +140,8 @@ public class PlayerAbilityManager : AbilitySystem
         }
         else
         {
-            if (ranged != null)
-                ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
-
-            if (aoe != null)
-                aoe.UpdateAbility(aoe == weaponHeldDown, aoeInput);
-
             if (melee != null)
                 melee.UpdateAbility(melee == weaponHeldDown, meleeInput);
-
-            if (dash != null)
-                dash.UpdateAbility(dash == weaponHeldDown, dashInput);
-
-            if (dodge != null)
-                dodge.UpdateAbility(dodge == weaponHeldDown, dodgeInput);
-
-            if (block != null)
-                block.UpdateAbility(block == weaponHeldDown, blockInput);
             
             if (finisher != null)
                 finisher.UpdateAbility(finisher == weaponHeldDown, finisherInput);
@@ -173,6 +161,21 @@ public class PlayerAbilityManager : AbilitySystem
                 notUsedTimer = 0;
             }
         }
+
+        if (ranged != null)
+            ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
+
+        if (aoe != null)
+            aoe.UpdateAbility(aoe == weaponHeldDown, aoeInput);
+
+        if (dash != null)
+            dash.UpdateAbility(dash == weaponHeldDown, dashInput);
+
+        if (dodge != null)
+            dodge.UpdateAbility(dodge == weaponHeldDown, dodgeInput);
+
+        if (block != null)
+            block.UpdateAbility(block == weaponHeldDown, blockInput);
 	}
 
     public void OnCombatStanceOn()
