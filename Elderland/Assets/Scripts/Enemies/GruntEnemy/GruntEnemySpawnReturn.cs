@@ -44,6 +44,8 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
         recycleTimer = 0;
 
         startPosition = manager.transform.position;
+
+        manager.AttackingPlayer = false;
     }
 
     private void OnStateExitImmediate()
@@ -88,6 +90,11 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
             if (checkTimer >= checkDuration)
                 checkTimer = 0;
         }
+    }
+
+    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        manager.AttackingPlayer = true;
     }
 
     private void CheckForRecycle()

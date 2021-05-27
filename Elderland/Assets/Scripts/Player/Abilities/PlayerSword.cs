@@ -7,14 +7,6 @@ using UnityEngine;
 public sealed class PlayerSword : PlayerAbility 
 {
     //Fields
-    private AnimationClip holdClip;
-    private AnimationClip chargeFarDashClip;
-    private AnimationClip actFarDashClip;
-    private AnimationClip chargeFarRunClip;
-    private AnimationClip actFarRunClip;
-    private AnimationClip chargeCloseClip;
-    private AnimationClip actCloseClip;
-
     private AnimationClip chargeNoTargetClip;
     private AnimationClip actNoTargetClip;
     private AnimationClip holdNoTargetClip;
@@ -88,15 +80,6 @@ public sealed class PlayerSword : PlayerAbility
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         //Animation assignment
-        chargeFarDashClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeFarDashLightAttack");
-        actFarDashClip = Resources.Load<AnimationClip>("Player/Abilities/ActFarDashLightAttack");
-
-        chargeFarRunClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeFarRunLightAttack");
-        actFarRunClip = Resources.Load<AnimationClip>("Player/Abilities/ActFarRunLightAttack");
-
-        chargeCloseClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeCloseLightAttack");
-        actCloseClip = Resources.Load<AnimationClip>("Player/Abilities/ActCloseLightAttack");
-
         chargeNoTargetClip =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.LightSword1Charge);
         actNoTargetClip =

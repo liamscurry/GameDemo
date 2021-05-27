@@ -78,8 +78,15 @@ public class GameManager : MonoBehaviour
                     LayerConstants.Enemy);
             
             // Will parse to only include enemies that are attacking player.
-
-            InCombat = nearbyEnemies.Length > 0;
+            InCombat = false;
+            foreach (Collider collider in nearbyEnemies)
+            {
+                if (collider.GetComponent<EnemyManager>().AttackingPlayer)
+                {
+                    InCombat = true;
+                    break;
+                }
+            }
         }
     }
 

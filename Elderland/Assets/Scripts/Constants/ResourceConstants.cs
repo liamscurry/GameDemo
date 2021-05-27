@@ -120,6 +120,9 @@ public static class ResourceConstants
             public const string LightSword3MirrorCharge = "LightSword3MirrorCharge";
             public const string LightSword3MirrorAct = "LightSword3MirrorAct";
             public const string LightSword3Hold_M = "LightSword3Hold_M";
+
+            public const string FinisherCharge = "FinisherCharge";
+            public const string FinisherAct = "FinisherAct";
         }
     }
 }

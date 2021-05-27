@@ -125,6 +125,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public float MaxArmor { get; protected set; }
     public float FinisherHealth { get; protected set; }
     public Color HealthBarColor { get; set; }
+
+    public bool AttackingPlayer { get; set; }
     
     public Vector3 BottomSphereOffset { get; private set; }
 
@@ -177,6 +179,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         glitchRenderers = glitchRenderersParent.GetComponentsInChildren<SkinnedMeshRenderer>();
 
         StartCoroutine(SpawnTimer());
+
+        AttackingPlayer = true;
     }
 
     private void Update()

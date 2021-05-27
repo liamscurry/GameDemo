@@ -8,10 +8,8 @@ using UnityEngine.AI;
 public sealed class PlayerFinisher : PlayerAbility 
 {
     //Fields
-    private AnimationClip chargeFarRunClip;
-    private AnimationClip actFarRunClip;
-    private AnimationClip chargeCloseClip;
-    private AnimationClip actCloseClip;
+    private AnimationClip chargeClip;
+    private AnimationClip actClip;
 
     private AbilityProcess chargeProcess;
     private AbilityProcess actProcess;
@@ -37,17 +35,16 @@ public sealed class PlayerFinisher : PlayerAbility
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         //Animation assignment
-        chargeFarRunClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeFarRunLightAttack");
-        actFarRunClip = Resources.Load<AnimationClip>("Player/Abilities/ActFarRunLightAttack");
-
-        chargeCloseClip = Resources.Load<AnimationClip>("Player/Abilities/ChargeCloseLightAttack");
-        actCloseClip = Resources.Load<AnimationClip>("Player/Abilities/ActCloseLightAttack");
+        chargeClip =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherCharge);
+        actClip =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherAct);
 
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.15f);
-        charge = new AbilitySegment(null, chargeProcess);
+        charge = new AbilitySegment(chargeClip, chargeProcess);
         charge.Type = AbilitySegmentType.RootMotion;
-        act = new AbilitySegment(null, actProcess);
+        act = new AbilitySegment(actClip, actProcess);
         segments = new AbilitySegmentList();
         segments.AddSegment(charge);
         segments.AddSegment(act);
@@ -162,10 +159,6 @@ public sealed class PlayerFinisher : PlayerAbility
         RaycastHit enemyHit;
         target.Raycast(enemyRay, out enemyHit, targetHorizontalDistance);
         targetWidth = targetDisplacement.magnitude - enemyHit.distance;
-
-        //Close target
-        charge.Clip = chargeCloseClip;
-        act.Clip = actCloseClip;
     }
 
     public override void GlobalConstantUpdate()
