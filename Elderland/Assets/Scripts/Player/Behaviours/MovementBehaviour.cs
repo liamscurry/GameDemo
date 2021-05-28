@@ -49,7 +49,8 @@ public class MovementBehaviour : StateMachineBehaviour
                 PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
                 sprinting = false;
                 PlayerInfo.StatsManager.Sprinting = false;
-                UpdateRotation(false);
+                if (!animator.IsInTransition(0))
+                    UpdateRotation(false);
             }
             else
             {
@@ -64,7 +65,8 @@ public class MovementBehaviour : StateMachineBehaviour
            
                 PlayerInfo.MovementManager.TargetPercentileSpeed =
                     GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
-                UpdateRotation(true);
+                if (!animator.IsInTransition(0))
+                    UpdateRotation(true);
             }
 
             PlayerInfo.MovementSystem.Move(

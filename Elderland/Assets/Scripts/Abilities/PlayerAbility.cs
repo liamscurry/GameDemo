@@ -303,6 +303,7 @@ public abstract class PlayerAbility : Ability
     protected AnimationClip GetDirAnim(string key, Vector2 direction)
     {
         float dirAngle;
+
         if (direction.x >= 0)
         {
             dirAngle = Matho.AngleBetween(Vector2.right, direction);

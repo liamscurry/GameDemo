@@ -106,6 +106,9 @@ public static class Matho
         return f * v2;
     }
 
+    // These project scalar methods project the vector and figure out magnitude of the length projected.
+    // The sign is positive if the two vectors are pointing in the "same direction" and negative
+    // if pointing in the "opposite direction"
     public static float ProjectScalar(Vector2 v1, Vector2 v2)
     {
         float f = ((v1.x * v2.x) + (v1.y * v2.y)) / (v2.magnitude * v2.magnitude);

@@ -224,6 +224,8 @@ public sealed class PlayerSword : PlayerAbility
                 }
             }   
         }
+
+        PlayerInfo.AbilityManager.LastDirFocus = Time.time;
     }
 
     private bool CheckForGround()
@@ -253,7 +255,8 @@ public sealed class PlayerSword : PlayerAbility
             GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput) :
             Matho.StandardProjection2D(GameInfo.CameraController.Direction);
 
-        playerPlanarDirection = Matho.PlanarDirectionalDerivative(playerDirection, PlayerInfo.PhysicsSystem.Normal).normalized;
+        playerPlanarDirection =
+            Matho.PlanarDirectionalDerivative(playerDirection, PlayerInfo.PhysicsSystem.Normal).normalized;
 
         //Scan for enemies
         Vector3 center = 2f * playerPlanarDirection;
@@ -415,8 +418,7 @@ public sealed class PlayerSword : PlayerAbility
             if (CheckForGround())
                 matchTarget.positionWeight = Vector3.zero;
                 
-            PlayerInfo.AnimationManager.StartDirectTarget(matchTarget); // not match targeting on normal calls (non continous) as there is a 
-            // transition in place.
+            PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
         }
         else if (type == Type.CloseTarget)
         {

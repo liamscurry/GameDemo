@@ -27,7 +27,7 @@ public class PlayerAbilityManager : AbilitySystem
     private float combatTimer;
     private const float combatDuration = 1.5f;
     private float notUsedTimer;
-    private const float notUsedDuration = 4f;
+    private const float notUsedDuration = 10f;
 
     //Ability Properties
     public PlayerAbility Melee { get { return melee; } }
@@ -49,6 +49,10 @@ public class PlayerAbilityManager : AbilitySystem
     public const float MaxStamina = 4;
     public float Stamina { get; private set; }
     public float SavedStamina { get; set; }
+
+    private const float dirFocusDuration = 6f;
+    public float LastDirFocus { get; set; }
+    public bool MovementDirFocus { get { return Time.time - LastDirFocus <= dirFocusDuration; } }
 
     public GameObject HoldBar { get; private set; }
 
@@ -84,6 +88,8 @@ public class PlayerAbilityManager : AbilitySystem
         AbilitiesAvailable = true;
         inCombatStance = false;
         //Stamina = 0;
+
+        LastDirFocus = -dirFocusDuration * 2f;
     }
 
     //Updates each ability slot, called by PlayerManager.
@@ -135,6 +141,7 @@ public class PlayerAbilityManager : AbilitySystem
                 (tryingToUseWeapon || GameInfo.Manager.InCombat))
             {
                 PlayerInfo.AnimationManager.TryToCombatStance(OnCombatStanceOn);
+                LastDirFocus = Time.time;
                 inCombatTransition = true;
             }
         }
