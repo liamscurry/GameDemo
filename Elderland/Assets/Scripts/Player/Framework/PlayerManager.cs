@@ -59,6 +59,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     public StandardInteraction Interaction { get; set; }
 
     public event EventHandler OnBreak;
+    public event EventHandler OnBlock;
 
     private void Start()
     {
@@ -206,47 +207,65 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
 
     public void ChangeHealth(float value, bool unblockable = false)
     {
-        if (PlayerInfo.AnimationManager.Interuptable && (!PlayerInfo.StatsManager.Blocking || unblockable))
+        //|| (!PlayerInfo.StatsManager.Blocking || unblockable))
+        if (value >= 0)
+        {
+            ChangeHealthBar(value);
+        }
+        else if (PlayerInfo.AnimationManager.Interuptable)
         {
             float preHealth = Health;
-
-            Health = Mathf.Clamp(Health + value, 0, MaxHealth);
-
-            float percentage = Health / MaxHealth;
-
-            int currentTier = PlayerInfo.StatsManager.HealthTier;
-            int maxTier = PlayerInfo.StatsManager.HealthTierMax;
-
-            float leftOverPercentage = percentage;
-            float sliderPercentage = 1f / (3f + currentTier);
-            for (int i = 0; i < 3 + currentTier; i++)
+        
+            if (PlayerInfo.StatsManager.Blocking)
             {
-                if (leftOverPercentage > 0)
+                if (unblockable)
                 {
-                    healthSliders[i].value = Mathf.Clamp01(leftOverPercentage / sliderPercentage);
-                    leftOverPercentage -= sliderPercentage;
+                    if (OnBreak != null)    
+                        OnBreak.Invoke(this, EventArgs.Empty);
+                    ChangeHealthBar(value);
                 }
                 else
                 {
-                    healthSliders[i].value = 0;
+                    if (OnBlock != null)    
+                        OnBlock.Invoke(this, EventArgs.Empty);
                 }
             }
-
-            if (unblockable && PlayerInfo.StatsManager.Blocking)
+            else
             {
-                if (OnBreak != null)    
-                    OnBreak.Invoke(this, EventArgs.Empty);
+                ChangeHealthBar(value);
             }
 
-            if (value < 0)
-            {
-                GameInfo.CameraController.ShakeCamera();
-            }
-            
+            GameInfo.CameraController.ShakeCamera();
+
             if (preHealth != 0 && Health == 0)
             {
                 OnDeath();
                 GameInfo.Manager.Respawn();
+            }
+        }
+    }
+
+    private void ChangeHealthBar(float value)
+    {
+        Health = Mathf.Clamp(Health + value, 0, MaxHealth);
+
+        float percentage = Health / MaxHealth;
+
+        int currentTier = PlayerInfo.StatsManager.HealthTier;
+        int maxTier = PlayerInfo.StatsManager.HealthTierMax;
+
+        float leftOverPercentage = percentage;
+        float sliderPercentage = 1f / (3f + currentTier);
+        for (int i = 0; i < 3 + currentTier; i++)
+        {
+            if (leftOverPercentage > 0)
+            {
+                healthSliders[i].value = Mathf.Clamp01(leftOverPercentage / sliderPercentage);
+                leftOverPercentage -= sliderPercentage;
+            }
+            else
+            {
+                healthSliders[i].value = 0;
             }
         }
     }

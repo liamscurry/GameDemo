@@ -28,9 +28,9 @@ public sealed class PlayerSword : PlayerAbility
     private AnimationClip actNoTarget3ClipMirror;
     private AnimationClip holdNoTarget3ClipMirror;
 
-    private float damage = 0.5f;//0.5
+    private float damage = 0.5f;
     private float strength = 18;
-    private float knockbackStrength = 4.5f;
+    private float knockbackStrength = 5.5f;
     private PlayerMultiDamageHitbox hitbox;
     private Vector3 hitboxScale = new Vector3(3f, 2, 2);
     private ParticleSystem hitboxParticles;

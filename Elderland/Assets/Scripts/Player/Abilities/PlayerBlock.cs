@@ -14,7 +14,8 @@ public sealed class PlayerBlock : PlayerAbility
 
     private float timer;
     private const float minDuration = 0.5f;
-    private const float staminaCostPerSecond = 2f;
+    //private const float staminaCostPerSecond = 2f;
+    private const float staminaCostPerBlock = 1f;
 
     private bool broke;
 
@@ -43,16 +44,23 @@ public sealed class PlayerBlock : PlayerAbility
         blockParticles = blockParticlesObject.GetComponent<ParticleSystem>();
 
         PlayerInfo.Manager.OnBreak += OnBreak;
+        PlayerInfo.Manager.OnBlock += OnBlock;
     }
 
     private void OnBreak(object sender, EventArgs args)
     {
+        PlayerInfo.AbilityManager.ChangeStamina(-staminaCostPerBlock);
         broke = true;
+    }
+
+    private void OnBlock(object sender, EventArgs args)
+    {
+        PlayerInfo.AbilityManager.ChangeStamina(-staminaCostPerBlock);
     }
 
     protected override bool WaitCondition()
     {
-        return PlayerInfo.AbilityManager.Stamina >= staminaCostPerSecond * minDuration;
+        return PlayerInfo.AbilityManager.Stamina >= staminaCostPerBlock;
     }
 
     protected override void GlobalStart()
@@ -70,10 +78,8 @@ public sealed class PlayerBlock : PlayerAbility
 
     private void DuringAct()
     {
-        PlayerInfo.AbilityManager.ChangeStamina(-staminaCostPerSecond * Time.deltaTime);
-
         timer += Time.deltaTime;
-        if (((PlayerAbilityManager) system).Stamina == 0 ||
+        if (((PlayerAbilityManager) system).Stamina < staminaCostPerBlock ||
             (!Input.GetKey(GameInfo.Settings.BlockAbilityKey) && timer > minDuration) ||
             broke)
         {
