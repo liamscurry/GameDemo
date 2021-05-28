@@ -54,7 +54,8 @@ public class MovementBehaviour : StateMachineBehaviour
             }
             else
             {
-                Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
+                Vector3 targetRotation =
+                    Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
 
                 PlayerInfo.MovementManager.TargetDirection = movementDirection;
 
@@ -75,8 +76,8 @@ public class MovementBehaviour : StateMachineBehaviour
 
             UpdateAnimatorProperties(
                 animator,
-                projectedCameraDirection,
-                Matho.Rotate(projectedCameraDirection, 90));
+                Matho.StandardProjection2D(PlayerInfo.Player.transform.forward),
+                Matho.Rotate(Matho.StandardProjection2D(PlayerInfo.Player.transform.forward), 90));
 
             //Transitions//
             if (!animator.IsInTransition(0) && PlayerInfo.AbilityManager.CurrentAbility == null)
@@ -204,8 +205,10 @@ public class MovementBehaviour : StateMachineBehaviour
     {
         if (!moving)
         {
-            Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
-            Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
+            Vector3 targetRotation =
+                Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+            Vector3 currentRotation =
+                Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
 
             if (Matho.AngleBetween(targetRotation, currentRotation) > PlayerMovementManager.RotationStartMin)
                 rotatingModel = true;  
@@ -229,8 +232,10 @@ public class MovementBehaviour : StateMachineBehaviour
         {
             rotatingModel = false;
 
-            Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
-            Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
+            Vector3 targetRotation =
+                Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+            Vector3 currentRotation =
+                Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
 
             Vector3 incrementedRotation =
                 Vector3.RotateTowards(

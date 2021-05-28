@@ -226,6 +226,7 @@ public sealed class PlayerSword : PlayerAbility
         }
 
         PlayerInfo.AbilityManager.LastDirFocus = Time.time;
+        PlayerInfo.AbilityManager.DirFocus = PlayerInfo.Player.transform.forward;
     }
 
     private bool CheckForGround()

@@ -58,18 +58,10 @@ public sealed class PlayerDodge : PlayerAbility
             Debug.Log(PlayerInfo.StatsManager.AttackSpeedMultiplier.Value);
         }*/
 
-        // Convert left dir. input to player space.
-        Vector2 up = Matho.StandardProjection2D(PlayerInfo.Player.transform.forward);
-        Vector2 right = Matho.Rotate(up, 90f);
-        Vector2 worldInput =
-            GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput);
-        float projXInput = Matho.ProjectScalar(worldInput, right);
-        float projYInput = Matho.ProjectScalar(worldInput, up);
-
-        Debug.Log(Matho.AngleBetween(right, worldInput) + ", " + new Vector2(projXInput, projYInput));
-
+        Vector2 playerInput =
+            PlayerInfo.MovementManager.DirectionToPlayerCoord(GameInfo.Settings.LeftDirectionalInput);
         AnimationClip actClip =
-            GetDirAnim(ResourceConstants.Player.Art.Dodge, new Vector2(projXInput, projYInput));
+            GetDirAnim(ResourceConstants.Player.Art.Dodge, playerInput);
 
         act.Clip = actClip;
     }

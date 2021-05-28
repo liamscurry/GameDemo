@@ -60,7 +60,20 @@ public class PlayerMovementManager
                 targetPercentileSpeed = 0;
         }
     }
-   
+
+    public Vector3 ModelTargetForward 
+    { 
+        get 
+        { 
+            float percentage = 
+                (Time.time - PlayerInfo.AbilityManager.LastDirFocus) / (PlayerAbilityManager.DirFocusDuration * 0.5f);
+            percentage = Mathf.Clamp01(percentage);
+            
+            return PlayerInfo.AbilityManager.DirFocus * (1 - percentage) +
+                    GameInfo.CameraController.Direction * percentage;
+        }
+    }
+
     public State MovementState { get; private set; }
 
     public PlayerMovementManager()
@@ -103,6 +116,17 @@ public class PlayerMovementManager
         }
         
         UpdateRotationSpeed();
+    }
+
+    public Vector2 DirectionToPlayerCoord(Vector3 direction)
+    {
+        Vector2 up = Matho.StandardProjection2D(PlayerInfo.Player.transform.forward);
+        Vector2 right = Matho.Rotate(up, 90f);
+        Vector2 worldDir =
+            GameInfo.CameraController.StandardToCameraDirection(direction);
+        float projXInput = Matho.ProjectScalar(worldDir, right);
+        float projYInput = Matho.ProjectScalar(worldDir, up);
+        return new Vector2(projXInput, projYInput);
     }
 
     private void UpdateRotationSpeed()

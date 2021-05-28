@@ -50,9 +50,10 @@ public class PlayerAbilityManager : AbilitySystem
     public float Stamina { get; private set; }
     public float SavedStamina { get; set; }
 
-    private const float dirFocusDuration = 6f;
+    public const float DirFocusDuration = 6f;
     public float LastDirFocus { get; set; }
-    public bool MovementDirFocus { get { return Time.time - LastDirFocus <= dirFocusDuration; } }
+    public Vector3 DirFocus { get; set; }
+    public bool MovementDirFocus { get { return Time.time - LastDirFocus <= DirFocusDuration; } }
 
     public GameObject HoldBar { get; private set; }
 
@@ -89,7 +90,7 @@ public class PlayerAbilityManager : AbilitySystem
         inCombatStance = false;
         //Stamina = 0;
 
-        LastDirFocus = -dirFocusDuration * 2f;
+        LastDirFocus = -DirFocusDuration * 2f;
     }
 
     //Updates each ability slot, called by PlayerManager.
@@ -141,7 +142,6 @@ public class PlayerAbilityManager : AbilitySystem
                 (tryingToUseWeapon || GameInfo.Manager.InCombat))
             {
                 PlayerInfo.AnimationManager.TryToCombatStance(OnCombatStanceOn);
-                LastDirFocus = Time.time;
                 inCombatTransition = true;
             }
         }
