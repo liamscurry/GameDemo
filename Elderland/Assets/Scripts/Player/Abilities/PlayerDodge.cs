@@ -8,7 +8,7 @@ public sealed class PlayerDodge : PlayerAbility
 {
     //Fields
     private Vector2 direction;
-    private float speed = 4f;
+    private float speed = 2.5f;
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
@@ -21,7 +21,7 @@ public sealed class PlayerDodge : PlayerAbility
         this.system = abilityManager;
 
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.82f);
-        slideProcess = new AbilityProcess(null, DuringSlide, null, 1 - 0.82f);
+        slideProcess = new AbilityProcess(null, DuringSlide, SlideEnd, 1 - 0.82f);
         act = new AbilitySegment(null, actProcess, slideProcess);
         act.Type = AbilitySegmentType.Physics;
 
@@ -66,6 +66,11 @@ public sealed class PlayerDodge : PlayerAbility
         act.Clip = actClip;
     }
 
+    public override void GlobalUpdate()
+    {
+        PlayerInfo.AnimationManager.UpdateRotation(true);
+    }
+
     private void ActBegin()
     {
         direction = GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput);
@@ -91,6 +96,16 @@ public sealed class PlayerDodge : PlayerAbility
         }  
     }
 
+    private void ActEnd()
+    {  
+        PlayerInfo.MovementManager.TargetDirection = direction;
+        PlayerInfo.MovementManager.SnapDirection();
+        PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude;
+        PlayerInfo.MovementManager.SnapSpeed();
+        system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
+        system.Movement.ExitEnabled = true;
+    }
+
     private void DuringSlide()
     {
         if (system.Physics.TouchingFloor)
@@ -101,14 +116,8 @@ public sealed class PlayerDodge : PlayerAbility
         } 
     }
 
-    private void ActEnd()
-    {  
-        PlayerInfo.MovementManager.TargetDirection = direction;
-        PlayerInfo.MovementManager.SnapDirection();
-        PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude;
-        PlayerInfo.MovementManager.SnapSpeed();
-        system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
-        system.Movement.ExitEnabled = true;
+    private void SlideEnd()
+    {
         PlayerInfo.AnimationManager.Interuptable = true;
     }
 

@@ -50,7 +50,7 @@ public class PlayerAbilityManager : AbilitySystem
     public float Stamina { get; private set; }
     public float SavedStamina { get; set; }
 
-    public const float DirFocusDuration = 6f;
+    public const float DirFocusDuration = 4f;
     public float LastDirFocus { get; set; }
     public Vector3 DirFocus { get; set; }
     public bool MovementDirFocus { get { return Time.time - LastDirFocus <= DirFocusDuration; } }

@@ -23,6 +23,8 @@ public class PlayerAnimationManager
 
 	private Coroutine directTargetCorou;
 
+	private bool rotatingModel;
+
 	public const float ModelRotSpeedIdle = 2f;
 	public const float ModelRotSpeedMoving = 9f;
 
@@ -33,6 +35,7 @@ public class PlayerAnimationManager
 		combatLayer = new PlayerAnimationPersistLayer(0.5f, "CombatPersistLayer");
 		UpperLayer = new PlayerAnimationUpper();
 		Interuptable = true;
+		rotatingModel = false;
 	}
 
 	public void UpdateAnimations()
@@ -79,6 +82,66 @@ public class PlayerAnimationManager
 		}
 
 		PlayerInfo.TeleportingThisFrame = false;
+	}
+
+	/*
+	* Helper function for behaviours to update model rotation to camera forward (or blended if in combat)
+	*/
+	public void UpdateRotation(bool moving)
+    {
+        if (!moving)
+        {
+            UpdateStillModelRotation();
+        }
+        else
+        {
+            UpdateMovingModelRotation();
+        }
+    }
+
+	private void UpdateMovingModelRotation()
+	{
+		rotatingModel = false;
+
+		Vector3 targetRotation =
+			Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+		Vector3 currentRotation =
+			Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
+
+		Vector3 incrementedRotation =
+			Vector3.RotateTowards(
+				currentRotation,
+				targetRotation,
+				PlayerAnimationManager.ModelRotSpeedMoving * Time.deltaTime,
+				0f);
+		Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
+		PlayerInfo.Player.transform.rotation = rotation;
+	}
+
+	private void UpdateStillModelRotation()
+	{
+		Vector3 targetRotation =
+			Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+		Vector3 currentRotation =
+			Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
+
+		if (Matho.AngleBetween(targetRotation, currentRotation) > PlayerMovementManager.RotationStartMin)
+			rotatingModel = true;  
+
+		if (rotatingModel)
+		{
+			Vector3 incrementedRotation =
+				Vector3.RotateTowards(
+					currentRotation,
+					targetRotation,
+					PlayerAnimationManager.ModelRotSpeedIdle * Time.deltaTime,
+					0f);
+			Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
+			PlayerInfo.Player.transform.rotation = rotation;
+
+			if (Matho.AngleBetween(targetRotation, currentRotation) < PlayerMovementManager.RotationStopMin)
+				rotatingModel = false;
+		}
 	}
 
 	/*

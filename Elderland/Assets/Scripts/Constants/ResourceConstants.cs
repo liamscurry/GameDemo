@@ -123,6 +123,9 @@ public static class ResourceConstants
 
             public const string FinisherCharge = "FinisherCharge";
             public const string FinisherAct = "FinisherAct";
+
+            public const string Block1 = "Block1";
+            public const string Block2 = "Block2";
         }
     }
 }

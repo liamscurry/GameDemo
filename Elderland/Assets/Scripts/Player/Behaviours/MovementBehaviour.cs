@@ -16,8 +16,6 @@ public class MovementBehaviour : StateMachineBehaviour
     private const float positionAnalogSpeed = 1.7f;
     private const float reverseAnalogSpeed = 1.35f;
 
-    private bool rotatingModel;
-
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
 		exiting = false;
@@ -28,7 +26,6 @@ public class MovementBehaviour : StateMachineBehaviour
         positionAnalogDirection = Vector2.zero;
         PlayerInfo.MovementManager.PercentileSpeed = 
         PlayerInfo.MovementManager.CurrentPercentileSpeed;
-        rotatingModel = false;
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -50,7 +47,7 @@ public class MovementBehaviour : StateMachineBehaviour
                 sprinting = false;
                 PlayerInfo.StatsManager.Sprinting = false;
                 if (!animator.IsInTransition(0))
-                    UpdateRotation(false);
+                    PlayerInfo.AnimationManager.UpdateRotation(false);
             }
             else
             {
@@ -67,7 +64,7 @@ public class MovementBehaviour : StateMachineBehaviour
                 PlayerInfo.MovementManager.TargetPercentileSpeed =
                     GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
                 if (!animator.IsInTransition(0))
-                    UpdateRotation(true);
+                    PlayerInfo.AnimationManager.UpdateRotation(true);
             }
 
             PlayerInfo.MovementSystem.Move(
@@ -199,53 +196,6 @@ public class MovementBehaviour : StateMachineBehaviour
         animator.SetFloat(
             "percentileSpeed",
             PlayerInfo.MovementManager.PercentileSpeed);
-    }
-
-    private void UpdateRotation(bool moving)
-    {
-        if (!moving)
-        {
-            Vector3 targetRotation =
-                Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
-            Vector3 currentRotation =
-                Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
-
-            if (Matho.AngleBetween(targetRotation, currentRotation) > PlayerMovementManager.RotationStartMin)
-                rotatingModel = true;  
-
-            if (rotatingModel)
-            {
-                Vector3 incrementedRotation =
-                    Vector3.RotateTowards(
-                        currentRotation,
-                        targetRotation,
-                        PlayerAnimationManager.ModelRotSpeedIdle * Time.deltaTime,
-                        0f);
-                Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
-                PlayerInfo.Player.transform.rotation = rotation;
-
-                if (Matho.AngleBetween(targetRotation, currentRotation) < PlayerMovementManager.RotationStopMin)
-                    rotatingModel = false;
-            }
-        }
-        else
-        {
-            rotatingModel = false;
-
-            Vector3 targetRotation =
-                Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
-            Vector3 currentRotation =
-                Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
-
-            Vector3 incrementedRotation =
-                Vector3.RotateTowards(
-                    currentRotation,
-                    targetRotation,
-                    PlayerAnimationManager.ModelRotSpeedMoving * Time.deltaTime,
-                    0f);
-            Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
-            PlayerInfo.Player.transform.rotation = rotation;
-        }
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

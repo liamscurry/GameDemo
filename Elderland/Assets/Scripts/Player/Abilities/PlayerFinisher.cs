@@ -32,6 +32,8 @@ public sealed class PlayerFinisher : PlayerAbility
     private PlayerAnimationManager.MatchTarget matchTarget;
     private bool interuptedTarget;
 
+    private const float knockbackStrength = 7f;
+
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         //Animation assignment
@@ -312,6 +314,10 @@ public sealed class PlayerFinisher : PlayerAbility
                 4,
                 2f,
                 90f);
+
+            Vector3 enemyPushDir =
+                (enemy.transform.position - PlayerInfo.Player.transform.position).normalized;
+            enemy.Push(enemyPushDir * knockbackStrength);
         }
 
         PlayerInfo.AnimationManager.Interuptable = true;

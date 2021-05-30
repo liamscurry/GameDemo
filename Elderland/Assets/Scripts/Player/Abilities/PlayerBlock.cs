@@ -10,11 +10,13 @@ public sealed class PlayerBlock : PlayerAbility
     private AbilitySegment segment;
     private AbilityProcess process;
 
+    private AnimationClip block1Clip;
+    private AnimationClip block2Clip;
+
     private ParticleSystem blockParticles;
 
     private float timer;
     private const float minDuration = 0.5f;
-    //private const float staminaCostPerSecond = 2f;
     private const float staminaCostPerBlock = 1f;
 
     private bool broke;
@@ -23,10 +25,16 @@ public sealed class PlayerBlock : PlayerAbility
     {
         this.system = abilityManager;
 
-        AnimationClip clip = Resources.Load<AnimationClip>("Player/Abilities/Block/Block");
+        block1Clip = 
+            PlayerInfo.AnimationManager.GetAnim(
+                ResourceConstants.Player.Art.Block1);
+        
+        block2Clip = 
+            PlayerInfo.AnimationManager.GetAnim(
+                ResourceConstants.Player.Art.Block2);
 
         process = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1, true);
-        segment = new AbilitySegment(clip, process);
+        segment = new AbilitySegment(null, process);
         segment.Type = AbilitySegmentType.Physics;
 
         segments = new AbilitySegmentList();
@@ -41,6 +49,8 @@ public sealed class PlayerBlock : PlayerAbility
                 transform.position,
                 Quaternion.identity);
         blockParticlesObject.transform.parent = PlayerInfo.Player.transform;
+        blockParticlesObject.transform.localRotation = Quaternion.identity;
+        blockParticlesObject.transform.localPosition = new Vector3(0,0.25f,0.35f);
         blockParticles = blockParticlesObject.GetComponent<ParticleSystem>();
 
         PlayerInfo.Manager.OnBreak += OnBreak;
@@ -56,6 +66,7 @@ public sealed class PlayerBlock : PlayerAbility
     private void OnBlock(object sender, EventArgs args)
     {
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCostPerBlock);
+        blockParticles.Play();
     }
 
     protected override bool WaitCondition()
@@ -66,6 +77,8 @@ public sealed class PlayerBlock : PlayerAbility
     protected override void GlobalStart()
     {
         GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -5, 0.32f));
+        int animChoser = ((new System.Random().Next()) % 2) + 1;
+        segment.Clip = (animChoser == 1) ? block1Clip : block2Clip;
     }
 
     private void ActBegin()
