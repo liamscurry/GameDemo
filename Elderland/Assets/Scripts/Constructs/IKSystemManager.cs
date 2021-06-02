@@ -62,7 +62,7 @@ public class IKSystemManager : MonoBehaviour
 
     /*
     * Clamps system model parent to ground so leg limbs targets are near the ground. 
-    * This reduces floating leg targets or craped leg targets.
+    * This reduces floating leg targets or cramped leg targets.
     */
     private void ClampSystem()
     {
