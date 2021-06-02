@@ -51,20 +51,21 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
         {
             checkTimer += Time.deltaTime;
             distanceToPlayer = manager.DistanceToPlayer();
-            // starts off in group from before? and then null afterwards
-            if (manager.Group == null) // has to do with group not being null/null when entering and timer.
+            
+            if (manager.Group == null)
             {
                 if (checkTimer > checkDuration)
                 {
-                    manager.UpdateAgentPath();
+                    if (distanceToPlayer > manager.GroupFollowRadius + manager.GroupFollowRadiusMargin ||
+                        EnemyGroup.AttackingEnemies.Count == 0)
+                        manager.UpdateAgentPath();
                 }
             }
             else
             {
-                // fixed but now starts, stops and then starts (there is a pause)
-                if (!manager.Group.IsStopped) // Bug here said was null when going into encounter boundary. happened when close and not by boundary and dashed away
+                if (!manager.Group.IsStopped)
                 {
-                    // Stop condition 2
+                    // Stop condition 1
                     if (EnemyGroup.AttackingEnemies.Count == EnemyGroup.MaxAttackingEnemies)
                     {
                         Vector3 groupOffset =
@@ -103,7 +104,9 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
                     3.3f * Time.deltaTime,
                     0.5f * Time.deltaTime,
                     GruntEnemyManager.ExpandSpeed * Time.deltaTime,
-                    manager.NearbySensor.Radius);
+                    manager.NearbySensor.Radius,
+                    GruntEnemyManager.ShrinkSpeed * Time.deltaTime,
+                    manager.ShrinkRadius);
 
                 manager.Agent.Move(manager.Velocity);
             }

@@ -60,12 +60,6 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
         {
             checkTimer += Time.deltaTime;
             
-            MoveTowardsPlayer();
-            manager.RotateLocallyTowardsPlayer();
-
-            manager.ClampToGround();
-            
-            
             if (!exiting)
                 PingedToGroupTransition();
             if (!exiting)
@@ -75,6 +69,14 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
             if (exiting)
             {
                 OnStateExitImmediate();
+            }
+
+            if (!exiting)
+            {
+                MoveTowardsPlayer();
+                manager.RotateLocallyTowardsPlayer();
+
+                manager.ClampToGround();
             }
 
             if (checkTimer >= checkDuration)
@@ -92,6 +94,8 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
                 0,
                 GruntEnemyManager.ExpandSpeed * 0.5f * Time.deltaTime,
                 manager.NearbySensor.Radius,
+                0,
+                0,
                 true);
             manager.Agent.Move(manager.Velocity);
 

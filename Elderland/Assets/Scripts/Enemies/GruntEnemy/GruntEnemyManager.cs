@@ -28,11 +28,14 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     [SerializeField]
     private float followAgentRadius;
     [SerializeField]
+    private float shrinkRadius;
+    [SerializeField]
     private GruntEnemyNearbySensor nearbySensor;
     [SerializeField]
     private GruntEnemyGroupSensor groupSensor;
 
     public const float ExpandSpeed = 3.5f;
+    public const float ShrinkSpeed = 1.5f;
 
     public float GroupFollowRadius { get { return groupFollowRadius; } }
     public float GroupFollowRadiusMargin { get { return groupFollowRadiusMargin; } }
@@ -48,6 +51,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     public bool PingedToGroup { get; set; }
     public float FightingAgentRadius { get { return fightingAgentRadius; } }
     public float FollowAgentRadius { get { return followAgentRadius; } }
+    public float ShrinkRadius { get { return shrinkRadius; } }
 
     public EnemyGroup Group { get; set; }
     public Vector3 Position
