@@ -186,7 +186,7 @@ public static class Matho
     }
 
     //Projects v onto the x-z plane, converting to a Vector2 in the process.
-    public static Vector2 StandardProjection2D(Vector3 v)
+    public static Vector2 StdProj2D(Vector3 v)
     {
         return new Vector2(v.x, v.z);
     }

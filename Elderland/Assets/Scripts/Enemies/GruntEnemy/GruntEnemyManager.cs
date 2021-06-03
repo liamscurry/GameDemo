@@ -91,6 +91,11 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         }
     }
 
+    // Animation
+    private Animator animator;
+    private Vector2 positionAnalogDirection;
+    private const float positionAnalogSpeed = 1.7f;
+
     private void LateUpdate()
     {
         if (Group != null)
@@ -104,6 +109,8 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
                 Group.ResetAdjust();
             }
         }
+
+        UpdateAnimatorProperties();
     }
 
     private void OnDestroy()
@@ -112,6 +119,13 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         {
             EnemyGroup.AttackingEnemies.Remove(this);
         }
+    }
+
+    protected override void Initialize() 
+    {
+        DeclareAbilities();
+        DeclareType();
+        animator = GetComponentInChildren<Animator>();
     }
 
     protected override void DeclareAbilities()
@@ -149,25 +163,10 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     public Vector3 PlayerNavMeshPosition()
     {
         return PlayerInfo.Player.transform.position - PlayerInfo.BottomSphereOffset;
-
-        /*
-
-        Vector2 projectedPlayerPosition = 
-            Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
-        Vector3 targetPosition =
-            GameInfo.CurrentLevel.NavCast(projectedPlayerPosition);*/
-        //return targetPosition;
     }
 
     public Vector3 PlayerNavMeshPosition(Vector3 offset)
     {
-        /*
-        Vector2 projectedPlayerPosition = 
-            Matho.StandardProjection2D(PlayerInfo.Player.transform.position + offset);
-        Vector3 targetPosition =
-            GameInfo.CurrentLevel.NavCast(projectedPlayerPosition);
-        return targetPosition;
-        */
         return 
             PlayerInfo.Player.transform.position -
             PlayerInfo.BottomSphereOffset +
@@ -190,6 +189,38 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
             3f,
             90f);
             */
+    }
+
+    private void UpdateAnimatorProperties()
+    {
+        UpdateWalkProperties();
+    }
+
+    private void UpdateWalkProperties() // need to use something other than just agent velocity, like the movement speed.
+    {
+        Vector2 forward = Matho.StdProj2D(transform.forward).normalized;
+        Vector2 right = Matho.Rotate(forward, 90);
+
+        Vector2 scaledCurrentDir = 
+            Matho.StdProj2D(Agent.velocity).normalized;
+
+        Vector2 analogDirection = 
+            new Vector2(
+                Matho.ProjectScalar(scaledCurrentDir, forward),
+                Matho.ProjectScalar(scaledCurrentDir, right));
+
+        positionAnalogDirection =
+            Vector2.MoveTowards(positionAnalogDirection, analogDirection, positionAnalogSpeed * Time.deltaTime);
+
+        animator.SetFloat(
+            "speed",
+            positionAnalogDirection.x);
+        animator.SetFloat(
+            "strafe",
+            positionAnalogDirection.y);
+        animator.SetFloat(
+            "percentileSpeed",
+            Agent.velocity.magnitude / Agent.speed);
     }
 
     public bool updatingRotation;

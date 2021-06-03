@@ -117,7 +117,7 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
     private void ApproachTransition()
     {
         float distanceFromStart = 
-            Matho.StandardProjection2D(startPosition - manager.transform.position).magnitude; 
+            Matho.StdProj2D(startPosition - manager.transform.position).magnitude; 
         if (distanceToPlayer < Encounter.EngageEnemyDistance && distanceFromStart > Encounter.EngageStartDistance)
         {
             ApproachExit();

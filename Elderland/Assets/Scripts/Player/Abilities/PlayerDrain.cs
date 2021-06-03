@@ -74,7 +74,7 @@ public sealed class PlayerDrain : PlayerAbility
     public void DuringCharge()
     {
         //Movement
-        Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+        Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
         Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
         Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
         Vector2 movementDirection = forwardDirection + sidewaysDirection;

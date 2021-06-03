@@ -24,7 +24,7 @@ public class Kinematic : StateMachineBehaviour
 			PlayerInfo.Animator.applyRootMotion = false;
 
 			Vector2 forwardProjection =
-				Matho.StandardProjection2D(PlayerInfo.Player.transform.forward).normalized;
+				Matho.StdProj2D(PlayerInfo.Player.transform.forward).normalized;
 			PlayerInfo.MovementManager.TargetDirection = forwardProjection;
 			PlayerInfo.MovementManager.SnapDirection();
 		}

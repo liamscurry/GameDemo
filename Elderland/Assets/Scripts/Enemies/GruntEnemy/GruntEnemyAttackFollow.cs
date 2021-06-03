@@ -109,7 +109,7 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
     private void GroupTransition()
     {
         Vector2 horizontalOffset = 
-            Matho.StandardProjection2D(PlayerInfo.Player.transform.position - manager.transform.position);
+            Matho.StdProj2D(PlayerInfo.Player.transform.position - manager.transform.position);
         if (horizontalOffset.magnitude > manager.AttackFollowRadius + manager.AttackFollowRadiusMargin)
         {
             GroupExit();
@@ -129,8 +129,8 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
             Vector3 playerEnemyDirection = (PlayerInfo.Player.transform.position - manager.transform.position).normalized;
             float playerEnemyAngle =
                 Matho.AngleBetween(
-                    Matho.StandardProjection2D(manager.transform.forward),
-                    Matho.StandardProjection2D(playerEnemyDirection));
+                    Matho.StdProj2D(manager.transform.forward),
+                    Matho.StdProj2D(playerEnemyDirection));
 
             if (playerEnemyAngle < manager.NextAttack.AttackAngleMargin)
             {

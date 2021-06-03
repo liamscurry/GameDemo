@@ -193,7 +193,7 @@ public sealed class BurningFireChargeManager : FireChargeManager
     private void SpawnBurnersWithDistance(Vector3 startPosition, Vector3 endPosition)
     {
         float horizontalDistance =
-            Matho.StandardProjection2D(endPosition - startPosition).magnitude;
+            Matho.StdProj2D(endPosition - startPosition).magnitude;
 
         distanceTraveled += horizontalDistance;
         

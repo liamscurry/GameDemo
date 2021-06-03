@@ -41,7 +41,7 @@ public static class EnemyInfo
         MeleeWatchers = new List<EnemyManager>();
         RangedWatchers = new List<EnemyManager>();
 
-        Vector2 playerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 playerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         MeleeArranger = new MeleeArranger(playerPosition, 1.75f + 1.5f, 8, 0);
         RangedArranger = new RangedArranger(playerPosition, 12, 16, 0);//7
 

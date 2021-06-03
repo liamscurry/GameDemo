@@ -250,7 +250,7 @@ public class CameraController : MonoBehaviour
 
     public Vector2 StandardToCameraDirection(Vector2 v)
     {
-        Vector2 vertical = Matho.StandardProjection2D(direction).normalized;
+        Vector2 vertical = Matho.StdProj2D(direction).normalized;
         Vector2 horizontal = Matho.Rotate(vertical, 90);
         Vector2 w = v.y * vertical + v.x * horizontal;
         return w;
@@ -393,7 +393,7 @@ public class CameraController : MonoBehaviour
     private void MoveOrientationToZero()
     {
         float targetHorizontalAngle =
-            Matho.Angle(Matho.StandardProjection2D(targetDirection)) + HorizontalOffset;
+            Matho.Angle(Matho.StdProj2D(targetDirection)) + HorizontalOffset;
         float reducedHorizontalAngle = 
             Matho.ReduceAngle(HorizontalAngle);
         float reducedTargetHorizontalAngle = 
@@ -560,7 +560,7 @@ public class CameraController : MonoBehaviour
         if (TargetDirection.magnitude > targetDirectionTH)
         {
             float targetHorizontalAngle =
-                Matho.Angle(Matho.StandardProjection2D(targetDirection)) + HorizontalOffset;
+                Matho.Angle(Matho.StdProj2D(targetDirection)) + HorizontalOffset;
             float targetVerticalAngle =
                 Matho.AngleBetween(targetDirection, Vector3.up);
 

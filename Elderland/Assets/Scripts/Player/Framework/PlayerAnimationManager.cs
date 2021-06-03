@@ -67,8 +67,8 @@ public class PlayerAnimationManager
 		{
 			float angle = 
 				Matho.AngleBetween(
-					Matho.StandardProjection2D(GameInfo.CameraController.Direction),
-					Matho.StandardProjection2D(PlayerInfo.Sensor.Interaction.ValidityDirection));
+					Matho.StdProj2D(GameInfo.CameraController.Direction),
+					Matho.StdProj2D(PlayerInfo.Sensor.Interaction.ValidityDirection));
 
 			if (angle < 75 &&
 			 	(Input.GetKeyDown(GameInfo.Settings.UseKey) ||

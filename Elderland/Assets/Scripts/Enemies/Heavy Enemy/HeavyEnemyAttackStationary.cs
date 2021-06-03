@@ -75,7 +75,7 @@ public class HeavyEnemyAttackStationary : StateMachineBehaviour
     private void AttackTransition()
     {
         Vector3 playerEnemyDirection = (PlayerInfo.Player.transform.position - manager.transform.position).normalized;
-        float playerEnemyAngle = Matho.AngleBetween(Matho.StandardProjection2D(manager.transform.forward), Matho.StandardProjection2D(playerEnemyDirection));
+        float playerEnemyAngle = Matho.AngleBetween(Matho.StdProj2D(manager.transform.forward), Matho.StdProj2D(playerEnemyDirection));
 
         if (playerEnemyAngle < manager.NextAttack.AttackAngleMargin && manager.IsInNextAttackMax())
         {

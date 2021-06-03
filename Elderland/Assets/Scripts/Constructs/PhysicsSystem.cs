@@ -476,7 +476,7 @@ public class PhysicsSystem
         //Only generate ledge data if standard is successful and if the object has moved during the last frame
         if (Hit && Theta <= 45)
         {
-            float distance = Vector2.Distance(Matho.StandardProjection2D(LastPosition), Matho.StandardProjection2D(parent.transform.position));
+            float distance = Vector2.Distance(Matho.StdProj2D(LastPosition), Matho.StdProj2D(parent.transform.position));
 
             if (distance != 0 && !InGeometry && !LastInGeometry)
                 LedgeGroundData();
@@ -569,7 +569,7 @@ public class PhysicsSystem
         {
             float groundTheta = Matho.AngleBetween(groundContact.normal, Vector3.up);
             slopeMagnitude = (groundTheta < 45) ? (1.0f - (groundTheta / 100)) : (1.0f - (groundTheta / 75));
-            Vector2 projectedGroundNormal = Matho.StandardProjection2D(capsuleContact.normal);
+            Vector2 projectedGroundNormal = Matho.StdProj2D(capsuleContact.normal);
             slopeDirection = Matho.PlanarDirectionalDerivative(projectedGroundNormal, groundContact.normal);
         }
     }

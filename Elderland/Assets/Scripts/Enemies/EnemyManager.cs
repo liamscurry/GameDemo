@@ -908,8 +908,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public bool IsInNextAttackMax()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
 
         return horizontalDistanceToPlayer < NextAttack.AttackDistance + NextAttack.AttackDistanceMargin;
@@ -917,8 +917,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public bool IsInNextAttackMin()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
 
         return horizontalDistanceToPlayer < NextAttack.AttackDistance - NextAttack.AttackDistanceMargin;
@@ -926,8 +926,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public bool IsInNextAttackCenter()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
 
         return horizontalDistanceToPlayer < NextAttack.AttackDistance;
@@ -1102,8 +1102,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     public float DistanceToPlayer()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
         return horizontalDistanceToPlayer;
     }
@@ -1136,10 +1136,10 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         float distanceToPlayer = DistanceToPlayer();
         Vector2 nodePosition = EnemyInfo.MeleeArranger.GetPosition(ArrangementNode);
         
-        float nodePlayerDistance = (Matho.StandardProjection2D(PlayerInfo.Player.transform.position) - nodePosition).magnitude;
+        float nodePlayerDistance = (Matho.StdProj2D(PlayerInfo.Player.transform.position) - nodePosition).magnitude;
         towardsPlayer = distanceToPlayer >= nodePlayerDistance;
 
-        float positionIndex = EnemyInfo.MeleeArranger.GetExactIndex(Matho.StandardProjection2D(transform.position));
+        float positionIndex = EnemyInfo.MeleeArranger.GetExactIndex(Matho.StdProj2D(transform.position));
 
         Vector2 nodeDirection = EnemyInfo.MeleeArranger.Center - nodePosition;
         Vector2 exactDirection = EnemyInfo.MeleeArranger.Center - EnemyInfo.MeleeArranger.GetPosition(positionIndex);
@@ -1178,7 +1178,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                     farPoint = path.corners[path.corners.Length - 2];
                 else
                     farPoint = transform.position;
-                Vector2 projectedFarPoint = Matho.StandardProjection2D(farPoint);
+                Vector2 projectedFarPoint = Matho.StdProj2D(farPoint);
                 int farIndex = EnemyInfo.MeleeArranger.GetValidIndex(projectedFarPoint);
                 float exactIndex = EnemyInfo.MeleeArranger.GetExactIndex(projectedFarPoint);
 
@@ -1271,8 +1271,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             Agent.stoppingDistance = 0;
             startedWaypoints = true;
 
-            Vector2 centerDirection = EnemyInfo.MeleeArranger.Center - Matho.StandardProjection2D(transform.position);
-            Vector2 nodeDirection = Matho.StandardProjection2D(destination - transform.position);
+            Vector2 centerDirection = EnemyInfo.MeleeArranger.Center - Matho.StdProj2D(transform.position);
+            Vector2 nodeDirection = Matho.StdProj2D(destination - transform.position);
             Agent.autoBraking = (Matho.AngleBetween(nodeDirection, centerDirection) > 45);
         }
     }

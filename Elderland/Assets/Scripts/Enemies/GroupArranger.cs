@@ -137,7 +137,7 @@ public class MeleeArranger
 
     public bool OverrideNode(EnemyManager manager)
     {
-        int index = GetIndex(Matho.StandardProjection2D(manager.transform.position));
+        int index = GetIndex(Matho.StdProj2D(manager.transform.position));
         if (index != manager.ArrangementNode)
         {
             if (nodes[index] == null)
@@ -157,9 +157,9 @@ public class MeleeArranger
 
                 }
                 Vector2 nodePosition = GetPosition(other.ArrangementNode);
-                nodePosition = Vector2.MoveTowards(nodePosition, Matho.StandardProjection2D(PlayerInfo.Player.transform.position), 1.5f);
-                float distance = (Matho.StandardProjection2D(manager.transform.position) - nodePosition).magnitude;
-                float otherDistance = (Matho.StandardProjection2D(other.transform.position) - nodePosition).magnitude;
+                nodePosition = Vector2.MoveTowards(nodePosition, Matho.StdProj2D(PlayerInfo.Player.transform.position), 1.5f);
+                float distance = (Matho.StdProj2D(manager.transform.position) - nodePosition).magnitude;
+                float otherDistance = (Matho.StdProj2D(other.transform.position) - nodePosition).magnitude;
                 if (distance + 0.5f < otherDistance)
                 {
                     ClearNode(manager.ArrangementNode);
@@ -180,7 +180,7 @@ public class MeleeArranger
 
     public void ClaimNode(EnemyManager manager)
     {
-        Vector2 position = Matho.StandardProjection2D(manager.transform.position);
+        Vector2 position = Matho.StdProj2D(manager.transform.position);
         float generalIndex = GetGeneralIndex(position);
         float exactIndex = generalIndex % n;
         int index = Matho.Round(exactIndex) % n;
@@ -296,7 +296,7 @@ public class MeleeArranger
     {
         Vector2 position = EnemyInfo.MeleeArranger.GetPosition(index);
         Vector3 positionNav = GameInfo.CurrentLevel.NavCast(position);
-        Vector2 playerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 playerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         Vector3 playerPositionNav = GameInfo.CurrentLevel.NavCast(playerPosition);
         
         NavMeshHit hitInfo;

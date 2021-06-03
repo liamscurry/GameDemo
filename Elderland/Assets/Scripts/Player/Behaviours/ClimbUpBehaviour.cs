@@ -42,7 +42,7 @@ public class ClimbUpBehaviour : StateMachineBehaviour
 			float playerMiddle = PlayerInfo.Player.transform.position.y;
 			float ladderTop = Ladder.transform.position.y + (Ladder.Height / 2);
 
-			Vector2 invertedNormal = Matho.Rotate(Matho.StandardProjection2D(Ladder.Normal), 180);
+			Vector2 invertedNormal = Matho.Rotate(Matho.StdProj2D(Ladder.Normal), 180);
 
 			if (Matho.IsInRange(playerMiddle, ladderTop, 0.1f) && angle < 45)
 			{

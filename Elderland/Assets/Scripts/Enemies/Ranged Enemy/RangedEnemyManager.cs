@@ -81,8 +81,8 @@ public sealed class RangedEnemyManager : EnemyManager
     
     public bool IsInDefensiveRange()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
 
         return horizontalDistanceToPlayer <= defensiveRange;
@@ -90,8 +90,8 @@ public sealed class RangedEnemyManager : EnemyManager
 
     public bool IsOutOfDefensiveRange()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
 
         return horizontalDistanceToPlayer > defensiveRange + defensiveRangeMargin;
@@ -99,8 +99,8 @@ public sealed class RangedEnemyManager : EnemyManager
 
     public bool HasClearPlacement()
     {
-        Vector2 castPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
-        castPosition = Vector2.MoveTowards(castPosition, Matho.StandardProjection2D(transform.position), 1f);
+        Vector2 castPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
+        castPosition = Vector2.MoveTowards(castPosition, Matho.StdProj2D(transform.position), 1f);
         Vector3 playerNav = GameInfo.CurrentLevel.NavCast(castPosition);
         NavMeshHit groundHit;
         
@@ -108,8 +108,8 @@ public sealed class RangedEnemyManager : EnemyManager
         float distance = direction.magnitude;
         RaycastHit enemyHit;
 
-        Vector2 rectangleCenter = Matho.StandardProjection2D(Vector3.MoveTowards(PlayerInfo.Player.transform.position, transform.position, EnemyInfo.RangedArranger.radius));
-        rectangleCenter += Matho.StandardProjection2D(direction).normalized;
+        Vector2 rectangleCenter = Matho.StdProj2D(Vector3.MoveTowards(PlayerInfo.Player.transform.position, transform.position, EnemyInfo.RangedArranger.radius));
+        rectangleCenter += Matho.StdProj2D(direction).normalized;
         Vector3 rectangleCenterNav = GameInfo.CurrentLevel.NavCast(rectangleCenter);
         Vector3 rectangleSize = new Vector3(2, 3, 1f - 0.1f);
         Quaternion rectangleRotation = Quaternion.LookRotation(Matho.StandardProjection3D(direction).normalized, Vector3.up);
@@ -149,8 +149,8 @@ public sealed class RangedEnemyManager : EnemyManager
     protected override void OnDrawGizmos()
     {
         Vector3 direction = PlayerInfo.Player.transform.position - transform.position;
-        Vector2 rectangleCenter = Matho.StandardProjection2D(Vector3.MoveTowards(PlayerInfo.Player.transform.position, transform.position, EnemyInfo.RangedArranger.radius));
-        rectangleCenter += Matho.StandardProjection2D(direction).normalized;
+        Vector2 rectangleCenter = Matho.StdProj2D(Vector3.MoveTowards(PlayerInfo.Player.transform.position, transform.position, EnemyInfo.RangedArranger.radius));
+        rectangleCenter += Matho.StdProj2D(direction).normalized;
         Vector3 rectangleCenterNav = GameInfo.CurrentLevel.NavCast(rectangleCenter);
         Vector3 rectangleSize = new Vector3(2, 3, 1f - 0.1f);
         Quaternion rectangleRotation = Quaternion.LookRotation(Matho.StandardProjection3D(direction).normalized, Vector3.up);

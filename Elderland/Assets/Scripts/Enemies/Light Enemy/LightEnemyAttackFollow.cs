@@ -129,8 +129,8 @@ public class LightEnemyAttackFollow : StateMachineBehaviour
 
     private void StopTransition()
     {
-        Vector2 castPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
-        castPosition = Vector2.MoveTowards(castPosition, Matho.StandardProjection2D(manager.transform.position), 1f);
+        Vector2 castPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
+        castPosition = Vector2.MoveTowards(castPosition, Matho.StdProj2D(manager.transform.position), 1f);
         Vector3 playerNav = GameInfo.CurrentLevel.NavCast(castPosition);
         NavMeshHit groundHit;
         
@@ -147,8 +147,8 @@ public class LightEnemyAttackFollow : StateMachineBehaviour
             Vector3 playerEnemyDirection = (PlayerInfo.Player.transform.position - manager.transform.position).normalized;
             float playerEnemyAngle =
                 Matho.AngleBetween(
-                    Matho.StandardProjection2D(manager.transform.forward),
-                    Matho.StandardProjection2D(playerEnemyDirection));
+                    Matho.StdProj2D(manager.transform.forward),
+                    Matho.StdProj2D(playerEnemyDirection));
 
             if (playerEnemyAngle < manager.NextAttack.AttackAngleMargin)
             {

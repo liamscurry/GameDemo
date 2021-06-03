@@ -151,7 +151,7 @@ public sealed class PlayerFinisher : PlayerAbility
             (minCollider.transform.parent.position - PlayerInfo.Player.transform.position);
         targetPlanarDirection =
             Matho.PlanarDirectionalDerivative(
-                Matho.StandardProjection2D(targetDisplacement).normalized,
+                Matho.StdProj2D(targetDisplacement).normalized,
                 PlayerInfo.PhysicsSystem.Normal).normalized;
 
         float theta = Matho.AngleBetween(targetDisplacement, targetPlanarDirection);
@@ -293,7 +293,7 @@ public sealed class PlayerFinisher : PlayerAbility
     public void ActEnd()
     {
         //hitbox.gameObject.SetActive(false);
-        PlayerInfo.MovementManager.TargetDirection = Matho.StandardProjection2D(PlayerInfo.Player.transform.forward).normalized;
+        PlayerInfo.MovementManager.TargetDirection = Matho.StdProj2D(PlayerInfo.Player.transform.forward).normalized;
         PlayerInfo.MovementManager.SnapDirection();
         PlayerInfo.MovementManager.ZeroSpeed();
 

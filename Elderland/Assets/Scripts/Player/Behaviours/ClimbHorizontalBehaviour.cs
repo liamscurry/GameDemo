@@ -52,7 +52,7 @@ public class ClimbHorizontalBehaviour : StateMachineBehaviour
 					horizontalProjectionScalar > 0 && input.x < 0 ||
 					horizontalProjectionScalar < 0 && input.x > 0)
 				{
-					Vector2 invertedNormalDirection = Matho.Rotate(Matho.StandardProjection2D(Ladder.Normal), 180);
+					Vector2 invertedNormalDirection = Matho.Rotate(Matho.StdProj2D(Ladder.Normal), 180);
 
 					Vector3 direction = Mathf.Sin(angle * Mathf.Deg2Rad) * Ladder.RightDirection * Matho.Sign(input.x);
 					PlayerInfo.PhysicsSystem.AnimationVelocity += 3 * direction.normalized;

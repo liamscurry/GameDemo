@@ -43,7 +43,7 @@ public class ClimbDownBehaviour : StateMachineBehaviour
 			float playerBottom = PlayerInfo.Player.transform.position.y - (PlayerInfo.Capsule.height / 2);
 			float ladderBottom = Ladder.transform.position.y - (Ladder.Height / 2);
 
-			Vector2 normal = Matho.StandardProjection2D(Ladder.Normal);
+			Vector2 normal = Matho.StdProj2D(Ladder.Normal);
 
 			if (Matho.IsInRange(playerBottom, ladderBottom, 0.1f) && angle > 135)
 			{

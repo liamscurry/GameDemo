@@ -150,7 +150,7 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
     private void AttackTransition()
     {
         Vector2 horizontalOffset = 
-            Matho.StandardProjection2D(PlayerInfo.Player.transform.position - manager.transform.position);
+            Matho.StdProj2D(PlayerInfo.Player.transform.position - manager.transform.position);
         if (horizontalOffset.magnitude < manager.AttackFollowRadius &&
             EnemyGroup.AttackingEnemies.Count < EnemyGroup.MaxAttackingEnemies)
         {
@@ -178,11 +178,11 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
         if (EnemyGroup.AttackingEnemies.Count == EnemyGroup.MaxAttackingEnemies)
         {
             Vector2 offset = 
-                Matho.StandardProjection2D(manager.Position - PlayerInfo.Player.transform.position);
+                Matho.StdProj2D(manager.Position - PlayerInfo.Player.transform.position);
             foreach (IEnemyGroup enemy in EnemyGroup.AttackingEnemies)
             {
                 Vector2 enemyOffset = 
-                    Matho.StandardProjection2D(enemy.Position - PlayerInfo.Player.transform.position);
+                    Matho.StdProj2D(enemy.Position - PlayerInfo.Player.transform.position);
                 if (offset.magnitude < enemyOffset.magnitude)
                 {
                     // Override logic.

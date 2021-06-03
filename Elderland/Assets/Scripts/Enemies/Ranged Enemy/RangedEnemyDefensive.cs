@@ -76,7 +76,7 @@ public class RangedEnemyDefensive : StateMachineBehaviour
             {
                 manager.Agent.path = path;
                 manager.path = new List<Vector3>(path.corners);
-                manager.path.Insert(0, GameInfo.CurrentLevel.NavCast(Matho.StandardProjection2D(manager.transform.position)));
+                manager.path.Insert(0, GameInfo.CurrentLevel.NavCast(Matho.StdProj2D(manager.transform.position)));
             }
             manager.Agent.stoppingDistance = 0;
         }

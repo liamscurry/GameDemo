@@ -16,7 +16,7 @@ public class WalkBehaviour : StateMachineBehaviour
 	{   
         if (!exiting && GameInfo.Manager.ReceivingInput)
         {
-            Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+            Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
             Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
             Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
             Vector2 movementDirection = forwardDirection + sidewaysDirection;
@@ -62,7 +62,7 @@ public class WalkBehaviour : StateMachineBehaviour
 
 	private void LadderTransition(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
-		Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+		Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
         Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
         Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
         Vector2 movementDirection = forwardDirection + sidewaysDirection;
@@ -79,7 +79,7 @@ public class WalkBehaviour : StateMachineBehaviour
             float horizontalProjectionScalar = Matho.ProjectScalar(PlayerInfo.Player.transform.position - contactLadder.transform.position, contactLadder.RightDirection);
 
             //Direction
-            Vector2 invertedNormal = Matho.Rotate(Matho.StandardProjection2D(contactLadder.Normal), 180);
+            Vector2 invertedNormal = Matho.Rotate(Matho.StdProj2D(contactLadder.Normal), 180);
 
             if (Mathf.Abs(horizontalProjectionScalar) < contactLadder.Width / 2 - PlayerInfo.Capsule.radius &&
                 Mathf.Abs(normalProjectionScalar) - PlayerInfo.Capsule.radius < (contactLadder.Depth / 2) + 1f &&
@@ -124,7 +124,7 @@ public class WalkBehaviour : StateMachineBehaviour
             float horizontalProjectionScalar = Matho.ProjectScalar(PlayerInfo.Player.transform.position - contactLadder.transform.position, contactLadder.RightDirection);
 
             //Direction
-            Vector2 normal = Matho.StandardProjection2D(contactLadder.Normal);
+            Vector2 normal = Matho.StdProj2D(contactLadder.Normal);
 
             if (Mathf.Abs(horizontalProjectionScalar) < contactLadder.Width / 2 - PlayerInfo.Capsule.radius &&
                 Mathf.Abs(normalProjectionScalar) - PlayerInfo.Capsule.radius < (contactLadder.Depth / 2) + 1f &&
@@ -178,7 +178,7 @@ public class WalkBehaviour : StateMachineBehaviour
 
     private void MantleDown(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+        Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
         Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
         Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
         Vector2 movementDirection = forwardDirection + sidewaysDirection;
@@ -190,7 +190,7 @@ public class WalkBehaviour : StateMachineBehaviour
         float normalProjectionScalar = Mathf.Abs(Matho.ProjectScalar(PlayerInfo.Player.transform.position - mantle.transform.position, -mantle.Normal));
 
         if (normalProjectionScalar - PlayerInfo.Capsule.radius < 1f &&
-            Matho.AngleBetween(Matho.StandardProjection2D(mantle.Normal), movementDirection) < 45)
+            Matho.AngleBetween(Matho.StdProj2D(mantle.Normal), movementDirection) < 45)
         {
             //generate target positions
             Vector3 ledgePosition = PlayerInfo.Player.transform.position;
@@ -243,7 +243,7 @@ public class WalkBehaviour : StateMachineBehaviour
 
     private void MantleUp(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+        Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
         Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
         Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
         Vector2 movementDirection = forwardDirection + sidewaysDirection;
@@ -255,7 +255,7 @@ public class WalkBehaviour : StateMachineBehaviour
         float normalProjectionScalar = Mathf.Abs(Matho.ProjectScalar(PlayerInfo.Player.transform.position - mantle.transform.position, mantle.Normal));
 
         if (normalProjectionScalar - PlayerInfo.Capsule.radius < 1f &&
-            Matho.AngleBetween(Matho.StandardProjection2D(-mantle.Normal), movementDirection) < 45)
+            Matho.AngleBetween(Matho.StdProj2D(-mantle.Normal), movementDirection) < 45)
         {
             //generate target positions
             Vector3 basePosition = PlayerInfo.Player.transform.position;

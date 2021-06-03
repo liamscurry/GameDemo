@@ -160,7 +160,7 @@ public class RangedArranger
 
     private int GetIndex(Vector3 position)
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(position);
+        Vector2 projectedPosition = Matho.StdProj2D(position);
         float globalAngle = Matho.Angle(projectedPosition - Center);
         float localAngle = globalAngle - nodeStartAngle;
         float correctedLocalAngle = (globalAngle >= nodeStartAngle) ? localAngle: localAngle + 360;
@@ -169,7 +169,7 @@ public class RangedArranger
 
     private float GetGeneralIndex(Vector3 position)
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(position);
+        Vector2 projectedPosition = Matho.StdProj2D(position);
         float globalAngle = Matho.Angle(projectedPosition - Center);
         float localAngle = globalAngle - nodeStartAngle;
         float correctedLocalAngle = (globalAngle >= nodeStartAngle) ? localAngle: localAngle + 360;

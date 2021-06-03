@@ -104,8 +104,8 @@ public class RangedEnemyAttackWaiting : StateMachineBehaviour
 
     private float DistanceToPlayer()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(manager.transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(manager.transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
         return horizontalDistanceToPlayer;
     }

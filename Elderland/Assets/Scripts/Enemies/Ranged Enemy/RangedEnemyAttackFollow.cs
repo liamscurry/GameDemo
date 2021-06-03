@@ -90,7 +90,7 @@ public class RangedEnemyAttackFollow : StateMachineBehaviour
             {
                 manager.Agent.path = path;
                 manager.path = new List<Vector3>(path.corners);
-                manager.path.Insert(0, GameInfo.CurrentLevel.NavCast(Matho.StandardProjection2D(manager.transform.position)));
+                manager.path.Insert(0, GameInfo.CurrentLevel.NavCast(Matho.StdProj2D(manager.transform.position)));
                 manager.Agent.stoppingDistance = 0;
                 startedFollowing = true;
             }
@@ -162,8 +162,8 @@ public class RangedEnemyAttackFollow : StateMachineBehaviour
 
     private float DistanceToPlayer()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(manager.transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(manager.transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
         return horizontalDistanceToPlayer;
     }

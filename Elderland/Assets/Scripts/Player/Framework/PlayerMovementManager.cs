@@ -120,7 +120,7 @@ public class PlayerMovementManager
 
     public Vector2 DirectionToPlayerCoord(Vector3 direction)
     {
-        Vector2 up = Matho.StandardProjection2D(PlayerInfo.Player.transform.forward);
+        Vector2 up = Matho.StdProj2D(PlayerInfo.Player.transform.forward);
         Vector2 right = Matho.Rotate(up, 90f);
         Vector2 worldDir =
             GameInfo.CameraController.StandardToCameraDirection(direction);

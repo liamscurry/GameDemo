@@ -157,7 +157,7 @@ public class CameraCutscene
 		}
 		else
 		{
-			Vector2 rotationDirection = Matho.StandardProjection2D(PlayerInfo.Player.transform.position - TargetWaypointNode.Value.Position);
+			Vector2 rotationDirection = Matho.StdProj2D(PlayerInfo.Player.transform.position - TargetWaypointNode.Value.Position);
 			GameInfo.CameraController.HorizontalAngle = Matho.Angle(rotationDirection) + GameInfo.CameraController.HorizontalOffset;
 			GameInfo.CameraController.VerticalAngle = finalVerticalAngle;
 		}

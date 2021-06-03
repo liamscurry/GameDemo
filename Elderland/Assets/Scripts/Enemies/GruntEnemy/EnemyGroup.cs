@@ -135,7 +135,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
                 (target - center);
             
             Vector2 targetDirection =
-                Matho.StandardProjection2D(targetDirection3D);
+                Matho.StdProj2D(targetDirection3D);
 
             if (targetDirection.magnitude < offsetThreshold)
             {
@@ -149,7 +149,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
                 Vector3 centerDirection3D =
                     (center - enemy.Position);
                 Vector2 centerDirection =
-                    Matho.StandardProjection2D(centerDirection3D).normalized;
+                    Matho.StdProj2D(centerDirection3D).normalized;
 
                 sumAbsAngle += AbsoluteAngleBetween(targetDirection, centerDirection);
             }
@@ -213,7 +213,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
     private void Shrink(Vector3 target, Vector3 center,  float shrinkSpeed, float shrinkRadius)
     {
-        bool surroundingTarget = Matho.StandardProjection2D(target - center).magnitude < shrinkRadius;
+        bool surroundingTarget = Matho.StdProj2D(target - center).magnitude < shrinkRadius;
         if (surroundingTarget)
         {
             foreach (IEnemyGroup enemy in enemies)

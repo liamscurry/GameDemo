@@ -81,7 +81,7 @@ public class MovementSystem
             Vector3 slopeDirection = Matho.PlanarDirectionalDerivative(direction, physics.Normal).normalized;
 
             movementVelocity += speed * slopeMagnitude * slopeDirection;
-            MovementDirection = Matho.StandardProjection2D(movementVelocity).normalized;
+            MovementDirection = Matho.StdProj2D(movementVelocity).normalized;
 
             return speed * slopeMagnitude * slopeDirection;
         }

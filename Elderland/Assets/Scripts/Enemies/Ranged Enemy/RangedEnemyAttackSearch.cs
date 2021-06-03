@@ -62,8 +62,8 @@ public class RangedEnemyAttackSearch : StateMachineBehaviour
     private void CalculateRotationSettings()
     {
         timesReversed = 0;
-        losPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
-        Vector2 projectedPosition = Matho.StandardProjection2D(manager.transform.position);
+        losPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(manager.transform.position);
 
         Vector2 projectedForward;
         if (manager.path.Count == 0)
@@ -72,8 +72,8 @@ public class RangedEnemyAttackSearch : StateMachineBehaviour
         }
         else
         {
-            Vector2 secondToLastPoint = Matho.StandardProjection2D(manager.path[manager.path.Count - 2]);
-            Vector2 lastPoint = Matho.StandardProjection2D(manager.path[manager.path.Count - 1]);
+            Vector2 secondToLastPoint = Matho.StdProj2D(manager.path[manager.path.Count - 2]);
+            Vector2 lastPoint = Matho.StdProj2D(manager.path[manager.path.Count - 1]);
             PlayerInfo.Manager.test = GameInfo.CurrentLevel.NavCast(lastPoint);
             PlayerInfo.Manager.test2 = GameInfo.CurrentLevel.NavCast(secondToLastPoint);
             projectedForward = (lastPoint - secondToLastPoint).normalized;
@@ -249,8 +249,8 @@ public class RangedEnemyAttackSearch : StateMachineBehaviour
 
     private float DistanceToPlayer()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(manager.transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(manager.transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
         return horizontalDistanceToPlayer;
     }

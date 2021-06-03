@@ -52,7 +52,7 @@ public sealed class PlayerFireballTier3 : PlayerAbility
     // Called every frame of ability to keep movement during duration.
     public override void GlobalConstantUpdate()
     {
-        Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+        Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
         Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
         Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
         Vector2 movementDirection = forwardDirection + sidewaysDirection;
@@ -73,7 +73,7 @@ public sealed class PlayerFireballTier3 : PlayerAbility
 
             PlayerInfo.MovementManager.TargetDirection = movementDirection;
 
-            float forwardsAngle = Matho.AngleBetween(Matho.StandardProjection2D(targetRotation), movementDirection);
+            float forwardsAngle = Matho.AngleBetween(Matho.StdProj2D(targetRotation), movementDirection);
             float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
         
             PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier;
@@ -103,7 +103,7 @@ public sealed class PlayerFireballTier3 : PlayerAbility
     private Vector3 CalculateProjectileDirection(Vector3 startPosition)
     {
         Vector2 analog = GameInfo.Settings.RightDirectionalInput;
-        Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+        Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
         
         Ray cursorRay = GameInfo.CameraController.Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit cursorHit;

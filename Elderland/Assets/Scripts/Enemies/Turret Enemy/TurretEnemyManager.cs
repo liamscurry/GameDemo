@@ -84,7 +84,7 @@ public sealed class TurretEnemyManager : EnemyManager
     public Vector3 PlayerNavMeshPosition()
     {
         Vector2 projectedPlayerPosition = 
-            Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+            Matho.StdProj2D(PlayerInfo.Player.transform.position);
         Vector3 targetPosition =
             GameInfo.CurrentLevel.NavCast(projectedPlayerPosition);
         return targetPosition;
@@ -93,7 +93,7 @@ public sealed class TurretEnemyManager : EnemyManager
     public Vector3 PlayerNavMeshPosition(Vector3 offset)
     {
         Vector2 projectedPlayerPosition = 
-            Matho.StandardProjection2D(PlayerInfo.Player.transform.position + offset);
+            Matho.StdProj2D(PlayerInfo.Player.transform.position + offset);
         Vector3 targetPosition =
             GameInfo.CurrentLevel.NavCast(projectedPlayerPosition);
         return targetPosition;

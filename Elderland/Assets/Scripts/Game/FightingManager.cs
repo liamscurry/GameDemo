@@ -35,7 +35,7 @@ public class FightingManager : MonoBehaviour
     {
         timer += Time.deltaTime;
 
-        Vector2 center = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 center = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float distance = Vector2.Distance(currentCenter, center);
 
         UpdateCenter(center);
@@ -87,7 +87,7 @@ public class FightingManager : MonoBehaviour
 
     public void TurnOn()
     {
-        currentCenter = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        currentCenter = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         UpdateCenter(currentCenter);
         Clear();
         gameObject.SetActive(true);

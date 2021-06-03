@@ -154,7 +154,7 @@ public sealed class PlayerFireball : PlayerAbility
     private Vector3 CalculateProjectileDirection(Vector3 startPosition)
     {
         Vector2 analog = GameInfo.Settings.RightDirectionalInput;
-        Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+        Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
         
         Ray cursorRay = GameInfo.CameraController.Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit cursorHit;

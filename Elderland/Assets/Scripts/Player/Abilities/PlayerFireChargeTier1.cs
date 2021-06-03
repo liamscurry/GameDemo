@@ -72,7 +72,7 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
 
     public override void GlobalConstantUpdate()
     {
-        Vector2 projectedCameraDirection = Matho.StandardProjection2D(GameInfo.CameraController.Direction).normalized;
+        Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
         Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
         Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
         Vector2 movementDirection = forwardDirection + sidewaysDirection;
@@ -93,7 +93,7 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
 
             PlayerInfo.MovementManager.TargetDirection = movementDirection;
 
-            float forwardsAngle = Matho.AngleBetween(Matho.StandardProjection2D(targetRotation), movementDirection);
+            float forwardsAngle = Matho.AngleBetween(Matho.StdProj2D(targetRotation), movementDirection);
             float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
         
             PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier;
@@ -110,7 +110,7 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
         enemyHits.Clear();
 
         direction =
-            Matho.StandardProjection2D(GameInfo.CameraController.transform.forward).normalized;
+            Matho.StdProj2D(GameInfo.CameraController.transform.forward).normalized;
         segment1.gameObject.transform.position =
             transform.position - GameInfo.CameraController.transform.right * 0.5f;
         segment1.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);

@@ -143,8 +143,8 @@ public class HeavyEnemyAttackFollow : StateMachineBehaviour
             Vector3 playerEnemyDirection = (PlayerInfo.Player.transform.position - manager.transform.position).normalized;
             float playerEnemyAngle =
                 Matho.AngleBetween(
-                    Matho.StandardProjection2D(manager.transform.forward),
-                    Matho.StandardProjection2D(playerEnemyDirection));
+                    Matho.StdProj2D(manager.transform.forward),
+                    Matho.StdProj2D(playerEnemyDirection));
 
             if (playerEnemyAngle < manager.NextAttack.AttackAngleMargin)
             {
@@ -174,8 +174,8 @@ public class HeavyEnemyAttackFollow : StateMachineBehaviour
 
     private float DistanceToPlayer()
     {
-        Vector2 projectedPosition = Matho.StandardProjection2D(manager.transform.position);
-        Vector2 projectedPlayerPosition = Matho.StandardProjection2D(PlayerInfo.Player.transform.position);
+        Vector2 projectedPosition = Matho.StdProj2D(manager.transform.position);
+        Vector2 projectedPlayerPosition = Matho.StdProj2D(PlayerInfo.Player.transform.position);
         float horizontalDistanceToPlayer = Vector2.Distance(projectedPosition, projectedPlayerPosition);
         return horizontalDistanceToPlayer;
     }

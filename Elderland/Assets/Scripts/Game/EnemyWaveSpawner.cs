@@ -72,7 +72,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         {
             level = transform.parent.parent.GetComponent<EnemyLevel>();
         }
-        return level.NavCast(Matho.StandardProjection2D(transform.position) + spawn.location, true);
+        return level.NavCast(Matho.StdProj2D(transform.position) + spawn.location, true);
     }
 
     protected Quaternion CalculateRotation(EnemySpawn spawn)
