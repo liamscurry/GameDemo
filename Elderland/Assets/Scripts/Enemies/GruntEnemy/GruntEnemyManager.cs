@@ -95,6 +95,10 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     private Animator animator;
     private Vector2 positionAnalogDirection;
     private const float positionAnalogSpeed = 1.7f;
+    private Vector3 lastPosition;
+    private float currentPercSpeed;
+    private const float minMoveDistance = 0.0001f;
+    private const float acceleration = 7f;
 
     private void LateUpdate()
     {
@@ -126,6 +130,8 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         DeclareAbilities();
         DeclareType();
         animator = GetComponentInChildren<Animator>();
+        lastPosition = transform.position;
+        currentPercSpeed = 0;
     }
 
     protected override void DeclareAbilities()
@@ -133,7 +139,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         Sword = GetComponent<GruntEnemySword>();
         AbilityManager.ApplyAbility(Sword);
 
-        MaxHealth = 1f;
+        MaxHealth = 3f;
         Health = MaxHealth;
         MaxArmor = 0f;
         Armor = MaxArmor;
@@ -194,6 +200,8 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     private void UpdateAnimatorProperties()
     {
         UpdateWalkProperties();
+
+        lastPosition = transform.position;
     }
 
     private void UpdateWalkProperties() // need to use something other than just agent velocity, like the movement speed.
@@ -201,8 +209,22 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         Vector2 forward = Matho.StdProj2D(transform.forward).normalized;
         Vector2 right = Matho.Rotate(forward, 90);
 
-        Vector2 scaledCurrentDir = 
-            Matho.StdProj2D(Agent.velocity).normalized;
+        Vector2 scaledCurrentDir =
+            Matho.StdProj2D(transform.position - lastPosition).normalized; 
+        float deltaMag = Matho.StdProj2D(transform.position - lastPosition).magnitude;
+
+        if (deltaMag > minMoveDistance)
+        {
+            currentPercSpeed += acceleration * Time.deltaTime;
+            if (currentPercSpeed > 1)
+                currentPercSpeed = 1;
+        }
+        else
+        {
+            currentPercSpeed -= acceleration * Time.deltaTime;
+            if (currentPercSpeed < 0)
+                currentPercSpeed = 0;
+        }
 
         Vector2 analogDirection = 
             new Vector2(
@@ -220,7 +242,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
             positionAnalogDirection.y);
         animator.SetFloat(
             "percentileSpeed",
-            Agent.velocity.magnitude / Agent.speed);
+            currentPercSpeed);
     }
 
     public bool updatingRotation;

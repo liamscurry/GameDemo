@@ -30,7 +30,7 @@ public sealed class PlayerSword : PlayerAbility
 
     private float damage = 0.5f;
     private float strength = 18;
-    private float knockbackStrength = 5.5f;
+    private float knockbackStrength = 3.5f;
     private PlayerMultiDamageHitbox hitbox;
     private Vector3 hitboxScale = new Vector3(3f, 2, 2);
     private ParticleSystem hitboxParticles;
@@ -696,12 +696,15 @@ public sealed class PlayerSword : PlayerAbility
 
         //if (holdSegmentHold.Held)
         //{
-            enemy.TryFlinch();
+            
         //}
 
         enemy.ChangeHealth(
             -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * directionalDamageModifier,
             holdSegmentHold.Held);
+        
+        if (enemy.Health > enemy.ZeroHealth)
+            enemy.TryFlinch();
 
         PlayerInfo.AbilityManager.ChangeStamina(
             0.5f * PlayerInfo.StatsManager.StaminaYieldMultiplier.Value);

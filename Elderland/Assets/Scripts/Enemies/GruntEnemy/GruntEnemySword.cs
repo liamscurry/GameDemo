@@ -45,7 +45,7 @@ public sealed class GruntEnemySword : EnemyAbility
         //Specifications
         this.system = abilityManager;
 
-        AttackDistance = 1.75f;
+        AttackDistance = 1.0f;
         AttackDistanceMargin = 0.5f;
         AttackAngleMargin = 5;
     }
@@ -57,7 +57,8 @@ public sealed class GruntEnemySword : EnemyAbility
 
     public void DuringRotate()
     {
-        Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
+        Vector3 targetForward = 
+            Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
         Vector3 forward = Vector3.RotateTowards(transform.forward, targetForward, 3f * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
@@ -92,11 +93,12 @@ public sealed class GruntEnemySword : EnemyAbility
     public override bool OnHit(GameObject character)
     {
         character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage);
+        EnemyManager manager = ((EnemyAbilityManager) system).Manager;
 
-        if (PlayerInfo.StatsManager.Blocking)
+        if (PlayerInfo.StatsManager.Blocking && manager.Health > manager.ZeroHealth)
         {
             ShortCircuit();
-            ((EnemyAbilityManager) system).Manager.Animator.SetTrigger("toDeflected");
+            manager.Animator.SetTrigger("toDeflected");
         }
 
         return true;

@@ -96,11 +96,12 @@ public sealed class LightEnemySword : EnemyAbility
     public override bool OnHit(GameObject character)
     {
         character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage);
+        EnemyManager manager = ((EnemyAbilityManager) system).Manager;
 
-        if (PlayerInfo.StatsManager.Blocking)
+        if (PlayerInfo.StatsManager.Blocking && manager.Health > manager.ZeroHealth)
         {
             ShortCircuit();
-            ((EnemyAbilityManager) system).Manager.Animator.SetTrigger("toDeflected");
+            manager.Animator.SetTrigger("toDeflected");
         }
 
         return true;

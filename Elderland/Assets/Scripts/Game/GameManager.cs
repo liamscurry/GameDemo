@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     private bool respawning;
 
     private float combatCheckTimer;
-    private const float combatCheckDuration = 3f;
+    private const float combatCheckDuration = 1f;
     private const float combatCheckRadius = 30f;
 
     public bool ReceivingInput { get { return receivingInput; } }

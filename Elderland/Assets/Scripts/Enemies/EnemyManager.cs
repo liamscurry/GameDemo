@@ -44,7 +44,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     [SerializeField]
     private GameObject rightWeakDirectionIndicator;
     [SerializeField]
-    private GameObject glitchRenderersParent;
+    private GameObject[] glitchRenderersParent;
     [Header("Particles")]
     [SerializeField]
     private ParticleSystem[] spawnParticles;
@@ -102,7 +102,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public ParticleSystem[] DeathParticles { get { return deathParticles; } }
     public ParticleSystem[] RecycleParticles { get { return recycleParticles; } }
     
-    private SkinnedMeshRenderer[] glitchRenderers;
+    private List<SkinnedMeshRenderer[]> glitchRenderers;
 
     public float NextAttackMax
     {
@@ -125,6 +125,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public float MaxArmor { get; protected set; }
     public float FinisherHealth { get; protected set; }
     public Color HealthBarColor { get; set; }
+    public float ZeroHealth { get { return 0.1f; } }
 
     public bool AttackingPlayer { get; set; }
     
@@ -176,7 +177,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         {
             lightsIntensity[i] = lights[i].intensity;
         }
-        glitchRenderers = glitchRenderersParent.GetComponentsInChildren<SkinnedMeshRenderer>();
+
+        glitchRenderers = new List<SkinnedMeshRenderer[]>();
+        for (int i = 0; i < glitchRenderersParent.Length; i++)
+        {
+            glitchRenderers.Add(glitchRenderersParent[i].GetComponentsInChildren<SkinnedMeshRenderer>());
+        }
 
         StartCoroutine(SpawnTimer());
 
@@ -424,6 +430,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 onNonzero.Invoke();
         }
 
+        Animator.ResetTrigger("spawnReturn");
+
         if (delta < 0)
         {
             StopCoroutine("GlitchMaterial");
@@ -495,9 +503,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     {
         float timer = 0;
         
-        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        for (int i = 0; i < glitchRenderersParent.Length; i++)
         {
-            glitch.material.SetFloat("_Glitch", 1);
+            foreach (SkinnedMeshRenderer glitch in glitchRenderers[i])
+            {
+                glitch.material.SetFloat("_Glitch", 1);
+            }
         }
 
         while (timer < duration)
@@ -505,15 +516,21 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             yield return new WaitForEndOfFrame();
 
             timer += Time.deltaTime;
-            foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+            for (int i = 0; i < glitchRenderersParent.Length; i++)
             {
-                glitch.material.SetFloat("_Glitch", 1 - timer / duration);
+                foreach (SkinnedMeshRenderer glitch in glitchRenderers[i])
+                {
+                    glitch.material.SetFloat("_Glitch", 1 - timer / duration);
+                }
             }
         }
 
-        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        for (int i = 0; i < glitchRenderersParent.Length; i++)
         {
-            glitch.material.SetFloat("_Glitch", 0);
+            foreach (SkinnedMeshRenderer glitch in glitchRenderers[i])
+            {
+                glitch.material.SetFloat("_Glitch", 0);
+            }
         }
     }
 
@@ -573,9 +590,12 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     {
         int fresnelTarget = (inFinisherState) ? 1 : 0;
         currentFresnel = Mathf.MoveTowards(currentFresnel, fresnelTarget, fresnelSpeed * Time.deltaTime);
-        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        for (int i = 0; i < glitchRenderersParent.Length; i++)
         {
-            glitch.material.SetFloat("_FresnelStrength", currentFresnel);
+            foreach (SkinnedMeshRenderer glitch in glitchRenderers[i])
+            {
+                glitch.material.SetFloat("_FresnelStrength", currentFresnel);
+            }
         }
     }
 
@@ -701,11 +721,14 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         healthbarPivot.transform.parent.gameObject.SetActive(false);
         resolvebarPivot.transform.parent.gameObject.SetActive(false);
 
-        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        for (int i = 0; i < glitchRenderersParent.Length; i++)
         {
-            foreach (var material in glitch.materials)
+            foreach (SkinnedMeshRenderer glitch in glitchRenderers[i])
             {
-                material.SetFloat("_ClipThreshold", 0);
+                foreach (var material in glitch.materials)
+                {
+                    material.SetFloat("_ClipThreshold", 0);
+                }
             }
         }
 
@@ -726,13 +749,15 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Vector3 resolveBarScale =
             resolvebarPivot.transform.parent.localScale;
 
+        yield return new WaitForSeconds(0.7f);
+
         StartCoroutine(MeshTransitionTimer(1, 0.6f, 16));
-        yield return ParticleTransitionTimer(0.6f, deathParticles);
+        //yield return ParticleTransitionTimer(0.6f, deathParticles);
 
         healthbarPivot.transform.parent.gameObject.SetActive(false);
         resolvebarPivot.transform.parent.gameObject.SetActive(false);
 
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(1.8f);
 
         Destroy(gameObject);
     }
@@ -755,11 +780,14 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             scaleModifier = 1;
         }
             
-        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        for (int i = 0; i < glitchRenderersParent.Length; i++)
         {
-            foreach (var material in glitch.materials)
+            foreach (SkinnedMeshRenderer glitch in glitchRenderers[i])
             {
-                material.SetFloat("_ClipThreshold", scaledSign);
+                foreach (var material in glitch.materials)
+                {
+                    material.SetFloat("_ClipThreshold", scaledSign);
+                }
             }
         }
 
@@ -782,11 +810,14 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 alteredPercentage = 1 - alteredPercentage;
             }
 
-            foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+            for (int i = 0; i < glitchRenderersParent.Length; i++)
             {
-                foreach (var material in glitch.materials)
+                foreach (SkinnedMeshRenderer glitch in glitchRenderers[i])
                 {
-                    material.SetFloat("_ClipThreshold", clipThreshold);
+                    foreach (var material in glitch.materials)
+                    {
+                        material.SetFloat("_ClipThreshold", clipThreshold);
+                    }
                 }
             }
 
@@ -816,46 +847,59 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             }
         }
 
-        foreach (SkinnedMeshRenderer glitch in glitchRenderers)
+        for (int i = 0; i < glitchRenderersParent.Length; i++)
         {
-            foreach (var material in glitch.materials)
+            foreach (SkinnedMeshRenderer glitch in glitchRenderers[i])
             {
-                material.SetFloat("_ClipThreshold", 1 - scaledSign);
-            }
-        }   
+                foreach (var material in glitch.materials)
+                {
+                    material.SetFloat("_ClipThreshold", 1 - scaledSign);
+                }
+            }  
+        } 
 
         for (int i = 0; i < lights.Length; i++)
         {
             lights[i].intensity = (1 - scaledSign) * lightsIntensity[i];
         }
     }
-
+    /*
     protected IEnumerator ParticleTransitionTimer(float duration, ParticleSystem[] particleSystemParent)
     {
         float timer = 0;
         
         var deathParticleRenderers
-            = new List<ParticleSystemRenderer>();
+            = new List<List<ParticleSystemRenderer>>();
         foreach (ParticleSystem particleSystem in particleSystemParent)
         {
-            deathParticleRenderers.Add(
-                particleSystem.GetComponent<ParticleSystemRenderer>());
+            deathParticleRenderers[i].Add(
+                particleSystemParent[i].GetComponent<ParticleSystemRenderer>());
         }
 
-        foreach (var deathParticle in deathParticleRenderers)
+        for (int i = 0; i < glitchRenderersParent.Length; i++)
         {
-            deathParticle.material.SetFloat("_ClipThreshold", 0);
-            deathParticle.material.SetVector("_WorldCenter", glitchRenderersParent.transform.position + Vector3.up * 0.2f);
+            foreach (var deathParticle in deathParticleRenderers[i])
+            {
+                deathParticle.material.SetFloat("_ClipThreshold", 0);
+                deathParticle.material.SetVector(
+                    "_WorldCenter",
+                    glitchRenderersParent[i].transform.position + Vector3.up * 0.2f);
+            }
         }
-
+        
         while (timer < duration)
         {
             yield return new WaitForEndOfFrame();
 
-            foreach (var deathParticle in deathParticleRenderers)
+            for (int i = 0; i < glitchRenderersParent.Length; i++)
             {
-                deathParticle.material.SetFloat("_ClipThreshold", 0);
-                deathParticle.material.SetVector("_WorldCenter", glitchRenderersParent.transform.position + Vector3.up * 0.2f);
+                foreach (var deathParticle in deathParticleRenderers[i])
+                {
+                    deathParticle.material.SetFloat("_ClipThreshold", 0);
+                    deathParticle.material.SetVector(
+                        "_WorldCenter",
+                        glitchRenderersParent[i].transform.position + Vector3.up * 0.2f);
+                }
             }
 
             timer += Time.deltaTime;
@@ -867,6 +911,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             }
         }
     }
+    */
 
     protected IEnumerator RecycleTimer()
     {

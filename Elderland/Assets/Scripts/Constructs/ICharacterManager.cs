@@ -2,4 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface ICharacterManager {}
+public interface ICharacterManager 
+{    
+    float ZeroHealth { get; }
+}

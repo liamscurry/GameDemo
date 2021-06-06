@@ -202,11 +202,12 @@ public sealed class HeavyEnemyVerticalSword : EnemyAbility
     public override bool OnHit(GameObject character)
     {
         character.GetComponentInParent<PlayerManager>().ChangeHealth(-damage, verticalAttack);
+        EnemyManager manager = ((EnemyAbilityManager) system).Manager;
 
-        if (PlayerInfo.StatsManager.Blocking && !verticalAttack)
+        if (PlayerInfo.StatsManager.Blocking && manager.Health > manager.ZeroHealth && !verticalAttack)
         {
             ShortCircuit();
-            ((EnemyAbilityManager) system).Manager.Animator.SetTrigger("toDeflected");
+            manager.Animator.SetTrigger("toDeflected");
         }
 
         return true;

@@ -53,6 +53,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
 
     public float Health { get; protected set; }
     public float MaxHealth { get; protected set; }
+    public float ZeroHealth { get { return 0.1f; } }
 
     private float savedHealth;
 
