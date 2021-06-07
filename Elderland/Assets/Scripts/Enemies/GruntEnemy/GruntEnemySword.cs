@@ -10,12 +10,28 @@ public sealed class GruntEnemySword : EnemyAbility
     private BoxCollider hitboxTrigger;
     [SerializeField]
     private GameObject hitboxPredictor;
+    [Header("Clips")]
+    [Header("1")]
     [SerializeField]
     private AnimationClip rotateClip;
     [SerializeField]
     private AnimationClip pauseClip;
     [SerializeField]
     private AnimationClip attackClip;
+    [Header("2")]
+    [SerializeField]
+    private AnimationClip rotateClip2;
+    [SerializeField]
+    private AnimationClip pauseClip2;
+    [SerializeField]
+    private AnimationClip attackClip2;
+    [Header("3")]
+    [SerializeField]
+    private AnimationClip rotateClip3;
+    [SerializeField]
+    private AnimationClip pauseClip3;
+    [SerializeField]
+    private AnimationClip attackClip3;
 
     //Fields
     private float damage = 0.5f;
@@ -48,6 +64,31 @@ public sealed class GruntEnemySword : EnemyAbility
         AttackDistance = 1.0f;
         AttackDistanceMargin = 0.5f;
         AttackAngleMargin = 5;
+    }
+
+    protected override void GlobalStart()
+    {
+        int swingType = ((new System.Random()).Next() % 3) + 1;
+        switch (swingType)
+        {
+            case 1:
+                rotate.Clip = rotateClip;
+                pause.Clip = pauseClip;
+                attack.Clip = attackClip;
+                break;
+            case 2:
+                rotate.Clip = rotateClip2;
+                pause.Clip = pauseClip2;
+                attack.Clip = attackClip2;
+                break;
+            case 3:
+                rotate.Clip = rotateClip3;
+                pause.Clip = pauseClip3;
+                attack.Clip = attackClip3;
+                break;
+            default:
+                throw new System.Exception("Grunt enemy swing animation not implemented.");
+        }
     }
 
     public override void GlobalUpdate()
