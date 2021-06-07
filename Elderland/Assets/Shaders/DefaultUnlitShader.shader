@@ -6,6 +6,7 @@ Shader "Custom/DefaultUnlitShader"
         _Color("Color", Color) = (1,1,1,1)
         _MainTex ("Texture", 2D) = "white" {}
         _Threshold ("Threshold", Range(0, 1)) = 0
+        _Skew ("Skew", float) = 0
     }
     SubShader
     {
@@ -42,11 +43,18 @@ Shader "Custom/DefaultUnlitShader"
             float4 _MainTex_ST;
             float4 _Color;
             float _Threshold;
+            float _Skew;
 
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                float4 alteredVertex = v.vertex;
+                float4 origin = mul(unity_ObjectToWorld, float3(0,0,1));
+                float4 shiftedOrigin = mul(unity_ObjectToWorld, float3(1,0,1));
+                float xScale = length(shiftedOrigin - origin);
+                if (xScale != 0)
+                    alteredVertex.x += _Skew * (1 / xScale) * sign(alteredVertex.y);
+                o.vertex = UnityObjectToClipPos(alteredVertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 o.color = v.color;

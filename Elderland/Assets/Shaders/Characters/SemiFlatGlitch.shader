@@ -102,6 +102,7 @@
             ENDCG
         }
 
+        // Glitch pass
         Pass
         {
             Name "SemiFlatShader"
@@ -110,8 +111,6 @@
                 "RenderType"="Transparent"    
                 "Queue"="Transparent"    
             }
-
-            //ZWrite Off
 
             Blend SrcAlpha OneMinusSrcAlpha
 
@@ -156,28 +155,9 @@
                 o.pos = clipPos;
                 o.screenPos = screenPos;
                 o.objectPos = GenerateWorldOffset(v.vertex);
-                //float4 alteredVertex = v.vertex;
-                //alteredVertex.x = alteredVertex.x * 
-                o.worldNormal = UnityObjectToWorldNormal(normal);
-                o.worldView = WorldSpaceViewDir(v.vertex);
                 
                 return o;
             }
-            
-            float4 _Color;
-            sampler2D _MainTex;
-            float _Threshold;
-            float _CrossFade;
-            float _EvenFade;
-            float _OddFade;
-            sampler2D _CameraDepthTexture;
-            float _ShadowStrength;
-            float _LightShadowStrength;
-            float4 _MidFogColor;
-            float4 _EndFogColor;
-            float _HighlightStrength;
-            sampler2D _BumpMap;
-            float _WarmColorStrength;
 
             // Glitch properties
             float _Glitch;
@@ -190,10 +170,80 @@
             {
                 float2 screenPosPercentage = i.screenPos.xy / i.screenPos.w;
 
-                //return float4(screenPosPercentage.y, screenPosPercentage.y, screenPosPercentage.y,1);
                 float glitchX = pow(sin(256 * (screenPosPercentage.x * screenPosPercentage.y)), 2);
                 float glitchY = sin(256 * (screenPosPercentage.x +  screenPosPercentage.y));
 
+                ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
+                float glitchColorValue = _Glitch * sign(glitchY) * .3;
+                return glitchColorValue * fixed4(1, 1, 1, 1);
+            }
+            ENDCG
+        }
+
+        // Fresnel Pass
+        Pass
+        {
+            Name "SemiFlatShader"
+            Tags 
+            { 
+                "RenderType"="Transparent"    
+                "Queue"="Transparent"    
+            }
+
+            Blend SrcAlpha OneMinusSrcAlpha
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+            #include "Lighting.cginc"
+            #include "../Color.cginc"
+            #include "AutoLight.cginc"
+            #include "TerrainSplatmapCommon.cginc"
+            #include "../HelperCgincFiles/MathHelper.cginc"
+            #include "../HelperCgincFiles/FogHelper.cginc"
+            #include "../HelperCgincFiles/LODHelper.cginc"
+            #include "../HelperCgincFiles/CharacterEffectsHelper.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+                float4 color : COLOR;
+            };
+
+            struct v2f
+            {
+                float2 uv : TEXCOORD0;
+                float4 pos : SV_POSITION;
+                float4 screenPos : TEXCOORD1;
+                float4 objectPos : TEXCOORD2;
+                float3 worldNormal : TEXCOORD3;
+                float3 worldView : TEXCOORD4;
+            };
+
+            v2f vert (appdata v, float3 normal : NORMAL, float3 tangent : TANGENT)
+            {
+                v2f o;
+                o.uv = v.uv;
+                o.pos = UnityObjectToClipPos(v.vertex);
+                o.screenPos = ComputeScreenPos(o.pos);
+                o.objectPos = GenerateWorldOffset(v.vertex);
+                o.worldNormal = UnityObjectToWorldNormal(normal);
+                o.worldView = WorldSpaceViewDir(v.vertex);
+                
+                return o;
+            }
+
+            // Fresnel properties
+            float4 _FresnelColor;
+            float _FresnelStrength;
+
+            float _WorldMaxHeight;
+
+            fixed4 frag(v2f i, fixed facingCamera : VFACE) : SV_Target
+            {
                 float fresnel = 
                     AngleBetween(i.worldView, i.worldNormal) / (PI / 2);
                 float alteredFresnel = 
@@ -211,8 +261,7 @@
                     float4(_FresnelColor.r, _FresnelColor.g, _FresnelColor.b, alteredFresnel * _FresnelStrength);
 
                 ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
-                float glitchColorValue = _Glitch * sign(glitchY) * .3;
-                return glitchColorValue * fixed4(1, 1, 1, 1) + fresnelColor;// * sin(16 * _Time.y)
+                return fresnelColor;
             }
             ENDCG
         }

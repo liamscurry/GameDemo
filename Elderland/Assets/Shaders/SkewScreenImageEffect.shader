@@ -11,6 +11,10 @@ Shader "Custom/SkewScreenImageEffect"
         _Threshold ("Threshold", Range(0, 1)) = 0
         _SizeWarpStrength ("SizeWarpStrength", Range(0,2)) = 1
         _WarpXOffset ("WarpXOffset", float) = 0
+
+        // From CharacterEffectsHelper.cginc
+        _CutoutThreshold ("CutoutThreshold", Range(0.0, 1.0)) = 1.0
+        _CutoutTexture ("CutoutTexture", 2D) = "white" {}
     }
     SubShader
     {
@@ -18,6 +22,7 @@ Shader "Custom/SkewScreenImageEffect"
         GrabPass { }
         Blend SrcAlpha OneMinusSrcAlpha
         //LOD 100
+        Cull Off
 
         Pass
         {
@@ -30,6 +35,9 @@ Shader "Custom/SkewScreenImageEffect"
 
             #include "UnityCG.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
+
+            sampler2D _CutoutTexture;
+            float _CutoutThreshold;
 
             struct appdata
             {
@@ -83,7 +91,13 @@ Shader "Custom/SkewScreenImageEffect"
             fixed4 frag (v2f i, float3 normal : NORMAL) : SV_Target
             {
                 float4 mainTexColor = tex2D(_MainTex, i.uvOriginal);
-                clip (_Threshold - mainTexColor.a);
+
+                // Clipping
+                clip (mainTexColor.a - _Threshold);
+
+                float cutoutColor = tex2D(_CutoutTexture, i.uvOriginal).r;
+                float clipped = cutoutColor - _CutoutThreshold;
+                clip (clipped);
 
                 float2 uv = i.screenPos.xy / i.screenPos.w;
                 float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
@@ -103,24 +117,11 @@ Shader "Custom/SkewScreenImageEffect"
                         1 + sin(uv.y * 20) * .1 * _SizeWarpStrength,
                         1,
                         1);
-                //float refraction
-                //float4 grabPosScale = float4(1 + sin(uv.x * 45) * .1, 1 + sin(uv.x * 45) * .1, 1, 1);
-                float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos * grabPosScale + grabPosOffset);// 
-                //    existingColor = tex2Dproj(_Skybox, ((i.grabPos + float4(0,2,0,0)) * float4(0.5,0.5,1,1)));
-                //return tex2Dproj(_Skybox, i.grabPos * float4(2,2,1,1) + float4(.25,.25,0,0));
-                //Skybox sample
-                //return existingColor;
+
+                float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos * grabPosScale + grabPosOffset);
                 
-                float lightnessMultiplier = 0.9;//0.9 + i.color.r * .5, 1 works fine, 0.9 does not
-                //return lightnessMultiplier;
-                //return i.color.r; // both existing color and lightness multiplier fine, but result not
-                // has nothing to do with i.color.r, removed it and it was still having the bug.
-                //existingColor = 
-                //    float4(existingColor.r * lightnessMultiplier,
-                //           existingColor.g * lightnessMultiplier,
-                //           existingColor.b * lightnessMultiplier,
-                //           1);
-                lightnessMultiplier = 0.075;
+                float lightnessMultiplier = 0.075;
+
                 existingColor = existingColor - 
                     float4(lightnessMultiplier,
                            lightnessMultiplier,
@@ -137,7 +138,6 @@ Shader "Custom/SkewScreenImageEffect"
                 }
 
                 return existingColor;
-                //return _WaterBedColor * existingColor;
             }
             ENDCG
         }

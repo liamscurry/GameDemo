@@ -54,6 +54,13 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private ParticleSystem[] recycleParticles;
     [SerializeField]
     private Light[] lights;
+    [Header("Animation")]
+    [SerializeField]
+    private AnimationClip flinch;
+    [SerializeField]
+    private AnimationClip flinchLeft;
+    [SerializeField]
+    private AnimationClip flinchRight;
 
     private float[] lightsIntensity;
 
@@ -196,17 +203,6 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         UpdateMaterialSettings();
         TimeResolve();
         Agent.speed = baseAgentSpeed * StatsManager.MovespeedMultiplier.Value;
-
-        //if (!PhysicsSystem.Animating || moveViaMovementManagerDuringAnimating)
-        {
-            //MovementSystem.Move(Matho.StandardProjection2D(dynamicAgentVelocity), dynamicAgentVelocity.magnitude);
-            //Debug.Log(Matho.StandardProjection2D(dynamicAgentVelocity));
-        }
-
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            ChangeHealth(0.5f);
-        }
     }
 
     protected virtual void FixedUpdate()
@@ -703,7 +699,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Animator.SetBool("stationary", false);
     }
 
-    public virtual void TryFlinch()
+    public virtual void TryFlinch(int direction = 0)
     {
         if (StatsManager.Interuptable)
         {
@@ -713,6 +709,15 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
             }
 
             Animator.SetTrigger("toFlinch");
+
+            if (direction != 0)
+            {
+                animatorController["Flinch"] = (direction == 1) ? flinchRight : flinchLeft;
+            }
+            else
+            {
+                 animatorController["Flinch"] = flinch;
+            }
         }
     }
 
@@ -749,9 +754,9 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Vector3 resolveBarScale =
             resolvebarPivot.transform.parent.localScale;
 
-        yield return new WaitForSeconds(0.7f);
+        yield return new WaitForSeconds(1f);
 
-        StartCoroutine(MeshTransitionTimer(1, 0.6f, 16));
+        StartCoroutine(MeshTransitionTimer(1, 0.6f, 35));
         //yield return ParticleTransitionTimer(0.6f, deathParticles);
 
         healthbarPivot.transform.parent.gameObject.SetActive(false);

@@ -704,7 +704,10 @@ public sealed class PlayerSword : PlayerAbility
             holdSegmentHold.Held);
         
         if (enemy.Health > enemy.ZeroHealth)
-            enemy.TryFlinch();
+        {
+            int shiftedSign = (flipSign == 1) ? -1 : 1;
+            enemy.TryFlinch(shiftedSign);
+        }
 
         PlayerInfo.AbilityManager.ChangeStamina(
             0.5f * PlayerInfo.StatsManager.StaminaYieldMultiplier.Value);
