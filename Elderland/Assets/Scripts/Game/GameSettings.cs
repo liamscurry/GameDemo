@@ -74,8 +74,8 @@ public class GameSettings : MonoBehaviour
         MeleeAbilityKey = KeyCode.Joystick1Button2;
         AlternateMeleeAbilityKey = KeyCode.Joystick1Button3;
         DodgeAbilityKey = KeyCode.JoystickButton0;
-        DashAbilityKey = KeyCode.Joystick1Button5;
-        BlockAbilityKey = KeyCode.Joystick1Button1;
+        DashAbilityKey = KeyCode.Joystick1Button1;
+        BlockAbilityKey = KeyCode.Joystick1Button5;
         FinisherAbilityKey = KeyCode.Joystick1Button9;
 
         //Misc

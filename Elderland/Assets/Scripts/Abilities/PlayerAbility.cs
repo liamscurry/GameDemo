@@ -319,24 +319,24 @@ public abstract class PlayerAbility : Ability
         if (direction.y >= 0 && dirAngle > 45 + 45f / 2)
         {
             return PlayerInfo.AnimationManager.GetAnim(
-                ResourceConstants.Player.Art.Dodge + "Forward");
+                key + "Forward");
         }
         else if (direction.y < 0 && dirAngle > 45 + 45f / 2)
         {
             return PlayerInfo.AnimationManager.GetAnim(
-                ResourceConstants.Player.Art.Dodge + "Backward");
+                key + "Backward");
         }
         else
         {   
             if (direction.x >= 0)
             {
                 return PlayerInfo.AnimationManager.GetAnim(
-                    ResourceConstants.Player.Art.Dodge + "Right");
+                    key + "Right");
             }
             else
             {
                 return PlayerInfo.AnimationManager.GetAnim(
-                    ResourceConstants.Player.Art.Dodge + "Left");
+                    key + "Left");
             }
         }
     }

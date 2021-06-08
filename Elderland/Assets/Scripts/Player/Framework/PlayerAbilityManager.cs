@@ -103,7 +103,7 @@ public class PlayerAbilityManager : AbilitySystem
             Input.GetKey(GameInfo.Settings.MeleeAbilityKey) || Input.GetKey(GameInfo.Settings.AlternateMeleeAbilityKey) : false;
         bool dashInput = (GameInfo.Manager.ReceivingInput && DashAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
         bool dodgeInput = (GameInfo.Manager.ReceivingInput && DodgeAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
-        bool blockInput = (GameInfo.Manager.ReceivingInput && BlockAvailable && AbilitiesAvailable) ? Input.GetKeyDown(GameInfo.Settings.BlockAbilityKey) : false;
+        //bool blockInput = (GameInfo.Manager.ReceivingInput && BlockAvailable && AbilitiesAvailable) ? Input.GetKeyDown(GameInfo.Settings.BlockAbilityKey) : false;
         bool finisherInput = 
             (GameInfo.Manager.ReceivingInput && AbilitiesAvailable) ? 
             Input.GetKeyDown(GameInfo.Settings.FinisherAbilityKey): 
@@ -127,8 +127,8 @@ public class PlayerAbilityManager : AbilitySystem
         if (dodgeInput)
             weaponHeldDown = dodge;
         
-        if (blockInput)
-            weaponHeldDown = block;
+        //if (blockInput)
+        //    weaponHeldDown = block;
 
         if (finisherInput)
             weaponHeldDown = finisher;
@@ -181,8 +181,8 @@ public class PlayerAbilityManager : AbilitySystem
         if (dodge != null)
             dodge.UpdateAbility(dodge == weaponHeldDown, dodgeInput);
 
-        if (block != null)
-            block.UpdateAbility(block == weaponHeldDown, blockInput);
+        //if (block != null)
+        //    block.UpdateAbility(block == weaponHeldDown, blockInput);
 	}
 
     public void OnCombatStanceOn()
@@ -238,7 +238,7 @@ public class PlayerAbilityManager : AbilitySystem
         EquipAbility<PlayerDash>(ref dash);
         EquipAbility<PlayerFireball>(ref ranged);
         EquipAbility<PlayerFireChargeTier1>(ref aoe);
-        EquipAbility<PlayerBlock>(ref block);
+        //EquipAbility<PlayerBlock>(ref block);
         #endif
     }
 
