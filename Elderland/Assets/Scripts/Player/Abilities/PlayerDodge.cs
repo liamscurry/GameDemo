@@ -51,6 +51,8 @@ public sealed class PlayerDodge : PlayerAbility
             abilitySpeed = 1;
         }
 
+        abilitySpeed *= 0.75f;
+
         /*
         if (PlayerInfo.StatsManager.AttackSpeedMultiplier.ModifierCount != 0)
         {

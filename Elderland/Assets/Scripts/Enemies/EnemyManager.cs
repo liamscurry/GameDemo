@@ -54,6 +54,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     private ParticleSystem[] recycleParticles;
     [SerializeField]
     private Light[] lights;
+    [SerializeField]
+    private ParticleSystem[] particles; // Particles that stop playing when enemy dies.
     [Header("Animation")]
     [SerializeField]
     private AnimationClip flinch;
@@ -108,6 +110,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public ParticleSystem[] SpawnParticles { get { return spawnParticles; } }
     public ParticleSystem[] DeathParticles { get { return deathParticles; } }
     public ParticleSystem[] RecycleParticles { get { return recycleParticles; } }
+    public ParticleSystem[] Particles { get { return particles; } }
     
     private List<SkinnedMeshRenderer[]> glitchRenderers;
 
@@ -235,8 +238,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         finisherIndicator.transform.localPosition = 
             new Vector3(
                 width / 2 - finisherPercentage * width,
-                finisherIndicator.transform.localPosition.y,
-                finisherIndicator.transform.localPosition.z);
+                0,
+                2);
 
         inFinisherState = false;
         currentFresnel = 0;
@@ -599,6 +602,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     {
         Alive = false;
         SpawnPickups();
+        StopParticles();
         DieLogic();
 
         StartCoroutine(DieTimer());
@@ -609,6 +613,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     public void DieInstant()
     {
         Alive = false;
+        StopParticles();
         DieLogic();
 
         Destroy(gameObject);
@@ -646,6 +651,17 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         else if (EncounterSpawn != null)
         {
             EncounterSpawn.state = EncounterSpawner.SpawnState.Dead;
+        }
+    }
+
+    /*
+    * Method needed to fade out particles on death.
+    */
+    private void StopParticles()
+    {
+        foreach (var system in particles)
+        {
+            system.Stop();
         }
     }
 
@@ -762,7 +778,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         healthbarPivot.transform.parent.gameObject.SetActive(false);
         resolvebarPivot.transform.parent.gameObject.SetActive(false);
 
-        yield return new WaitForSeconds(1.8f);
+        yield return new WaitForSeconds(1f);
 
         Destroy(gameObject);
     }
