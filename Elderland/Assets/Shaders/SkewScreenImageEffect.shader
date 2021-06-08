@@ -5,12 +5,12 @@ Shader "Custom/SkewScreenImageEffect"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Skybox ("Skybox", 2D) = "white" {}
         _WaterBedColor ("WaterBedColor", Color) = (0,0,0,0)
         
         _Threshold ("Threshold", Range(0, 1)) = 0
         _SizeWarpStrength ("SizeWarpStrength", Range(0,2)) = 1
         _WarpXOffset ("WarpXOffset", float) = 0
+        _Dimness ("Dimness", Range(0.0, 1.0)) = 1
 
         // From CharacterEffectsHelper.cginc
         _CutoutThreshold ("CutoutThreshold", Range(0.0, 1.0)) = 1.0
@@ -68,6 +68,7 @@ Shader "Custom/SkewScreenImageEffect"
             float _Threshold;
             float _SizeWarpStrength;
             float _WarpXOffset;
+            float _Dimness;
             sampler2D _Skybox;
 
             v2f vert (appdata v, float3 normal : NORMAL)
@@ -120,7 +121,7 @@ Shader "Custom/SkewScreenImageEffect"
 
                 float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos * grabPosScale + grabPosOffset);
                 
-                float lightnessMultiplier = 0.075;
+                float lightnessMultiplier = 0.075 * _Dimness;
 
                 existingColor = existingColor - 
                     float4(lightnessMultiplier,

@@ -224,38 +224,41 @@ public abstract class PlayerAbility : Ability
 
         cooldownStaminaIcons = new List<Image>();
 
-        for (int i = 0; i < remainingStaminaInt; i++)
-        {
-            GameObject cooldownStaminaUIObject =
-            GameObject.Instantiate(
-                Resources.Load(ResourceConstants.Player.Abilities.CooldownStaminaUI),
-                cooldownUIObject.transform,
-                false) as GameObject;
-
-            ((RectTransform) cooldownStaminaUIObject.transform).anchoredPosition =
-                new Vector2(xStart + xDelta * i, 0);
-
-            cooldownStaminaIcons.Add(cooldownStaminaUIObject.GetComponent<Image>());
-        }
-
         float tolerance = 0.01f;
-        if (staminaCost - remainingStaminaInt > 0.0f + tolerance)
+        if (staminaCost > tolerance)
         {
-            GameObject cooldownStaminaUIObject =
-            GameObject.Instantiate(
-                Resources.Load(ResourceConstants.Player.Abilities.CooldownStaminaUI),
-                cooldownUIObject.transform,
-                false) as GameObject;
+            for (int i = 0; i < remainingStaminaInt; i++)
+            {
+                GameObject cooldownStaminaUIObject =
+                GameObject.Instantiate(
+                    Resources.Load(ResourceConstants.Player.Abilities.CooldownStaminaUI),
+                    cooldownUIObject.transform,
+                    false) as GameObject;
 
-            ((RectTransform) cooldownStaminaUIObject.transform).anchoredPosition =
-                new Vector2(xStart + xDelta * (remainingStaminaInt), 0);
+                ((RectTransform) cooldownStaminaUIObject.transform).anchoredPosition =
+                    new Vector2(xStart + xDelta * i, 0);
 
-            cooldownStaminaUIObject.transform.localScale = new Vector2(staminaCost - remainingStaminaInt, 1);
-            
-            cooldownStaminaIcons.Add(cooldownStaminaUIObject.GetComponent<Image>());
+                cooldownStaminaIcons.Add(cooldownStaminaUIObject.GetComponent<Image>());
+            }
+
+            if (staminaCost - remainingStaminaInt > 0.0f + tolerance)
+            {
+                GameObject cooldownStaminaUIObject =
+                GameObject.Instantiate(
+                    Resources.Load(ResourceConstants.Player.Abilities.CooldownStaminaUI),
+                    cooldownUIObject.transform,
+                    false) as GameObject;
+
+                ((RectTransform) cooldownStaminaUIObject.transform).anchoredPosition =
+                    new Vector2(xStart + xDelta * (remainingStaminaInt), 0);
+
+                cooldownStaminaUIObject.transform.localScale = new Vector2(staminaCost - remainingStaminaInt, 1);
+                
+                cooldownStaminaIcons.Add(cooldownStaminaUIObject.GetComponent<Image>());
+            }
+
+            cooldownReadyColor = cooldownStaminaIcons[0].color;
         }
-
-        cooldownReadyColor = cooldownStaminaIcons[0].color;
 
         GameObject levelUIObject =
             GameObject.Instantiate(
@@ -343,8 +346,8 @@ public abstract class PlayerAbility : Ability
         if (slider != null)
         {
             Color colorIndicator =
-            ((system as PlayerAbilityManager).Stamina >= staminaCost) ?
-            cooldownReadyColor : new Color(0.25f, 0.25f, 0.25f, 1);
+                ((system as PlayerAbilityManager).Stamina >= staminaCost) ?
+                cooldownReadyColor : new Color(0.25f, 0.25f, 0.25f, 1);
 
             foreach (Image i in cooldownStaminaIcons)
             {

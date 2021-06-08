@@ -91,7 +91,9 @@ public static class ResourceConstants
         {
             public const string Model = "Player/PlayerAnatomyRig";
             public const string Idle = "Armature|Idle";
+            
             public const string Dodge = "Dodge";
+            public const string Dash = "Dash";
 
             public const string FireballLeftCharge = "FireballLeftCharge";
             public const string FireballLeftAct = "FireballLeftAct";

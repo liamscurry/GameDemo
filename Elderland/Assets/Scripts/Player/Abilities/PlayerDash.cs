@@ -8,7 +8,7 @@ public sealed class PlayerDash : PlayerAbility
 {
     //Fields
     private Vector2 direction;
-    private float speed = 18f;
+    private float speed = 15f;
 
     private ParticleSystem dashParticles;
 
@@ -19,12 +19,9 @@ public sealed class PlayerDash : PlayerAbility
     {
         this.system = abilityManager;
 
-        AnimationClip dashClip = Resources.Load<AnimationClip>("Player/Abilities/Dash/Dash");
-
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1);
-        act = new AbilitySegment(dashClip, actProcess);
+        act = new AbilitySegment(null, actProcess);
         act.Type = AbilitySegmentType.Physics;
-        act.LoopFactor = 2;
 
         segments = new AbilitySegmentList();
         segments.AddSegment(act);
@@ -38,9 +35,10 @@ public sealed class PlayerDash : PlayerAbility
         dashParticlesObject.transform.parent = PlayerInfo.Player.transform;
         dashParticles = dashParticlesObject.GetComponent<ParticleSystem>();
 
-        coolDownDuration = 1f;
+        coolDownDuration = 0.75f;
 
-        staminaCost = 1f;
+        staminaCost = 0f;
+
         GenerateCoolDownIcon(
             staminaCost,
             Resources.Load<Sprite>(ResourceConstants.Player.Abilities.DashTier1Icon),
@@ -53,6 +51,20 @@ public sealed class PlayerDash : PlayerAbility
                PlayerInfo.AbilityManager.Stamina >= staminaCost;
     }
 
+    protected override void GlobalStart()
+    {
+        Vector2 playerInput =
+            PlayerInfo.MovementManager.DirectionToPlayerCoord(GameInfo.Settings.LeftDirectionalInput);
+        AnimationClip dashClip =
+            GetDirAnim(ResourceConstants.Player.Art.Dash, playerInput);
+        act.Clip = dashClip;
+    }
+
+    public override void GlobalUpdate()
+    {
+        PlayerInfo.AnimationManager.UpdateRotation(true);
+    }
+
     private void ActBegin()
     {
         direction = GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput);
@@ -63,6 +75,10 @@ public sealed class PlayerDash : PlayerAbility
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
 
         dashParticles.Play();
+
+        GameInfo.CameraController.Speed = 0.5f;
+        GameInfo.CameraController.TargetSpeed = 0;
+        GameInfo.CameraController.SpeedGradation = .15f;
     }
 
     private void DuringAct()

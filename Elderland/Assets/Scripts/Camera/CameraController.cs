@@ -55,7 +55,7 @@ public class CameraController : MonoBehaviour
     private GameplayCutscene gameplayCutscene;
 
     //Gameplay data
-    public float Speed { get; private set; }
+    public float Speed { get; set; }
     public float Zoom { get; private set; }
     public float LinearMultiplier { get; private set; }
     public Vector3 Direction { get { return direction; } private set { direction = value.normalized; } }
@@ -256,7 +256,8 @@ public class CameraController : MonoBehaviour
         return w;
     }
 
-    //Moves the camera towards specific positions based on the camera's primary and secondary targets. Uses gameplay settings.
+    // Moves the camera towards specific positions based on the camera's primary and secondary targets. 
+    // Uses gameplay settings.
     private void Gameplay()
     {
         if (FollowTarget != null)
@@ -271,8 +272,9 @@ public class CameraController : MonoBehaviour
                 MaxRadius = 2.75f;
                 transform.rotation = GenerateRotation();
                 UpdateSprintTimer();
+                Vector3 targetPosition = GeneratePosition(FollowTarget.transform.position + GenerateSprintOffset());
                 transform.position =
-                    GeneratePosition(FollowTarget.transform.position + GenerateSprintOffset());
+                    FollowPosition(transform.position, targetPosition);
             }
             else
             {
@@ -644,9 +646,16 @@ public class CameraController : MonoBehaviour
         Radius = targetRadius;
     }
 
-    private Vector3 FollowPosition(Vector3 targetPosition)
+    private Vector3 FollowPosition(Vector3 currentPosition, Vector3 targetPosition)
     {
-        Vector3 newPosition = Vector3.SmoothDamp(transform.position, targetPosition, ref positionVelocity, Speed, 100, Time.deltaTime);
+        Vector3 newPosition = 
+            Vector3.SmoothDamp(
+                currentPosition,
+                targetPosition,
+                ref positionVelocity,
+                Speed,
+                float.PositiveInfinity,
+                Time.deltaTime);
         return newPosition;
     }
 }
