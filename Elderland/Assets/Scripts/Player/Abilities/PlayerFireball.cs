@@ -64,7 +64,8 @@ public sealed class PlayerFireball : PlayerAbility
     {
         walkSpeedModifier = 1;
         
-        actSegment.Clip = (replayed) ? actHold : actSummon;
+        actSegment.UpperClip = (replayed) ? actHold : actSummon;
+        actSegment.Clip = PlayerInfo.AnimationManager.GetAnim("Armature|JogForward");
     }
 
     public override void GlobalConstantUpdate()

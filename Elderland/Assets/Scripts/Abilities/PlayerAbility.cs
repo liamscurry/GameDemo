@@ -71,7 +71,7 @@ public abstract class PlayerAbility : Ability
             }
 
             ActiveSegment = segments.Start;
-            system.AnimationLoop.SetNextSegmentClip(segments.Start.Clip);
+            SetNextAnimationClips();
             PlayerInfo.Animator.SetInteger(
                 "choiceSeparator",
                 PlayerInfo.AbilityManager.AnimationLoop.CurrentSegmentIndex);
@@ -107,7 +107,8 @@ public abstract class PlayerAbility : Ability
         if (ActiveSegment.Next != null)
         {
             ActiveSegment = ActiveSegment.Next;
-            system.AnimationLoop.SetNextSegmentClip(ActiveSegment.Clip);
+            SetNextAnimationClips();
+            //system.AnimationLoop.SetNextSegmentClip(ActiveSegment.Clip);
 
             system.Animator.SetTrigger("proceedAbility");
         }
@@ -142,6 +143,25 @@ public abstract class PlayerAbility : Ability
                 system.Animator.SetTrigger("proceedAbility");
             }
         }
+    }
+
+    private void SetNextAnimationClips()
+    {
+        AnimationClip[] lowerUpperClips = null;
+        if (ActiveSegment.UpperClip != null)
+        {
+            lowerUpperClips =
+                new AnimationClip[2] { ActiveSegment.Clip, ActiveSegment.UpperClip };
+        }
+        else
+        {
+            lowerUpperClips =
+                new AnimationClip[2] { ActiveSegment.Clip, ActiveSegment.Clip };
+        }
+            
+        string[] lowerUpperNames = 
+            new string[2] { "Segment", "AbilityUpperSegment" };
+        system.AnimationLoop.SetNextSegmentClip(lowerUpperClips, lowerUpperNames);
     }
 
     private void ContinousWait()

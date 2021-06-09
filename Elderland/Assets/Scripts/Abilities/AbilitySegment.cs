@@ -5,6 +5,7 @@ using UnityEngine;
 public class AbilitySegment 
 {
 	public AnimationClip Clip { get; set; }
+	public AnimationClip UpperClip { get; set; }
 	public AbilityProcess[] Processes { get; set; }
 	public AbilitySegment Next { get; set; }
 	public AbilitySegmentType Type { get; set; }
@@ -15,6 +16,7 @@ public class AbilitySegment
 	public AbilitySegment(AnimationClip clip, params AbilityProcess[] processes)
 	{
 		Clip = clip;
+		UpperClip = null;
 		Processes = processes;
 		Next = null;
 		Type = AbilitySegmentType.Normal;
