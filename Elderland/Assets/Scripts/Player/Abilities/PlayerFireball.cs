@@ -5,55 +5,46 @@ using UnityEngine.UI;
 
 public sealed class PlayerFireball : PlayerAbility
 {
-    private AbilitySegment chargeSegment;
-    private AbilityProcess chargeProcess;
-
     private AbilitySegment actSegment;
     private AbilityProcess waitProcess;
     private AbilityProcess shootProcess;
 
-    private const float damage = 2f;
+    private const float damage = 0.25f;
     private const float speed = 50;
     private const float walkSlowRate = 3;
 
     private float walkSpeedModifier;
 
-    private PlayerAbilityHold chargeSegmentHold;
-
     private int animCounter;
+
+    // Animations
+    private AnimationClip actSummon;
+    private AnimationClip actHold;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
         //Specifications
         this.system = abilitySystem;
 
-        chargeProcess = new AbilityProcess(ChargeStart, ChargeUpdate, ChargeEnd, 1, true);
-        chargeSegment = new AbilitySegment(null, chargeProcess);
+        actSummon = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightSummon);
+        actHold =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightHold);
 
-        waitProcess = new AbilityProcess(null, null, null, 0.25f);
-        shootProcess = new AbilityProcess(ActBegin, null, null, 0.75f);
+        waitProcess = new AbilityProcess(WaitBegin, null, null, 0.25f);
+        shootProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.75f);
         actSegment = new AbilitySegment(null, waitProcess, shootProcess);
         actSegment.Type = AbilitySegmentType.Normal;
 
         segments = new AbilitySegmentList();
-        segments.AddSegment(chargeSegment);
+        //segments.AddSegment(chargeSegment);
         segments.AddSegment(actSegment);
         segments.NormalizeSegments();
-
-        chargeSegmentHold =
-            new PlayerAbilityHold(
-                abilitySystem.HoldBar,
-                chargeProcess,
-                0.25f,
-                0.4f,
-                () => Mathf.Abs(GameInfo.Settings.FireballTrigger) < GameInfo.Settings.FireballTriggerOffThreshold,
-                true
-            );
 
         //Durations
         continous = true;
 
-        staminaCost = 1f;
+        staminaCost = 0.125f;
 
         GenerateCoolDownIcon(
             staminaCost,
@@ -72,28 +63,8 @@ public sealed class PlayerFireball : PlayerAbility
     protected override void GlobalStart()
     {
         walkSpeedModifier = 1;
-        GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.32f));
-
-        if (animCounter == 0)
-        {
-            AnimationClip chargeClip = 
-                PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightCharge);
-            AnimationClip actClip =
-                PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightAct);
-            chargeSegment.Clip = chargeClip;
-            actSegment.Clip = actClip;
-            animCounter = 1;
-        }
-        else if (animCounter == 1)
-        {
-            AnimationClip chargeClip = 
-                PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballLeftCharge);
-            AnimationClip actClip =
-                PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballLeftAct);
-            chargeSegment.Clip = chargeClip;
-            actSegment.Clip = actClip;
-            animCounter = 0;
-        }
+        
+        actSegment.Clip = (replayed) ? actHold : actSummon;
     }
 
     public override void GlobalConstantUpdate()
@@ -104,50 +75,30 @@ public sealed class PlayerFireball : PlayerAbility
         PlayerInfo.AbilityManager.MoveDuringAbility(walkSpeedModifier);
     }
 
-    /*
-    public void WaitEnd()
+    public void WaitBegin()
     {
-        Debug.Log("called");
-        //Slow player movement speed
-        PlayerInfo.StatsManager.MovespeedModifier = .75f;
-        PlayerInfo.StatsManager.MovespeedEditor = gameObject;
-    }
-    */
-
-    public void ChargeStart()
-    {
-        chargeSegmentHold.Start();
-    }
-
-    public void ChargeUpdate()
-    {
-        chargeSegmentHold.Update();
-    }
-
-    public void ChargeEnd()
-    {
-        chargeSegmentHold.End();
-        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0f, 0f));
+        GameInfo.CameraController.SensitivityModifier = 0.4f;
     }
 
 	public void ActBegin()
     {
-        if (chargeSegmentHold.Held)
-        {
-            // PlayerInfo.Capsule.TopSpherePosition()
-            Vector3 startPosition = CalculateStartPosition();
-            Vector3 direction = CalculateProjectileDirection(startPosition);
-        
-            SpawnProjectiles(direction, startPosition);
-            PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
-        }
+        Vector3 startPosition = CalculateStartPosition();
+        Vector3 direction = CalculateProjectileDirection(startPosition);
+    
+        SpawnProjectiles(direction, startPosition);
+        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
+    }
+
+    public void ActEnd()
+    {
+        GameInfo.CameraController.SensitivityModifier = 1f;
     }
 
     private Vector3 CalculateStartPosition()
     {
         return PlayerInfo.Capsule.TopSpherePosition() +
-               Vector3.up * 0.35f +
-               GameInfo.CameraController.transform.right * -1 * 0.5f +
+               Vector3.up * 0.9f +
+               GameInfo.CameraController.transform.right * -1 * 0.654f +
                GameInfo.CameraController.transform.forward * -1 * 0.5f;
     }
 

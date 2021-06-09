@@ -21,6 +21,8 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private float defaultZoom;
     [SerializeField]
+    private float sensitivity;
+    [SerializeField]
     private float defaultLinearMultiplier;
     [SerializeField]
     private Vector3 defaultDirection;
@@ -59,6 +61,7 @@ public class CameraController : MonoBehaviour
     public float Zoom { get; private set; }
     public float LinearMultiplier { get; private set; }
     public Vector3 Direction { get { return direction; } private set { direction = value.normalized; } }
+    public float SensitivityModifier { get; set; }
 
     //Gameplay settings
     public float TargetSpeed { get; set; }
@@ -173,6 +176,7 @@ public class CameraController : MonoBehaviour
         fovSpeedGradation = .125f;
 
         zoomModifier = 1;
+        SensitivityModifier = 1;
 
         Camera = GetComponent<Camera>();
 
@@ -353,7 +357,11 @@ public class CameraController : MonoBehaviour
         else
         {
             if (GameInfo.Manager.ReceivingInput)
-                HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
+                HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x *
+                (sensitivity * SensitivityModifier) *
+                zoomModifier *
+                OrientationModifier *
+                Time.deltaTime;
             orientationDelta = Mathf.Sign(GameInfo.Settings.RightDirectionalInput.x);
             if (GameInfo.Settings.RightDirectionalInput.magnitude < 0.25f || !GameInfo.Manager.ReceivingInput)
                 orientationDelta = 0;
@@ -381,8 +389,18 @@ public class CameraController : MonoBehaviour
 
             if (GameInfo.Settings.RightDirectionalInput.magnitude != 0 && GameInfo.Manager.ReceivingInput)
             {
-                HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
-                VerticalAngle += GameInfo.Settings.RightDirectionalInput.y * 125 * zoomModifier * OrientationModifier * Time.deltaTime;
+                HorizontalAngle -= 
+                    GameInfo.Settings.RightDirectionalInput.x *
+                    (sensitivity * SensitivityModifier) *
+                    zoomModifier *
+                    OrientationModifier *
+                    Time.deltaTime;
+                VerticalAngle += 
+                    GameInfo.Settings.RightDirectionalInput.y *
+                    (sensitivity * SensitivityModifier) *
+                    zoomModifier *
+                    OrientationModifier *
+                    Time.deltaTime;
                 VerticalAngle = Mathf.Clamp(VerticalAngle, 45, 135);
             }
         }    

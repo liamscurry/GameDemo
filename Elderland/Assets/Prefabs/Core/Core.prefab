@@ -25730,6 +25730,7 @@ MonoBehaviour:
   gameplayTargetTransform: {fileID: 1367453098287429626}
   defaultSpeed: 0
   defaultZoom: 5
+  sensitivity: 125
   defaultLinearMultiplier: 2
   defaultDirection: {x: -1, y: -1, z: 1}
   defaultSpeedGradation: 0.1
@@ -48523,7 +48524,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: e97850609e5744b43b23799483a096c9, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.1960784, g: 0.8862745, b: 0.47228, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -49545,7 +49546,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: e97850609e5744b43b23799483a096c9, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.8862745, b: 0.47058824, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -50195,7 +50196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: e97850609e5744b43b23799483a096c9, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.8862745, b: 0.47058824, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -50844,7 +50845,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: e97850609e5744b43b23799483a096c9, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.8862745, b: 0.47058824, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -58977,6 +58978,36 @@ PrefabInstance:
       propertyPath: clampCapsule
       value: 
       objectReference: {fileID: 1836565279983329379}
+    - target: {fileID: 3929266547216590523, guid: f994fee0ae9f19f4fbdb5ab948366547,
+        type: 3}
+      propertyPath: m_AABB.m_Center.x
+      value: 0.00025763456
+      objectReference: {fileID: 0}
+    - target: {fileID: 3929266547216590523, guid: f994fee0ae9f19f4fbdb5ab948366547,
+        type: 3}
+      propertyPath: m_AABB.m_Center.y
+      value: 0.0011643907
+      objectReference: {fileID: 0}
+    - target: {fileID: 3929266547216590523, guid: f994fee0ae9f19f4fbdb5ab948366547,
+        type: 3}
+      propertyPath: m_AABB.m_Center.z
+      value: 0.0028364237
+      objectReference: {fileID: 0}
+    - target: {fileID: 3929266547216590523, guid: f994fee0ae9f19f4fbdb5ab948366547,
+        type: 3}
+      propertyPath: m_AABB.m_Extent.x
+      value: 0.0055635944
+      objectReference: {fileID: 0}
+    - target: {fileID: 3929266547216590523, guid: f994fee0ae9f19f4fbdb5ab948366547,
+        type: 3}
+      propertyPath: m_AABB.m_Extent.y
+      value: 0.005273083
+      objectReference: {fileID: 0}
+    - target: {fileID: 3929266547216590523, guid: f994fee0ae9f19f4fbdb5ab948366547,
+        type: 3}
+      propertyPath: m_AABB.m_Extent.z
+      value: 0.0066648936
+      objectReference: {fileID: 0}
     - target: {fileID: 4434557106154929605, guid: f994fee0ae9f19f4fbdb5ab948366547,
         type: 3}
       propertyPath: m_RootOrder

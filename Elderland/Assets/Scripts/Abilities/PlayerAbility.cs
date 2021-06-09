@@ -19,6 +19,7 @@ public abstract class PlayerAbility : Ability
     private Color cooldownReadyColor;
     protected float staminaCost = 0;
 
+    protected bool replayed;
     public bool Continous { get { return continous; } }
 
     public Slider CooldownSlider { get { return slider; } }
@@ -27,6 +28,7 @@ public abstract class PlayerAbility : Ability
     {
         this.system = abilitySystem;
         state = AbilityState.Waiting;
+        replayed = false;
     }
 
     //Runs methods based on state of the ability.
@@ -56,6 +58,8 @@ public abstract class PlayerAbility : Ability
             system.CurrentAbility = this;
             state = AbilityState.InProgress;
 
+            replayed = true;
+
             GlobalStart();
 
             if (firstTimeCalling)
@@ -80,6 +84,7 @@ public abstract class PlayerAbility : Ability
         }
         else
         {
+            replayed = false;
             return false;
         }
     }
@@ -144,9 +149,9 @@ public abstract class PlayerAbility : Ability
         system.CurrentAbility = null;
         state = AbilityState.Waiting;
 
-        bool replayed = Wait(false);
+        bool replayedCheck = Wait(false);
         
-        if (!replayed)
+        if (!replayedCheck)
         {
             ActiveSegment = null;
             system.Animator.SetBool("exitAbility", true);
