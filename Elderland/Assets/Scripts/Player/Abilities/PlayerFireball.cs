@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 //Weapon ability that casts Fireball projectiles.
 
@@ -65,6 +68,20 @@ public sealed class PlayerFireball : PlayerAbility
         walkSpeedModifier = 1;
         
         actSegment.UpperClip = (replayed) ? actHold : actSummon;
+
+        int movementLayerIndex = PlayerInfo.Animator.GetLayerIndex("Base");
+        var layerStateMachs = 
+            PlayerInfo.AnimationManager.AnimatorController.layers[movementLayerIndex].stateMachine.stateMachines;
+        var layerStateMachsList = new List<UnityEditor.Animations.ChildAnimatorStateMachine>(layerStateMachs);
+        var locomotionStateMach =
+            layerStateMachsList.Find(stateMach => stateMach.stateMachine.name == "Locomotion");
+        var locomotionStateList = 
+            new List<UnityEditor.Animations.ChildAnimatorState>(locomotionStateMach.stateMachine.states);
+        var movementState = 
+            locomotionStateList.Find(state => state.state.name == "Movement").state;
+        Motion movementMotion = Motion.Instantiate(movementState.motion);
+        Debug.Log(movementState.motion);
+        
         actSegment.Clip = PlayerInfo.AnimationManager.GetAnim("Armature|JogForward");
     }
 

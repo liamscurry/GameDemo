@@ -89,6 +89,8 @@ public static class ResourceConstants
 
         public static class Art
         {
+            public const string AnimatorController = "Player/PlayerAnimatorController";
+
             public const string Model = "Player/PlayerAnatomyRig";
             public const string Idle = "Armature|Idle";
             

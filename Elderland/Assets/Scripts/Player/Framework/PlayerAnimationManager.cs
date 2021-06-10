@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor.Animations;
 using System;
 
 //Implement a queue based match target that is consumed by the target match behaviour (1 dequeue per state). 
@@ -17,6 +18,7 @@ public class PlayerAnimationManager
 
 	private AnimationClip[] playerAnims;
 	private List<KeyValuePair<AnimationClip, AnimationClip>> overrideClips;
+	public AnimatorController AnimatorController { get; private set; }
 
 	// Anim layers
 	private PlayerAnimationPersistLayer combatLayer;
@@ -32,10 +34,12 @@ public class PlayerAnimationManager
 	{
 		playerAnims = Resources.LoadAll<AnimationClip>(ResourceConstants.Player.Art.Model);
 		matchTargets = new Queue<MatchTarget>();
-		combatLayer = new PlayerAnimationPersistLayer(0.5f, "CombatPersistLayer");
+		combatLayer = new PlayerAnimationPersistLayer(0.5f, "UpperAbilityLayer");
 		UpperLayer = new PlayerAnimationUpper();
 		Interuptable = true;
 		rotatingModel = false;
+		AnimatorController =
+			Resources.Load<AnimatorController>(ResourceConstants.Player.Art.AnimatorController);
 	}
 
 	public void UpdateAnimations()
