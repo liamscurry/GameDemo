@@ -24,8 +24,6 @@ public class PlayerMovementManager
     private const float percentileSpeedMin = 0.125f;
     private const float percentileSpeedSpeed = 1.5f;
 
-    private bool sprintAvailable;
-    
     public Vector2 CurrentDirection { get; private set; }
 
     // 0 is stationary, 1 is rotation to the right of the character, -1 is rotating left.
@@ -38,7 +36,35 @@ public class PlayerMovementManager
     public float CurrentPercentileSpeed { get; private set; }
     public float PercentileSpeed { get; set; }
     public float PercSpeedObstructedModifier { get; set; }
-    public bool SprintAvailable { get { return sprintAvailable; } }
+    
+    private bool sprintUnlocked;
+    public bool SprintUnlocked { get { return sprintUnlocked; } }
+
+    private const float sprintDisableAngle = 50;
+
+    private bool sprinting; // should only be referenced inside of property.
+    public bool Sprinting {  
+		get { return sprinting; } 
+
+		set
+		{
+			if (sprinting && !value)
+			{
+				// Stopped sprinting
+				GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0f, 0f));
+			}
+			else if (!sprinting & value)
+			{
+				// Started sprinting
+				GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -2.5f, 0.9f));
+			}
+			sprinting = value;
+		}
+	}
+
+    public bool SprintAvailable { get; set; }
+
+    private bool movedThisFrame;
 
     public Vector2 TargetDirection 
     {
@@ -86,6 +112,8 @@ public class PlayerMovementManager
         PercentileSpeed = 0;
 
         PlayerInfo.PhysicsSystem.SlidIntoGround += OnSlidIntoGround;
+        movedThisFrame = false;
+        SprintAvailable = true;
     }
 
     public void UpdateMovement()
@@ -116,6 +144,77 @@ public class PlayerMovementManager
         }
         
         UpdateRotationSpeed();
+    }
+
+    public void LateUpdateMovement()
+    {
+        movedThisFrame = false;
+    }
+
+    public void UpdateWalkMovement()
+    {
+        if (!movedThisFrame)
+        {
+            movedThisFrame = true;
+
+            Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
+            Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
+            Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
+            Vector2 movementDirection = forwardDirection + sidewaysDirection;
+
+            UpdateSprinting(GameInfo.Settings.LeftDirectionalInput);
+
+            //Direction and speed targets
+            if (GameInfo.Settings.LeftDirectionalInput.magnitude <= 0.5f)
+            {
+                PlayerInfo.MovementManager.LockDirection();
+                PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
+                Sprinting = false;
+                if (!PlayerInfo.Animator.IsInTransition(0))
+                    PlayerInfo.AnimationManager.UpdateRotation(false);
+            }
+            else
+            {
+                Vector3 targetRotation =
+                    Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+
+                PlayerInfo.MovementManager.TargetDirection = movementDirection;
+
+                float forwardsAngle = Matho.AngleBetween(Matho.StdProj2D(targetRotation), movementDirection);
+                float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
+                
+                float sprintingModifier = (Sprinting) ? 2f : 1f;
+            
+                PlayerInfo.MovementManager.TargetPercentileSpeed =
+                    GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
+                if (!PlayerInfo.Animator.IsInTransition(0))
+                    PlayerInfo.AnimationManager.UpdateRotation(true);
+            }
+
+            PlayerInfo.MovementSystem.Move(
+                PlayerInfo.MovementManager.CurrentDirection,
+                PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed);
+        }
+    }
+
+    private void UpdateSprinting(Vector2 analogMovementDirection)
+    {
+        if (Matho.AngleBetween(Vector2.up, analogMovementDirection) > sprintDisableAngle)
+        {
+            Sprinting = false;
+            return;
+        }
+
+        if (Input.GetKeyDown(GameInfo.Settings.SprintKey) && SprintUnlocked && SprintAvailable &&
+            PlayerInfo.AbilityManager.CurrentAbility == null)
+        {
+            Sprinting = true;
+        }
+    }
+
+    public void ResetSprint()
+    {
+        Sprinting = false;
     }
 
     public Vector2 DirectionToPlayerCoord(Vector3 direction)
@@ -186,12 +285,12 @@ public class PlayerMovementManager
 
     public void UnlockSprint()
     {
-        sprintAvailable = true;
+        sprintUnlocked = true;
     }
 
     public void LockSprint()
     {
-        sprintAvailable = false;
+        sprintUnlocked = false;
     }
 
     public void OnSlidIntoGround(object obj, System.EventArgs e)

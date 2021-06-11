@@ -22,6 +22,8 @@ public class PlayerAnimationManager
 
 	// Anim layers
 	private PlayerAnimationPersistLayer combatLayer;
+	private PlayerAnimationPersistLayer walkAbilityLayer;
+	public PlayerAnimationPersistLayer WalkAbilityLayer { get { return walkAbilityLayer; } }
 
 	private Coroutine directTargetCorou;
 
@@ -30,16 +32,29 @@ public class PlayerAnimationManager
 	public const float ModelRotSpeedIdle = 2f;
 	public const float ModelRotSpeedMoving = 9f;
 
+	// Walk helper fields
+	private Vector2 positionAnalogDirection;
+    private Vector2 reverseAnalogDirection;
+
+    private const float positionAnalogSpeed = 1.7f;
+    private const float reverseAnalogSpeed = 1.35f;
+
+	private bool movedThisFrame;
+
 	public PlayerAnimationManager()
 	{
 		playerAnims = Resources.LoadAll<AnimationClip>(ResourceConstants.Player.Art.Model);
 		matchTargets = new Queue<MatchTarget>();
-		combatLayer = new PlayerAnimationPersistLayer(0.5f, "UpperAbilityLayer");
+		combatLayer = new PlayerAnimationPersistLayer(0.5f, "CombatStanceLayer");
+		walkAbilityLayer = new PlayerAnimationPersistLayer(0.5f, "WalkAbilityLayer");
 		UpperLayer = new PlayerAnimationUpper();
 		Interuptable = true;
 		rotatingModel = false;
 		AnimatorController =
 			Resources.Load<AnimatorController>(ResourceConstants.Player.Art.AnimatorController);
+
+		positionAnalogDirection = Vector2.zero;
+		movedThisFrame = false;
 	}
 
 	public void UpdateAnimations()
@@ -86,7 +101,119 @@ public class PlayerAnimationManager
 		}
 
 		PlayerInfo.TeleportingThisFrame = false;
+
+		movedThisFrame = false;
 	}
+
+	public void UpdateWalkProperties()
+    {
+		if (!movedThisFrame)
+		{
+			movedThisFrame = true;
+			Vector2 forwardDir =
+				Matho.StdProj2D(PlayerInfo.Player.transform.forward);
+			Vector2 rightDir =
+				Matho.Rotate(Matho.StdProj2D(PlayerInfo.Player.transform.forward), 90);
+
+			if (forwardDir.magnitude == 0 ||
+				rightDir.magnitude == 0 || 
+				PlayerInfo.MovementManager.TargetDirection.magnitude == 0 ||
+				PlayerInfo.MovementManager.CurrentDirection.magnitude == 0)
+				return;
+
+			float speed = 
+				PlayerInfo.MovementManager.CurrentPercentileSpeed *
+				PlayerInfo.StatsManager.MovespeedMultiplier.Value;
+
+			Vector2 scaledCurrentDir = 
+				PlayerInfo.MovementManager.CurrentDirection * PlayerInfo.MovementManager.CurrentPercentileSpeed;
+			Vector2 analogDirection = 
+				new Vector2(
+					Matho.ProjectScalar(scaledCurrentDir, forwardDir),
+					Matho.ProjectScalar(scaledCurrentDir, rightDir));
+
+			if (analogDirection.x < 0)
+				analogDirection.x *= 3;
+
+			if (analogDirection.x > 0 &&
+				Matho.AngleBetween(Vector2.up, new Vector2(analogDirection.y, analogDirection.x)) > 60f)
+			{
+				analogDirection.x = 0;
+			}
+			else if (
+				analogDirection.x < 0 &&
+				Matho.AngleBetween(Vector2.down, new Vector2(analogDirection.y, analogDirection.x)) > 60f)
+			{
+				analogDirection.x = 0;
+			}
+
+			// Geometry check.
+			float geometryModifier = 1;
+			Vector3 center = PlayerInfo.Player.transform.position;
+			center += Vector3.up * PlayerInfo.Capsule.height / 4f;
+			Vector3 currentDirection3D = 
+				new Vector3(
+					PlayerInfo.MovementManager.CurrentDirection.x,
+					0,
+					PlayerInfo.MovementManager.CurrentDirection.y);
+
+			float sizeSideLength =
+				PlayerInfo.Capsule.radius * 0.75f;
+			Vector3 size = new Vector3(sizeSideLength, PlayerInfo.Capsule.height / 2f, sizeSideLength * 0.25f);
+			Quaternion rotation = Quaternion.LookRotation(currentDirection3D, Vector3.up);
+			RaycastHit obstructionHit;
+			if (Physics.BoxCast(
+				center,
+				size, 
+				currentDirection3D, 
+				out obstructionHit,
+				rotation, 
+				1f,
+				LayerConstants.GroundCollision))
+			{
+				Vector3 projectedNormal =
+					Matho.StandardProjection3D(-obstructionHit.normal);
+				if (projectedNormal.magnitude != 0)
+				{
+					geometryModifier = Matho.AngleBetween(projectedNormal, currentDirection3D) / 180f;
+					geometryModifier *= 4f;
+					if (geometryModifier > 1)
+						geometryModifier = 1;
+				}
+			}
+
+			analogDirection *= geometryModifier;
+
+			PlayerInfo.MovementManager.PercSpeedObstructedModifier = geometryModifier;
+
+			// Debug geometry check
+			/*
+			Debug.DrawLine(PlayerInfo.Player.transform.position, center, Color.gray, 3f);
+			Debug.DrawLine(center, center + currentDirection3D, Color.gray, 3f);
+			Debug.DrawLine(center, center + Vector3.up * size.y / 2, Color.gray, 3f);
+			Debug.DrawLine(
+				center + Vector3.up * size.y / 2,
+				center + Vector3.up * size.y / 2 + Vector3.Cross(Vector3.up, currentDirection3D) * size.x / 2f,
+				Color.gray,
+				3f);
+			*/
+
+			positionAnalogDirection =
+				Vector2.MoveTowards(positionAnalogDirection, analogDirection, positionAnalogSpeed * Time.deltaTime);
+			reverseAnalogDirection =
+				Vector2.MoveTowards(reverseAnalogDirection, analogDirection, reverseAnalogSpeed * Time.deltaTime);
+
+			PlayerInfo.Animator.SetFloat(
+				"speed",
+				positionAnalogDirection.x);
+			PlayerInfo.Animator.SetFloat(
+				"strafe",
+				positionAnalogDirection.y);
+			PlayerInfo.Animator.SetFloat(
+				"percentileSpeed",
+				PlayerInfo.MovementManager.PercentileSpeed);
+		}
+    }
 
 	/*
 	* Helper function for behaviours to update model rotation to camera forward (or blended if in combat)

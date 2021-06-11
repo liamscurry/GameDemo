@@ -16,10 +16,6 @@ public sealed class PlayerFireball : PlayerAbility
     private const float speed = 50;
     private const float walkSlowRate = 3;
 
-    private float walkSpeedModifier;
-
-    private int animCounter;
-
     // Animations
     private AnimationClip actSummon;
     private AnimationClip actHold;
@@ -53,8 +49,6 @@ public sealed class PlayerFireball : PlayerAbility
             staminaCost,
             Resources.Load<Sprite>(ResourceConstants.Player.Abilities.FireballTier1Icon),
             "I");
-
-        animCounter = 0;
     }
 
     protected override bool WaitCondition()
@@ -65,32 +59,23 @@ public sealed class PlayerFireball : PlayerAbility
 
     protected override void GlobalStart()
     {
-        walkSpeedModifier = 1;
-        
-        actSegment.UpperClip = (replayed) ? actHold : actSummon;
-
-        int movementLayerIndex = PlayerInfo.Animator.GetLayerIndex("Base");
-        var layerStateMachs = 
-            PlayerInfo.AnimationManager.AnimatorController.layers[movementLayerIndex].stateMachine.stateMachines;
-        var layerStateMachsList = new List<UnityEditor.Animations.ChildAnimatorStateMachine>(layerStateMachs);
-        var locomotionStateMach =
-            layerStateMachsList.Find(stateMach => stateMach.stateMachine.name == "Locomotion");
-        var locomotionStateList = 
-            new List<UnityEditor.Animations.ChildAnimatorState>(locomotionStateMach.stateMachine.states);
-        var movementState = 
-            locomotionStateList.Find(state => state.state.name == "Movement").state;
-        Motion movementMotion = Motion.Instantiate(movementState.motion);
-        Debug.Log(movementState.motion);
-        
-        actSegment.Clip = PlayerInfo.AnimationManager.GetAnim("Armature|JogForward");
+        actSegment.Clip = (replayed) ? actHold : actSummon;
     }
 
     public override void GlobalConstantUpdate()
     {
-        walkSpeedModifier -= walkSlowRate * Time.deltaTime;
-        if (walkSpeedModifier < 0)
-            walkSpeedModifier = 0;
-        PlayerInfo.AbilityManager.MoveDuringAbility(walkSpeedModifier);
+        PlayerInfo.MovementManager.UpdateWalkMovement();
+        PlayerInfo.AnimationManager.UpdateWalkProperties();
+    }
+
+    protected override void ContinousStart()
+    {
+        PlayerInfo.AnimationManager.WalkAbilityLayer.ClaimTurnOn(this);
+    }
+
+    protected override void ContinousEnd()
+    {
+        PlayerInfo.AnimationManager.WalkAbilityLayer.ClaimTurnOff(this);
     }
 
     public void WaitBegin()

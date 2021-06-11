@@ -294,7 +294,7 @@ public class CameraController : MonoBehaviour
     {
         if (!ZoomIn.Value.Item1)
         {
-            if (PlayerInfo.StatsManager.Sprinting)
+            if (PlayerInfo.MovementManager.Sprinting)
             {
                 targetFov = 60;
                 zoomModifier = 1;
@@ -314,7 +314,7 @@ public class CameraController : MonoBehaviour
 
     private void UpdateSprintTimer()
     {
-        if (PlayerInfo.StatsManager.Sprinting
+        if (PlayerInfo.MovementManager.Sprinting
             && PlayerInfo.PhysicsSystem.TouchingFloor &&
             Matho.AngleBetween(PlayerInfo.PhysicsSystem.Normal, Vector3.up) < 15f)
         {
@@ -376,7 +376,7 @@ public class CameraController : MonoBehaviour
             }
             
             if (orientationDelta != 0 &&
-                PlayerInfo.StatsManager.Sprinting &&
+                PlayerInfo.MovementManager.Sprinting &&
                 orientationTimer > 0.35f &&
                 Matho.AngleBetween(GameInfo.Settings.LeftDirectionalInput, Vector2.up) < 45f)
             {

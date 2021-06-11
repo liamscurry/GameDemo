@@ -122,6 +122,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         //Frame specific data
         PlayerInfo.MovementSystem.LateUpdateSystem();
         PlayerInfo.PhysicsSystem.LateUpdateSystem();
+        PlayerInfo.MovementManager.LateUpdateMovement();
         PlayerInfo.AnimationManager.LateUpdateAnimations();
     }
 

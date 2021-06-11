@@ -68,6 +68,7 @@ public abstract class PlayerAbility : Ability
                 system.Animator.SetTrigger("runAbility");
                 system.Animator.SetBool("exitAbility", false);
                 system.Animator.ResetTrigger("proceedAbility");
+                ContinousStart();
             }
 
             ActiveSegment = segments.Start;
@@ -147,21 +148,7 @@ public abstract class PlayerAbility : Ability
 
     private void SetNextAnimationClips()
     {
-        AnimationClip[] lowerUpperClips = null;
-        if (ActiveSegment.UpperClip != null)
-        {
-            lowerUpperClips =
-                new AnimationClip[2] { ActiveSegment.Clip, ActiveSegment.UpperClip };
-        }
-        else
-        {
-            lowerUpperClips =
-                new AnimationClip[2] { ActiveSegment.Clip, ActiveSegment.Clip };
-        }
-            
-        string[] lowerUpperNames = 
-            new string[2] { "Segment", "AbilityUpperSegment" };
-        system.AnimationLoop.SetNextSegmentClip(lowerUpperClips, lowerUpperNames);
+        system.AnimationLoop.SetNextSegmentClip(ActiveSegment.Clip);
     }
 
     private void ContinousWait()
@@ -175,8 +162,12 @@ public abstract class PlayerAbility : Ability
         {
             ActiveSegment = null;
             system.Animator.SetBool("exitAbility", true);
+            ContinousEnd();
         }
     }
+
+    protected virtual void ContinousStart() {}
+    protected virtual void ContinousEnd() {}
 
     public sealed override void ShortCircuit(bool forceNoReuse = false)
     {

@@ -357,41 +357,4 @@ public class PlayerAbilityManager : AbilitySystem
             PlayerInfo.Animator.ResetTrigger("proceedAbility");
         }
     }
-
-    public void MoveDuringAbility(float walkSpeedPercentage)
-    {
-        Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
-        Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
-        Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
-        Vector2 movementDirection = forwardDirection + sidewaysDirection;
-
-        //Direction and speed targets
-        if (GameInfo.Settings.LeftDirectionalInput.magnitude <= 0.5f)
-        {
-            PlayerInfo.MovementManager.LockDirection();
-            PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
-        }
-        else
-        {
-            Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
-            Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
-            Vector3 incrementedRotation = Vector3.RotateTowards(currentRotation, targetRotation, 10 * Time.deltaTime, 0f);
-            Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
-            PlayerInfo.Player.transform.rotation = rotation;
-
-            PlayerInfo.MovementManager.TargetDirection = movementDirection;
-
-            float forwardsAngle = Matho.AngleBetween(Matho.StdProj2D(targetRotation), movementDirection);
-            float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
-        
-            PlayerInfo.MovementManager.TargetPercentileSpeed =
-                GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier;
-        }
-
-        PlayerInfo.MovementSystem.Move(
-            PlayerInfo.MovementManager.CurrentDirection,
-            PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed * walkSpeedPercentage);
-
-        PlayerInfo.Animator.SetFloat("speed", PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.MovespeedMultiplier.Value);
-    }
 }

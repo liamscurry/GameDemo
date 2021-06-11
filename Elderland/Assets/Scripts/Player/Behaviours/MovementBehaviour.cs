@@ -7,23 +7,11 @@ public class MovementBehaviour : StateMachineBehaviour
     private bool exiting;
     private float movespeedVelocity;
 
-    private bool sprinting;
-    private const float sprintDisableAngle = 50;
-    private float currentReverse;
-    private Vector2 positionAnalogDirection;
-    private Vector2 reverseAnalogDirection;
-
-    private const float positionAnalogSpeed = 1.7f;
-    private const float reverseAnalogSpeed = 1.35f;
-
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
 		exiting = false;
         movespeedVelocity = 0;
-        sprinting = false;
-        PlayerInfo.StatsManager.Sprinting = false;
-        currentReverse = 0;
-        positionAnalogDirection = Vector2.zero;
+        PlayerInfo.MovementManager.ResetSprint();
         PlayerInfo.MovementManager.PercentileSpeed = 
         PlayerInfo.MovementManager.CurrentPercentileSpeed;
 	}
@@ -32,49 +20,8 @@ public class MovementBehaviour : StateMachineBehaviour
 	{   
         if (!exiting && GameInfo.Manager.ReceivingInput)
         {
-            Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
-            Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
-            Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
-            Vector2 movementDirection = forwardDirection + sidewaysDirection;
-
-            UpdateSprinting(GameInfo.Settings.LeftDirectionalInput);
-
-            //Direction and speed targets
-            if (GameInfo.Settings.LeftDirectionalInput.magnitude <= 0.5f)
-            {
-                PlayerInfo.MovementManager.LockDirection();
-                PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
-                sprinting = false;
-                PlayerInfo.StatsManager.Sprinting = false;
-                if (!animator.IsInTransition(0))
-                    PlayerInfo.AnimationManager.UpdateRotation(false);
-            }
-            else
-            {
-                Vector3 targetRotation =
-                    Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
-
-                PlayerInfo.MovementManager.TargetDirection = movementDirection;
-
-                float forwardsAngle = Matho.AngleBetween(Matho.StdProj2D(targetRotation), movementDirection);
-                float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
-                
-                float sprintingModifier = (sprinting) ? 2f : 1f;
-           
-                PlayerInfo.MovementManager.TargetPercentileSpeed =
-                    GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
-                if (!animator.IsInTransition(0))
-                    PlayerInfo.AnimationManager.UpdateRotation(true);
-            }
-
-            PlayerInfo.MovementSystem.Move(
-                PlayerInfo.MovementManager.CurrentDirection,
-                PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed);
-
-            UpdateAnimatorProperties(
-                animator,
-                Matho.StdProj2D(PlayerInfo.Player.transform.forward),
-                Matho.Rotate(Matho.StdProj2D(PlayerInfo.Player.transform.forward), 90));
+            PlayerInfo.MovementManager.UpdateWalkMovement();
+            PlayerInfo.AnimationManager.UpdateWalkProperties();
 
             //Transitions//
             if (!animator.IsInTransition(0) && PlayerInfo.AbilityManager.CurrentAbility == null)
@@ -89,137 +36,11 @@ public class MovementBehaviour : StateMachineBehaviour
         }
 	}
 
-    private void UpdateAnimatorProperties(
-        Animator animator,
-        Vector2 forwardDir,
-        Vector2 rightDir)
-    {
-        if (forwardDir.magnitude == 0 ||
-            rightDir.magnitude == 0 || 
-            PlayerInfo.MovementManager.TargetDirection.magnitude == 0 ||
-            PlayerInfo.MovementManager.CurrentDirection.magnitude == 0)
-            return;
-
-        float speed = 
-            PlayerInfo.MovementManager.CurrentPercentileSpeed *
-            PlayerInfo.StatsManager.MovespeedMultiplier.Value;
-
-        Vector2 scaledCurrentDir = 
-            PlayerInfo.MovementManager.CurrentDirection * PlayerInfo.MovementManager.CurrentPercentileSpeed;
-        Vector2 analogDirection = 
-            new Vector2(
-                Matho.ProjectScalar(scaledCurrentDir, forwardDir),
-                Matho.ProjectScalar(scaledCurrentDir, rightDir));
-
-        Vector2 rAnalogDirection = reverseAnalogDirection;
-
-        if (analogDirection.x < 0)
-            analogDirection.x *= 3;
-        Vector2 effectiveAnalogDir = reverseAnalogDirection;
-        if (effectiveAnalogDir.x < 0)
-            effectiveAnalogDir.x *= 3;
-
-        if (analogDirection.x > 0 &&
-            Matho.AngleBetween(Vector2.up, new Vector2(analogDirection.y, analogDirection.x)) > 60f)
-        {
-            analogDirection.x = 0;
-        }
-        else if (
-            analogDirection.x < 0 &&
-            Matho.AngleBetween(Vector2.down, new Vector2(analogDirection.y, analogDirection.x)) > 60f)
-        {
-            analogDirection.x = 0;
-        }
-
-        // Geometry check.
-        float geometryModifier = 1;
-        Vector3 center = PlayerInfo.Player.transform.position;
-        center += Vector3.up * PlayerInfo.Capsule.height / 4f;
-        Vector3 currentDirection3D = 
-            new Vector3(
-                PlayerInfo.MovementManager.CurrentDirection.x,
-                0,
-                PlayerInfo.MovementManager.CurrentDirection.y);
-        //center += currentDirection3D * 0.5f;
-        float sizeSideLength =
-            PlayerInfo.Capsule.radius * 0.75f;
-        Vector3 size = new Vector3(sizeSideLength, PlayerInfo.Capsule.height / 2f, sizeSideLength * 0.25f);
-        Quaternion rotation = Quaternion.LookRotation(currentDirection3D, Vector3.up);
-        RaycastHit obstructionHit;
-        if (Physics.BoxCast(
-            center,
-            size, 
-            currentDirection3D, 
-            out obstructionHit,
-            rotation, 
-            1f,
-            LayerConstants.GroundCollision))
-        {
-            Vector3 projectedNormal =
-                Matho.StandardProjection3D(-obstructionHit.normal);
-            if (projectedNormal.magnitude != 0)
-            {
-                geometryModifier = Matho.AngleBetween(projectedNormal, currentDirection3D) / 180f;
-                geometryModifier *= 4f;
-                if (geometryModifier > 1)
-                    geometryModifier = 1;
-            }
-        }
-
-        analogDirection *= geometryModifier;
-
-        PlayerInfo.MovementManager.PercSpeedObstructedModifier = geometryModifier;
-
-        // Debug geometry check
-        /*
-        Debug.DrawLine(PlayerInfo.Player.transform.position, center, Color.gray, 3f);
-        Debug.DrawLine(center, center + currentDirection3D, Color.gray, 3f);
-        Debug.DrawLine(center, center + Vector3.up * size.y / 2, Color.gray, 3f);
-        Debug.DrawLine(
-            center + Vector3.up * size.y / 2,
-            center + Vector3.up * size.y / 2 + Vector3.Cross(Vector3.up, currentDirection3D) * size.x / 2f,
-            Color.gray,
-            3f);
-        */
-
-        positionAnalogDirection =
-            Vector2.MoveTowards(positionAnalogDirection, analogDirection, positionAnalogSpeed * Time.deltaTime);
-        reverseAnalogDirection =
-            Vector2.MoveTowards(reverseAnalogDirection, analogDirection, reverseAnalogSpeed * Time.deltaTime);
-
-        animator.SetFloat(
-            "speed",
-            positionAnalogDirection.x);
-        animator.SetFloat(
-            "strafe",
-            positionAnalogDirection.y);
-        animator.SetFloat(
-            "percentileSpeed",
-            PlayerInfo.MovementManager.PercentileSpeed);
-    }
-
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
-        sprinting = false;
-        PlayerInfo.StatsManager.Sprinting = false;
+        PlayerInfo.MovementManager.ResetSprint();
         PlayerInfo.MovementManager.PercSpeedObstructedModifier = 0;
 	}
-
-    private void UpdateSprinting(Vector2 analogMovementDirection)
-    {
-        if (Matho.AngleBetween(Vector2.up, analogMovementDirection) > sprintDisableAngle)
-        {
-            sprinting = false;
-            PlayerInfo.StatsManager.Sprinting = false;
-            return;
-        }
-
-        if (Input.GetKeyDown(GameInfo.Settings.SprintKey) && PlayerInfo.MovementManager.SprintAvailable)
-        {
-            sprinting = true;
-            PlayerInfo.StatsManager.Sprinting = true;
-        }
-    }
 
     private void FallingTransition(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
