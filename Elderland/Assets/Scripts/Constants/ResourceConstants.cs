@@ -101,6 +101,8 @@ public static class ResourceConstants
             public const string FireballLeftAct = "FireballLeftAct";
             public const string FireballRightSummon = "FireballRight";
             public const string FireballRightHold = "FireballRightHold";
+            public const string FireballRightHold2 = "FireballRightHold2";
+            public const string FireballRightHold3 = "FireballRightHold3";
 
             public const string Firewall = "Firewall";
 

@@ -12,13 +12,16 @@ public sealed class PlayerFireball : PlayerAbility
     private AbilityProcess waitProcess;
     private AbilityProcess shootProcess;
 
-    private const float damage = 0.25f;
+    private const float damage = 0.75f;
     private const float speed = 50;
     private const float walkSlowRate = 3;
+    private const float pushStrength = 3;
 
     // Animations
     private AnimationClip actSummon;
     private AnimationClip actHold;
+    private AnimationClip actHold2;
+    private AnimationClip actHold3;
 
     public override void Initialize(PlayerAbilityManager abilitySystem)
     {
@@ -29,6 +32,10 @@ public sealed class PlayerFireball : PlayerAbility
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightSummon);
         actHold =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightHold);
+        actHold2 =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightHold2);
+        actHold3=
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FireballRightHold3);
 
         waitProcess = new AbilityProcess(WaitBegin, null, null, 0.25f);
         shootProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.75f);
@@ -59,7 +66,26 @@ public sealed class PlayerFireball : PlayerAbility
 
     protected override void GlobalStart()
     {
-        actSegment.Clip = (replayed) ? actHold : actSummon;
+        if (replayed)
+        {
+            int randomHold = (new System.Random().Next() % 3) + 1;
+            switch (randomHold)
+            {
+                case 1:
+                    actSegment.Clip = actHold;
+                    break;
+                case 2:
+                    actSegment.Clip = actHold2;
+                    break;
+                case 3:
+                    actSegment.Clip = actHold3;
+                    break;
+            }
+        }
+        else
+        {
+            actSegment.Clip = actSummon;
+        }
     }
 
     public override void GlobalConstantUpdate()
@@ -99,10 +125,12 @@ public sealed class PlayerFireball : PlayerAbility
 
     private Vector3 CalculateStartPosition()
     {
+        float randomHeight = (float) (new System.Random().NextDouble()- 0.5) * 1f;
+        float randomHori = (float) (new System.Random().NextDouble() - 0.5) * 0.5f;
         return PlayerInfo.Capsule.TopSpherePosition() +
-               Vector3.up * 0.9f +
-               GameInfo.CameraController.transform.right * -1 * 0.654f +
-               GameInfo.CameraController.transform.forward * -1 * 0.5f;
+               Vector3.up * (0.9f + randomHeight) +
+               GameInfo.CameraController.transform.right * -1 * (0.654f + randomHori) +
+               GameInfo.CameraController.transform.forward * -1 * 1.8f;
     }
 
     private Vector3 CalculateProjectileDirection(Vector3 startPosition)
@@ -157,6 +185,14 @@ public sealed class PlayerFireball : PlayerAbility
             EnemyManager enemy = character.GetComponent<EnemyManager>();
             enemy.ChangeHealth(
                 -damage * PlayerInfo.StatsManager.DamageMultiplier.Value);
+            Vector3 pushDirection = character.transform.position - CalculateStartPosition();
+            pushDirection.Normalize();
+            enemy.Push(pushDirection  * pushStrength);
+
+            if (enemy.Health > enemy.ZeroHealth)
+            {
+                enemy.TryFlinch(0);
+            }
         }
         return true;
     }
