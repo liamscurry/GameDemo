@@ -20,6 +20,8 @@ public abstract class ParticleProjectile : Projectile
     {
         //Base
         transform.position = position;
+        if (velocity.magnitude != 0 && Matho.AngleBetween(Vector3.up, velocity) != 0)
+            transform.rotation = Quaternion.LookRotation(velocity.normalized);
         this.velocity = velocity;
         this.lifeTimer = 0;
         this.lifeDuration = lifeTime;
@@ -44,6 +46,8 @@ public abstract class ParticleProjectile : Projectile
     {
         //Base
         transform.position = position;
+        if (velocity.magnitude != 0 && Matho.AngleBetween(Vector3.up, velocity) != 0)
+            transform.rotation = Quaternion.LookRotation(velocity.normalized);
         this.velocity = velocity;
         this.lifeTimer = 0;
         this.lifeDuration = lifeTime;

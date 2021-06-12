@@ -81,6 +81,10 @@ public sealed class PlayerDodge : PlayerAbility
         system.Physics.GravityStrength = 0;
         system.Movement.ExitEnabled = false;
         PlayerInfo.AnimationManager.Interuptable = false;
+
+        GameInfo.CameraController.Speed = 0.4f;
+        GameInfo.CameraController.TargetSpeed = 0;
+        GameInfo.CameraController.SpeedGradation = 0.08f;
     }
 
     private void DuringAct()

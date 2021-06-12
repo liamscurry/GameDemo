@@ -15,7 +15,8 @@ public class GameSettings : MonoBehaviour
     public KeyCode UltimateAbilityKey { get; set; }
     public KeyCode FinisherAbilityKey { get; private set; }
 
-    public float FireballTrigger { get { return Input.GetAxis("Right Trigger"); } }
+    public float FireballRightTrigger { get { return Input.GetAxis("Right Trigger"); } }
+    public float FireballLeftTrigger { get { return Input.GetAxis("Left Trigger"); } }
     public float FireballTriggerOffThreshold { get { return 0.1f; } }
     public float FireballTriggerOnThreshold { get { return 0.5f; } }
 

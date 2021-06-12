@@ -97,12 +97,21 @@ public class PlayerAbilityManager : AbilitySystem
 	public override void UpdateAbilities() 
     {
         //Try to run specified ability if held down
-        bool rangedInput = (GameInfo.Manager.ReceivingInput && RangedAvailable && AbilitiesAvailable) ? Mathf.Abs(GameInfo.Settings.FireballTrigger) > GameInfo.Settings.FireballTriggerOnThreshold: false;
-        bool aoeInput = (GameInfo.Manager.ReceivingInput && HealAvailable && AbilitiesAvailable) ? Input.GetKey(KeyCode.Joystick1Button4) : false;
-        bool meleeInput = (GameInfo.Manager.ReceivingInput && MeleeAvailable && AbilitiesAvailable) ? 
+        bool rangedInput = 
+            (GameInfo.Manager.ReceivingInput && RangedAvailable && AbilitiesAvailable) ?
+            Mathf.Abs(GameInfo.Settings.FireballRightTrigger) > GameInfo.Settings.FireballTriggerOnThreshold : false;
+        bool aoeInput =
+            (GameInfo.Manager.ReceivingInput && HealAvailable && AbilitiesAvailable) ?
+            Input.GetKey(KeyCode.Joystick1Button4) : false;
+        bool meleeInput =
+            (GameInfo.Manager.ReceivingInput && MeleeAvailable && AbilitiesAvailable) ? 
             Input.GetKey(GameInfo.Settings.MeleeAbilityKey) || Input.GetKey(GameInfo.Settings.AlternateMeleeAbilityKey) : false;
-        bool dashInput = (GameInfo.Manager.ReceivingInput && DashAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
-        bool dodgeInput = (GameInfo.Manager.ReceivingInput && DodgeAvailable && AbilitiesAvailable) ? Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
+        bool dashInput =
+            (GameInfo.Manager.ReceivingInput && DashAvailable && AbilitiesAvailable) ?
+            Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
+        bool dodgeInput =
+            (GameInfo.Manager.ReceivingInput && DodgeAvailable && AbilitiesAvailable) ?
+            Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
         //bool blockInput = (GameInfo.Manager.ReceivingInput && BlockAvailable && AbilitiesAvailable) ? Input.GetKeyDown(GameInfo.Settings.BlockAbilityKey) : false;
         bool finisherInput = 
             (GameInfo.Manager.ReceivingInput && AbilitiesAvailable) ? 
@@ -132,6 +141,8 @@ public class PlayerAbilityManager : AbilitySystem
 
         if (finisherInput)
             weaponHeldDown = finisher;
+
+        UpdateRangedZoom();
 
         if (!inCombatStance)
         {
@@ -184,6 +195,18 @@ public class PlayerAbilityManager : AbilitySystem
         //if (block != null)
         //    block.UpdateAbility(block == weaponHeldDown, blockInput);
 	}
+
+    private void UpdateRangedZoom()
+    {
+        if (Mathf.Abs(GameInfo.Settings.FireballLeftTrigger) > GameInfo.Settings.FireballTriggerOnThreshold)
+        {
+            GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.6f));
+        }
+        else
+        {
+            GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0));
+        }
+    }
 
     public void OnCombatStanceOn()
     {
