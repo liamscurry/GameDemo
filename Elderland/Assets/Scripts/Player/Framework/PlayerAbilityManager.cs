@@ -23,7 +23,6 @@ public class PlayerAbilityManager : AbilitySystem
     private float cooldownHeightDelta;
 
     private bool inCombatStance;
-    private bool inCombatTransition;
     private float combatTimer;
     private const float combatDuration = 1.5f;
     private float notUsedTimer;
@@ -97,26 +96,45 @@ public class PlayerAbilityManager : AbilitySystem
 	public override void UpdateAbilities() 
     {
         //Try to run specified ability if held down
-        bool rangedInput = 
-            (GameInfo.Manager.ReceivingInput && RangedAvailable && AbilitiesAvailable) ?
-            Mathf.Abs(GameInfo.Settings.FireballRightTrigger) > GameInfo.Settings.FireballTriggerOnThreshold : false;
-        bool aoeInput =
-            (GameInfo.Manager.ReceivingInput && HealAvailable && AbilitiesAvailable) ?
-            Input.GetKey(KeyCode.Joystick1Button4) : false;
-        bool meleeInput =
-            (GameInfo.Manager.ReceivingInput && MeleeAvailable && AbilitiesAvailable) ? 
-            Input.GetKey(GameInfo.Settings.MeleeAbilityKey) || Input.GetKey(GameInfo.Settings.AlternateMeleeAbilityKey) : false;
-        bool dashInput =
-            (GameInfo.Manager.ReceivingInput && DashAvailable && AbilitiesAvailable) ?
-            Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
-        bool dodgeInput =
-            (GameInfo.Manager.ReceivingInput && DodgeAvailable && AbilitiesAvailable) ?
-            Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
-        //bool blockInput = (GameInfo.Manager.ReceivingInput && BlockAvailable && AbilitiesAvailable) ? Input.GetKeyDown(GameInfo.Settings.BlockAbilityKey) : false;
-        bool finisherInput = 
-            (GameInfo.Manager.ReceivingInput && AbilitiesAvailable) ? 
-            Input.GetKeyDown(GameInfo.Settings.FinisherAbilityKey): 
-            false;
+        bool rangedInput = false;
+        bool aoeInput = false;
+        bool meleeInput = false;
+        bool dashInput = false;
+        bool dodgeInput = false;
+        bool finisherInput = false;
+
+        GameInput inputType = 
+            GameInfo.Manager.ReceivingInput.Value;
+        //bool inputAvailable =
+        //    (inputType == GameInput.Full || (inputType == GameInput.Gameplay && currentAbility != null));
+        //||
+        //    (inputType == GameInput.Gameplay && GameInfo.Manager.ReceivingInput.Tracker == currentAbility)
+
+        if (AbilitiesAvailable)
+        {
+            rangedInput = 
+                (RangedAvailable) ?
+                Mathf.Abs(GameInfo.Settings.FireballRightTrigger) > GameInfo.Settings.FireballTriggerOnThreshold : false;
+            aoeInput =
+                (HealAvailable) ?
+                Input.GetKey(KeyCode.Joystick1Button4) : false;
+            meleeInput =
+                (MeleeAvailable) ? 
+                Input.GetKey(GameInfo.Settings.MeleeAbilityKey) || Input.GetKey(GameInfo.Settings.AlternateMeleeAbilityKey) : false;
+            dashInput =
+                (DashAvailable) ?
+                Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
+            dodgeInput =
+                (DodgeAvailable) ?
+                Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
+            //bool blockInput = 
+            //    (BlockAvailable) ? 
+            //    Input.GetKeyDown(GameInfo.Settings.BlockAbilityKey) : false;
+            finisherInput = 
+                (AbilitiesAvailable) ? 
+                Input.GetKeyDown(GameInfo.Settings.FinisherAbilityKey): 
+                false;
+        }
 
         //Weapon prioritization
         PlayerAbility weaponHeldDown = null;
@@ -149,11 +167,10 @@ public class PlayerAbilityManager : AbilitySystem
             bool tryingToUseWeapon = 
                 weaponHeldDown != null &&
                 weaponHeldDown == melee;
-            if (!inCombatTransition && 
-                (tryingToUseWeapon || GameInfo.Manager.InCombat))
+            if ((tryingToUseWeapon || GameInfo.Manager.InCombat) && 
+                GameInfo.Manager.ReceivingInput.Value == GameInput.Full)
             {
-                PlayerInfo.AnimationManager.TryToCombatStance(OnCombatStanceOn);
-                inCombatTransition = true;
+                PlayerInfo.AnimationManager.ToCombatStance();
             }
         }
         else
@@ -167,11 +184,11 @@ public class PlayerAbilityManager : AbilitySystem
             if (currentAbility == null && !GameInfo.Manager.InCombat)
             {
                 notUsedTimer += Time.deltaTime;
-                if (notUsedTimer > notUsedDuration)
+                if (notUsedTimer > notUsedDuration &&
+                    GameInfo.Manager.ReceivingInput.Value == GameInput.Full)
                 {
                     inCombatStance = false;
-                    inCombatTransition = true;
-                    PlayerInfo.AnimationManager.TryAwayCombatStance(OnCombatStanceOff);
+                    PlayerInfo.AnimationManager.AwayCombatStance();
                 }
             }
             else
@@ -198,7 +215,8 @@ public class PlayerAbilityManager : AbilitySystem
 
     private void UpdateRangedZoom()
     {
-        if (Mathf.Abs(GameInfo.Settings.FireballLeftTrigger) > GameInfo.Settings.FireballTriggerOnThreshold)
+        if (Mathf.Abs(GameInfo.Settings.FireballLeftTrigger) > GameInfo.Settings.FireballTriggerOnThreshold &&
+            GameInfo.Manager.ReceivingInput.Value != GameInput.None)
         {
             GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.6f));
         }
@@ -211,13 +229,27 @@ public class PlayerAbilityManager : AbilitySystem
     public void OnCombatStanceOn()
     {
         inCombatStance = true;
-        inCombatTransition = false;
         notUsedTimer = 0;
+        GameInfo.Manager.ReceivingInput.TryReleaseLock(PlayerInfo.AnimationManager, GameInput.Full);
+    }
+
+    public void ShortCircuitCombatStanceOn()
+    {
+        PlayerInfo.AnimConnector.GraspMelee();
+        OnCombatStanceOn();
     }
 
     public void OnCombatStanceOff()
     {
-        inCombatTransition = false;
+        inCombatStance = false;
+        GameInfo.Manager.ReceivingInput.TryReleaseLock(PlayerInfo.AnimationManager, GameInput.Full);
+    }
+
+    public void ShortCircuitCombatStanceOff()
+    {
+        PlayerInfo.AnimConnector.FadeOutMelee();
+        PlayerInfo.AnimConnector.DisableMelee();
+        OnCombatStanceOff();
     }
 
     public override bool Ready()
@@ -225,8 +257,7 @@ public class PlayerAbilityManager : AbilitySystem
         return 
             Physics.TouchingFloor &&
             !PlayerInfo.Animator.GetBool("jump") &&
-            !PlayerInfo.Animator.GetBool("falling") &&
-            PlayerInfo.AnimationManager.Interuptable;
+            !PlayerInfo.Animator.GetBool("falling");
     }
 
     //Equip an ability to an ability slot, overriding the current ability if available.

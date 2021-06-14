@@ -18,7 +18,7 @@ public class MovementBehaviour : StateMachineBehaviour
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{   
-        if (!exiting && GameInfo.Manager.ReceivingInput)
+        if (!exiting && GameInfo.Manager.ReceivingInput.Value != GameInput.None)
         {
             PlayerInfo.MovementManager.UpdateWalkMovement();
             PlayerInfo.AnimationManager.UpdateWalkProperties();
@@ -112,10 +112,9 @@ public class MovementBehaviour : StateMachineBehaviour
                 animator.SetTrigger("climbEnterBottom");
 
                 exiting = true;
-                GameInfo.Manager.FreezeInput(this);
+                GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
                 PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
                 GameInfo.CameraController.AllowZoom = false;
-                PlayerInfo.AnimationManager.Interuptable = false;
             }
         }
 
@@ -168,10 +167,9 @@ public class MovementBehaviour : StateMachineBehaviour
                 animator.SetTrigger("climbEnterTop");
 
                 exiting = true;
-                GameInfo.Manager.FreezeInput(this);
+                GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
                 PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
                 GameInfo.CameraController.AllowZoom = false;
-                PlayerInfo.AnimationManager.Interuptable = false;
             }
         }
 	}
@@ -252,10 +250,9 @@ public class MovementBehaviour : StateMachineBehaviour
                 animator.SetTrigger("tallMantle");
 
             animator.SetTrigger("mantleTop");
-            GameInfo.Manager.FreezeInput(this);
+            GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
             PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
             GameInfo.CameraController.AllowZoom = false;
-            PlayerInfo.AnimationManager.Interuptable = false;
             GameInfo.CameraController.TargetDirection = mantle.Normal;
             exiting = true;
         }
@@ -312,10 +309,9 @@ public class MovementBehaviour : StateMachineBehaviour
                 animator.SetTrigger("tallMantle");
 
             animator.SetTrigger("mantleBottom");
-            GameInfo.Manager.FreezeInput(this);
+            GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
             PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
             GameInfo.CameraController.AllowZoom = false;
-            PlayerInfo.AnimationManager.Interuptable = false;
             GameInfo.CameraController.TargetDirection = mantle.Normal;
             exiting = true;
         }

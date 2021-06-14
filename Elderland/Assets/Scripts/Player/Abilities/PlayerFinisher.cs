@@ -259,8 +259,6 @@ public sealed class PlayerFinisher : PlayerAbility
         PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
 
         dashPosition = targetPosition;
-
-        PlayerInfo.AnimationManager.Interuptable = false;
     }
 
     public void DuringCharge()
@@ -319,8 +317,6 @@ public sealed class PlayerFinisher : PlayerAbility
                 (enemy.transform.position - PlayerInfo.Player.transform.position).normalized;
             enemy.Push(enemyPushDir * knockbackStrength);
         }
-
-        PlayerInfo.AnimationManager.Interuptable = true;
     }
 
     public override bool OnHit(GameObject character)

@@ -142,7 +142,8 @@ public class CameraController : MonoBehaviour
     {   
         #if DevMode
         StartGameplay();
-        GameInfo.Manager.UnfreezeInput(null);
+        GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Full);
+        GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
         #else
         StartIdle();
         #endif
@@ -356,14 +357,16 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            if (GameInfo.Manager.ReceivingInput)
-                HorizontalAngle -= GameInfo.Settings.RightDirectionalInput.x *
-                (sensitivity * SensitivityModifier) *
-                zoomModifier *
-                OrientationModifier *
-                Time.deltaTime;
+            if (GameInfo.Manager.ReceivingInput.Value != GameInput.None)
+                HorizontalAngle -= 
+                    GameInfo.Settings.RightDirectionalInput.x *
+                    (sensitivity * SensitivityModifier) *
+                    zoomModifier *
+                    OrientationModifier *
+                    Time.deltaTime;
             orientationDelta = Mathf.Sign(GameInfo.Settings.RightDirectionalInput.x);
-            if (GameInfo.Settings.RightDirectionalInput.magnitude < 0.25f || !GameInfo.Manager.ReceivingInput)
+            if (GameInfo.Settings.RightDirectionalInput.magnitude < 0.25f || 
+                GameInfo.Manager.ReceivingInput.Value == GameInput.None)
                 orientationDelta = 0;
 
             if (orientationDelta != 0)
@@ -387,7 +390,8 @@ public class CameraController : MonoBehaviour
                 sprintOrientation = Mathf.MoveTowards(sprintOrientation, 0, 3 * Time.deltaTime);
             }
 
-            if (GameInfo.Settings.RightDirectionalInput.magnitude != 0 && GameInfo.Manager.ReceivingInput)
+            if (GameInfo.Settings.RightDirectionalInput.magnitude != 0 && 
+                GameInfo.Manager.ReceivingInput.Value != GameInput.None)
             {
                 HorizontalAngle -= 
                     GameInfo.Settings.RightDirectionalInput.x *

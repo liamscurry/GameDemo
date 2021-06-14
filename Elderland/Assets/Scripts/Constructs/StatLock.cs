@@ -8,6 +8,9 @@ public class StatLock<T>
     private object tracker;
 
     public T Value { get; private set; }
+    public object Tracker { get { return tracker; } }
+    private T storedValue;
+    private Action onOverride;
 
     public StatLock()
     {
@@ -20,9 +23,15 @@ public class StatLock<T>
         Value = value;
     }
 
-    public void ClaimLock(object tracker, T value)
+    public void ClaimLock(object tracker, T value, Action onOverride = null)
     {
+        if (this.tracker != null)
+        {
+            if (this.onOverride != null)
+                this.onOverride.Invoke();
+        }
         this.tracker = tracker;
+        this.onOverride = onOverride;
         Value = value;
     }
 
@@ -31,8 +40,20 @@ public class StatLock<T>
         if (this.tracker == tracker)
         {
             this.tracker = null;
+            this.onOverride = null;
             Value = value;
         }
+    }
+
+    public void ClaimTempLock(T value)
+    {
+        storedValue = Value;
+        Value = value;
+    }
+
+    public void ReleaseTempLock()
+    {
+        Value = storedValue;
     }
 
     public static void ContructorTests()

@@ -53,7 +53,12 @@ public abstract class PlayerAbility : Ability
     //Waits for valid input.
     public virtual bool Wait(bool firstTimeCalling)
     {
-        if (system.Ready() && system.CurrentAbility == null && pressedOverloadFrame && WaitCondition())
+        if (system.Ready() &&
+            pressedOverloadFrame &&
+            WaitCondition() &&
+            (GameInfo.Manager.ReceivingInput.Value == GameInput.Full || 
+             GameInfo.Manager.ReceivingInput.Value == GameInput.Gameplay && 
+             GameInfo.Manager.ReceivingInput.Tracker == this))
         {
             system.CurrentAbility = this;
             state = AbilityState.InProgress;
@@ -64,7 +69,7 @@ public abstract class PlayerAbility : Ability
 
             if (firstTimeCalling)
             {
-                //system.AnimationLoop.ResetSegmentIndex();
+                GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay, onClaimOverride);
                 system.Animator.SetTrigger("runAbility");
                 system.Animator.SetBool("exitAbility", false);
                 system.Animator.ResetTrigger("proceedAbility");
@@ -88,6 +93,11 @@ public abstract class PlayerAbility : Ability
             replayed = false;
             return false;
         }
+    }
+
+    private void onClaimOverride()
+    {
+        ShortCircuit();
     }
 
     protected virtual bool WaitCondition() { return true; }
@@ -123,6 +133,7 @@ public abstract class PlayerAbility : Ability
             {   
                 system.Animator.SetBool("exitAbility", true);
                 ToCoolDown();
+                GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
             }
 
             if (fallUponFinish)
@@ -156,13 +167,17 @@ public abstract class PlayerAbility : Ability
         system.CurrentAbility = null;
         state = AbilityState.Waiting;
 
+        GameInput inputType = 
+            GameInfo.Manager.ReceivingInput.Value;
+        // ||
+        //    (inputType == GameInput.Gameplay && GameInfo.Manager.ReceivingInput.Tracker == this));
         bool replayedCheck = Wait(false);
-        
         if (!replayedCheck)
         {
             ActiveSegment = null;
             system.Animator.SetBool("exitAbility", true);
             ContinousEnd();
+            GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
         }
     }
 

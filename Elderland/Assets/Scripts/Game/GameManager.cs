@@ -26,17 +26,19 @@ public class GameManager : MonoBehaviour
     private IEnumerator slowEnumerator;
     private float slowFreezeTimer;
 
-    private static bool receivingInput;
-    private static bool previousReceivingInput;
-    private static object receivingInputSetter;
-
     private bool respawning;
 
     private float combatCheckTimer;
     private const float combatCheckDuration = 1f;
     private const float combatCheckRadius = 30f;
 
-    public bool ReceivingInput { get { return receivingInput; } }
+    // Can be overriden (by overriders marked below), yet do not override:
+    // Player abilities
+    // Cannot be overriden, yet do not override:
+    // interactions
+    // Cannot be overriden, do override:
+    // Cutscenes
+    public StatLock<GameInput> ReceivingInput { get; private set; }
     public bool Respawning { get { return respawning; } }
     public bool InCombat { get; private set; }
 
@@ -46,7 +48,7 @@ public class GameManager : MonoBehaviour
 	private void Awake() 
     {
         GetComponent<GameInitializer>().Initialize();
-        receivingInput = false;
+        ReceivingInput = new StatLock<GameInput>();
         Application.targetFrameRate = 300;
         respawning = false;
 	}
@@ -129,34 +131,6 @@ public class GameManager : MonoBehaviour
         Time.fixedDeltaTime = 1 / 50f;
     }
 
-    public void FreezeInput(object setter)
-    {
-        receivingInputSetter = setter;
-        receivingInput = false;
-    }
-
-    public void UnfreezeInput(object setter)
-    {
-        if (receivingInputSetter == setter)
-        {
-            receivingInputSetter = null;
-            receivingInput = true;
-        }
-    }
-
-    public void OverlayFreezeInput()
-    {
-        FreezeInput(this);
-        //previousReceivingInput = receivingInput;
-        //receivingInput = false;
-    }
-
-    public void OverlayUnfreezeInput()
-    {   
-        UnfreezeInput(this);
-        //receivingInput = previousReceivingInput;
-    }
-
     public void WaitForUseToUnfreeze()
     {
         StartCoroutine("WaitForUseToUnfreezeCoroutine");
@@ -194,7 +168,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator FadeTeleportCoroutine(float duration, float waitTime)
     {
-        OverlayFreezeInput();
+        ReceivingInput.ClaimTempLock(GameInput.None);
 
         //yield return new WaitForSecondsRealtime(2.25f);
 
@@ -212,7 +186,7 @@ public class GameManager : MonoBehaviour
         //Fade out
         yield return Fade(duration, 0);
 
-        OverlayUnfreezeInput();
+        ReceivingInput.ReleaseTempLock();
     }
 
     public void FadeOutro()

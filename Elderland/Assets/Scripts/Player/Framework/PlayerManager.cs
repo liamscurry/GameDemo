@@ -152,11 +152,10 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     {
         PlayerInfo.PhysicsSystem.ForceTouchingFloor();
     }
-    
-    //To be implemented
+
     public void OnDeath()
     {
-        GameInfo.Manager.FreezeInput(this);
+        GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
         PlayerInfo.BuffManager.ClearBuffs();
         PlayerInfo.BuffManager.ClearDebuffs();
         PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
@@ -164,7 +163,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
 
     public void Respawn()
     {
-        GameInfo.Manager.UnfreezeInput(this);
+        GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
         PlayerInfo.AnimationManager.IgnoreFallingAnimation = false;
     }
 
@@ -214,7 +213,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         {
             ChangeHealthBar(value);
         }
-        else if (PlayerInfo.AnimationManager.Interuptable)
+        else
         {
             float preHealth = Health;
         
@@ -652,7 +651,6 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
 
     public void Reset()
     {
-        PlayerInfo.AbilityManager.ShortCircuit(false);
         PlayerInfo.AbilityManager.ResetCooldowns();
 
         PlayerInfo.PhysicsSystem.TotalZero(true, true, true);

@@ -29,32 +29,26 @@ public class PlayerAnimationPersistLayer
         this.layerName = layerName;
     }
 
-    public bool TryTurnOn()
+    public void TurnOn()
     {
-        if (weightSmoothCoro == null)
+        if (weightSmoothCoro != null)
         {
-            weightSmoothCoro = FadeWeight(0, 1);
-            PlayerInfo.Manager.StartCoroutine(weightSmoothCoro);
-            return true;
+            PlayerInfo.Manager.StopCoroutine(weightSmoothCoro);
         }
-        else
-        {
-            return false;
-        }
+
+        weightSmoothCoro = FadeWeight(0, 1);
+        PlayerInfo.Manager.StartCoroutine(weightSmoothCoro);
     }
 
-    public bool TryTurnOff()
+    public void TurnOff()
     {
-        if (weightSmoothCoro == null)
+        if (weightSmoothCoro != null)
         {
-            weightSmoothCoro = FadeWeight(1, 0);
-            PlayerInfo.Manager.StartCoroutine(weightSmoothCoro);
-            return true;
+            PlayerInfo.Manager.StopCoroutine(weightSmoothCoro);
         }
-        else
-        {
-            return false;
-        }
+
+        weightSmoothCoro = FadeWeight(1, 0);
+        PlayerInfo.Manager.StartCoroutine(weightSmoothCoro);
     }
 
     public void ClaimTurnOn(Object user)

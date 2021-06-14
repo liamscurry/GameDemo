@@ -75,7 +75,7 @@ public class CameraCutscene
 
 		generatedLastWaypoint = false;
 
-		GameInfo.Manager.FreezeInput(this);
+		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
 	}
 
 	public IEnumerator EventTimer(CameraCutsceneWaypoint waypoint, CameraCutsceneWaypointEvent waypointEvent)
@@ -136,7 +136,7 @@ public class CameraCutscene
 						}
 
 						if (unfreezeInputUponFinish)
-							GameInfo.Manager.UnfreezeInput(this);
+							GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
 						
 						if (endEvent != null)
 							endEvent.Invoke();

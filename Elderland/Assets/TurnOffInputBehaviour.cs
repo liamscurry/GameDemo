@@ -6,6 +6,6 @@ public class TurnOffInputBehaviour : StateMachineBehaviour
 {
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        GameInfo.Manager.FreezeInput(animator);
+        GameInfo.Manager.ReceivingInput.ClaimLock(animator, GameInput.None);
     }
 }

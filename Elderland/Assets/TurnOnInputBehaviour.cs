@@ -6,6 +6,6 @@ public class TurnOnInputBehaviour : StateMachineBehaviour
 {
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        GameInfo.Manager.UnfreezeInput(animator);
+        GameInfo.Manager.ReceivingInput.TryReleaseLock(animator, GameInput.Full);
     }
 }

@@ -14,7 +14,6 @@ public class PlayerAnimationManager
 	public StateMachineBehaviour KinematicBehaviour { get; set; }
 	public PlayerAnimationUpper UpperLayer { get; private set; }
 	public bool IgnoreFallingAnimation { get; set; }
-	public bool Interuptable { get; set; }
 
 	private AnimationClip[] playerAnims;
 	private List<KeyValuePair<AnimationClip, AnimationClip>> overrideClips;
@@ -48,7 +47,7 @@ public class PlayerAnimationManager
 		combatLayer = new PlayerAnimationPersistLayer(0.5f, "CombatStanceLayer");
 		walkAbilityLayer = new PlayerAnimationPersistLayer(0.5f, "WalkAbilityLayer");
 		UpperLayer = new PlayerAnimationUpper();
-		Interuptable = true;
+
 		rotatingModel = false;
 		AnimatorController =
 			Resources.Load<AnimatorController>(ResourceConstants.Player.Art.AnimatorController);
@@ -82,7 +81,7 @@ public class PlayerAnimationManager
 
 	public void LateUpdateAnimations()
 	{
-		if (PlayerInfo.Sensor.Interaction != null && GameInfo.Manager.ReceivingInput)
+		if (PlayerInfo.Sensor.Interaction != null && GameInfo.Manager.ReceivingInput.Value == GameInput.Full)
 		{
 			float angle = 
 				Matho.AngleBetween(
@@ -93,10 +92,9 @@ public class PlayerAnimationManager
 			 	(Input.GetKeyDown(GameInfo.Settings.UseKey) ||
 				 PlayerInfo.Sensor.Interaction.Access == StandardInteraction.AccessType.Trigger) &&
 				PlayerInfo.AbilityManager.CurrentAbility == null &&
-				!PlayerInfo.TeleportingThisFrame && 
-				Interuptable)
+				!PlayerInfo.TeleportingThisFrame)
 			{
-				PlayerInfo.Sensor.Interaction.Exit();
+				PlayerInfo.Sensor.Interaction.Invoke();
 			}
 		}
 
@@ -279,30 +277,33 @@ public class PlayerAnimationManager
 	* The following two methods are helper methods for combat layer that transitions from and to
 	* the combat layers when fighting enemies. This is needed to pull out the sword and put it away.
 	*/
-	public bool TryToCombatStance(Action onEnd)
+	public void ToCombatStance()
 	{
-		if (combatLayer.TryTurnOn())
-		{
-			UpperLayer.RequestAction(GetAnim("TakeOutSword"), onEnd);
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		combatLayer.TurnOn();
+		UpperLayer.RequestAction(
+			GetAnim("TakeOutSword"), 
+			PlayerInfo.AbilityManager.OnCombatStanceOn,
+			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOn);
+		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay);
 	}
 
-	public bool TryAwayCombatStance(Action onEnd)
+	public void AwayCombatStance()
 	{
-		if (combatLayer.TryTurnOff())
-		{
-			UpperLayer.RequestAction(GetAnim("PutAwaySword"), onEnd);
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		combatLayer.TurnOff();
+		UpperLayer.RequestAction(
+			GetAnim("PutAwaySword"),
+			PlayerInfo.AbilityManager.OnCombatStanceOff,
+			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOff);
+		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay);
+	}
+
+	public void AwayCombatStanceNoClaim()
+	{
+		combatLayer.TurnOff();
+		UpperLayer.RequestAction(
+			GetAnim("PutAwaySword"),
+			PlayerInfo.AbilityManager.OnCombatStanceOff,
+			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOff);
 	}
 
 	/*

@@ -95,7 +95,7 @@ public class MenuManager : MonoBehaviour
 
         GameInfo.Paused = true;
         Time.timeScale = 0;
-        GameInfo.Manager.OverlayFreezeInput();
+        GameInfo.Manager.ReceivingInput.ClaimTempLock(GameInput.None);
     }
 
     public void OpenPauseMenu()
@@ -105,7 +105,7 @@ public class MenuManager : MonoBehaviour
 
         GameInfo.Paused = true;
         Time.timeScale = 0;
-        GameInfo.Manager.OverlayFreezeInput();
+        GameInfo.Manager.ReceivingInput.ClaimTempLock(GameInput.None);
     }
 
     private void ObjectiveMenu()

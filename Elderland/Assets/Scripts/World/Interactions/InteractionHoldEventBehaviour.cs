@@ -29,6 +29,7 @@ public class InteractionHoldEventBehaviour : StateMachineBehaviour
                 {
                     animator.SetTrigger("exitInteraction");
                     GameInfo.CameraController.AllowZoom = true;
+                    PlayerInfo.Manager.Interaction.ReleaseInteraction();
                     PlayerInfo.Manager.Interaction.EndEvent();
                     exiting = true;
                     if (PlayerInfo.Manager.Interaction.Reusable)

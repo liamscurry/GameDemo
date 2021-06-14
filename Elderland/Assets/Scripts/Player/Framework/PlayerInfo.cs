@@ -17,6 +17,7 @@ public static class PlayerInfo
     public static CapsuleCollider Capsule { get; private set; }
     public static PlayerManager Manager  { get; private set; }
     public static Animator Animator { get; private set; }
+    public static PlayerAnimEventConnector AnimConnector { get; private set; }
 
     //Components on player children
     public static PlayerSensor Sensor { get; private set; }
@@ -59,6 +60,7 @@ public static class PlayerInfo
         Capsule = player.GetComponent<CapsuleCollider>();
         Manager = player.GetComponent<PlayerManager>();
         Animator = player.GetComponent<Animator>();
+        AnimConnector = player.GetComponent<PlayerAnimEventConnector>();
         
         Controller = new AnimatorOverrideController(Animator.runtimeAnimatorController);
 		Animator.runtimeAnimatorController = Controller;

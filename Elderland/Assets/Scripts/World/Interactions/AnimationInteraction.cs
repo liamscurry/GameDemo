@@ -17,8 +17,9 @@ public sealed class AnimationInteraction : StandardInteraction
 	private AnimatorOverrideController controller;
 	private List<KeyValuePair<AnimationClip, AnimationClip>> overrideClips;
 
-	private void Start()
+	protected override void Start()
 	{
+		base.Start();
 		objectAnimator = GetComponent<Animator>();
 		controller = new AnimatorOverrideController(objectAnimator.runtimeAnimatorController);
 		objectAnimator.runtimeAnimatorController = controller;

@@ -80,7 +80,6 @@ public sealed class PlayerDodge : PlayerAbility
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;
         system.Movement.ExitEnabled = false;
-        PlayerInfo.AnimationManager.Interuptable = false;
 
         GameInfo.CameraController.Speed = 0.4f;
         GameInfo.CameraController.TargetSpeed = 0;
@@ -124,7 +123,7 @@ public sealed class PlayerDodge : PlayerAbility
 
     private void SlideEnd()
     {
-        PlayerInfo.AnimationManager.Interuptable = true;
+
     }
 
     public override bool OnHit(GameObject character)

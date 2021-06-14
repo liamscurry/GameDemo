@@ -94,14 +94,13 @@ public class StandardInteraction : MonoBehaviour
 		}
 	}
 
-	public void Exit()
+	public void Invoke()
 	{
 		if (!activated)
 		{
 			activated = true;
-			GameInfo.Manager.FreezeInput(this);
+			GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
 			GameInfo.CameraController.AllowZoom = false;
-			PlayerInfo.AnimationManager.Interuptable = false;
 
 			if (useTarget)
 			{
@@ -124,7 +123,6 @@ public class StandardInteraction : MonoBehaviour
 			PlayerInfo.Animator.SetTrigger("interacting");
 			PlayerInfo.Animator.SetTrigger("generalInteracting");
 			PlayerInfo.Animator.SetBool("instantaneous", type == Type.press);
-			//PlayerInfo.AnimationManager.SetInteractionAnimation(animationClip);
 
 			if (alignCameraToTargetRotation)
 			{
@@ -135,9 +133,13 @@ public class StandardInteraction : MonoBehaviour
 			PlayerInfo.Manager.Interaction = this;
 
 			StartCoroutine(UITimer());
-			//StartCoroutine(EndTimer());
 			OnExitBegin();
 		}
+	}
+
+	public void ReleaseInteraction()
+	{
+		GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
 	}
 
 	protected IEnumerator UITimer()
@@ -166,12 +168,6 @@ public class StandardInteraction : MonoBehaviour
 		if (holdStartEvent != null)
 			holdStartEvent.Invoke();
 	}
-
-	//protected IEnumerator EndTimer()
-	//{
-		//yield return new WaitForSeconds(functionalityTime);
-		//endEvent.Invoke();
-	//}
 
 	public virtual void Disable()
 	{
