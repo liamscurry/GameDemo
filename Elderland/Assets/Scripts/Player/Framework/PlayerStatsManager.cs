@@ -38,6 +38,7 @@ public class PlayerStatsManager
 
 	public StatMultiplier DamageMultiplier { get; }
 	public StatMultiplier AttackSpeedMultiplier { get; }
+	public StatLock<bool> Invulnerable { get; private set; }
 
 	public bool Blocking { get; set; }
 
@@ -62,5 +63,9 @@ public class PlayerStatsManager
 		StaminaYieldMultiplier = new StatMultiplier(1);
 		DamageMultiplier = new StatMultiplier(1);
 		AttackSpeedMultiplier = new StatMultiplier(1);
+
+		Invulnerable = new StatLock<bool>();
+		Invulnerable.ClaimLock(this, false);
+		Invulnerable.TryReleaseLock(this, false);
 	}
 }

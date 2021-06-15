@@ -285,6 +285,7 @@ public class PlayerAnimationManager
 			PlayerInfo.AbilityManager.OnCombatStanceOn,
 			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOn);
 		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay);
+		PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
 	}
 
 	public void AwayCombatStance()
@@ -295,6 +296,7 @@ public class PlayerAnimationManager
 			PlayerInfo.AbilityManager.OnCombatStanceOff,
 			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOff);
 		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay);
+		PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
 	}
 
 	public void AwayCombatStanceNoClaim()

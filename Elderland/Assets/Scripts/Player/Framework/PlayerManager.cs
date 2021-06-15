@@ -213,7 +213,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         {
             ChangeHealthBar(value);
         }
-        else
+        else if (!PlayerInfo.StatsManager.Invulnerable.Value)
         {
             float preHealth = Health;
         

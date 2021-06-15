@@ -170,8 +170,8 @@
             {
                 float2 screenPosPercentage = i.screenPos.xy / i.screenPos.w;
 
-                float glitchX = pow(sin(256 * (screenPosPercentage.x * screenPosPercentage.y)), 2);
-                float glitchY = sin(256 * (screenPosPercentage.x +  screenPosPercentage.y));
+                float glitchX = pow(sin(512 * (screenPosPercentage.x * screenPosPercentage.y)), 2);
+                float glitchY = sin(512 * (screenPosPercentage.x +  screenPosPercentage.y));
 
                 ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
                 float glitchColorValue = _Glitch * sign(glitchY) * .3;

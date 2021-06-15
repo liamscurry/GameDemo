@@ -119,6 +119,8 @@ public sealed class PlayerDodge : PlayerAbility
         GameInfo.CameraController.Speed = 0.45f;
         GameInfo.CameraController.TargetSpeed = 0;
         GameInfo.CameraController.SpeedGradation = 0.22f;
+
+        PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
     }
 
     private void DuringAct()
@@ -159,7 +161,7 @@ public sealed class PlayerDodge : PlayerAbility
 
     private void SlideEnd()
     {
-
+        PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(this, false);
     }
 
     public override bool OnHit(GameObject character)

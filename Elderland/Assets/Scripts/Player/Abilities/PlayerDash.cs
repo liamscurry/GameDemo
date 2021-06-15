@@ -79,6 +79,8 @@ public sealed class PlayerDash : PlayerAbility
         GameInfo.CameraController.Speed = 0.5f;
         GameInfo.CameraController.TargetSpeed = 0;
         GameInfo.CameraController.SpeedGradation = .15f;
+
+        PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
     }
 
     private void DuringAct()
@@ -112,6 +114,8 @@ public sealed class PlayerDash : PlayerAbility
         system.Movement.ExitEnabled = true;
 
         dashParticles.Stop();
+
+        PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(this, false);
     }
 
     public override bool OnHit(GameObject character)

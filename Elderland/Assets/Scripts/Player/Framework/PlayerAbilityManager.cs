@@ -231,6 +231,7 @@ public class PlayerAbilityManager : AbilitySystem
         inCombatStance = true;
         notUsedTimer = 0;
         GameInfo.Manager.ReceivingInput.TryReleaseLock(PlayerInfo.AnimationManager, GameInput.Full);
+        PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(PlayerInfo.AnimationManager, false);
     }
 
     public void ShortCircuitCombatStanceOn()
@@ -243,6 +244,7 @@ public class PlayerAbilityManager : AbilitySystem
     {
         inCombatStance = false;
         GameInfo.Manager.ReceivingInput.TryReleaseLock(PlayerInfo.AnimationManager, GameInput.Full);
+        PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(PlayerInfo.AnimationManager, false);
     }
 
     public void ShortCircuitCombatStanceOff()
