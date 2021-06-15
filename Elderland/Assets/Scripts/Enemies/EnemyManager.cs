@@ -475,13 +475,13 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
                 Matho.IsInRange(Health, FinisherHealth, healthArmorMargin))
             {
                 healthbarDisplay.material.SetColor("_Color", EnemyInfo.FinisherHealthColor);
-                resolvebarDisplay.material.SetColor("_Color", EnemyInfo.FinisherHealthColor * dimColor);
+                resolvebarDisplay.material.SetColor("_Color", dimColor);
                 inFinisherState = true;
             }
             else
             {
                 healthbarDisplay.material.SetColor("_Color", EnemyInfo.HealthColor);
-                resolvebarDisplay.material.SetColor("_Color", EnemyInfo.HealthColor * dimColor);
+                resolvebarDisplay.material.SetColor("_Color", dimColor);
                 inFinisherState = false;
             }
 
@@ -492,7 +492,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         {
             // In armor state
             healthbarDisplay.material.SetColor("_Color", EnemyInfo.ArmorColor);
-            resolvebarDisplay.material.SetColor("_Color", EnemyInfo.ArmorColor * dimColor);
+            resolvebarDisplay.material.SetColor("_Color", dimColor);
             if (finisherIndicator.activeSelf)
                 finisherIndicator.SetActive(false);
         }

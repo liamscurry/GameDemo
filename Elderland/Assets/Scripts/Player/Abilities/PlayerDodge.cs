@@ -6,6 +6,8 @@ using UnityEngine;
 
 public sealed class PlayerDodge : PlayerAbility 
 {
+    private enum DodgeType { Left = 1, Normal = 0, Right = -1 }
+
     //Fields
     private Vector2 direction;
     private float speed = 2.5f;
@@ -13,6 +15,12 @@ public sealed class PlayerDodge : PlayerAbility
     private AbilitySegment act;
     private AbilityProcess actProcess;
     private AbilityProcess slideProcess;
+
+    private Vector3 startPlayerDirection;
+    private DodgeType dodgeType;
+    private const float sideThreshold = 0.25f;
+    private const float sideRotateDegrees = 40f;
+    private const float sideRotateSpeed = 5f;
 
     private float swordSpeedModifier;
 
@@ -53,24 +61,51 @@ public sealed class PlayerDodge : PlayerAbility
 
         abilitySpeed *= 0.75f;
 
-        /*
-        if (PlayerInfo.StatsManager.AttackSpeedMultiplier.ModifierCount != 0)
-        {
-            abilitySpeed = 1 / (PlayerInfo.StatsManager.AttackSpeedMultiplier.Value);
-            Debug.Log(PlayerInfo.StatsManager.AttackSpeedMultiplier.Value);
-        }*/
-
         Vector2 playerInput =
             PlayerInfo.MovementManager.DirectionToPlayerCoord(GameInfo.Settings.LeftDirectionalInput);
         AnimationClip actClip =
             GetDirAnim(ResourceConstants.Player.Art.Dodge, playerInput);
 
         act.Clip = actClip;
+
+        if (playerInput.x > sideThreshold)
+        {
+            dodgeType = DodgeType.Right;
+        }
+        else if (playerInput.x < -sideThreshold)
+        {
+            dodgeType = DodgeType.Left;
+        }
+        else
+        {
+            dodgeType = DodgeType.Normal;
+        }
+
+        startPlayerDirection = PlayerInfo.Player.transform.forward;
     }
 
     public override void GlobalUpdate()
     {
         PlayerInfo.AnimationManager.UpdateRotation(true);
+
+        if (dodgeType != DodgeType.Normal)
+        {
+            Vector3 targetPlayerDirection =
+            Matho.Rotate(startPlayerDirection, Vector3.up, sideRotateDegrees * (int) dodgeType);
+        
+            Vector3 incrementedRotation = PlayerInfo.Player.transform.forward;
+            incrementedRotation =
+                Vector3.RotateTowards(
+                    incrementedRotation,
+                    targetPlayerDirection,
+                    sideRotateSpeed * Time.deltaTime,
+                    Mathf.Infinity);
+            PlayerInfo.Player.transform.rotation =
+                Quaternion.LookRotation(incrementedRotation, Vector3.up);
+
+            PlayerInfo.AbilityManager.LastDirFocus = Time.time;
+            PlayerInfo.AbilityManager.DirFocus = PlayerInfo.Player.transform.forward;
+        }
     }
 
     private void ActBegin()
@@ -81,9 +116,9 @@ public sealed class PlayerDodge : PlayerAbility
         system.Physics.GravityStrength = 0;
         system.Movement.ExitEnabled = false;
 
-        GameInfo.CameraController.Speed = 0.4f;
+        GameInfo.CameraController.Speed = 0.45f;
         GameInfo.CameraController.TargetSpeed = 0;
-        GameInfo.CameraController.SpeedGradation = 0.08f;
+        GameInfo.CameraController.SpeedGradation = 0.22f;
     }
 
     private void DuringAct()
@@ -109,6 +144,7 @@ public sealed class PlayerDodge : PlayerAbility
         PlayerInfo.MovementManager.SnapSpeed();
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
         system.Movement.ExitEnabled = true;
+        GameInfo.CameraController.SpeedGradation = 0.08f;
     }
 
     private void DuringSlide()

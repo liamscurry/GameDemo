@@ -210,6 +210,9 @@ ModelImporter:
   - first:
       74: 1268744635858950509
     second: FireballRightHold3
+  - first:
+      74: 5698326246238103598
+    second: PutSwordAway
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -1627,7 +1630,7 @@ ModelImporter:
       takeName: Armature|TakeOutSword
       internalID: 0
       firstFrame: 0
-      lastFrame: 52
+      lastFrame: 25
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1688,11 +1691,11 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: PutAwaySword
-      takeName: Armature|TakeOutSword
+      name: PutSwordAway
+      takeName: Armature|PutSwordAway
       internalID: 0
       firstFrame: 0
-      lastFrame: 52
+      lastFrame: 25
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1712,14 +1715,14 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.28514937
+      - time: 0.033557005
         functionName: FadeOutMelee
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.8280098
+      - time: 1
         functionName: DisableMelee
         data: 
         objectReferenceParameter: {instanceID: 0}

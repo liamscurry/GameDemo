@@ -291,7 +291,7 @@ public class PlayerAnimationManager
 	{
 		combatLayer.TurnOff();
 		UpperLayer.RequestAction(
-			GetAnim("PutAwaySword"),
+			GetAnim("PutSwordAway"),
 			PlayerInfo.AbilityManager.OnCombatStanceOff,
 			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOff);
 		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay);
@@ -301,7 +301,7 @@ public class PlayerAnimationManager
 	{
 		combatLayer.TurnOff();
 		UpperLayer.RequestAction(
-			GetAnim("PutAwaySword"),
+			GetAnim("PutSwordAway"),
 			PlayerInfo.AbilityManager.OnCombatStanceOff,
 			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOff);
 	}
