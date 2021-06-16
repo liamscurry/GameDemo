@@ -759,7 +759,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         }
 
         yield return new WaitForSeconds(0.3f);
-        yield return MeshTransitionTimer(-1, 0.7f, 4);
+        yield return MeshTransitionTimer(-1, 0.05f, 0.2f, 4);
         Alive = true;
     }
 
@@ -772,7 +772,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         yield return new WaitForSeconds(1f);
 
-        StartCoroutine(MeshTransitionTimer(1, 0.6f, 35));
+        StartCoroutine(MeshTransitionTimer(1, 0, 0.6f, 35));
         //yield return ParticleTransitionTimer(0.6f, deathParticles);
 
         healthbarPivot.transform.parent.gameObject.SetActive(false);
@@ -783,8 +783,9 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Destroy(gameObject);
     }
 
-    protected IEnumerator MeshTransitionTimer(int sign, float duration, float healthBarSpeed)
+    protected IEnumerator MeshTransitionTimer(int sign, float delay, float duration, float healthBarSpeed)
     {
+        yield return new WaitForSeconds(delay);
         float scaledSign = sign * 0.5f + 0.5f;
 
         float timer = 0;
@@ -941,7 +942,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Vector3 resolveBarScale =
             resolvebarPivot.transform.parent.localScale;
 
-        yield return (MeshTransitionTimer(1, 0.6f, 16));
+        yield return (MeshTransitionTimer(1, 0f, 0.6f, 16));
         //yield return ParticleTransitionTimer(0.6f, recycleParticles);
 
         healthbarPivot.transform.parent.gameObject.SetActive(false);
