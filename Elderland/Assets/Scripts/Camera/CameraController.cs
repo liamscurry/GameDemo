@@ -353,7 +353,7 @@ public class CameraController : MonoBehaviour
     {
         if (TargetDirection.magnitude > 0.25)
         {
-            MoveOrientationToZero();
+            SeekGameplayTargetDirection();
         }
         else
         {
@@ -414,7 +414,7 @@ public class CameraController : MonoBehaviour
     * Helper method for adjusting orientation value to zero over time. Used for gameplay and 
     * gameplay cutscenes.
     */
-    private void MoveOrientationToZero()
+    private void SeekGameplayTargetDirection()
     {
         float targetHorizontalAngle =
             Matho.Angle(Matho.StdProj2D(targetDirection)) + HorizontalOffset;
@@ -652,7 +652,7 @@ public class CameraController : MonoBehaviour
 
     private void UpdateCutsceneSettings()
     {
-        MoveOrientationToZero();
+        SeekGameplayTargetDirection();
         
         fov = Mathf.SmoothDamp(fov, targetFov, ref fovVelocity, fovSpeedGradation, 100f);
         Camera.fieldOfView = fov;

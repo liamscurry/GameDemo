@@ -13,6 +13,8 @@ public sealed class PlayerFinisher : PlayerAbility
 
     private AbilityProcess chargeProcess;
     private AbilityProcess actProcess;
+    private AbilityProcess actPauseProcess;
+    private AbilityProcess actLeaveProcess; // used for resetting camera settings
     private AbilitySegment charge;
     private AbilitySegment act;
 
@@ -44,9 +46,11 @@ public sealed class PlayerFinisher : PlayerAbility
 
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.15f);
+        actPauseProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 0.3f);
+        actLeaveProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 1 - (0.15f + 0.3f));
         charge = new AbilitySegment(chargeClip, chargeProcess);
         charge.Type = AbilitySegmentType.RootMotion;
-        act = new AbilitySegment(actClip, actProcess);
+        act = new AbilitySegment(actClip, actProcess, actPauseProcess, actLeaveProcess);
         segments = new AbilitySegmentList();
         segments.AddSegment(charge);
         segments.AddSegment(act);
@@ -179,9 +183,14 @@ public sealed class PlayerFinisher : PlayerAbility
 
             if (hit)
             {
-                float height = PlayerInfo.Player.transform.position.y - (raycast.distance) + (PlayerInfo.Capsule.height / 2 - PlayerInfo.Capsule.radius);
-                //PlayerInfo.Manager.test = PlayerInfo.Player.transform.position + (raycast.distance) * Vector3.down;
-                PlayerInfo.Player.transform.position = new Vector3(PlayerInfo.Player.transform.position.x, height, PlayerInfo.Player.transform.position.z);
+                float height =
+                    PlayerInfo.Player.transform.position.y -
+                    (raycast.distance) +
+                    (PlayerInfo.Capsule.height / 2 -
+                    PlayerInfo.Capsule.radius);
+                
+                PlayerInfo.Player.transform.position =
+                    new Vector3(PlayerInfo.Player.transform.position.x, height, PlayerInfo.Player.transform.position.z);
             }
 
             if (!interuptedTarget && PlayerInfo.Animator.isMatchingTarget)
@@ -219,6 +228,15 @@ public sealed class PlayerFinisher : PlayerAbility
     protected override void GlobalStart()
     {
         interuptedTarget = false;
+        if (target != null)
+        {
+            Vector3 enemyDirection = 
+                -(target.transform.position - transform.position);
+            enemyDirection = Matho.Rotate(enemyDirection, Vector3.up, -30f);
+            GameInfo.CameraController.TargetDirection = enemyDirection;
+            GameInfo.CameraController.TargetZoom = 1;
+            GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.8f));
+        }
     }
 
     public void ChargeBegin()
@@ -317,6 +335,17 @@ public sealed class PlayerFinisher : PlayerAbility
                 (enemy.transform.position - PlayerInfo.Player.transform.position).normalized;
             enemy.Push(enemyPushDir * knockbackStrength);
         }
+    }
+
+    public void ActLeaveBegin()
+    {
+        GameInfo.CameraController.TargetDirection = -targetDisplacement;
+    }
+
+    public void ActLeaveEnd()
+    {
+        GameInfo.CameraController.TargetDirection = Vector3.zero;
+        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0));
     }
 
     public override bool OnHit(GameObject character)
