@@ -40,9 +40,9 @@ public sealed class PlayerFinisher : PlayerAbility
     {
         //Animation assignment
         chargeClip =
-            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherCharge);
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherCharge2);
         actClip =
-            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherAct);
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherAct2);
 
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.15f);
@@ -69,6 +69,11 @@ public sealed class PlayerFinisher : PlayerAbility
 
     protected override bool WaitCondition()
     {
+        if (!PlayerInfo.AbilityManager.InCombatStance)
+        {
+            return false;
+        }
+
         //Scan for enemies
         Collider[] hitboxColliders =
             Physics.OverlapSphere(PlayerInfo.Player.transform.position, 6, LayerConstants.Hitbox);

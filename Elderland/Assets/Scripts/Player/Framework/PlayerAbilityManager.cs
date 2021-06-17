@@ -23,6 +23,7 @@ public class PlayerAbilityManager : AbilitySystem
     private float cooldownHeightDelta;
 
     private bool inCombatStance;
+    public bool InCombatStance { get { return inCombatStance; } }
     private float combatTimer;
     private const float combatDuration = 1.5f;
     private float notUsedTimer;

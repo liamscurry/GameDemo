@@ -213,6 +213,12 @@ ModelImporter:
   - first:
       74: 5698326246238103598
     second: PutSwordAway
+  - first:
+      74: -2585590999000789402
+    second: FinisherTakedownCharge2
+  - first:
+      74: -6285696831950265261
+    second: FinisherTakedownAct2
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -1734,11 +1740,11 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: FinisherCharge
-      takeName: Armature|LightSword1
+      name: FinisherTakedownCharge2
+      takeName: Armature|FinisherTakedown2
       internalID: 0
       firstFrame: 0
-      lastFrame: 4
+      lastFrame: 19
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -1763,11 +1769,11 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: FinisherAct
-      takeName: Armature|LightSword1
+      name: FinisherTakedownAct2
+      takeName: Armature|FinisherTakedown2
       internalID: 0
-      firstFrame: 4
-      lastFrame: 20
+      firstFrame: 20
+      lastFrame: 39
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
