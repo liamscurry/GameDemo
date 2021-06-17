@@ -57,6 +57,9 @@ public class PlayerAbilityManager : AbilitySystem
 
     public GameObject HoldBar { get; private set; }
 
+    private ParticleSystem swordParticles;
+    public ParticleSystem SwordParticles { get { return swordParticles; } }
+
     public PlayerAbilityManager(
         Animator animator,
         PhysicsSystem physics,
@@ -91,6 +94,43 @@ public class PlayerAbilityManager : AbilitySystem
         //Stamina = 0;
 
         LastDirFocus = -DirFocusDuration * 2f;
+        GenerateSwordParticles();
+    }
+    
+    private void GenerateSwordParticles()
+    {
+        GameObject hitboxParticlesObject =
+            GameObject.Instantiate(
+                Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.SwordParticles),
+                PlayerInfo.Player.transform.position,
+                Quaternion.identity);
+        hitboxParticlesObject.transform.parent = PlayerInfo.MeleeObjects.transform;
+        swordParticles = hitboxParticlesObject.GetComponent<ParticleSystem>();
+    }
+
+    /*
+    * Need a separate method aligning the sword particles as the player may have match targeted.
+    */
+    public void AlignSwordParticles(
+        Quaternion normalRotation,
+        Quaternion horizontalRotation,
+        Quaternion tiltRotation)
+    {
+        PlayerInfo.AbilityManager.SwordParticles.transform.position =
+            PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f +
+            PlayerInfo.Player.transform.up * 0.125f;
+        PlayerInfo.AbilityManager.SwordParticles.transform.rotation =
+             normalRotation * horizontalRotation * tiltRotation;
+        PlayerInfo.AbilityManager.SwordParticles.transform.localScale =
+            Vector3.one;
+    }
+
+    public void GenerateHitboxRotations(
+        out Quaternion horizontalRotation,
+        out Quaternion normalRotation)
+    {
+        horizontalRotation = Quaternion.FromToRotation(new Vector3(0, 0, 1), PlayerInfo.Player.transform.forward);
+        normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
     }
 
     //Updates each ability slot, called by PlayerManager.

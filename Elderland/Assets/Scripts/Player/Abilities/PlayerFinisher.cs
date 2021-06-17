@@ -44,8 +44,8 @@ public sealed class PlayerFinisher : PlayerAbility
         actClip =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherAct2);
 
-        chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
-        actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.15f);
+        chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, null, 1);
+        actProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.15f);
         actPauseProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 0.3f);
         actLeaveProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 1 - (0.15f + 0.3f));
         charge = new AbilitySegment(chargeClip, chargeProcess);
@@ -62,7 +62,11 @@ public sealed class PlayerFinisher : PlayerAbility
 
         //Hitbox initializations
         GameObject hitboxObject =
-            Instantiate(Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.RectangularMultiHitbox), transform.position, Quaternion.identity);
+            Instantiate(
+                Resources.Load<GameObject>(
+                    ResourceConstants.Player.Hitboxes.RectangularMultiHitbox),
+                    transform.position,
+                    Quaternion.identity);
         hitboxObject.transform.parent = PlayerInfo.MeleeObjects.transform;
         hitboxObject.SetActive(false);
     }
@@ -296,19 +300,23 @@ public sealed class PlayerFinisher : PlayerAbility
         }
     }
 
-    public void ChargeEnd()
-    {
-        
-    }
-
     public void ActBegin()
     {
-        
-    }
+        Quaternion horizontalRotation;
+        Quaternion normalRotation;
+        PlayerInfo.AbilityManager.GenerateHitboxRotations(
+            out horizontalRotation,
+            out normalRotation);
 
-    public void DuringAct()
-    {
-        
+        Quaternion tiltRotation =
+            Quaternion.Euler(0, 0, 55);
+
+        PlayerInfo.AbilityManager.AlignSwordParticles(
+            normalRotation,
+            horizontalRotation,
+            tiltRotation);
+
+        PlayerInfo.AbilityManager.SwordParticles.Play();
     }
 
     public void ActEnd()

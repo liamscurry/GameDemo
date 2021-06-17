@@ -33,9 +33,9 @@ public sealed class PlayerSword : PlayerAbility
     private float knockbackStrength = 3.5f;
     private PlayerMultiDamageHitbox hitbox;
     private Vector3 hitboxScale = new Vector3(3f, 2, 2);
-    private ParticleSystem hitboxParticles;
-    private Gradient hitboxParticlesNormalGradient;
-    private ParticleSystem.ColorOverLifetimeModule hitboxParticlesColors;
+    
+    //private Gradient hitboxParticlesNormalGradient;
+    //private ParticleSystem.ColorOverLifetimeModule hitboxParticlesColors;
 
     private AbilityProcess holdProcess;
     private AbilityProcess chargeProcess;
@@ -146,15 +146,10 @@ public sealed class PlayerSword : PlayerAbility
         hitbox = hitboxObject.GetComponent<PlayerMultiDamageHitbox>();
         hitbox.gameObject.transform.localScale = hitboxScale;
 
-        GameObject hitboxParticlesObject =
-            Instantiate(
-                Resources.Load<GameObject>(ResourceConstants.Player.Hitboxes.SwordParticles),
-                transform.position,
-                Quaternion.identity);
-        hitboxParticlesObject.transform.parent = PlayerInfo.MeleeObjects.transform;
-        hitboxParticles = hitboxParticlesObject.GetComponent<ParticleSystem>();
-        hitboxParticlesNormalGradient = hitboxParticles.colorOverLifetime.color.gradient;
-        hitboxParticlesColors = hitboxParticles.colorOverLifetime;
+
+    
+        //hitboxParticlesNormalGradient = hitboxParticles.colorOverLifetime.color.gradient;
+        //hitboxParticlesColors = hitboxParticles.colorOverLifetime;
 
         holdSegmentHold =
             new PlayerAbilityHold(
@@ -489,15 +484,27 @@ public sealed class PlayerSword : PlayerAbility
 
     public void ActBegin()
     {
-        //print("act begin called");
-        hitboxParticles.transform.position =
-            PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f +
-            PlayerInfo.Player.transform.up * 0.125f;
+        Quaternion horizontalRotation;
+        Quaternion normalRotation;
+        PlayerInfo.AbilityManager.GenerateHitboxRotations(
+            out horizontalRotation,
+            out normalRotation);
+            
+        hitbox.transform.rotation = normalRotation * horizontalRotation;
 
-        //hitboxParticles.transform.localScale = new Vector3(flipSign, 1, 1);
-        UseRanDirection();
+        float tiltRot = (rotationSign < 0.75f) ? 0.125f : 1f;
+        Quaternion tiltRotation =
+            Quaternion.Euler(
+                180 * flipSign,
+                180 * flipSign,
+                45 * verticalSign * tiltRot);
 
-        hitboxParticles.Play();
+        PlayerInfo.AbilityManager.AlignSwordParticles(
+            normalRotation,
+            horizontalRotation,
+            tiltRotation);
+
+        PlayerInfo.AbilityManager.SwordParticles.Play();
 
         hitboxTimer = 0;
     }
@@ -593,29 +600,6 @@ public sealed class PlayerSword : PlayerAbility
 
         if (rotationSign < 0.75f)
             verticalSign = (flipSign == 0) ? 1 : -1;
-    }
-
-    /*
-    * Need a separate method for using the random direction generated as the player may have match targeted.
-    */
-    private void UseRanDirection()
-    {
-        Quaternion horizontalRotation = Quaternion.identity;
-
-        horizontalRotation = Quaternion.FromToRotation(new Vector3(0, 0, 1), PlayerInfo.Player.transform.forward);
-
-        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
-        hitbox.transform.rotation = normalRotation * horizontalRotation;
-
-        float tiltRot = (rotationSign < 0.75f) ? 0.125f : 1f;
-        Quaternion tiltRotation =
-            Quaternion.Euler(
-                180 * flipSign,
-                180 * flipSign,
-                45 * verticalSign * tiltRot);
-        hitboxParticles.transform.rotation = normalRotation * horizontalRotation * tiltRotation;
-        hitboxParticles.transform.localScale = Vector3.one;
-        hitboxParticlesColors.color = hitboxParticlesNormalGradient;
     }
 
     public void DuringAct()
@@ -723,6 +707,7 @@ public sealed class PlayerSword : PlayerAbility
                     -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * 2);
                 enemy.ConsumeResolve();
 
+                /*
                 hitboxParticles.transform.localScale = Vector3.one * 1.5f;
                 
                 // Based on Particle System manual API.
@@ -740,6 +725,7 @@ public sealed class PlayerSword : PlayerAbility
 
                 hitboxParticlesColors.color = newGradient;
                 hitboxParticles.Play();
+                */
             }
             else
             {
