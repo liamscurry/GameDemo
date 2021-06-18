@@ -7,9 +7,17 @@ using UnityEngine.AI;
 
 public sealed class PlayerFinisher : PlayerAbility 
 {
+    private enum SwingType { DiagonalRight, DiagonalLeft, ForwardRight }
+
     //Fields
-    private AnimationClip chargeClip;
-    private AnimationClip actClip;
+    private AnimationClip chargeClip1;
+    private AnimationClip actClip1;
+
+    private AnimationClip chargeClip2;
+    private AnimationClip actClip2;
+
+    private AnimationClip chargeClip3;
+    private AnimationClip actClip3;
 
     private AbilityProcess chargeProcess;
     private AbilityProcess actProcess;
@@ -36,21 +44,33 @@ public sealed class PlayerFinisher : PlayerAbility
 
     private const float knockbackStrength = 7f;
 
+    private SwingType swingType;
+
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         //Animation assignment
-        chargeClip =
+        chargeClip1 =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherCharge1);
+        actClip1 =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherAct1);
+
+        chargeClip2 =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherCharge2);
-        actClip =
+        actClip2 =
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherAct2);
 
-        chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, null, 1);
+        chargeClip3 =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherCharge3);
+        actClip3 =
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherAct3);
+
+        chargeProcess = new AbilityProcess(ChargeBegin, null, null, 1);
         actProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.15f);
         actPauseProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 0.3f);
         actLeaveProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 1 - (0.15f + 0.3f));
-        charge = new AbilitySegment(chargeClip, chargeProcess);
+        charge = new AbilitySegment(null, chargeProcess);
         charge.Type = AbilitySegmentType.RootMotion;
-        act = new AbilitySegment(actClip, actProcess, actPauseProcess, actLeaveProcess);
+        act = new AbilitySegment(null, actProcess, actPauseProcess, actLeaveProcess);
         segments = new AbilitySegmentList();
         segments.AddSegment(charge);
         segments.AddSegment(act);
@@ -246,6 +266,31 @@ public sealed class PlayerFinisher : PlayerAbility
             GameInfo.CameraController.TargetZoom = 1;
             GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.8f));
         }
+
+        SelectRandomSwing();
+    }
+
+    private void SelectRandomSwing()
+    {
+        int swingRandom = (new System.Random().Next() % 2) + 1;
+        switch (swingRandom)
+        {
+            case 1:
+                charge.Clip = chargeClip1;
+                act.Clip = actClip1;
+                swingType = SwingType.DiagonalLeft;
+                break;
+            case 2:
+                charge.Clip = chargeClip2;
+                act.Clip = actClip2;
+                swingType = SwingType.DiagonalRight;
+                break;
+            case 3:
+                charge.Clip = chargeClip3;
+                act.Clip = actClip3;
+                swingType = SwingType.ForwardRight;
+                break;
+        }
     }
 
     public void ChargeBegin()
@@ -288,18 +333,6 @@ public sealed class PlayerFinisher : PlayerAbility
         dashPosition = targetPosition;
     }
 
-    public void DuringCharge()
-    {
-        if (Physics.OverlapSphere(
-            PlayerInfo.Player.transform.position,
-            PlayerInfo.Capsule.radius * 1.75f,
-            LayerConstants.Enemy).Length != 0)
-        {
-            PlayerInfo.Animator.InterruptMatchTarget(false);
-            ForceAdvanceSegment();
-        }
-    }
-
     public void ActBegin()
     {
         Quaternion horizontalRotation;
@@ -308,8 +341,7 @@ public sealed class PlayerFinisher : PlayerAbility
             out horizontalRotation,
             out normalRotation);
 
-        Quaternion tiltRotation =
-            Quaternion.Euler(0, 0, 55);
+        Quaternion tiltRotation = TiltFromSwing();
 
         PlayerInfo.AbilityManager.AlignSwordParticles(
             normalRotation,
@@ -317,6 +349,21 @@ public sealed class PlayerFinisher : PlayerAbility
             tiltRotation);
 
         PlayerInfo.AbilityManager.SwordParticles.Play();
+    }
+
+    private Quaternion TiltFromSwing()
+    {
+        switch (swingType)
+        {
+            case SwingType.DiagonalLeft:
+                return Quaternion.Euler(0, 0, -55 - 180);
+            case SwingType.DiagonalRight:
+                return Quaternion.Euler(0, 0, 55);
+            case SwingType.ForwardRight:
+                return Quaternion.Euler(0, 0, -187);
+        }   
+        
+        throw new System.Exception("Swing type on finisher not implemented");
     }
 
     public void ActEnd()

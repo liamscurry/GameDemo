@@ -127,10 +127,12 @@ public static class ResourceConstants
             public const string LightSword3MirrorAct = "LightSword3MirrorAct";
             public const string LightSword3Hold_M = "LightSword3Hold_M";
 
-            public const string FinisherCharge = "FinisherCharge";
-            public const string FinisherAct = "FinisherAct";
+            public const string FinisherCharge1 = "FinisherTakedownCharge1";
+            public const string FinisherAct1 = "FinisherTakedownAct1";
             public const string FinisherCharge2 = "FinisherTakedownCharge2";
             public const string FinisherAct2 = "FinisherTakedownAct2";
+            public const string FinisherCharge3 = "FinisherTakedownCharge3";
+            public const string FinisherAct3 = "FinisherTakedownAct3";
 
             public const string Block1 = "Block1";
             public const string Block2 = "Block2";
