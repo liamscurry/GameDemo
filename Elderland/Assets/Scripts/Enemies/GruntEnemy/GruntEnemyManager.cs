@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
 {
     //public LightEnemySword Sword { get; private set; }
-
+    [Header("Grunt Enemy: Dynamic Enemy Group")]
     [SerializeField]
     private float groupFollowRadius;
     [SerializeField]
@@ -33,6 +33,9 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     private GruntEnemyNearbySensor nearbySensor;
     [SerializeField]
     private GruntEnemyGroupSensor groupSensor;
+    [Header("Grunt Enemy: Art")]
+    [SerializeField]
+    private Animator fragmentAnimator;
 
     public const float ExpandSpeed = 3.5f;
     public const float ShrinkSpeed = 1.5f;
@@ -115,6 +118,12 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         }
 
         UpdateAnimatorProperties();
+    }
+
+    protected override void OnHealthZero()
+    {
+        base.Die();
+        fragmentAnimator.Play("Die");
     }
 
     private void OnDestroy()

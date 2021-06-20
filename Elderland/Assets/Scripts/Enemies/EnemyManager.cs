@@ -438,7 +438,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         }
     }
 
-    private void OnHealthZero()
+    protected virtual void OnHealthZero()
     {
         //healthbarPivot.SetActive(false);
         Die();
@@ -772,7 +772,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
         yield return new WaitForSeconds(1f);
 
-        StartCoroutine(MeshTransitionTimer(1, 0, 0.6f, 35));
+        StartCoroutine(MeshTransitionTimer(1, 0, 0.2f, 35));
         //yield return ParticleTransitionTimer(0.6f, deathParticles);
 
         healthbarPivot.transform.parent.gameObject.SetActive(false);
