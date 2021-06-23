@@ -1,11 +1,19 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEditor;
 
-public class Door : MonoBehaviour
+public class Door : BaseSaveObject
 {
     public enum State { Open, Closed }
+    private enum Type { OpenDownwards = -1, OpenUpwards = 1, }
+
+    private class DoorSaveInfo
+    {
+        public State state;
+    }
 
     [SerializeField]
     private State state;
@@ -20,22 +28,59 @@ public class Door : MonoBehaviour
     [SerializeField]
     private UnityEvent onOpenEnd;
 
-    private enum Type { OpenDownwards = -1, OpenUpwards = 1, }
-
+    [HideInInspector]
+    [SerializeField]
     private Vector3 closedPosition;
 
-    private void Awake()
+    private bool initialized;
+
+    public override string Save(SaveManager saveManager, bool resetSave = false)
     {
-        if (state == State.Open)
+        Initialize();
+        CheckID(saveManager, resetSave);
+
+        DoorSaveInfo saveInfo = new DoorSaveInfo();
+        saveInfo.state = state;
+        string saveInfoJson = JsonUtility.ToJson(saveInfo);
+        return ID + " " + saveInfoJson;
+    }
+
+    public override void Load(string jsonString)
+    {
+        Initialize();
+        DoorSaveInfo saveInfo =
+            JsonUtility.FromJson<DoorSaveInfo>(jsonString);
+        if (saveInfo.state == State.Open)
         {
-            closedPosition = 
-                transform.localPosition - transform.up * (liftHeight) * (int) type;
+            OpenInstantely();
         }
         else
         {
-            closedPosition = transform.localPosition;
+            CloseInstantely();
         }
+    }
+
+    private void Awake()
+    {
+        Initialize();
     }   
+
+    private void Initialize()
+    {
+        if (!initialized)
+        {
+            initialized = true;
+            if (state == State.Open)
+            {
+                closedPosition = 
+                    transform.localPosition - transform.up * (liftHeight) * (int) type;
+            }
+            else
+            {
+                closedPosition = transform.localPosition;
+            }
+        }
+    }
 
     public void Open()
     {
@@ -65,6 +110,7 @@ public class Door : MonoBehaviour
                 closedPosition + transform.up * (liftHeight) * (int) type;
             transform.localPosition = openPosition;
             state = State.Open;
+            EditorUtility.SetDirty(gameObject);
         }
     }
 
@@ -74,6 +120,7 @@ public class Door : MonoBehaviour
         {
             transform.localPosition = closedPosition;
             state = State.Closed;
+            EditorUtility.SetDirty(gameObject);
         }
     }
 

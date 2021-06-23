@@ -3,23 +3,15 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
 
-public class TestSaveObject : MonoBehaviour, SaveObject
+public class TestSaveObject : BaseSaveObject
 {
-    [HideInInspector]
-    [SerializeField]
-    private int id = -1;
-    public int ID { get { return id; } set { id = value; } }
-
-    public string Save(SaveManager saveManager, bool resetSave = false)
+    public override string Save(SaveManager saveManager, bool resetSave = false)
     {
-        if (id == -1 || resetSave)
-            id = saveManager.RequestUniqueID();
-        EditorUtility.SetDirty(gameObject);
-        PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
-        return "save filler return";
+        CheckID(saveManager, resetSave);
+        return ID + " " + "{\"test\": 1}";
     }
 
-    public void Load(string jsonString)
+    public override void Load(string jsonString)
     {
 
     }
