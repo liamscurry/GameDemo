@@ -3,6 +3,6 @@
 public interface SaveObject
 {
     int ID { get; set; }
-    string Save();
+    string Save(SaveManager saveManager, bool resetSave = false);
     void Load(string jsonString);
 }

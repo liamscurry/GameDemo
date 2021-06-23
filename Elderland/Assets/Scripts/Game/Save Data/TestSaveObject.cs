@@ -8,11 +8,12 @@ public class TestSaveObject : MonoBehaviour, SaveObject
     [HideInInspector]
     [SerializeField]
     private int id = -1;
-
     public int ID { get { return id; } set { id = value; } }
-    public string Save()
+
+    public string Save(SaveManager saveManager, bool resetSave = false)
     {
-        id = 10; // need to mark scene dirty
+        if (id == -1 || resetSave)
+            id = saveManager.RequestUniqueID();
         EditorUtility.SetDirty(gameObject);
         PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
         return "save filler return";

@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.IO;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
 // References Microsoft C# file docs.
 // unity blog: https://blog.unity.com/technology/persistent-data-how-to-save-your-game-states-and-settings
@@ -15,6 +16,10 @@ using UnityEngine.SceneManagement;
 public class SaveManager : MonoBehaviour
 {
     private const int unitializedID = -1;
+
+    [HideInInspector]
+    [SerializeField]
+    private int uniqueIDCounter;
 
     private List<SaveObject> changedObjects;
 
@@ -37,10 +42,39 @@ public class SaveManager : MonoBehaviour
         }
         foreach (var saveObject in saveObjects)
         {
-            saveObject.Save();
+            saveObject.Save(this);
         }
-        
     }
+
+    public int RequestUniqueID()
+    {
+        int next = uniqueIDCounter++;
+        EditorUtility.SetDirty(gameObject);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
+        return next;
+    }
+
+    // Force resets all IDs. Used in development of save files only, not used in application.
+    /*
+    [ContextMenu("RegenerateIDs")]
+    public void RegenerateIDs()
+    {
+        uniqueIDCounter = 0;
+        EditorUtility.SetDirty(gameObject);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(gameObject);
+        Scene activeScene = SceneManager.GetActiveScene();
+        GameObject[] rootObjects = activeScene.GetRootGameObjects();
+        var saveObjects = new List<SaveObject>();
+        foreach (GameObject rootObject in rootObjects)
+        {
+            saveObjects.AddRange(rootObject.GetComponentsInChildren<SaveObject>());
+        }
+        foreach (var saveObject in saveObjects)
+        {
+            saveObject.Save(this, true);
+        }
+    }
+    */
 
     [ContextMenu("PrintIDs")]
     public void PrintIDs()
