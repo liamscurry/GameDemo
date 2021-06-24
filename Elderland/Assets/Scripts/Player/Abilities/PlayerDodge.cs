@@ -63,6 +63,7 @@ public sealed class PlayerDodge : PlayerAbility
 
         Vector2 playerInput =
             PlayerInfo.MovementManager.DirectionToPlayerCoord(GameInfo.Settings.LeftDirectionalInput);
+        playerInput.x *= 0.75f;
         AnimationClip actClip =
             GetDirAnim(ResourceConstants.Player.Art.Dodge, playerInput);
 
@@ -82,6 +83,9 @@ public sealed class PlayerDodge : PlayerAbility
         }
 
         startPlayerDirection = PlayerInfo.Player.transform.forward;
+
+        PlayerInfo.AbilityManager.LastDirFocus = Time.time;
+        PlayerInfo.AbilityManager.DirFocus = PlayerInfo.Player.transform.forward;
     }
 
     public override void GlobalUpdate()
@@ -102,9 +106,6 @@ public sealed class PlayerDodge : PlayerAbility
                     Mathf.Infinity);
             PlayerInfo.Player.transform.rotation =
                 Quaternion.LookRotation(incrementedRotation, Vector3.up);
-
-            PlayerInfo.AbilityManager.LastDirFocus = Time.time;
-            PlayerInfo.AbilityManager.DirFocus = PlayerInfo.Player.transform.forward;
         }
     }
 

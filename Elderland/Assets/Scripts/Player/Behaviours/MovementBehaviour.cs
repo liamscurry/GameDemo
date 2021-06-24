@@ -12,7 +12,7 @@ public class MovementBehaviour : StateMachineBehaviour
 		exiting = false;
         movespeedVelocity = 0;
         PlayerInfo.MovementManager.ResetSprint();
-        PlayerInfo.MovementManager.PercentileSpeed = 
+        PlayerInfo.MovementManager.AnimationPercentileSpeed = 
         PlayerInfo.MovementManager.CurrentPercentileSpeed;
 	}
 

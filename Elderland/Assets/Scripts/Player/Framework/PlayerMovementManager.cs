@@ -32,9 +32,8 @@ public class PlayerMovementManager
     public const float RotationStopMin = 2f;
     private const float rotationSpeedSpeedIncrease = 7f;
     private const float rotationSpeedSpeedDecrease = 3f;
-
     public float CurrentPercentileSpeed { get; private set; }
-    public float PercentileSpeed { get; set; }
+    public float AnimationPercentileSpeed { get; set; }
     public float PercSpeedObstructedModifier { get; set; }
     
     private bool sprintUnlocked;
@@ -109,7 +108,7 @@ public class PlayerMovementManager
         CurrentDirection = Vector2.right;
         TargetPercentileSpeed = 0;
         CurrentPercentileSpeed = 0;
-        PercentileSpeed = 0;
+        AnimationPercentileSpeed = 0;
 
         PlayerInfo.PhysicsSystem.SlidIntoGround += OnSlidIntoGround;
         movedThisFrame = false;
@@ -131,14 +130,14 @@ public class PlayerMovementManager
 
         if (CurrentPercentileSpeed < percentileSpeedMin)
         {
-            PercentileSpeed = 
-                Mathf.MoveTowards(PercentileSpeed, 0, percentileSpeedSpeed * Time.deltaTime);
+            AnimationPercentileSpeed = 
+                Mathf.MoveTowards(AnimationPercentileSpeed, 0, percentileSpeedSpeed * Time.deltaTime);
         }
         else
         {
-            PercentileSpeed = 
+            AnimationPercentileSpeed = 
                 Mathf.MoveTowards(
-                    PercentileSpeed,
+                    AnimationPercentileSpeed,
                     1 * PercSpeedObstructedModifier,
                     percentileSpeedSpeed * Time.deltaTime);
         }

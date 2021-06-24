@@ -13,6 +13,10 @@ public class InteractionEndEventBehaviour : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         animator.SetTrigger("exitInteraction");
+        PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
+        PlayerInfo.MovementManager.SnapSpeed();
+        PlayerInfo.MovementManager.AnimationPercentileSpeed = 0;
+        PlayerInfo.AnimationManager.UpdateWalkProperties();
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -24,8 +28,6 @@ public class InteractionEndEventBehaviour : StateMachineBehaviour
         {
             PlayerInfo.Manager.Interaction.Reset();
         }
-        PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
-        PlayerInfo.MovementManager.SnapSpeed();
         GameInfo.CameraController.TargetDirection = Vector3.zero;
     }
 

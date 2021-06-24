@@ -209,7 +209,7 @@ public class PlayerAnimationManager
 				positionAnalogDirection.y);
 			PlayerInfo.Animator.SetFloat(
 				"percentileSpeed",
-				PlayerInfo.MovementManager.PercentileSpeed);
+				PlayerInfo.MovementManager.AnimationPercentileSpeed);
 		}
     }
 
@@ -509,7 +509,14 @@ public class PlayerAnimationManager
 		[SerializeField]
 		public readonly float endTime;
 
-		public MatchTarget(Vector3 position, Quaternion rotation, AvatarTarget avatarTarget, Vector3 positionWeight, float rotationWeight, float startTime = 0, float endTime = 1)
+		public MatchTarget(
+			Vector3 position,
+			Quaternion rotation,
+			AvatarTarget avatarTarget,
+			Vector3 positionWeight,
+			float rotationWeight,
+			float startTime = 0,
+			float endTime = 1)
 		{
 			this.position = position;
 			this.rotation = rotation;

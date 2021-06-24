@@ -8,6 +8,8 @@ public class StandardInteraction : MonoBehaviour
 	[SerializeField]
 	protected AnimationClip playerAnimationClip;
 	[SerializeField]
+	protected AnimationClip playerAnimationEndClip;
+	[SerializeField]
 	protected GameObject UI;
 	[Header("Target Matching")]
 	[SerializeField]
@@ -20,6 +22,8 @@ public class StandardInteraction : MonoBehaviour
 	protected Vector3 targetRotation;
 	[SerializeField]
 	protected float rotationWeight;
+	[SerializeField]
+	protected float targetEndtime;
 	[SerializeField]
 	protected bool reusable;
 	[SerializeField]
@@ -111,7 +115,9 @@ public class StandardInteraction : MonoBehaviour
 						rotation,
 						AvatarTarget.Root,
 						positionWeight,
-						rotationWeight);
+						rotationWeight,
+						0,
+						targetEndtime);
 				PlayerInfo.AnimationManager.EnqueueTarget(matchTarget);
 				PlayerInfo.Animator.SetBool("targetMatch", true);
 			}
@@ -123,6 +129,15 @@ public class StandardInteraction : MonoBehaviour
 			PlayerInfo.Animator.SetTrigger("interacting");
 			PlayerInfo.Animator.SetTrigger("generalInteracting");
 			PlayerInfo.Animator.SetBool("instantaneous", type == Type.press);
+			PlayerInfo.AnimationManager.SetAnim(playerAnimationClip, "InteractionBase");
+			if (type == Type.press)
+			{
+				PlayerInfo.AnimationManager.SetAnim(playerAnimationEndClip, "InteractionBasePress");
+			}
+			else
+			{
+				PlayerInfo.AnimationManager.SetAnim(playerAnimationEndClip, "InteractionBaseHold");
+			}
 
 			if (alignCameraToTargetRotation)
 			{
