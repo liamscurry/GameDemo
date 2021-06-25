@@ -64,6 +64,14 @@ public class EncounterSpawner : MonoBehaviour
         return enemyManagers;
     }
 
+    public void Reset()
+    {
+        foreach (var spawner in enemies)
+        {
+            spawner.state = SpawnState.Ready;
+        }
+    }
+
     private Quaternion CalculateRotation(Spawner spawn)
     {
         Vector3 forward = 

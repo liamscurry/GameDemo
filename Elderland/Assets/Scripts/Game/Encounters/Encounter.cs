@@ -11,6 +11,7 @@ public class Encounter : MonoBehaviour
     public static readonly float EngageEnemyDistance = 6f;
 
     private EncounterSpawner[] spawners;
+    private List<EnemyManager> spawnedEnemies;
 
     /*public int Count
     {
@@ -29,13 +30,32 @@ public class Encounter : MonoBehaviour
     public void Awake()
     {
         spawners = GetComponentsInChildren<EncounterSpawner>();
+        spawnedEnemies = new List<EnemyManager>();
     }
 
     public void Spawn()
     {
         foreach (EncounterSpawner spawner in spawners)
         {
-            spawner.Spawn();
+            spawnedEnemies.AddRange(spawner.Spawn());
+        }
+    }
+
+    public void Reset()
+    {
+        foreach (var enemy in spawnedEnemies)
+        {
+            if (enemy != null && enemy.isActiveAndEnabled)
+            {
+                enemy.Recycle();
+            }
+        }
+
+        spawnedEnemies.Clear();
+
+        foreach (var spawner in spawners)
+        {
+            spawner.Reset();
         }
     }
 }
