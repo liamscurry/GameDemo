@@ -66,6 +66,7 @@ float4 _Color;
 sampler2D _MainTex;
 sampler2D _BumpMap;
 float _BumpMapIntensity;
+sampler2D _SpecularMap;
 
 float _Threshold;
 
@@ -104,7 +105,8 @@ fixed4 semiFlatFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
     float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
     float fadeValue = CompositeShadeFade(inShadow, fadeDistance);
 
-    float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
+    float specular = tex2D(_SpecularMap, i.uv).r;
+    float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue, specular);
 
     STANDARD_FOG(shadedColor, worldNormal);
 }

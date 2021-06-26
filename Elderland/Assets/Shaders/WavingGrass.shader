@@ -279,7 +279,8 @@ Shader "Hidden/TerrainEngine/Details/WavingDoublePass"
                 float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
                 float fadeValue = CompositeShadeFade(inShadow, fadeDistance);
 
-                return Shade(i.normal, i.worldPos, localColor, inShadow, fadeValue);
+                float specular = 1; // specular unused for this shader currently
+                return Shade(i.normal, i.worldPos, localColor, inShadow, fadeValue, specular);
             }
             ENDCG
         }

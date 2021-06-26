@@ -13,6 +13,7 @@ Shader "Custom/SemiFlatShader"
         _MainTex ("Texture", 2D) = "white" {}
         _BumpMap ("BumpMap", 2D) = "bump" {}
         _BumpMapIntensity ("BumpMapIntensity", Range(0, 1)) = 0
+        _SpecularMap ("SpecularMap", 2D) = "white" {}
 
         _Color ("Color", Color) = (1,1,1,1)
         _Threshold ("Threshold", Range(0, 1)) = 0.1

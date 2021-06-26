@@ -358,7 +358,8 @@ Shader "Custom/ObjectTerrainSemiFlatShader"
                 float fadeValue = CompositeShadeFade(inShadow, fadeDistance);
 
                 // Shading and fog
-                float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue);
+                float specular = 1; // specular unused for this shader currently
+                float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue, specular);
                 STANDARD_FOG(shadedColor, worldNormal);
             }
             ENDCG

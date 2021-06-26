@@ -41,7 +41,7 @@ float CompositeShadeFade(float inShadow, float distance)
     return compositeFadedShadow;
 }
 
-float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, inout float inShadow, float fadeValue)
+float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, inout float inShadow, float fadeValue, float specular)
 {
     float normalIncidence = AngleBetween(worldNormal, _WorldSpaceLightPos0.xyz) / 3.151592;
 
@@ -51,8 +51,8 @@ float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, inout float
     // Light side color calculation
     float activeHighlight =
         1 - saturate(AngleBetween(reflectedDir, viewDir) / (3.141592 * .5));
-    activeHighlight = pow(activeHighlight, 2 * _HighlightIntensity);
-    activeHighlight = activeHighlight * _HighlightStrength;
+    activeHighlight = pow(activeHighlight, 2 * _HighlightIntensity * specular);
+    activeHighlight = activeHighlight * _HighlightStrength * specular;
     activeHighlight = saturate(activeHighlight);
     //activeHighlight = 0; // highlight acting weird on grass
 

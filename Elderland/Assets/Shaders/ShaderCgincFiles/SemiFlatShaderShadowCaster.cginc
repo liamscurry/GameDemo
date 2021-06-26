@@ -48,6 +48,10 @@ v2f vert (appdata v, float3 normal : NORMAL, float4 tangent : TANGENT)
 
 fixed4 semiFlatFrag (v2f i) : SV_Target
 {
+    float4 textureColor = tex2D(_MainTex, i.uv);
+    if (textureColor.a < _Threshold)
+        clip(textureColor.a - _Threshold);
+
     ApplyDither(i.screenPos, _CrossFade);
     ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
     SHADOW_CASTER_FRAGMENT(i)
