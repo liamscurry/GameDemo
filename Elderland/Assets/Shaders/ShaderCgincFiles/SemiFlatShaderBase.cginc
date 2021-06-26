@@ -87,6 +87,14 @@ fixed4 semiFlatFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
         TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, half3(0,0,1));
     worldNormal = worldNormal * _BumpMapIntensity + originalWorldNormal * (1 - _BumpMapIntensity);
     
+    // Reflections
+    float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos)); 
+    float3 reflectionDirection = reflect(-viewDir, worldNormal);
+    float4 reflectedColor = UNITY_SAMPLE_TEXCUBE(unity_SpecCube0, reflectionDirection);
+
+    // Fresnel value
+    float fresnelValue = Fresnel(worldNormal, viewDir);
+
     float4 textureColor = tex2D(_MainTex, i.uv);
     if (textureColor.a < _Threshold)
         clip(textureColor.a - _Threshold);
@@ -97,7 +105,8 @@ fixed4 semiFlatFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
 
     float inShadow = SHADOW_ATTENUATION(i);
     float4 localColor = _Color;
-    localColor *= tex2D(_MainTex, i.uv);
+    localColor *= textureColor;
+    reflectedColor *= (float4(1,1,1,1) * 0.5 + _Color * 0.5);
 
     // Learned in AutoLight.cginc
     // Shadow Fade
@@ -107,6 +116,15 @@ fixed4 semiFlatFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
 
     float specular = tex2D(_SpecularMap, i.uv).r;
     float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue, specular);
+    float4 fresnelColor = reflectedColor * fresnelValue + shadedColor * (1 - fresnelValue);
+    if (_Smoothness <= 1)
+    {
+        fresnelColor = fresnelColor * (_Smoothness) + shadedColor * (1 - _Smoothness);
+    }
+    else
+    {
+        fresnelColor = reflectedColor * (_Smoothness - 1) + fresnelColor * (1 - (_Smoothness - 1));
+    }
 
-    STANDARD_FOG(shadedColor, worldNormal);
+    STANDARD_FOG(fresnelColor, worldNormal);
 }

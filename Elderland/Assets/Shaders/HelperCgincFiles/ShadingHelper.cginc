@@ -7,6 +7,7 @@ _HighlightStrength ("HightlightStrength", Range(0, 2)) = 1
 _HighlightIntensity ("HighlightIntensity", Range(0, 2)) = 1
 
 _ReflectedIntensity ("ReflectedIntensity", Range(0, 3)) = 1
+_Smoothness ("Smoothness", Range(0, 2)) = 0
 */
 
 #ifndef SHADING_HELPER
@@ -21,6 +22,12 @@ float _HighlightStrength;
 float _HighlightIntensity;
 
 float _ReflectedIntensity;
+float _Smoothness;
+
+float Fresnel(float3 normal, float3 viewDir)
+{
+    return saturate(pow(AngleBetween(normal, viewDir) / 3.151592 * 2.2, 3.5));
+} 
 
 float StandardShadeFade(float distance)
 {

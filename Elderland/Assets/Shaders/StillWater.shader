@@ -151,7 +151,7 @@ Shader "Custom/StillWater"
                 //had to have in light mode forward base
 
                 //float fresnelAngle = saturate(pow(AngleBetween(alteredNormal, viewDir) / 3.151592 * 2.2, 3.5));
-                float fresnelAngle = saturate(pow(AngleBetween(alteredNormal, viewDir) / 3.151592 * 2.2, 6.5));
+                float fresnelAngle = saturate(pow(AngleBetween(alteredNormal, viewDir) / 3.151592, 6.5));
                 //return fixed4(fresnelAngle, fresnelAngle, fresnelAngle, 1);
                 //return waterDepthFactor;
                 float2 horizontalPosition = float2(newWorldPosition.x, newWorldPosition.z);
