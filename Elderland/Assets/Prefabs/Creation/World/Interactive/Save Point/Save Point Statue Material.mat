@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BumpMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f8b9707c31b733f4bbb996a15111d99e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -56,14 +56,14 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 9a0467db34f13f54caab9594e34b8735, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _ApplyLight: 0
     - _BakedLightLevel: 1
-    - _BumpMapIntensity: 0
+    - _BumpMapIntensity: 1
     - _BumpScale: 1
     - _ClipThreshold: 1
     - _CrossFade: 0
@@ -74,15 +74,15 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HighlightIntensity: 2
-    - _HighlightStrength: 0.38
+    - _HighlightIntensity: 0.34
+    - _HighlightStrength: 0.15
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _ReflectedIntensity: 0.6
-    - _ShadowStrength: 0
-    - _Smoothness: 1.03
+    - _ShadowStrength: 0.458
+    - _Smoothness: 0.42
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -92,6 +92,6 @@ Material:
     - _WorldMaxHeight: 10000
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.518, g: 0.518, b: 0.518, a: 1}
+    - _Color: {r: 0.6037736, g: 0.5820346, b: 0.5553578, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
