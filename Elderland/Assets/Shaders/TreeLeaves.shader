@@ -20,7 +20,7 @@ Shader "Custom/TreeLeaves"
     }
     SubShader
     {
-        //Cull off
+        Cull off
 
         Pass
         {
