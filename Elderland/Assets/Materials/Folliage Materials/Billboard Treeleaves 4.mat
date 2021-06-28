@@ -63,23 +63,31 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SpecularMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - PixelSnap: 0
     - _ApplyLight: 0
+    - _BakedLightLevel: 1
     - _BumpMapIntensity: 0
     - _BumpScale: 1
+    - _ClipThreshold: 1
     - _CrossFade: 32
     - _Cutoff: 0
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnableExternalAlpha: 0
     - _EvenFade: 0
+    - _FlatShading: 0
     - _FringeIntensity: 0.21
     - _GlossMapScale: 0
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HighlightIntensity: 1
-    - _HighlightStrength: 1
+    - _HighlightIntensity: 0
+    - _HighlightStrength: 0
     - _LightShadowStrength: 0
     - _Metallic: 0
     - _Mode: 1
@@ -87,13 +95,15 @@ Material:
     - _OddFade: 0
     - _Parallax: 0.02
     - _ReflectedIntensity: 1
-    - _ShadowStrength: 0.1
+    - _ShadowStrength: 0
+    - _Smoothness: 0
     - _SmoothnessTextureChannel: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Threshold: 0.694
+    - _Threshold: 0.705
     - _UVSec: 0
-    - _WarmColorStrength: 1
+    - _WarmColorStrength: 0
+    - _WorldMaxHeight: 10000
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
@@ -104,3 +114,4 @@ Material:
     - _MidFogColor: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _VerticalColorTint: {r: 0.18254855, g: 0.9339623, b: 0, a: 1}
+  m_BuildTextureStacks: []
