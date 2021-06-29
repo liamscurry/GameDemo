@@ -14,9 +14,11 @@ public class PlayerMovementSystem : MonoBehaviour
 {
     private CharacterController controller;
 
-    private const float gravityStrength = 0.1f;
-    private const float groundGravityStrength = 5f;
-    private const float walkSpeed = 12f;
+    private const float gravityStrength = 9.8f;
+    private const float groundGravityStrength = 35 / 0.013f;
+    private const float walkSpeed = 35 / 0.013f;
+    private const float groundFrictionStrength = 27 * 0.3f;
+    private const float dynamicMin = 0.0001f;
 
     private Vector3 dynamicVelocity;
     private Vector3 gravityVelocity;
@@ -78,6 +80,11 @@ public class PlayerMovementSystem : MonoBehaviour
         {
             Time.timeScale = 1f;
         }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            dynamicVelocity += Vector3.right * 5;
+        }
     }
 
     private void LateUpdate()
@@ -88,20 +95,35 @@ public class PlayerMovementSystem : MonoBehaviour
         {
             compoundVelocity += constantVelocity;
             compoundVelocity += dynamicVelocity;
-            controller.Move(compoundVelocity);
+            controller.Move(compoundVelocity * Time.deltaTime);
+            GroundFriction();
         }
         else
         {
             compoundVelocity += airVelocity;
             compoundVelocity += gravityVelocity;
-            controller.Move(compoundVelocity);
+            controller.Move(compoundVelocity * Time.deltaTime);
         }
-        
 
         if (grounded)
             CheckForGroundExit();
 
         constantVelocity = Vector3.zero;
+    }
+
+    private void GroundFriction()
+    {
+        Vector3 dynamicDir = dynamicVelocity.normalized;
+        float dynamicMag = dynamicVelocity.magnitude;
+        dynamicMag -= groundFrictionStrength * Time.deltaTime;
+        if (dynamicMag > dynamicMin)
+        {
+            dynamicVelocity = dynamicMag * dynamicDir;
+        }
+        else
+        {
+            dynamicVelocity = Vector3.zero;
+        }
     }
 
     private void UpdateGroundMovement()
@@ -131,10 +153,18 @@ public class PlayerMovementSystem : MonoBehaviour
     {
         if (Matho.AngleBetween(hit.normal, Vector3.up) < groundSlopeLimit)
         {
-            grounded = true;
+            if (!grounded)
+            {
+                grounded = true;
+
+                dynamicVelocity = airVelocity;
+                constantVelocity = Vector3.zero;
+
+                gravityVelocity = Vector3.zero;
+                airVelocity = Vector3.zero;
+            }
+            
             groundNormal = hit.normal;
-            gravityVelocity = Vector3.zero;
-            airVelocity = dynamicVelocity;
         }
     }
 
@@ -143,40 +173,12 @@ public class PlayerMovementSystem : MonoBehaviour
         if (!controller.isGrounded)
         {
             grounded = false;
-            airVelocity = constantVelocity;
-        }
-        /*
-        if (!Physics.CapsuleCast(
-            transform.position + (controller.height / 2 - controller.radius) * Vector3.up,
-            transform.position + (controller.height / 2 - controller.radius) * Vector3.down,
-            controller.radius - controller.skinWidth,
-            Vector3.down,
-            controller.stepOffset,
-            LayerConstants.GroundCollision))
-        {
-            grounded = false;
-            exitConstantVelocity = constantVelocity;
-            Debug.Log(exitConstantVelocity.x + ", " + exitConstantVelocity.y + ", " + exitConstantVelocity.z);
-        }*/
-    }
-
-    // Collision handling for all custom physics objects. Redirects dynamic velocity when hitting walls.
-    public void HandleGravityCollisions(ControllerColliderHit hit)
-    {
-        Vector3 n = hit.normal;
-        Vector3 v = gravityVelocity.normalized;
-
-        float velocityTheta = Matho.AngleBetween(n, v);
-
-        if (velocityTheta >= 90)
-        {
-            Vector3 m = -1 * n;
-            Vector3 nPerp = gravityVelocity - Matho.Project(gravityVelocity, m);
-            gravityVelocity = nPerp;
+            airVelocity = constantVelocity + dynamicVelocity;
         }
     }
 
     // Collision handling for all custom physics objects. Redirects dynamic velocity when hitting walls.
+    // issue with grounded checks (called often and dynamic velocity approaches zero quickly)
     public void HandleVelocityCollisions(ControllerColliderHit hit)
     {
         Vector3 n = hit.normal;
@@ -188,7 +190,7 @@ public class PlayerMovementSystem : MonoBehaviour
         {
             Vector3 m = -1 * n;
             Vector3 nPerp = dynamicVelocity - Matho.Project(dynamicVelocity, m);
-            dynamicVelocity = 0.5f * nPerp;
+            dynamicVelocity = nPerp;
         }
     }
 }
