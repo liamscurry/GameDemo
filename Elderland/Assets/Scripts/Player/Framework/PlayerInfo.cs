@@ -13,6 +13,7 @@ public static class PlayerInfo
     public static GameObject MeleeObjects { get; private set; }
 
     //Components on player
+    public static CharacterController CharController { get; private set; }
     public static Rigidbody Body { get; private set; }
     public static CapsuleCollider Capsule { get; private set; }
     public static PlayerManager Manager  { get; private set; }
@@ -56,6 +57,7 @@ public static class PlayerInfo
         MeleeObjects = meleeObjects;
 
         //Components on player assignments
+        CharController = player.GetComponent<CharacterController>();
         Body = player.GetComponent<Rigidbody>();
         Capsule = player.GetComponent<CapsuleCollider>();
         Manager = player.GetComponent<PlayerManager>();
