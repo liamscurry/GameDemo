@@ -15,8 +15,8 @@ public class PlayerMovementSystem : MonoBehaviour
     private CharacterController controller;
 
     private const float gravityStrength = 9.8f;
-    private const float groundGravityStrength = 35 / 0.013f;
-    private const float walkSpeed = 35 / 0.013f;
+    private const float groundGravityStrength = 15;
+    private const float walkSpeed = 15;
     private const float groundFrictionStrength = 27 * 0.3f;
     private const float dynamicMin = 0.0001f;
 
@@ -73,7 +73,7 @@ public class PlayerMovementSystem : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.O))
         {
-            Time.timeScale = 0.05f;
+            Time.timeScale = 0.1f;
         }
 
         if (Input.GetKeyDown(KeyCode.P))
@@ -102,6 +102,7 @@ public class PlayerMovementSystem : MonoBehaviour
         {
             compoundVelocity += airVelocity;
             compoundVelocity += gravityVelocity;
+            
             controller.Move(compoundVelocity * Time.deltaTime);
         }
 
@@ -134,8 +135,8 @@ public class PlayerMovementSystem : MonoBehaviour
         worldInput += transform.right * analogInput.x;
         Vector2 projWorldInput = Matho.StdProj2D(worldInput);
         Vector3 movementDirection = Matho.PlanarDirectionalDerivative(projWorldInput, groundNormal);
-        constantVelocity += movementDirection * walkSpeed * Time.deltaTime;
-        constantVelocity += transform.up * -1 * groundGravityStrength * Time.deltaTime;
+        constantVelocity += movementDirection * walkSpeed;
+        constantVelocity += transform.up * -1 * groundGravityStrength;
     }
 
     private void UpdateAirMovement()
@@ -174,6 +175,7 @@ public class PlayerMovementSystem : MonoBehaviour
         {
             grounded = false;
             airVelocity = constantVelocity + dynamicVelocity;
+            airVelocity -= transform.up * -1 * groundGravityStrength; // eliminate vertical component of walk speed
         }
     }
 
