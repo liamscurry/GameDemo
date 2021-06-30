@@ -30,6 +30,7 @@ public class PlayerMovementSystem : MonoBehaviour
     private Vector3 groundNormal;
 
     private float groundSlopeLimit;
+    private float minMoveDistance;
 
     // Will use game info version when porting to full game.
     public Vector2 LeftDirectionalInput 
@@ -56,6 +57,7 @@ public class PlayerMovementSystem : MonoBehaviour
         controller = GetComponent<CharacterController>();
         grounded = false;
         groundSlopeLimit = controller.slopeLimit;
+        minMoveDistance = controller.minMoveDistance;
     }
 
     private void Update()
@@ -91,11 +93,15 @@ public class PlayerMovementSystem : MonoBehaviour
     {
         Vector3 compoundVelocity = Vector3.zero;
         
+        controller.minMoveDistance = minMoveDistance * Time.timeScale;
+
         if (grounded)
         {
             compoundVelocity += constantVelocity;
             compoundVelocity += dynamicVelocity;
+            compoundVelocity += transform.up * -1 * groundGravityStrength;
             controller.Move(compoundVelocity * Time.deltaTime);
+
             GroundFriction();
         }
         else
@@ -117,6 +123,7 @@ public class PlayerMovementSystem : MonoBehaviour
         Vector3 dynamicDir = dynamicVelocity.normalized;
         float dynamicMag = dynamicVelocity.magnitude;
         dynamicMag -= groundFrictionStrength * Time.deltaTime;
+
         if (dynamicMag > dynamicMin)
         {
             dynamicVelocity = dynamicMag * dynamicDir;
@@ -136,7 +143,6 @@ public class PlayerMovementSystem : MonoBehaviour
         Vector2 projWorldInput = Matho.StdProj2D(worldInput);
         Vector3 movementDirection = Matho.PlanarDirectionalDerivative(projWorldInput, groundNormal);
         constantVelocity += movementDirection * walkSpeed;
-        constantVelocity += transform.up * -1 * groundGravityStrength;
     }
 
     private void UpdateAirMovement()
