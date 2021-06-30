@@ -15,9 +15,8 @@ public class PlayerMovementSystem : MonoBehaviour
     private CharacterController controller;
 
     private const float gravityStrength = 9.8f;
-    private const float groundGravityStrength = 15;
     private const float walkSpeed = 15;
-    private const float groundFrictionStrength = 45 * 0.3f;
+    private const float groundFrictionStrength = 50 * 0.3f;
     private const float dynamicMin = 0.0001f;
 
     private Vector3 dynamicVelocity;
@@ -65,27 +64,12 @@ public class PlayerMovementSystem : MonoBehaviour
         if (grounded)
         {
             UpdateGroundMovement();
-            controller.slopeLimit = 45;
+            controller.slopeLimit = groundSlopeLimit;
         }
         else
         {
             UpdateAirMovement();
             controller.slopeLimit = Mathf.Infinity;
-        }
-
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            Time.timeScale = 0.1f;
-        }
-
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            Time.timeScale = 1f;
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            dynamicVelocity += Vector3.right * 5;
         }
     }
 
@@ -101,7 +85,7 @@ public class PlayerMovementSystem : MonoBehaviour
             compoundVelocity += dynamicVelocity;
             
             controller.Move(compoundVelocity * Time.deltaTime);
-            controller.Move(transform.up * -1 * groundGravityStrength * Time.deltaTime);
+            controller.Move(transform.up * -1 * controller.stepOffset);
 
             GroundFriction();
         }
