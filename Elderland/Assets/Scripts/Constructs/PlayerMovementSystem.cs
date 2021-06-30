@@ -17,7 +17,7 @@ public class PlayerMovementSystem : MonoBehaviour
     private const float gravityStrength = 9.8f;
     private const float groundGravityStrength = 15;
     private const float walkSpeed = 15;
-    private const float groundFrictionStrength = 27 * 0.3f;
+    private const float groundFrictionStrength = 45 * 0.3f;
     private const float dynamicMin = 0.0001f;
 
     private Vector3 dynamicVelocity;
@@ -99,8 +99,9 @@ public class PlayerMovementSystem : MonoBehaviour
         {
             compoundVelocity += constantVelocity;
             compoundVelocity += dynamicVelocity;
-            compoundVelocity += transform.up * -1 * groundGravityStrength;
+            
             controller.Move(compoundVelocity * Time.deltaTime);
+            controller.Move(transform.up * -1 * groundGravityStrength * Time.deltaTime);
 
             GroundFriction();
         }
@@ -142,6 +143,7 @@ public class PlayerMovementSystem : MonoBehaviour
         worldInput += transform.right * analogInput.x;
         Vector2 projWorldInput = Matho.StdProj2D(worldInput);
         Vector3 movementDirection = Matho.PlanarDirectionalDerivative(projWorldInput, groundNormal);
+        
         constantVelocity += movementDirection * walkSpeed;
     }
 
@@ -181,7 +183,6 @@ public class PlayerMovementSystem : MonoBehaviour
         {
             grounded = false;
             airVelocity = constantVelocity + dynamicVelocity;
-            airVelocity -= transform.up * -1 * groundGravityStrength; // eliminate vertical component of walk speed
         }
     }
 
