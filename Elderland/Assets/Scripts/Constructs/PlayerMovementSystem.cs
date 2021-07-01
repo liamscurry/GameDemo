@@ -31,6 +31,8 @@ public class PlayerMovementSystem : MonoBehaviour
     private float groundSlopeLimit;
     private float minMoveDistance;
 
+    private bool considerDynamicCollisions;
+
     // Will use game info version when porting to full game.
     public Vector2 LeftDirectionalInput 
     { 
@@ -57,6 +59,7 @@ public class PlayerMovementSystem : MonoBehaviour
         grounded = false;
         groundSlopeLimit = controller.slopeLimit;
         minMoveDistance = controller.minMoveDistance;
+        considerDynamicCollisions = false;
     }
 
     private void Update()
@@ -84,7 +87,10 @@ public class PlayerMovementSystem : MonoBehaviour
             compoundVelocity += constantVelocity;
             compoundVelocity += dynamicVelocity;
             
+            considerDynamicCollisions = true;
             controller.Move(compoundVelocity * Time.deltaTime);
+            considerDynamicCollisions = false;
+
             controller.Move(transform.up * -1 * controller.stepOffset);
 
             GroundFriction();
@@ -94,7 +100,9 @@ public class PlayerMovementSystem : MonoBehaviour
             compoundVelocity += airVelocity;
             compoundVelocity += gravityVelocity;
             
+            considerDynamicCollisions = true;
             controller.Move(compoundVelocity * Time.deltaTime);
+            considerDynamicCollisions = false;
         }
 
         if (grounded)
@@ -139,7 +147,8 @@ public class PlayerMovementSystem : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         CheckForGroundEnter(hit);
-        HandleVelocityCollisions(hit);
+        if (considerDynamicCollisions)
+            HandleVelocityCollisions(hit);
     }
 
     private void CheckForGroundEnter(ControllerColliderHit hit)
