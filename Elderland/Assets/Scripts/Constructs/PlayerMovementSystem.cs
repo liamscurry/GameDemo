@@ -32,6 +32,8 @@ public class PlayerMovementSystem : MonoBehaviour
     private float minMoveDistance;
 
     private bool considerDynamicCollisions;
+    private const float groundNormalDynamicDeviance = 45f;
+    private const float groundNormalDynamicStrength = 2f;
 
     // Will use game info version when porting to full game.
     public Vector2 LeftDirectionalInput 
@@ -74,6 +76,11 @@ public class PlayerMovementSystem : MonoBehaviour
             UpdateAirMovement();
             controller.slopeLimit = Mathf.Infinity;
         }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            dynamicVelocity += Vector3.up * 3f;
+        }
     }
 
     private void LateUpdate()
@@ -91,7 +98,7 @@ public class PlayerMovementSystem : MonoBehaviour
             controller.Move(compoundVelocity * Time.deltaTime);
             considerDynamicCollisions = false;
 
-            controller.Move(transform.up * -1 * controller.stepOffset);
+            GroundClamp();
 
             GroundFriction();
         }
@@ -109,6 +116,15 @@ public class PlayerMovementSystem : MonoBehaviour
             CheckForGroundExit();
 
         constantVelocity = Vector3.zero;
+    }
+
+    private void GroundClamp()
+    {
+        if (!(Matho.AngleBetween(groundNormal, dynamicVelocity) < groundNormalDynamicDeviance &&
+            dynamicVelocity.magnitude > groundNormalDynamicStrength))
+        {
+            controller.Move(transform.up * -1 * controller.stepOffset);
+        }
     }
 
     private void GroundFriction()
@@ -159,7 +175,7 @@ public class PlayerMovementSystem : MonoBehaviour
             {
                 grounded = true;
 
-                dynamicVelocity = airVelocity;
+                dynamicVelocity = airVelocity + gravityVelocity;
                 constantVelocity = Vector3.zero;
 
                 gravityVelocity = Vector3.zero;
