@@ -66,68 +66,41 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     {
         healthUpgradeButton.Initialize();
         UnlockSprint();
-        glitchRenderers = glitchRenderersParent.GetComponentsInChildren<SkinnedMeshRenderer>();
+        glitchRenderers =
+            glitchRenderersParent.GetComponentsInChildren<SkinnedMeshRenderer>();
     }
 
 	private void Update()
     {
         //Systems//
-        PlayerInfo.PhysicsSystem.UpdateSystem();
-        PlayerInfo.MovementSystem.UpdateSystem();
+        //PlayerInfo.PhysicsSystem.UpdateSystem();
+        //PlayerInfo.MovementSystem.UpdateSystem();
 
         //Managers//
         //Data based
-        PlayerInfo.BuffManager.UpdateBuffs();
+        //PlayerInfo.BuffManager.UpdateBuffs();
         
         //Input based
         PlayerInfo.AnimationManager.UpdateAnimations();
-        PlayerInfo.AbilityManager.UpdateAbilities();
+        //PlayerInfo.AbilityManager.UpdateAbilities();
         PlayerInfo.MovementManager.UpdateMovement();
-
-        #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            Time.timeScale = 1;
-            //Time.fixedDeltaTime = Time.timeScale * 0.02f;
-        }
-        else if (Input.GetKeyDown(KeyCode.O))
-        {
-            Time.timeScale = 0.1f;
-            //Time.fixedDeltaTime = Time.timeScale * 0.02f;
-        }
-        else if (Input.GetKeyDown(KeyCode.I))
-        {
-            PlayerInfo.AbilityManager.ChangeStamina(10);
-        }
-        else if (Input.GetKeyDown(KeyCode.U))
-        {
-            Time.timeScale = 3f;
-            //Time.fixedDeltaTime = Time.timeScale * 0.02f;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            ChangeHealth(-1);
-        }
-        else if (Input.GetKeyDown(KeyCode.W))
-        {
-            ChangeHealth(1);
-            PlayerInfo.AbilityManager.ChangeStamina(10);
-        }
-        #endif
+        PlayerInfo.CharMoveSystem.UpdateSystem();
     }
 
     private void LateUpdate()
     {
         //Frame specific data
-        PlayerInfo.MovementSystem.LateUpdateSystem();
-        PlayerInfo.PhysicsSystem.LateUpdateSystem();
+        //PlayerInfo.MovementSystem.LateUpdateSystem();
+        //PlayerInfo.PhysicsSystem.LateUpdateSystem();
         PlayerInfo.MovementManager.LateUpdateMovement();
+        PlayerInfo.CharMoveSystem.LateUpdateSystem();
+        GameInfo.CameraController.UpdateController();
         PlayerInfo.AnimationManager.LateUpdateAnimations();
     }
 
     private void FixedUpdate()
     {
+        /*
         if (!PlayerInfo.PhysicsSystem.Animating)
         {
             PlayerInfo.Body.velocity = PlayerInfo.PhysicsSystem.CalculatedVelocity;
@@ -142,10 +115,11 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         {
             PlayerInfo.PhysicsSystem.DynamicDrag(12f);
         }
+        */
 
-        PlayerInfo.MovementSystem.FixedUpdateSystem();
-        PlayerInfo.PhysicsSystem.FixedUpdateSystem();
-        PlayerInfo.AbilityManager.FixedUpdateAbilities();
+        //PlayerInfo.MovementSystem.FixedUpdateSystem();
+        //PlayerInfo.PhysicsSystem.FixedUpdateSystem();
+        //PlayerInfo.AbilityManager.FixedUpdateAbilities();
     }
 
     public void ForceClamp()

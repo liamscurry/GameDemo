@@ -10,12 +10,13 @@ using UnityEngine;
 // towards slope, moves up hill
 // straight down at slope, does not move.
 // diagonal, moves horizontally and then vertically (or vice versa)
-public class PlayerMovementSystem : MonoBehaviour
+
+// Has to be a monobehaviour to get collision event calls.
+public class CharacterMovementSystem : MonoBehaviour
 {
     private CharacterController controller;
 
     private const float gravityStrength = 9.8f;
-    private const float walkSpeed = 15;
     private const float groundFrictionStrength = 50 * 0.3f;
     private const float dynamicMin = 0.0001f;
 
@@ -35,55 +36,53 @@ public class PlayerMovementSystem : MonoBehaviour
     private const float groundNormalDynamicDeviance = 45f;
     private const float groundNormalDynamicStrength = 2f;
 
-    // Will use game info version when porting to full game.
-    public Vector2 LeftDirectionalInput 
-    { 
-        get 
-        { 
-            Vector2 v =
-                new Vector2(Input.GetAxis("Left Joystick Horizontal"), Input.GetAxis("Left Joystick Vertical")); 
+    private GameObject effectedObject;
 
-            //Unit length restriction
-            if (v.magnitude > 1f)
-                v = v.normalized;
-
-            //Dead zone restriction
-            if (v.magnitude < 0.2f)
-                v = Vector2.zero;
-
-            return v;
-        } 
-    }
-
-    private void Awake()
+    public void Initialize(GameObject effectedObject)
     {
-        controller = GetComponent<CharacterController>();
+        this.effectedObject = effectedObject;
+        controller = effectedObject.GetComponent<CharacterController>();
         grounded = false;
         groundSlopeLimit = controller.slopeLimit;
         minMoveDistance = controller.minMoveDistance;
         considerDynamicCollisions = false;
     }
 
-    private void Update()
+    // Almost all ported over.
+    // analogInput : world space x and z deltas
+    public void GroundMove(Vector2 analogInput)
     {
         if (grounded)
         {
-            UpdateGroundMovement();
-            controller.slopeLimit = groundSlopeLimit;
+            Vector2 normalizedInput = analogInput.normalized;
+            //Vector3 worldInput = effectedObject.transform.forward * normalizedInput.y;
+            //worldInput += effectedObject.transform.right * normalizedInput.x;
+            Vector3 movementDirection = Matho.PlanarDirectionalDerivative(normalizedInput, groundNormal);
+            
+            constantVelocity += movementDirection * analogInput.magnitude;
         }
-        else
+    }
+
+    // All ported over.
+    public void Push(Vector3 velocity)
+    {
+        dynamicVelocity += velocity;
+    }
+
+    public void UpdateSystem()
+    {
+        if (!grounded)
         {
             UpdateAirMovement();
             controller.slopeLimit = Mathf.Infinity;
         }
-
-        if (Input.GetKeyDown(KeyCode.W))
+        else
         {
-            dynamicVelocity += Vector3.up * 3f;
+            controller.slopeLimit = groundSlopeLimit;
         }
     }
 
-    private void LateUpdate()
+    public void LateUpdateSystem()
     {
         Vector3 compoundVelocity = Vector3.zero;
         
@@ -123,7 +122,7 @@ public class PlayerMovementSystem : MonoBehaviour
         if (!(Matho.AngleBetween(groundNormal, dynamicVelocity) < groundNormalDynamicDeviance &&
             dynamicVelocity.magnitude > groundNormalDynamicStrength))
         {
-            controller.Move(transform.up * -1 * controller.stepOffset);
+            controller.Move(effectedObject.transform.up * -1 * controller.stepOffset);
         }
     }
 
@@ -141,18 +140,6 @@ public class PlayerMovementSystem : MonoBehaviour
         {
             dynamicVelocity = Vector3.zero;
         }
-    }
-
-    private void UpdateGroundMovement()
-    {
-        Vector2 analogInput = LeftDirectionalInput.normalized;
-        
-        Vector3 worldInput = transform.forward * analogInput.y;
-        worldInput += transform.right * analogInput.x;
-        Vector2 projWorldInput = Matho.StdProj2D(worldInput);
-        Vector3 movementDirection = Matho.PlanarDirectionalDerivative(projWorldInput, groundNormal);
-        
-        constantVelocity += movementDirection * walkSpeed;
     }
 
     private void UpdateAirMovement()

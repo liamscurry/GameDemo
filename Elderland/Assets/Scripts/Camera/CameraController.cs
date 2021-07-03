@@ -184,7 +184,7 @@ public class CameraController : MonoBehaviour
         ZoomIn = new StatLock<(bool, float, float)>((false, -10.0f, 0.32f));
     }
 
-    private void LateUpdate()
+    public void UpdateController()
     {
         UpdateUniversalSettings();
         switch (state)

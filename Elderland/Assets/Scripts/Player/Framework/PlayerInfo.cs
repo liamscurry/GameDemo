@@ -13,7 +13,6 @@ public static class PlayerInfo
     public static GameObject MeleeObjects { get; private set; }
 
     //Components on player
-    public static CharacterController CharController { get; private set; }
     public static Rigidbody Body { get; private set; }
     public static CapsuleCollider Capsule { get; private set; }
     public static PlayerManager Manager  { get; private set; }
@@ -26,6 +25,7 @@ public static class PlayerInfo
     //System subparts
     public static AdvancedMovementSystem MovementSystem { get; private set; }
     public static PhysicsSystem PhysicsSystem { get; private set; }
+    public static CharacterMovementSystem CharMoveSystem { get; private set; }
 
     //Manager subparts
     public static PlayerAbilityManager AbilityManager { get; private set; }
@@ -57,7 +57,6 @@ public static class PlayerInfo
         MeleeObjects = meleeObjects;
 
         //Components on player assignments
-        CharController = player.GetComponent<CharacterController>();
         Body = player.GetComponent<Rigidbody>();
         Capsule = player.GetComponent<CapsuleCollider>();
         Manager = player.GetComponent<PlayerManager>();
@@ -73,10 +72,20 @@ public static class PlayerInfo
         //System subpart initializations
         PhysicsSystem = new PhysicsSystem(Player, Capsule, Body, 1);
         MovementSystem = new AdvancedMovementSystem(Player, Capsule, PhysicsSystem);
+        CharMoveSystem = Player.GetComponent<CharacterMovementSystem>();
+        CharMoveSystem.Initialize(Player);
 
         //Manager subpart initializations
         AnimationManager = new PlayerAnimationManager();
-        AbilityManager = new PlayerAbilityManager(Animator, PhysicsSystem, MovementSystem, Player, cooldownOriginTransform, 75);
+        AbilityManager =
+            new PlayerAbilityManager(
+                Animator,
+                PhysicsSystem,
+                MovementSystem,
+                CharMoveSystem, 
+                Player, 
+                cooldownOriginTransform,
+                75);
         BuffManager = new BuffManager<PlayerManager>(Manager);
         InteractionManager = new PlayerInteractionManager();
         MovementManager = new PlayerMovementManager();

@@ -99,7 +99,10 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
             PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier;
         }
 
-        PlayerInfo.MovementSystem.Move(PlayerInfo.MovementManager.CurrentDirection, PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed);
+        PlayerInfo.CharMoveSystem.GroundMove(
+            PlayerInfo.MovementManager.CurrentDirection *
+            PlayerInfo.MovementManager.CurrentPercentileSpeed *
+            PlayerInfo.StatsManager.Movespeed);
 
         PlayerInfo.Animator.SetFloat("speed", PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.MovespeedMultiplier.Value);
     }

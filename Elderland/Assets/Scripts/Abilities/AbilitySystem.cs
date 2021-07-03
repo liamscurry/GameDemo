@@ -12,6 +12,7 @@ public abstract class AbilitySystem
     public Animator Animator { get; private set; }
     public PhysicsSystem Physics { get; private set; }
     public MovementSystem Movement { get; private set; }
+    public CharacterMovementSystem CharMoveSystem { get; private set; }
     public GameObject Parent { get; private set; }
     public Ability CurrentAbility { get { return currentAbility; } set { currentAbility = value; } }
     public AnimationLoop AnimationLoop { get; protected set; }
@@ -21,11 +22,13 @@ public abstract class AbilitySystem
         AnimatorOverrideController animatorController,
         PhysicsSystem physics,
         MovementSystem movement,
+        CharacterMovementSystem charMoveSystem,
         GameObject parent)
     {
         Animator = animator;
         Physics = physics;
         Movement = movement;
+        CharMoveSystem = charMoveSystem;
         Parent = parent;
 
         AnimationLoop = new AnimationLoop(animatorController, Animator, "Segment");

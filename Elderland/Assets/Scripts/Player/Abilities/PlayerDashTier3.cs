@@ -61,7 +61,7 @@ public sealed class PlayerDashTier3 : PlayerAbility
         PlayerInfo.MovementManager.TargetDirection = direction;
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;
-        system.Movement.ExitEnabled = false;
+        //system.Movement.ExitEnabled = false;
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
 
         dashParticles.Play();
@@ -69,23 +69,17 @@ public sealed class PlayerDashTier3 : PlayerAbility
 
     private void DuringAct()
     {
-        //if (GameInfo.Settings.LeftDirectionalInput.magnitude > 0.25f)
-        //{
-        //    direction = Matho.RotateTowards(direction, GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput.normalized), 150 * Time.deltaTime);
-        //}
-        
+        system.CharMoveSystem.GroundMove(direction * speed);
+        /*
         if (system.Physics.TouchingFloor)
         {
-            actVelocity = system.Movement.Move(direction, speed);
+            actVelocity = system.CharMoveSystem.GroundMove(direction * speed);
         }
         else
         {
             system.Physics.AnimationVelocity += system.Movement.ExitVelocity;
             actVelocity = system.Movement.ExitVelocity;
-        }  
-        
-        //Quaternion rotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.y), Vector3.up);
-        //system.Parent.transform.rotation = rotation;
+        }  */
     }
 
     private void ActEnd()
@@ -95,7 +89,7 @@ public sealed class PlayerDashTier3 : PlayerAbility
         PlayerInfo.MovementManager.TargetPercentileSpeed = 1;
         PlayerInfo.MovementManager.SnapSpeed();
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
-        system.Movement.ExitEnabled = true;
+        //system.Movement.ExitEnabled = true;
         
         //bool alreadyHasDashBuff = false;
         /*

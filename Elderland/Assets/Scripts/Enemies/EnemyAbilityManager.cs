@@ -18,7 +18,7 @@ public class EnemyAbilityManager : AbilitySystem
         AnimatorOverrideController animatorController,
         PhysicsSystem physics,
         MovementSystem movement,
-        GameObject parent) : base(animator, animatorController, physics, movement, parent)
+        GameObject parent) : base(animator, animatorController, physics, movement, null, parent)
     { 
         Manager = parent.GetComponent<EnemyManager>();
         abilities = new List<EnemyAbility>();

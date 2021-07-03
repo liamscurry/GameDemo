@@ -64,9 +64,11 @@ public class PlayerAbilityManager : AbilitySystem
         Animator animator,
         PhysicsSystem physics,
         MovementSystem movement,
+        CharacterMovementSystem chaMoveSystem,
         GameObject parent,
         Transform cooldownOriginTransform,
-        float cooldownHeightDelta) : base(animator, PlayerInfo.Controller, physics, movement, parent)
+        float cooldownHeightDelta) : 
+        base(animator, PlayerInfo.Controller, physics, movement, chaMoveSystem, parent)
     { 
         GameObject holdBarInstance =
             GameObject.Instantiate(

@@ -115,7 +115,7 @@ public sealed class PlayerDodge : PlayerAbility
         PlayerInfo.MovementManager.TargetDirection = direction;
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;
-        system.Movement.ExitEnabled = false;
+        //system.Movement.ExitEnabled = false;
 
         GameInfo.CameraController.Speed = 0.45f;
         GameInfo.CameraController.TargetSpeed = 0;
@@ -126,17 +126,9 @@ public sealed class PlayerDodge : PlayerAbility
 
     private void DuringAct()
     {
-        if (system.Physics.TouchingFloor)
-        {
-            float compositeSpeed = 
-                speed * (1 / abilitySpeed) * PlayerInfo.StatsManager.MovespeedMultiplier.Value;
-            actVelocity = system.Movement.Move(direction, compositeSpeed, false);
-        }
-        else
-        {
-            system.Physics.AnimationVelocity += system.Movement.ExitVelocity;
-            actVelocity = system.Movement.ExitVelocity;
-        }  
+        float compositeSpeed = 
+            speed * (1 / abilitySpeed) * PlayerInfo.StatsManager.MovespeedMultiplier.Value;
+        system.CharMoveSystem.GroundMove(direction * compositeSpeed);
     }
 
     private void ActEnd()
@@ -146,18 +138,15 @@ public sealed class PlayerDodge : PlayerAbility
         PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude;
         PlayerInfo.MovementManager.SnapSpeed();
         system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
-        system.Movement.ExitEnabled = true;
+        //system.Movement.ExitEnabled = true;
         GameInfo.CameraController.SpeedGradation = 0.08f;
     }
 
     private void DuringSlide()
     {
-        if (system.Physics.TouchingFloor)
-        {
-            float compositeSpeed = 
-                speed * (1 / abilitySpeed) * PlayerInfo.StatsManager.MovespeedMultiplier.Value * 0.5f;
-            actVelocity = system.Movement.Move(direction, compositeSpeed, false);
-        } 
+        float compositeSpeed = 
+            speed * (1 / abilitySpeed) * PlayerInfo.StatsManager.MovespeedMultiplier.Value * 0.5f;
+        system.CharMoveSystem.GroundMove(direction * compositeSpeed);
     }
 
     private void SlideEnd()

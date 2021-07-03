@@ -13,7 +13,7 @@ public class MovementBehaviour : StateMachineBehaviour
         movespeedVelocity = 0;
         PlayerInfo.MovementManager.ResetSprint();
         PlayerInfo.MovementManager.AnimationPercentileSpeed = 
-        PlayerInfo.MovementManager.CurrentPercentileSpeed;
+            PlayerInfo.MovementManager.CurrentPercentileSpeed;
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 

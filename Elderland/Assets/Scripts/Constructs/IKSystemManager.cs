@@ -39,8 +39,8 @@ public class IKSystemManager : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (clampCapsule != null)
-            ClampSystem();
+        //if (clampCapsule != null)
+        //    ClampSystem();
         
         foreach (var system in IKSystems)
         {

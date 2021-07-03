@@ -122,11 +122,11 @@ public class PlayerMovementManager
         CurrentPercentileSpeed = Mathf.SmoothDamp(CurrentPercentileSpeed, TargetPercentileSpeed, ref speedVelocity, speedGradation);
         CurrentPercentileSpeed *= 1 - Matho.AngleBetween(TargetDirection, CurrentDirection) / 180f * 0.7f;
 
-        if (PlayerInfo.PhysicsSystem.ExitedFloor && !PlayerInfo.MovementSystem.Jumping)
+        /*if (PlayerInfo.PhysicsSystem.ExitedFloor && !PlayerInfo.CharMoveSystem.Jumping)
         {
             TargetPercentileSpeed = 0;
             SnapSpeed();
-        }
+        }*/
 
         if (CurrentPercentileSpeed < percentileSpeedMin)
         {
@@ -190,9 +190,10 @@ public class PlayerMovementManager
                     PlayerInfo.AnimationManager.UpdateRotation(true);
             }
 
-            PlayerInfo.MovementSystem.Move(
-                PlayerInfo.MovementManager.CurrentDirection,
-                PlayerInfo.MovementManager.CurrentPercentileSpeed * PlayerInfo.StatsManager.Movespeed);
+            PlayerInfo.CharMoveSystem.GroundMove(
+                PlayerInfo.MovementManager.CurrentDirection *
+                PlayerInfo.MovementManager.CurrentPercentileSpeed *
+                PlayerInfo.StatsManager.Movespeed);
         }
     }
 
