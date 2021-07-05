@@ -221,7 +221,7 @@ ModelImporter:
     second: FinisherTakedownAct2
   - first:
       74: -7405041895712248970
-    second: Armature|CombatStance
+    second: FallingStart
   - first:
       74: -380850118572189146
     second: FinisherTakedownCharge1
@@ -245,10 +245,13 @@ ModelImporter:
     second: Jump
   - first:
       74: -1500354584072067147
-    second: Falling
+    second: FallingLoop
   - first:
       74: 6716157956664744355
     second: SoftLanding
+  - first:
+      74: 1535547211355375753
+    second: HardLanding
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -2321,11 +2324,11 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Falling
+      name: FallingLoop
       takeName: Armature|Falling
       internalID: 0
-      firstFrame: 0
-      lastFrame: 40
+      firstFrame: 15
+      lastFrame: 51
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -2355,6 +2358,64 @@ ModelImporter:
       internalID: 0
       firstFrame: 0
       lastFrame: 8
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: HardLanding
+      takeName: Armature|HardLanding
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 31
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: FallingStart
+      takeName: Armature|Falling
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 15
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

@@ -342,7 +342,7 @@ Cloth:
   m_GameObject: {fileID: 1114334269007321561}
   m_Enabled: 1
   m_StretchingStiffness: 1
-  m_BendingStiffness: 0
+  m_BendingStiffness: 0.75
   m_UseTethers: 1
   m_UseGravity: 1
   m_Damping: 0.24
@@ -350,7 +350,7 @@ Cloth:
   m_RandomAcceleration: {x: 0, y: 0, z: 0}
   m_WorldVelocityScale: 0.2
   m_WorldAccelerationScale: 0.3
-  m_Friction: 0.5
+  m_Friction: 0.125
   m_CollisionMassScale: 0.2
   m_UseContinuousCollision: 1
   m_UseVirtualParticles: 1
