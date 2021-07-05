@@ -9,35 +9,34 @@ public class FallingBehaviour : StateMachineBehaviour
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
+		exiting = false;
+		animator.SetBool(AnimationConstants.Player.Jump, false);
+		animator.SetBool(AnimationConstants.Player.Falling, true);
 		PlayerInfo.MovementManager.LockDirection();
 		PlayerInfo.MovementManager.LockSpeed();
-		exiting = false;
-		fastestFallingSpeed = PlayerInfo.PhysicsSystem.LastCalculatedVelocity.y;
+		fastestFallingSpeed = PlayerInfo.CharMoveSystem.GravityVelocity.y;
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-		// && !animator.IsInTransition(0)
 		if (!exiting)
 		{
-			if (PlayerInfo.PhysicsSystem.LastCalculatedVelocity.y < fastestFallingSpeed)
-				fastestFallingSpeed = PlayerInfo.PhysicsSystem.LastCalculatedVelocity.y;
+			if (PlayerInfo.CharMoveSystem.GravityVelocity.y < fastestFallingSpeed)
+				fastestFallingSpeed = PlayerInfo.CharMoveSystem.GravityVelocity.y;
 
-			if ((PlayerInfo.PhysicsSystem.EnteredFloor || PlayerInfo.PhysicsSystem.TouchingFloor))
+			if (PlayerInfo.CharMoveSystem.Grounded)
 			{
 				if (fastestFallingSpeed < -15)
 				{
 					//Going fast, transition to landing animation
-					animator.SetFloat("speed", 0);
-					PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
-					PlayerInfo.MovementManager.SnapSpeed();
+					animator.SetInteger(AnimationConstants.Player.FallSpeed, 1);
 				}
 				else
 				{
-					animator.SetFloat("speed", 1);
+					animator.SetInteger(AnimationConstants.Player.FallSpeed, 0);
 				}
 
-				animator.SetBool("falling", false);
+				animator.SetBool(AnimationConstants.Player.Falling, false);
 				exiting = true;
 			}	
 		}

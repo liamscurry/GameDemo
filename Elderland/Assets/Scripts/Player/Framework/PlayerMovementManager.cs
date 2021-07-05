@@ -7,8 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class PlayerMovementManager
 {
-    public enum State { Traversing, Jumping, Climbing }
-
     //References and associations
     private Ladder ladder;
 
@@ -60,8 +58,10 @@ public class PlayerMovementManager
 			sprinting = value;
 		}
 	}
-
     public bool SprintAvailable { get; set; }
+
+    private const float jumpStrength = 4.0f;
+    public bool Jumping { get; set; }
 
     private bool movedThisFrame;
 
@@ -99,11 +99,8 @@ public class PlayerMovementManager
         }
     }
 
-    public State MovementState { get; private set; }
-
     public PlayerMovementManager()
     {
-        MovementState = State.Traversing;
         TargetDirection = Vector2.right;
         CurrentDirection = Vector2.right;
         TargetPercentileSpeed = 0;
@@ -113,6 +110,7 @@ public class PlayerMovementManager
         PlayerInfo.PhysicsSystem.SlidIntoGround += OnSlidIntoGround;
         movedThisFrame = false;
         SprintAvailable = true;
+        Jumping = false;
     }
 
     public void UpdateMovement()
@@ -148,6 +146,17 @@ public class PlayerMovementManager
     public void LateUpdateMovement()
     {
         movedThisFrame = false;
+    }
+
+    public void TryJump()
+    {
+        if (GameInfo.Manager.ReceivingInput.Value == GameInput.Full)
+        {
+            GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay);
+            Jumping = true;
+            PlayerInfo.CharMoveSystem.Push(Vector3.up * jumpStrength);
+            PlayerInfo.Animator.SetBool(AnimationConstants.Player.Jump, true);
+        }
     }
 
     public void UpdateWalkMovement()

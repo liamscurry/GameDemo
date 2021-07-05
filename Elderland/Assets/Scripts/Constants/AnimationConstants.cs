@@ -9,5 +9,9 @@ public static class AnimationConstants
         public const string ProceedUpperAction = "proceedUpperAction";
         public const string ExitUpperAction = "exitUpperAction";
         public const string GenericUpperAction = "GenericUpperAction";
+
+        public const string Jump = "jump";
+        public const string Falling = "falling";
+        public const string FallSpeed = "fallSpeed";
     }
 }

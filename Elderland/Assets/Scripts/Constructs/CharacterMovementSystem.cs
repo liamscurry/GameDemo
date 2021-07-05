@@ -16,17 +16,20 @@ public class CharacterMovementSystem : MonoBehaviour
 {
     private CharacterController controller;
 
-    private const float gravityStrength = 9.8f;
+    private const float gravityStrength = 11f;
     private const float groundFrictionStrength = 50 * 0.3f;
     private const float dynamicMin = 0.0001f;
 
     private Vector3 dynamicVelocity;
+    public Vector3 DynamicVelocity { get { return dynamicVelocity; } }
     private Vector3 gravityVelocity;
+    public Vector3 GravityVelocity { get { return gravityVelocity; } }
 
     private Vector3 constantVelocity;
     private Vector3 airVelocity;
 
     private bool grounded;
+    public bool Grounded { get { return grounded; } }
     private Vector3 groundNormal;
 
     private float groundSlopeLimit;

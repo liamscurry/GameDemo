@@ -73,14 +73,14 @@ public class GameSettings : MonoBehaviour
         //Input
         //Abilities
         MeleeAbilityKey = KeyCode.Joystick1Button2;
-        AlternateMeleeAbilityKey = KeyCode.Joystick1Button3;
+        AlternateMeleeAbilityKey = KeyCode.Joystick1Button2;
         DodgeAbilityKey = KeyCode.JoystickButton0;
         DashAbilityKey = KeyCode.Joystick1Button1;
         BlockAbilityKey = KeyCode.Joystick1Button5;
         FinisherAbilityKey = KeyCode.Joystick1Button9;
 
         //Misc
-        JumpKey = KeyCode.Joystick1Button1;
+        JumpKey = KeyCode.Joystick1Button3;
         SprintKey = KeyCode.Joystick1Button8;
         UseKey = KeyCode.Joystick1Button0;
     }

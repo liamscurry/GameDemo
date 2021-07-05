@@ -23,6 +23,11 @@ public class MovementBehaviour : StateMachineBehaviour
             PlayerInfo.MovementManager.UpdateWalkMovement();
             PlayerInfo.AnimationManager.UpdateWalkProperties();
 
+            if (Input.GetKeyDown(GameInfo.Settings.JumpKey))
+            {
+                PlayerInfo.MovementManager.TryJump();
+            }
+
             //Transitions//
             if (!animator.IsInTransition(0) && PlayerInfo.AbilityManager.CurrentAbility == null)
             {
