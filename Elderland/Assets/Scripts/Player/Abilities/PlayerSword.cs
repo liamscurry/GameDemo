@@ -291,7 +291,8 @@ public sealed class PlayerSword : PlayerAbility
             //GameInfo.CameraController.SecondaryTarget = minCollider.transform;
             target = minCollider;
             targetDisplacement = (minCollider.transform.parent.position - PlayerInfo.Player.transform.position);
-            targetPlanarDirection = Matho.PlanarDirectionalDerivative(Matho.StdProj2D(targetDisplacement).normalized, PlayerInfo.PhysicsSystem.Normal).normalized;
+            targetPlanarDirection =
+                Matho.PlanarDirectionalDerivative(Matho.StdProj2D(targetDisplacement).normalized, PlayerInfo.PhysicsSystem.Normal).normalized;
 
             float theta = Matho.AngleBetween(targetDisplacement, targetPlanarDirection);
             targetHorizontalDistance = targetDisplacement.magnitude * Mathf.Cos(theta * Mathf.Deg2Rad);

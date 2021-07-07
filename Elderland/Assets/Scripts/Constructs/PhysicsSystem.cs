@@ -570,7 +570,8 @@ public class PhysicsSystem
             float groundTheta = Matho.AngleBetween(groundContact.normal, Vector3.up);
             slopeMagnitude = (groundTheta < 45) ? (1.0f - (groundTheta / 100)) : (1.0f - (groundTheta / 75));
             Vector2 projectedGroundNormal = Matho.StdProj2D(capsuleContact.normal);
-            slopeDirection = Matho.PlanarDirectionalDerivative(projectedGroundNormal, groundContact.normal);
+            slopeDirection =
+                Matho.PlanarDirectionalDerivative(projectedGroundNormal, groundContact.normal).normalized;
         }
     }
 

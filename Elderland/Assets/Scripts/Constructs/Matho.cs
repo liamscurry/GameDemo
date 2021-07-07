@@ -202,13 +202,15 @@ public static class Matho
     }
 
     //Calculates the directional derivative of a plane given its normal.
+    // Fixed a bug on 7/7/21 in which this function was normalizing the output.
+    // If issues arise in older code that use this function, adjust code by normalizing output. 
     public static Vector3 PlanarDirectionalDerivative(Vector2 direction, Vector3 normal)
     {
         direction.Normalize();
         float x = direction.x;
-        float y = (normal.x / -normal.y) * direction.x + (normal.z / -normal.y) * direction.y;
+        float y = (-normal.x / normal.y) * direction.x + (-normal.z / normal.y) * direction.y;
         float z = direction.y;
-        return new Vector3(x, y, z).normalized;
+        return new Vector3(x, y, z);
     }
 
     public static Vector2 PolarToCartesian(float r, float theta)
