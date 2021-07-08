@@ -126,11 +126,12 @@ public class CharacterMovementSystem : MonoBehaviour
             UpdateGroundInfoInGround();
             groundCheck = GroundCheck(compoundVelocity);
             if (groundCheck)
+            {
                 controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
+                GroundFriction();
+                ParseExitNormalQueue();
+            }
 
-            GroundFriction();
-
-            ParseExitNormalQueue();
             CheckForGroundExit();
         }
         else
@@ -198,12 +199,31 @@ public class CharacterMovementSystem : MonoBehaviour
             }
             else
             {
-                Vector2 projectedCompound = Matho.StdProj2D(compoundVelocity);
-                // Need to redirect velocity away from edge if running parallel enough
                 check = false;
+                
+                if (grounded)
+                {
+                    Vector2 edgeDirection = -groundedAveragePos.normalized;
+                    RedirectExitVelocity(edgeDirection);
+                }
             }
         }
         return check;
+    }
+
+    /*
+    * Adjust dynamic velocity and constant velocity to be facing towards the edge direction on 
+    * leaving the ground. This way the character is guarenteed to have velocity facing the edge of
+    * the ground upon leaving it (not parallel to it).
+    */
+    private void RedirectExitVelocity(Vector2 edgeDirection)
+    {
+        float minExitMagnitude = 1;
+        constantVelocity =
+            minExitMagnitude * new Vector3(edgeDirection.x, 0, edgeDirection.y);
+        
+        dynamicVelocity =
+            minExitMagnitude * new Vector3(edgeDirection.x, 0, edgeDirection.y);
     }
 
     // Casts rays below the character, changing length based on the current ground normal
@@ -360,11 +380,6 @@ public class CharacterMovementSystem : MonoBehaviour
             Debug.Log("exited");
             grounded = false;
 
-            Vector2 normalizedInput = Matho.StdProj2D(constantVelocity).normalized;
-            Vector3 exitNormal = AverageExitNormalQueue();
-            Vector3 movementDirection =
-                Matho.PlanarDirectionalDerivative(normalizedInput, exitNormal).normalized;
-            constantVelocity = movementDirection * constantVelocity.magnitude;
             exitNormalQueue.Clear();
 
             airVelocity = constantVelocity + dynamicVelocity; 
