@@ -39,8 +39,8 @@ public class CharacterMovementSystem : MonoBehaviour
     private float minMoveDistance;
 
     private bool considerDynamicCollisions;
-    private const float groundNormalDynamicDeviance = 45f;
-    private const float groundNormalDynamicStrength = 2f;
+    private const float groundNormalAngleDeviance = 90f - 25f;
+    private const float groundNormalMagStrength = 2f;
 
     private GameObject effectedObject;
 
@@ -123,7 +123,10 @@ public class CharacterMovementSystem : MonoBehaviour
             controller.Move(compoundVelocity * Time.deltaTime);
             considerDynamicCollisions = false;
 
-            GroundCheck();
+            UpdateGroundInfoInGround();
+            groundCheck = GroundCheck(compoundVelocity);
+            if (groundCheck)
+                controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
 
             GroundFriction();
 
@@ -143,45 +146,101 @@ public class CharacterMovementSystem : MonoBehaviour
         constantVelocity = Vector3.zero;
     }
 
-    private void GroundCheck()
+    private bool GroundCheck(Vector3 compoundVelocity)
     {
-        if (!(Matho.AngleBetween(groundNormal, dynamicVelocity) < groundNormalDynamicDeviance &&
-            dynamicVelocity.magnitude > groundNormalDynamicStrength))
+        bool check;
+        if (!(Matho.AngleBetween(groundNormal, compoundVelocity) < groundNormalAngleDeviance &&
+            compoundVelocity.magnitude > groundNormalMagStrength))
         {
-            float topOffset = (controller.height / 2 - controller.radius);
-
-            // will make check consist of a circle of raycasts downwards around the circumference of the
-            // capsule, if half of them miss, they we have disconnected from the ground,
-            // tilt of ground effects length of cast (each may be different lengths)
-            float percentageGrounded = PercentageOnGround();
-            groundCheck = (percentageGrounded > 0.5f) ? true : false;
-
-            controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
+            check = WeightCheck(compoundVelocity);
         }
         else
         {
-            groundCheck = false;
+            check = false;
         }
+        return check;
+    }
+
+    private bool WeightCheck(Vector3 compoundVelocity)
+    {
+        float topOffset = (controller.height / 2 - controller.radius);
+
+        // will make check consist of a circle of raycasts downwards around the circumference of the
+        // capsule, if half of them miss, they we have disconnected from the ground,
+        // tilt of ground effects length of cast (each may be different lengths)
+        int numberGrounded;
+        float percentageGrounded;
+        Vector2 groundedAveragePos;
+        (numberGrounded, percentageGrounded, groundedAveragePos) = PercentageOnGround();
+
+        bool check;
+        if (numberGrounded == 0)
+        {
+            check = false;
+        }
+        else
+        {
+            if (groundedAveragePos.magnitude < 0.33f)
+            {
+                check = true;
+            }
+            else if (groundedAveragePos.magnitude < 0.66f)
+            {
+                Vector2 projectedCompound = Matho.StdProj2D(compoundVelocity);
+                if (Matho.AngleBetween(groundedAveragePos, projectedCompound) > 135f)
+                {
+                    check = false;
+                }
+                else
+                {
+                    check = true;
+                }
+            }
+            else
+            {
+                Vector2 projectedCompound = Matho.StdProj2D(compoundVelocity);
+                // Need to redirect velocity away from edge if running parallel enough
+                check = false;
+            }
+        }
+        return check;
     }
 
     // Casts rays below the character, changing length based on the current ground normal
     // Adds constant length of multiple of step size of controller.
-    private float PercentageOnGround()
+    private (int, float, Vector2) PercentageOnGround()
     {
         // outer circle
         int outerCastCount = 8;
-        int outerCount = RaycastCircle(outerCastCount, controller.radius);
+        int outerCount;
+        Vector2 outerWeight;
+        (outerCount, outerWeight) = RaycastCircle(outerCastCount, controller.radius);
 
         // inner circle
         int innerCastCount = 4;
-        int innerCount = RaycastCircle(innerCastCount, controller.radius * 0.5f);
+        int innerCount;
+        Vector2 innerWeight;
+        (innerCount, innerWeight) = RaycastCircle(innerCastCount, controller.radius * 0.5f);
 
-        return (outerCount + innerCount) / ((float) outerCastCount + innerCastCount);
+        int castsHit = outerCount + innerCount;
+        Vector2 hitWeight = Vector2.zero;
+        if (castsHit != 0)
+        {
+            hitWeight = (outerWeight + innerWeight) / (castsHit);
+            hitWeight *= 1.0f / controller.radius;
+        }
+
+        float percentageOnGround = 
+            (outerCount + innerCount) / ((float) outerCastCount + innerCastCount);
+        return (outerCount + innerCount, percentageOnGround, hitWeight);
     }
 
-    private int RaycastCircle(int n, float radius)
+    // Returns
+    // (int : number of casts hit), (Vector2 : position of casts hit summed)
+    private (int, Vector2) RaycastCircle(int n, float radius)
     {
         int castsHit = 0;
+        Vector2 hitSum = Vector3.zero;
         for (int i = 0; i < n; i++)
         {
             float angle = (i + 1f) / n * 360;
@@ -202,12 +261,15 @@ public class CharacterMovementSystem : MonoBehaviour
             castLength += controller.stepOffset;
 
             if (Physics.Linecast(start, start + Vector3.down * castLength, LayerConstants.GroundCollision))
+            {
                 castsHit++;
-            
+                hitSum += horizontalOffset;
+            }
             // Visualize cast
             //Debug.DrawLine(start, start + Vector3.down * castLength, Color.black, 1f);
         }
-        return castsHit;
+        
+        return (castsHit, hitSum);
     }
 
     private void GroundFriction()
@@ -240,17 +302,21 @@ public class CharacterMovementSystem : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        CheckForGroundEnter(hit);
-        if (considerDynamicCollisions)
+        if (!grounded)
+            UpdateGroundInfoInAir(hit);
+        if (grounded && considerDynamicCollisions)
             HandleVelocityCollisions(hit);
     }
 
-    private void CheckForGroundEnter(ControllerColliderHit hit)
+    private void UpdateGroundInfoInAir(ControllerColliderHit hit)
     {
         if (Matho.AngleBetween(hit.normal, Vector3.up) < groundSlopeLimit + groundSlopeThreshold)
         {
-            if (!grounded)
+            groundNormal = hit.normal;
+
+            if (GroundCheck(airVelocity + gravityVelocity))
             {
+                Debug.Log("entered");
                 grounded = true;
 
                 dynamicVelocity = airVelocity + gravityVelocity;
@@ -258,12 +324,30 @@ public class CharacterMovementSystem : MonoBehaviour
 
                 gravityVelocity = Vector3.zero;
                 airVelocity = Vector3.zero;
-                Debug.Log("ground entered");
             }
-            
-            groundNormal = hit.normal;
-            if (grounded)
-            {
+        }
+    }
+
+    private void UpdateGroundInfoInGround()
+    {
+        Vector3 topOffset = (controller.height / 2 - controller.radius) * Vector3.up;
+
+        RaycastHit hitInfo;
+        bool hitGround = Physics.CapsuleCast(
+            transform.position + topOffset,
+            transform.position - topOffset,
+            controller.radius,
+            Vector3.down,
+            out hitInfo,
+            controller.height,
+            LayerConstants.GroundCollision 
+        );
+
+        if (hitGround)
+        {
+            if (Matho.AngleBetween(hitInfo.normal, Vector3.up) < groundSlopeLimit + groundSlopeThreshold)
+            {   
+                groundNormal = hitInfo.normal;
                 exitNormalQueue.Enqueue((Time.time, groundNormal));
             }
         }
@@ -271,9 +355,9 @@ public class CharacterMovementSystem : MonoBehaviour
 
     private void CheckForGroundExit()
     {
-        //if (!controller.isGrounded)
         if (!groundCheck)
         {
+            Debug.Log("exited");
             grounded = false;
 
             Vector2 normalizedInput = Matho.StdProj2D(constantVelocity).normalized;
@@ -284,7 +368,6 @@ public class CharacterMovementSystem : MonoBehaviour
             exitNormalQueue.Clear();
 
             airVelocity = constantVelocity + dynamicVelocity; 
-            Debug.Log("ground exited");
         }
     }
 
