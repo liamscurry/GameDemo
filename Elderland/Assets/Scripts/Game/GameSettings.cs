@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 //Settings class in which objects are initialized with user settings.
 
@@ -27,7 +29,7 @@ public class GameSettings : MonoBehaviour
     public KeyCode BlinkKey { get; set; }
 
     //Misc
-    public KeyCode JumpKey { get; set; }
+    public GamepadButton JumpKey { get; set; }
     public KeyCode SprintKey { get; set; }
     public KeyCode UseKey { get; set; }
 
@@ -80,7 +82,7 @@ public class GameSettings : MonoBehaviour
         FinisherAbilityKey = KeyCode.Joystick1Button9;
 
         //Misc
-        JumpKey = KeyCode.Joystick1Button3;
+        JumpKey = GamepadButton.North;
         SprintKey = KeyCode.Joystick1Button8;
         UseKey = KeyCode.Joystick1Button0;
     }

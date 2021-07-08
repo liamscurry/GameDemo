@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 //Deals with initialization, loading and quiting of the game. Manager of all classes.
 

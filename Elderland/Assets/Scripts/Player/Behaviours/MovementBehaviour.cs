@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 public class MovementBehaviour : StateMachineBehaviour 
 {
@@ -23,7 +25,7 @@ public class MovementBehaviour : StateMachineBehaviour
             PlayerInfo.MovementManager.UpdateWalkMovement();
             PlayerInfo.AnimationManager.UpdateWalkProperties();
 
-            if (Input.GetKeyDown(GameInfo.Settings.JumpKey))
+            if (Gamepad.current[GameInfo.Settings.JumpKey].wasPressedThisFrame)
             {
                 PlayerInfo.MovementManager.TryJump();
             }
@@ -52,17 +54,6 @@ public class MovementBehaviour : StateMachineBehaviour
         if (PlayerInfo.PhysicsSystem.ExitedFloor)
         {
             animator.SetBool("falling", true);
-            exiting = true;
-        }
-    }
-
-    private void JumpTransition(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        if (Input.GetKeyDown(GameInfo.Settings.JumpKey) && PlayerInfo.PhysicsSystem.LastCalculatedVelocity.magnitude < PlayerInfo.StatsManager.BaseMovespeed * 2.5f)
-        {
-            animator.SetBool("jump", true);
-            PlayerInfo.MovementManager.LockDirection();
-            PlayerInfo.MovementManager.TargetPercentileSpeed = 1;
             exiting = true;
         }
     }
@@ -279,7 +270,7 @@ public class MovementBehaviour : StateMachineBehaviour
         if (normalProjectionScalar > 0 &&
             Mathf.Abs(normalProjectionScalar) - PlayerInfo.Capsule.radius < 1f &&
             Matho.AngleBetween(Matho.StdProj2D(-mantle.Normal), facingDirection) < 45 &&
-            (mantle.Type == Mantle.MantleType.Short || (mantle.Type == Mantle.MantleType.Tall && Input.GetKeyDown(GameInfo.Settings.JumpKey))))
+            (mantle.Type == Mantle.MantleType.Short || (mantle.Type == Mantle.MantleType.Tall)))//&& Input.GetKeyDown(GameInfo.Settings.JumpKey)
         {
             //generate target positions
             Vector3 basePosition = PlayerInfo.Player.transform.position;
