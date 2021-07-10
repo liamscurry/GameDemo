@@ -99,15 +99,6 @@ public class CharacterMovementSystem : MonoBehaviour
         {
             ApplyGravity.ClaimLock(this, false);
         }
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            Time.timeScale = 0.1f;
-        }
-
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            Time.timeScale = 1;
-        }
     }
 
     public void LateUpdateSystem()
@@ -125,15 +116,11 @@ public class CharacterMovementSystem : MonoBehaviour
             controller.Move(compoundVelocity * Time.deltaTime);
             considerDynamicCollisions = false;
 
-            UpdateGroundInfoInGround();
+            controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
             groundCheck = GroundCheck(compoundVelocity);
-            if (groundCheck)
-            {
-                controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
-                GroundFriction();
-                ParseExitNormalQueue();
-            }
 
+            GroundFriction();
+            //ParseExitNormalQueue();
             CheckForGroundExit();
         }
         else
@@ -158,10 +145,10 @@ public class CharacterMovementSystem : MonoBehaviour
     private bool GroundCheck(Vector3 compoundVelocity)
     {
         bool check;
-        if (!(Matho.AngleBetween(groundNormal, compoundVelocity) < groundNormalAngleDeviance &&
-            compoundVelocity.magnitude > groundNormalMagStrength))
+        if (!(Matho.AngleBetween(groundNormal, dynamicVelocity) < groundNormalAngleDeviance &&
+            dynamicVelocity.magnitude > groundNormalMagStrength))
         {
-            check = WeightCheck(compoundVelocity);
+            check = controller.isGrounded;
         }
         else
         {
@@ -361,19 +348,18 @@ public class CharacterMovementSystem : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (!grounded)
-            UpdateGroundInfoInAir(hit);
+        UpdateGroundInfo(hit);
         if (grounded && considerDynamicCollisions)
             HandleVelocityCollisions(hit);
     }
 
-    private void UpdateGroundInfoInAir(ControllerColliderHit hit)
+    private void UpdateGroundInfo(ControllerColliderHit hit)
     {
         if (Matho.AngleBetween(hit.normal, Vector3.up) < groundSlopeLimit + groundSlopeThreshold)
         {
             groundNormal = hit.normal;
 
-            if (GroundCheck(airVelocity + gravityVelocity))
+            if (!grounded)
             {
                 Debug.Log("entered");
                 grounded = true;
@@ -383,31 +369,6 @@ public class CharacterMovementSystem : MonoBehaviour
 
                 gravityVelocity = Vector3.zero;
                 airVelocity = Vector3.zero;
-            }
-        }
-    }
-
-    private void UpdateGroundInfoInGround()
-    {
-        Vector3 topOffset = (controller.height / 2 - controller.radius) * Vector3.up;
-
-        RaycastHit hitInfo;
-        bool hitGround = Physics.CapsuleCast(
-            transform.position + topOffset,
-            transform.position - topOffset,
-            controller.radius,
-            Vector3.down,
-            out hitInfo,
-            controller.height,
-            LayerConstants.GroundCollision 
-        );
-
-        if (hitGround)
-        {
-            if (Matho.AngleBetween(hitInfo.normal, Vector3.up) < groundSlopeLimit + groundSlopeThreshold)
-            {   
-                groundNormal = hitInfo.normal;
-                exitNormalQueue.Enqueue((Time.time, groundNormal));
             }
         }
     }
