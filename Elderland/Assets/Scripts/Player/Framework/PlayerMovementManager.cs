@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.LowLevel;
 
 //Deals with basic player movement.
 
@@ -214,7 +217,9 @@ public class PlayerMovementManager
             return;
         }
 
-        if (Input.GetKeyDown(GameInfo.Settings.SprintKey) && SprintUnlocked && SprintAvailable &&
+        if (GameInfo.Settings.CurrentGamepad.leftStickButton.isPressed &&
+            SprintUnlocked &&   
+            SprintAvailable &&
             PlayerInfo.AbilityManager.CurrentAbility == null)
         {
             Sprinting = true;

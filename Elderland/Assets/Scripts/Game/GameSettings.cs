@@ -30,15 +30,18 @@ public class GameSettings : MonoBehaviour
 
     //Misc
     public GamepadButton JumpKey { get; set; }
-    public KeyCode SprintKey { get; set; }
+    public GamepadButton SprintKey { get; set; }
     public KeyCode UseKey { get; set; }
+
+    public Gamepad CurrentGamepad { get; set; }
+    public Gamepad DefaultGamepad { get; set; }
 
     //Will be assigned later
     public Vector2 LeftDirectionalInput 
     { 
         get 
         { 
-            Vector2 v = new Vector2(Input.GetAxis("Left Joystick Horizontal"), Input.GetAxis("Left Joystick Vertical")); 
+            Vector2 v = GameInfo.Settings.CurrentGamepad.leftStick.ReadValue();
 
             //Unit length restriction
             if (v.magnitude > 1f)
@@ -56,7 +59,8 @@ public class GameSettings : MonoBehaviour
     { 
         get 
         { 
-            Vector2 v = new Vector2(Input.GetAxis("Right Joystick Horizontal"), Input.GetAxis("Right Joystick Vertical")); 
+            Vector2 v =
+                new Vector2(Input.GetAxis("Right Joystick Horizontal"), Input.GetAxis("Right Joystick Vertical")); 
 
             //Unit length restriction
             if (v.magnitude > 1f)
@@ -72,6 +76,9 @@ public class GameSettings : MonoBehaviour
 
     public void Initialize()
     {
+        DefaultGamepad = Gamepad.all[0];
+        CurrentGamepad = DefaultGamepad;
+
         //Input
         //Abilities
         MeleeAbilityKey = KeyCode.Joystick1Button2;
@@ -83,7 +90,7 @@ public class GameSettings : MonoBehaviour
 
         //Misc
         JumpKey = GamepadButton.North;
-        SprintKey = KeyCode.Joystick1Button8;
+        SprintKey = GamepadButton.LeftStick;
         UseKey = KeyCode.Joystick1Button0;
     }
 }

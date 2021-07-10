@@ -25,7 +25,7 @@ public class MovementBehaviour : StateMachineBehaviour
             PlayerInfo.MovementManager.UpdateWalkMovement();
             PlayerInfo.AnimationManager.UpdateWalkProperties();
 
-            if (Gamepad.current[GameInfo.Settings.JumpKey].wasPressedThisFrame)
+            if (GameInfo.Settings.CurrentGamepad[GameInfo.Settings.JumpKey].wasPressedThisFrame)
             {
                 PlayerInfo.MovementManager.TryJump();
             }

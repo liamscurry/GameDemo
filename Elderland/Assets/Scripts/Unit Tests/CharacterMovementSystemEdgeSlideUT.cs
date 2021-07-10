@@ -4,13 +4,27 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XInput;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.Controls;
 
 // Input based UT
+// Not sure as of right now, as this is the first input based UT, but writing a normalized vector2
+// to the left stick wraps around to the other side (negative). Has to do with clamping of AxisControl.
+// Not sure why this is not set-able from the left stick field.
+
+// Unit test class based on fake player input. Needed to debug rare bug when walking up sloped ledges
+// in new Character Movement System class.
+
+// bug was reproduced by hand by going up ramp from a bit on ramp (fully on it).
+// after going up about 1/4, 1/5 of ramp when near edge and then moved left stick towards wall as I began
+// nearing the edge and so the player bounced off of wall and then towards wall and then slide upwards.
+
+// Test produces bug now. This does not happen every run, but it does get produced (~50 percent of the time)
+// Does this mean frame dependence is causing bug?
 public class CharacterMovementSystemEdgeSlideUT : MonoBehaviour
 {
     XInputController fakeController;
     
-    private void Awake()
+    private void Start()
     {
         fakeController = InputSystem.AddDevice<XInputController>();
         StartCoroutine(InputCoroutine());
@@ -18,14 +32,39 @@ public class CharacterMovementSystemEdgeSlideUT : MonoBehaviour
 
     private IEnumerator InputCoroutine()
     {
-        yield return new WaitForSeconds(3f);
+        GameInfo.Settings.CurrentGamepad = fakeController;
 
-        InputEventPtr jumpTest;
-        using (StateEvent.From(fakeController, out jumpTest))
+        while (!PlayerInfo.CharMoveSystem.Grounded)
         {
-            fakeController.buttonNorth.WriteValueIntoEvent(1f, jumpTest);
-            InputSystem.QueueEvent(jumpTest);
+            yield return new WaitForEndOfFrame();
         }
-        Debug.Log("called");
+
+        InputEventPtr sprintEvent;
+        using (StateEvent.From(fakeController, out sprintEvent))
+        {
+            fakeController.leftStickButton.pressPoint = 0.0f;
+            fakeController.leftStickButton.WriteValueIntoEvent(1.0f, sprintEvent);
+            InputSystem.QueueEvent(sprintEvent);
+        }
+
+        SetFakeControllerDirection(new Vector2(0f, 1).normalized * 0.95f);
+
+        yield return new WaitForSeconds(0.7f);
+
+        SetFakeControllerDirection(new Vector2(0.2f, 1).normalized * 0.95f);
+
+        yield return new WaitForSeconds(0.35f);
+
+        SetFakeControllerDirection(new Vector2(-.34f, 0.5f).normalized * 0.95f);
+    }
+
+    private void SetFakeControllerDirection(Vector2 direction)
+    {
+        InputEventPtr walkEvent;
+        using (StateEvent.From(fakeController, out walkEvent))
+        {
+            fakeController.leftStick.WriteValueIntoEvent(direction, walkEvent);
+            InputSystem.QueueEvent(walkEvent);
+        }
     }
 }

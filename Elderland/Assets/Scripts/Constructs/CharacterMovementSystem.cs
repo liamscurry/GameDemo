@@ -1,3 +1,5 @@
+#define DebugOutput
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -139,6 +141,12 @@ public class CharacterMovementSystem : MonoBehaviour
             compoundVelocity += airVelocity;
             compoundVelocity += gravityVelocity;
 
+            #if DebugOutput
+            Debug.Log("Air velocity: " + airVelocity);
+            Debug.Log("Gravity velocity: " + gravityVelocity);
+            Debug.Log("Compound velocity: " + compoundVelocity);
+            #endif
+
             considerDynamicCollisions = true;
             controller.Move(compoundVelocity * Time.deltaTime);
             considerDynamicCollisions = false;
@@ -157,6 +165,9 @@ public class CharacterMovementSystem : MonoBehaviour
         }
         else
         {
+            #if DebugOutput
+            Debug.Log("Exit: velocity is ~normal to surface");
+            #endif
             check = false;
         }
         return check;
@@ -174,15 +185,25 @@ public class CharacterMovementSystem : MonoBehaviour
         Vector2 groundedAveragePos;
         (numberGrounded, percentageGrounded, groundedAveragePos) = PercentageOnGround();
 
+        #if DebugOutput
+        Debug.Log("Percent Grounded: " + percentageGrounded + ", Grounded Avg Pos: " + groundedAveragePos);
+        #endif
+
         bool check;
         if (numberGrounded == 0)
         {
+            #if DebugOutput
+            Debug.Log("Exited: no ground raycasts hit");
+            #endif
             check = false;
         }
         else
         {
             if (groundedAveragePos.magnitude < 0.33f)
             {
+                #if DebugOutput
+                Debug.Log("Okay to enter/stay: stable");
+                #endif
                 check = true;
             }
             else if (groundedAveragePos.magnitude < 0.66f)
@@ -190,20 +211,33 @@ public class CharacterMovementSystem : MonoBehaviour
                 Vector2 projectedCompound = Matho.StdProj2D(compoundVelocity);
                 if (Matho.AngleBetween(groundedAveragePos, projectedCompound) > 135f)
                 {
+                    #if DebugOutput
+                    Debug.Log("Exited: controller stable but velocity points towards edge");
+                    #endif
                     check = false;
                 }
                 else
                 {
+                    #if DebugOutput
+                    Debug.Log("Okay to enter/stay: unstable but velocity points away from edge");
+                    #endif
                     check = true;
                 }
             }
             else
             {
+                #if DebugOutput
+                Debug.Log("Exited: controller unstable, redirecting velocity towards edge");
+                #endif
+
                 check = false;
                 
                 if (grounded)
                 {
                     Vector2 edgeDirection = -groundedAveragePos.normalized;
+                    #if DebugOutput
+                    Debug.Log("Edge direction: " + edgeDirection);
+                    #endif
                     RedirectExitVelocity(edgeDirection);
                 }
             }
@@ -224,6 +258,11 @@ public class CharacterMovementSystem : MonoBehaviour
         
         dynamicVelocity =
             minExitMagnitude * new Vector3(edgeDirection.x, 0, edgeDirection.y);
+
+        #if DebugOutput
+        Debug.Log("Redirected constant: " + constantVelocity);
+        Debug.Log("Redirected dynamic: " + dynamicVelocity);
+        #endif
     }
 
     // Casts rays below the character, changing length based on the current ground normal
@@ -286,7 +325,7 @@ public class CharacterMovementSystem : MonoBehaviour
                 hitSum += horizontalOffset;
             }
             // Visualize cast
-            //Debug.DrawLine(start, start + Vector3.down * castLength, Color.black, 1f);
+            Debug.DrawLine(start, start + Vector3.down * castLength, Color.black, 0.5f);
         }
         
         return (castsHit, hitSum);
