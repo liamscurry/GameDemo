@@ -68,8 +68,6 @@ public class CharacterMovementSystem : MonoBehaviour
         if (grounded)
         {
             Vector2 normalizedInput = analogInput.normalized;
-            //Vector3 worldInput = effectedObject.transform.forward * normalizedInput.y;
-            //worldInput += effectedObject.transform.right * normalizedInput.x;
             Vector3 movementDirection =
                 Matho.PlanarDirectionalDerivative(normalizedInput, groundNormal).normalized;
             
@@ -349,7 +347,7 @@ public class CharacterMovementSystem : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         UpdateGroundInfo(hit);
-        if (grounded && considerDynamicCollisions)
+        if (considerDynamicCollisions)
             HandleVelocityCollisions(hit);
     }
 
@@ -380,7 +378,7 @@ public class CharacterMovementSystem : MonoBehaviour
             Debug.Log("exited");
             grounded = false;
 
-            exitNormalQueue.Clear();
+            //exitNormalQueue.Clear();
 
             airVelocity = constantVelocity + dynamicVelocity; 
         }
