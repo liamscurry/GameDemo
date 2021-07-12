@@ -28,7 +28,8 @@ public class CharacterMovementSystem : MonoBehaviour
     public Vector3 GravityVelocity { get { return gravityVelocity; } }
 
     private Vector3 constantVelocity;
-    private Vector3 airVelocity;
+    private Vector3 dynamicAirVelocity;
+    private Vector3 constantAirVelocity;
 
     private bool clampCheck;
     private const float centerClampThreshold = 0.01f;
@@ -36,8 +37,10 @@ public class CharacterMovementSystem : MonoBehaviour
     private bool groundCheck;
     private bool grounded;
     public bool Grounded { get { return grounded; } }
-    public StatLock<bool> ApplyGravity { get; private set; }
     private Vector3 groundNormal;
+
+    public StatLock<bool> ApplyGravity { get; private set; }
+    public StatLock<bool> HorizontalOnExit { get; private set; }
 
     private float groundSlopeLimit;
     private const float groundSlopeThreshold = 3f;
@@ -61,6 +64,7 @@ public class CharacterMovementSystem : MonoBehaviour
         minMoveDistance = controller.minMoveDistance;
         considerDynamicCollisions = false;
         ApplyGravity = new StatLock<bool>(true);
+        HorizontalOnExit = new StatLock<bool>(false);
         exitNormalQueue = new Queue<(float, Vector3)>();
     }
 
@@ -139,7 +143,8 @@ public class CharacterMovementSystem : MonoBehaviour
         }
         else
         {
-            compoundVelocity += airVelocity;
+            compoundVelocity += constantAirVelocity;
+            compoundVelocity += dynamicAirVelocity;
             compoundVelocity += gravityVelocity;
 
             #if DebugOutput
@@ -248,8 +253,8 @@ public class CharacterMovementSystem : MonoBehaviour
     private bool GroundCheck(Vector3 compoundVelocity)
     {
         bool check;
-        if (!(Matho.AngleBetween(groundNormal, dynamicVelocity) < groundNormalAngleDeviance &&
-            dynamicVelocity.magnitude > groundNormalMagStrength))
+        if (!(Matho.AngleBetween(groundNormal, dynamicVelocity + gravityVelocity) < groundNormalAngleDeviance &&
+            (dynamicVelocity + gravityVelocity).magnitude > groundNormalMagStrength))
         {
             check = controller.isGrounded;
         }
@@ -462,16 +467,18 @@ public class CharacterMovementSystem : MonoBehaviour
         {
             groundNormal = hit.normal;
 
-            if (!grounded && ClampCheck() && GroundCheck(airVelocity + gravityVelocity))
+            if (!grounded && ClampCheck() &&
+                GroundCheck(dynamicAirVelocity + constantAirVelocity + gravityVelocity))
             {
                 Debug.Log("entered");
                 grounded = true;
 
-                dynamicVelocity = airVelocity + gravityVelocity;
+                dynamicVelocity = dynamicAirVelocity + gravityVelocity;
                 constantVelocity = Vector3.zero;
 
                 gravityVelocity = Vector3.zero;
-                airVelocity = Vector3.zero;
+                dynamicAirVelocity = Vector3.zero;
+                constantAirVelocity = Vector3.zero;
             }
         }
     }
@@ -485,7 +492,15 @@ public class CharacterMovementSystem : MonoBehaviour
 
             //exitNormalQueue.Clear();
 
-            airVelocity = constantVelocity + dynamicVelocity; 
+            dynamicAirVelocity = dynamicVelocity; 
+            if (HorizontalOnExit.Value)
+            {
+                constantAirVelocity = Matho.StandardProjection3D(constantVelocity);
+            }
+            else
+            {
+                constantAirVelocity = constantVelocity;
+            }
         }
     }
 
