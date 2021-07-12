@@ -1,4 +1,4 @@
-#define DebugOutput
+//#define DebugOutput
 
 using System.Collections;
 using System.Collections.Generic;
@@ -30,6 +30,9 @@ public class CharacterMovementSystem : MonoBehaviour
     private Vector3 constantVelocity;
     private Vector3 airVelocity;
 
+    private bool clampCheck;
+    private const float centerClampThreshold = 0.01f;
+    private const float clampCastWidth = 0.025f;
     private bool groundCheck;
     private bool grounded;
     public bool Grounded { get { return grounded; } }
@@ -114,8 +117,21 @@ public class CharacterMovementSystem : MonoBehaviour
             controller.Move(compoundVelocity * Time.deltaTime);
             considerDynamicCollisions = false;
 
+            clampCheck = ClampCheck();
+            if (clampCheck)
+            {
+                controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
+                groundCheck = GroundCheck(compoundVelocity);
+            }
+            else
+            {
+                groundCheck = false;
+            }
+            /*
+            Debug.Log("Should clamp? " + ClampCheck());
             controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
             groundCheck = GroundCheck(compoundVelocity);
+            */
 
             GroundFriction();
             //ParseExitNormalQueue();
@@ -138,6 +154,95 @@ public class CharacterMovementSystem : MonoBehaviour
         }
 
         constantVelocity = Vector3.zero;
+    }
+
+    /*
+    * Returns whether character should clamp to ground.
+    */
+    private bool ClampCheck()
+    {
+        RaycastHit hitInfo;
+        Vector3 topOffset = (controller.height / 2 - controller.radius) * Vector3.up;
+        bool hit = Physics.CapsuleCast(
+            transform.position + topOffset,
+            transform.position - topOffset,
+            controller.radius,
+            Vector3.down,
+            out hitInfo,
+            controller.height / 2,
+            LayerConstants.GroundCollision
+        );
+
+        if (hit)
+        {
+            Vector3 normal = hitInfo.normal;
+            Vector2 hitOffset = Matho.StdProj2D(hitInfo.point - transform.position);
+            if (hitOffset.magnitude < centerClampThreshold)
+            {
+                return true;
+            }
+            else
+            { 
+                return ClampEdgeCheck(hitInfo);
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private bool ClampEdgeCheck(RaycastHit capsuleHitInfo)
+    {
+        // works up to here, developing step 3. 
+        // So far in step, cast start positions correct.
+        Vector3 castOffset = Matho.StandardProjection3D(capsuleHitInfo.point - transform.position);
+        Vector3 castOrientation = castOffset.normalized;
+        Vector3 nearCastStart =
+            transform.position + castOffset + castOrientation * clampCastWidth;
+        Vector3 farCastStart =
+            transform.position + castOffset - castOrientation * clampCastWidth;
+
+        RaycastHit nearHitInfo;
+        RaycastHit farHitInfo;
+
+        bool nearHit = Physics.Raycast(
+            nearCastStart,
+            Vector3.down,
+            out nearHitInfo,
+            controller.height,
+            LayerConstants.GroundCollision
+        );
+
+        bool farHit = Physics.Raycast(
+            farCastStart,
+            Vector3.down,
+            out farHitInfo,
+            controller.height,
+            LayerConstants.GroundCollision
+        );
+
+        Debug.DrawLine(nearCastStart, nearCastStart + Vector3.down, Color.magenta, 0.1f);
+        Debug.DrawLine(farCastStart, farCastStart + Vector3.down, Color.magenta, 0.1f);
+
+        if (!nearHit || !farHit)
+        {
+            return false;
+        }
+        else
+        {
+            if (nearHitInfo.point.y + controller.stepOffset < capsuleHitInfo.point.y)
+            {
+                return false;
+            }
+
+            if (farHitInfo.point.y + controller.stepOffset < capsuleHitInfo.point.y)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 
     private bool GroundCheck(Vector3 compoundVelocity)
@@ -357,7 +462,7 @@ public class CharacterMovementSystem : MonoBehaviour
         {
             groundNormal = hit.normal;
 
-            if (!grounded)
+            if (!grounded && ClampCheck() && GroundCheck(airVelocity + gravityVelocity))
             {
                 Debug.Log("entered");
                 grounded = true;
