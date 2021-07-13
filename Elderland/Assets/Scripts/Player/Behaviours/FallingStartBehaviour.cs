@@ -15,15 +15,15 @@ public class FallingStartBehaviour : StateMachineBehaviour
 		animator.SetBool(AnimationConstants.Player.Falling, true);
 		PlayerInfo.MovementManager.LockDirection();
 		PlayerInfo.MovementManager.LockSpeed();
-		fastestFallingSpeed = PlayerInfo.CharMoveSystem.GravityVelocity.y;
+		fastestFallingSpeed = PlayerInfo.CharMoveSystem.DynamicAirVelocity.y;
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
 		if (!exiting)
 		{
-			if (PlayerInfo.CharMoveSystem.GravityVelocity.y < fastestFallingSpeed)
-				fastestFallingSpeed = PlayerInfo.CharMoveSystem.GravityVelocity.y;
+			if (PlayerInfo.CharMoveSystem.DynamicAirVelocity.y < fastestFallingSpeed)
+				fastestFallingSpeed = PlayerInfo.CharMoveSystem.DynamicAirVelocity.y;
 
 			if (PlayerInfo.CharMoveSystem.Grounded)
 			{

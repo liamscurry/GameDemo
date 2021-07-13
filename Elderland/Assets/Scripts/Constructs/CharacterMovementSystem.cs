@@ -24,11 +24,10 @@ public class CharacterMovementSystem : MonoBehaviour
 
     private Vector3 dynamicVelocity;
     public Vector3 DynamicVelocity { get { return dynamicVelocity; } }
-    private Vector3 gravityVelocity;
-    public Vector3 GravityVelocity { get { return gravityVelocity; } }
 
     private Vector3 constantVelocity;
     private Vector3 dynamicAirVelocity;
+    public Vector3 DynamicAirVelocity { get { return dynamicAirVelocity; } }
     private Vector3 constantAirVelocity;
 
     private bool clampCheck;
@@ -93,11 +92,11 @@ public class CharacterMovementSystem : MonoBehaviour
         if (!grounded)
         {
             UpdateAirMovement();
-            controller.slopeLimit = Mathf.Infinity;
+            //controller.slopeLimit = Mathf.Infinity;
         }
         else
         {
-            controller.slopeLimit = groundSlopeLimit;
+            //controller.slopeLimit = groundSlopeLimit;
         }
 
         if (Input.GetKeyDown(KeyCode.B))
@@ -131,11 +130,6 @@ public class CharacterMovementSystem : MonoBehaviour
             {
                 groundCheck = false;
             }
-            /*
-            Debug.Log("Should clamp? " + ClampCheck());
-            controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
-            groundCheck = GroundCheck(compoundVelocity);
-            */
 
             GroundFriction();
             //ParseExitNormalQueue();
@@ -145,11 +139,10 @@ public class CharacterMovementSystem : MonoBehaviour
         {
             compoundVelocity += constantAirVelocity;
             compoundVelocity += dynamicAirVelocity;
-            compoundVelocity += gravityVelocity;
 
             #if DebugOutput
-            Debug.Log("Air velocity: " + airVelocity);
-            Debug.Log("Gravity velocity: " + gravityVelocity);
+            Debug.Log("Constant Air velocity: " + constantVelocity);
+            Debug.Log("Dynamic Air  velocity: " + dynamicAirVelocity);
             Debug.Log("Compound velocity: " + compoundVelocity);
             #endif
 
@@ -253,8 +246,8 @@ public class CharacterMovementSystem : MonoBehaviour
     private bool GroundCheck(Vector3 compoundVelocity)
     {
         bool check;
-        if (!(Matho.AngleBetween(groundNormal, dynamicVelocity + gravityVelocity) < groundNormalAngleDeviance &&
-            (dynamicVelocity + gravityVelocity).magnitude > groundNormalMagStrength))
+        if (!(Matho.AngleBetween(groundNormal, dynamicVelocity + dynamicAirVelocity) < groundNormalAngleDeviance &&
+            (dynamicVelocity + dynamicAirVelocity).magnitude > groundNormalMagStrength))
         {
             check = controller.isGrounded;
         }
@@ -446,11 +439,11 @@ public class CharacterMovementSystem : MonoBehaviour
     {
         if (ApplyGravity.Value)
         {
-            gravityVelocity += gravityStrength * Time.deltaTime * Vector3.down;
+            dynamicAirVelocity += gravityStrength * Time.deltaTime * Vector3.down;
         }
         else
         {
-            gravityVelocity = Vector3.zero;
+            dynamicAirVelocity = Vector3.zero;
         }
     }
 
@@ -458,7 +451,17 @@ public class CharacterMovementSystem : MonoBehaviour
     {
         UpdateGroundInfo(hit);
         if (considerDynamicCollisions)
-            HandleVelocityCollisions(hit);
+        {
+            if (grounded)
+            {
+                HandleVelocityCollisions(hit, ref dynamicVelocity);
+            }
+            else
+            {
+                HandleVelocityCollisions(hit, ref dynamicAirVelocity);
+                HandleVelocityCollisions(hit, ref constantAirVelocity);
+            }
+        }
     }
 
     private void UpdateGroundInfo(ControllerColliderHit hit)
@@ -467,16 +470,18 @@ public class CharacterMovementSystem : MonoBehaviour
         {
             groundNormal = hit.normal;
 
+            if (!grounded)
+                Debug.Log(GroundCheck(dynamicAirVelocity + constantAirVelocity));
+
             if (!grounded && ClampCheck() &&
-                GroundCheck(dynamicAirVelocity + constantAirVelocity + gravityVelocity))
+                GroundCheck(dynamicAirVelocity + constantAirVelocity))
             {
                 Debug.Log("entered");
                 grounded = true;
 
-                dynamicVelocity = dynamicAirVelocity + gravityVelocity;
+                dynamicVelocity = dynamicAirVelocity;
                 constantVelocity = Vector3.zero;
 
-                gravityVelocity = Vector3.zero;
                 dynamicAirVelocity = Vector3.zero;
                 constantAirVelocity = Vector3.zero;
             }
@@ -501,23 +506,26 @@ public class CharacterMovementSystem : MonoBehaviour
             {
                 constantAirVelocity = constantVelocity;
             }
+
+            dynamicVelocity = Vector3.zero;
+            constantVelocity = Vector3.zero;
         }
     }
 
     // Collision handling for all custom physics objects. Redirects dynamic velocity when hitting walls.
     // issue with grounded checks (called often and dynamic velocity approaches zero quickly)
-    private void HandleVelocityCollisions(ControllerColliderHit hit)
+    private void HandleVelocityCollisions(ControllerColliderHit hit, ref Vector3 velocityPartition)
     {
         Vector3 n = hit.normal;
-        Vector3 v = dynamicVelocity.normalized;
+        Vector3 v = velocityPartition.normalized;
 
         float velocityTheta = Matho.AngleBetween(n, v);
 
         if (velocityTheta >= 90)
         {
             Vector3 m = -1 * n;
-            Vector3 nPerp = dynamicVelocity - Matho.Project(dynamicVelocity, m);
-            dynamicVelocity = nPerp;
+            Vector3 nPerp = velocityPartition - Matho.Project(velocityPartition, m);
+            velocityPartition = nPerp;
         }
     }
 
