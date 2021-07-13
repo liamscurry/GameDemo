@@ -92,16 +92,17 @@ public class CharacterMovementSystem : MonoBehaviour
         if (!grounded)
         {
             UpdateAirMovement();
-            //controller.slopeLimit = Mathf.Infinity;
+            controller.slopeLimit = Mathf.Infinity;
         }
         else
         {
-            //controller.slopeLimit = groundSlopeLimit;
+            controller.slopeLimit = groundSlopeLimit;
         }
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            ApplyGravity.ClaimLock(this, false);
+            Time.timeScale = 0.1f;
+            //ApplyGravity.ClaimLock(this, false);
         }
     }
 
@@ -124,7 +125,7 @@ public class CharacterMovementSystem : MonoBehaviour
             if (clampCheck)
             {
                 controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
-                groundCheck = GroundCheck(compoundVelocity);
+                groundCheck = GroundCheck(compoundVelocity, false);
             }
             else
             {
@@ -141,7 +142,7 @@ public class CharacterMovementSystem : MonoBehaviour
             compoundVelocity += dynamicAirVelocity;
 
             #if DebugOutput
-            Debug.Log("Constant Air velocity: " + constantVelocity);
+            Debug.Log("Constant Air velocity: " + constantAirVelocity);
             Debug.Log("Dynamic Air  velocity: " + dynamicAirVelocity);
             Debug.Log("Compound velocity: " + compoundVelocity);
             #endif
@@ -243,13 +244,20 @@ public class CharacterMovementSystem : MonoBehaviour
         }
     }
 
-    private bool GroundCheck(Vector3 compoundVelocity)
+    private bool GroundCheck(Vector3 compoundVelocity, bool hitGroundViaEvent)
     {
         bool check;
-        if (!(Matho.AngleBetween(groundNormal, dynamicVelocity + dynamicAirVelocity) < groundNormalAngleDeviance &&
-            (dynamicVelocity + dynamicAirVelocity).magnitude > groundNormalMagStrength))
+        if (!(Matho.AngleBetween(groundNormal, compoundVelocity) < groundNormalAngleDeviance &&
+            compoundVelocity.magnitude > groundNormalMagStrength))
         {
-            check = controller.isGrounded;
+            if (!hitGroundViaEvent)
+            {
+                check = controller.isGrounded;
+            }
+            else
+            {
+                check = true;
+            }
         }
         else
         {
@@ -460,6 +468,13 @@ public class CharacterMovementSystem : MonoBehaviour
             {
                 HandleVelocityCollisions(hit, ref dynamicAirVelocity);
                 HandleVelocityCollisions(hit, ref constantAirVelocity);
+                #if DebugOutput
+                Debug.DrawLine(hit.point, hit.point + hit.normal, Color.black, 5f);
+                #endif
+
+                // Needed to get rid of glancing jump boost issue. See Jump Boost Constant Velocity Diagram (7.13.21)
+                if (HorizontalOnExit.Value && constantAirVelocity.y > 0)
+                    constantAirVelocity.y = 0;
             }
         }
     }
@@ -470,13 +485,12 @@ public class CharacterMovementSystem : MonoBehaviour
         {
             groundNormal = hit.normal;
 
-            if (!grounded)
-                Debug.Log(GroundCheck(dynamicAirVelocity + constantAirVelocity));
-
             if (!grounded && ClampCheck() &&
-                GroundCheck(dynamicAirVelocity + constantAirVelocity))
+                GroundCheck(dynamicAirVelocity + constantAirVelocity, true))
             {
+                #if DebugOutput
                 Debug.Log("entered");
+                #endif
                 grounded = true;
 
                 dynamicVelocity = dynamicAirVelocity;
@@ -492,7 +506,9 @@ public class CharacterMovementSystem : MonoBehaviour
     {
         if (!groundCheck)
         {
+            #if DebugOutput
             Debug.Log("exited");
+            #endif
             grounded = false;
 
             //exitNormalQueue.Clear();

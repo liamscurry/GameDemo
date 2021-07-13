@@ -97,10 +97,10 @@ public static class Matho
     {
         if (print)
         {
-            //Debug.Log("v1: " + v1.magnitude);
-            //Debug.Log("v2: " + v2.magnitude);
-            //Debug.Log("numer: " + ((v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z)));
-            //Debug.Log("denom: " + (v2.magnitude * v2.magnitude));
+            Debug.Log("v1: " + v1.magnitude);
+            Debug.Log("v2: " + v2.magnitude);
+            Debug.Log("numer: " + ((v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z)));
+            Debug.Log("denom: " + (v2.magnitude * v2.magnitude));
         }
         float f = ((v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z)) / (v2.magnitude * v2.magnitude);
         return f * v2;

@@ -7,26 +7,11 @@ using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Controls;
 
 // Input based UT
-// Before fix: character walks off of ledge and lands on too steep a wall, begins to walk up it.
-// Behaviour after fix: lands on wall and falls down it.
+// Before fix: when character jumps near small up step, jumps higher as a result of 
+// entering the ground again (along with other combining factors possibly).
+// After fix: jump near ledge results in normal jump strength.
 
-// Currently falls down slope now that both air partitions are handled on collisions, which is the
-// behaviour we want.
-// Remaining problem is that when it lands on the ground after sliding, sometimes it begins climbing
-// the slope again. When this happens, grounded is still true. Velocity still seems good <0, 0, 5>
-// Curiously, when this is occuring, if I pause the game and unpause it the character stops. <- Turns
-// out this is just the game zeroing input on pause. The bug still happens (slide up) when I haven't modified
-// the slope limit from the initial 45 degrees. Could the issue be caused from the fact that the normal still reads as up
-// and so the velocity input is still non zero? Thought the character controller would prohibit this movement.
-
-// Not caused alone by:
-// - ground clamp.
-
-// Can mimic behaviour with a default character controller running at a slope limit higher then it should
-// be able to climb, but still does.
-// Although an old thread, there are reports of this being broken: https://forum.unity.com/threads/character-controller-and-slope-limit.36778/
-// Will try and limit movement on slope using limiting on constant velocity based on slope and ground info.
-public class CharacterMovementSystemGravityLedgeStuckUT : MonoBehaviour
+public class CharacterMovementSystemJumpBoostUT : MonoBehaviour
 {
     XInputController fakeController;
     
@@ -55,12 +40,8 @@ public class CharacterMovementSystemGravityLedgeStuckUT : MonoBehaviour
 
         SetFakeControllerDirection(new Vector2(0, 1).normalized * 0.95f);
 
-        yield return TestJumpGravityLedgeSlide();
-    }
+        yield return new WaitForSeconds(0.89f);// was 0.87
 
-    private IEnumerator TestJumpGravityLedgeSlide()
-    {
-        yield return new WaitForSeconds(0.49f);
         InputEventPtr jumpEvent;
         using (StateEvent.From(fakeController, out jumpEvent))
         {
