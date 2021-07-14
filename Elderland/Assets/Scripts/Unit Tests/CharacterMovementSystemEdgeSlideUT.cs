@@ -7,6 +7,11 @@ using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Controls;
 
 // Input based UT
+// Before fix: character goes on edge up ramp, falls and then enters the ground, falls again and slides
+// up side of the ramp.
+// After fix: character goes up ramps and falls off to the right. May not fall off ledge on some runs,
+// in which case it will run left.
+
 // Not sure as of right now, as this is the first input based UT, but writing a normalized vector2
 // to the left stick wraps around to the other side (negative). Has to do with clamping of AxisControl.
 // Not sure why this is not set-able from the left stick field.
@@ -20,6 +25,8 @@ using UnityEngine.InputSystem.Controls;
 
 // Test produces bug now. This does not happen every run, but it does get produced (~50 percent of the time)
 // Does this mean frame dependence is causing bug?
+// Changed system to used built in grounded field of controller and checks ledges for sharp tall geometry,
+// in which case the player starts falling.
 public class CharacterMovementSystemEdgeSlideUT : MonoBehaviour
 {
     XInputController fakeController;

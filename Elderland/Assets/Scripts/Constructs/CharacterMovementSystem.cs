@@ -54,6 +54,8 @@ public class CharacterMovementSystem : MonoBehaviour
     private const float exitNormalDuration = 0.5f;
     private Queue<(float, Vector3)> exitNormalQueue;
 
+    private const float clampCheckTreshold = 0.2f;
+
     public void Initialize(GameObject effectedObject)
     {
         this.effectedObject = effectedObject;
@@ -130,6 +132,9 @@ public class CharacterMovementSystem : MonoBehaviour
             else
             {
                 groundCheck = false;
+                #if DebugOutput
+                Debug.Log("Exit: Clamp detected steep ledge");
+                #endif
             }
 
             GroundFriction();
@@ -230,12 +235,17 @@ public class CharacterMovementSystem : MonoBehaviour
         }
         else
         {
-            if (nearHitInfo.point.y + controller.stepOffset < capsuleHitInfo.point.y)
+            float clampDistance =
+                controller.stepOffset +
+                controller.skinWidth +
+                controller.contactOffset * 2 +
+                clampCheckTreshold;
+            if (nearHitInfo.point.y + clampDistance < capsuleHitInfo.point.y)
             {
                 return false;
             }
 
-            if (farHitInfo.point.y + controller.stepOffset < capsuleHitInfo.point.y)
+            if (farHitInfo.point.y + clampDistance  < capsuleHitInfo.point.y)
             {
                 return false;
             }
@@ -253,6 +263,10 @@ public class CharacterMovementSystem : MonoBehaviour
             if (!hitGroundViaEvent)
             {
                 check = controller.isGrounded;
+                #if DebugOutput
+                if (!check)
+                    Debug.Log("Exit: controller not grounded from .IsGroundedFlag");
+                #endif
             }
             else
             {

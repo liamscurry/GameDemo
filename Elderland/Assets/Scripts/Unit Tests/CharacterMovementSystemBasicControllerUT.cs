@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Class for bug testing steep hill climbing issue on character movement controller.
+// Character controller seems to have built in bug that it can climb slopes higher than the slope limit.
 public class CharacterMovementSystemBasicControllerUT : MonoBehaviour
 {
     private CharacterController controller;

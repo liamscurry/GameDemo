@@ -8,7 +8,7 @@ using UnityEngine.InputSystem.Controls;
 
 // Input based UT
 // Before fix: character walks off of ledge and lands on too steep a wall, begins to walk up it.
-// Behaviour after fix: lands on wall and falls down it.
+// After fix: lands on wall and falls down it.
 
 // Currently falls down slope now that both air partitions are handled on collisions, which is the
 // behaviour we want.

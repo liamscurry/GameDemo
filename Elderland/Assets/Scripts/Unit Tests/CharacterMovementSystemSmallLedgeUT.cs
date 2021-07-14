@@ -7,11 +7,18 @@ using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Controls;
 
 // Input based UT
-// Before fix: when character jumps near small up step, jumps higher as a result of 
-// entering the ground again (along with other combining factors possibly).
-// After fix: jump near ledge results in normal jump strength (may bounce to left a bit).
+// Before fix: When player walks up a small ledge higher than then step size
+// it goes up and then falls down again.
+// After fix: walk up small ledges and when they are above limit, simply cannot walk up the ledge.
+// In the run, can walk up first ledge, second ledge is very rare that it can, and third ledge it never does.
+// No bouncing occurs.
 
-public class CharacterMovementSystemJumpBoostUT : MonoBehaviour
+// So far culprit seems to be due to exiting too early from clamp check. Will try and increase threshold
+// on clamp check to be more than the threshold of the controller.
+
+// Fix 7/14/21: Made clamp check distance larger in char move system.
+
+public class CharacterMovementSystemSmallLedgeUT : MonoBehaviour
 {
     XInputController fakeController;
     
@@ -39,15 +46,6 @@ public class CharacterMovementSystemJumpBoostUT : MonoBehaviour
         }
 
         SetFakeControllerDirection(new Vector2(0, 1).normalized * 0.95f);
-
-        yield return new WaitForSeconds(0.89f);// was 0.87
-
-        InputEventPtr jumpEvent;
-        using (StateEvent.From(fakeController, out jumpEvent))
-        {
-            fakeController.buttonNorth.WriteValueIntoEvent(1.0f, jumpEvent);
-            InputSystem.QueueEvent(jumpEvent);
-        }
     }
 
     private void SetFakeControllerDirection(Vector2 direction)
