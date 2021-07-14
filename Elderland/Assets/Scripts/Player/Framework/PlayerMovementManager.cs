@@ -41,6 +41,7 @@ public class PlayerMovementManager
     public bool SprintUnlocked { get { return sprintUnlocked; } }
 
     private const float sprintDisableAngle = 50;
+    public const float FastFallSpeed = 7;
 
     private bool sprinting; // should only be referenced inside of property.
     public bool Sprinting {  
@@ -151,7 +152,7 @@ public class PlayerMovementManager
         movedThisFrame = false;
     }
 
-    public void TryJump()
+    public bool TryJump()
     {
         if (GameInfo.Manager.ReceivingInput.Value == GameInput.Full)
         {
@@ -160,6 +161,11 @@ public class PlayerMovementManager
             Jumping = true;
             PlayerInfo.CharMoveSystem.Push(Vector3.up * jumpStrength);
             PlayerInfo.Animator.SetBool(AnimationConstants.Player.Jump, true);
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

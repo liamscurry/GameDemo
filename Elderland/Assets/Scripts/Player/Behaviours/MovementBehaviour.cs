@@ -8,14 +8,15 @@ public class MovementBehaviour : StateMachineBehaviour
 {
     private bool exiting;
     private float movespeedVelocity;
+    private bool keepSprintOnExit;
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
 		exiting = false;
         movespeedVelocity = 0;
-        PlayerInfo.MovementManager.ResetSprint();
         PlayerInfo.MovementManager.AnimationPercentileSpeed = 
             PlayerInfo.MovementManager.CurrentPercentileSpeed;
+        keepSprintOnExit = false;
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -25,36 +26,52 @@ public class MovementBehaviour : StateMachineBehaviour
             PlayerInfo.MovementManager.UpdateWalkMovement();
             PlayerInfo.AnimationManager.UpdateWalkProperties();
 
-            if (GameInfo.Settings.CurrentGamepad[GameInfo.Settings.JumpKey].wasPressedThisFrame)
-            {
-                PlayerInfo.MovementManager.TryJump();
-            }
-
             //Transitions//
-            if (!animator.IsInTransition(0) && PlayerInfo.AbilityManager.CurrentAbility == null)
+            if (!animator.IsInTransition(0))
             {
-                //FallingTransition(animator, stateInfo, layerIndex);
-                LadderTransition(animator, stateInfo, layerIndex);
+                if (!exiting)
+                    JumpTransition(animator, stateInfo, layerIndex);
+                if (!exiting)
+                    FallingTransition(animator, stateInfo, layerIndex);
+                /*
+                if (!exiting)
+                    LadderTransition(animator, stateInfo, layerIndex);
                 if (!exiting)
                     MantleTransition(animator, stateInfo, layerIndex);
-                //if (!exiting)
-                //    JumpTransition(animator, stateInfo, layerIndex);
+                */
             }
         }
 	}
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
-        PlayerInfo.MovementManager.ResetSprint();
+        if (!keepSprintOnExit)
+            PlayerInfo.MovementManager.ResetSprint();
         PlayerInfo.MovementManager.PercSpeedObstructedModifier = 0;
 	}
 
+    private void JumpTransition(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        if (GameInfo.Settings.CurrentGamepad[GameInfo.Settings.JumpKey].wasPressedThisFrame)
+        {
+            bool jumped = PlayerInfo.MovementManager.TryJump();
+            if (jumped)
+            {
+                exiting = true;
+                keepSprintOnExit = true;
+            }
+        }
+    }
+
     private void FallingTransition(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (PlayerInfo.PhysicsSystem.ExitedFloor)
+        if (!PlayerInfo.CharMoveSystem.Grounded)
         {
-            animator.SetBool("falling", true);
+            GameInfo.Manager.ReceivingInput.ClaimLock(PlayerInfo.MovementManager, GameInput.Gameplay);
+            PlayerInfo.CharMoveSystem.HorizontalOnExit.ClaimLock(PlayerInfo.MovementManager, true);
+            animator.SetBool(AnimationConstants.Player.Falling, true);
             exiting = true;
+            keepSprintOnExit = true;
         }
     }
 

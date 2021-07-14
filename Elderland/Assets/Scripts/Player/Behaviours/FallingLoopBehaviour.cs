@@ -20,7 +20,7 @@ public class FallingLoopBehaviour : StateMachineBehaviour
 
 			if (PlayerInfo.CharMoveSystem.Grounded)
 			{
-				if (fastestFallingSpeed < -15)
+				if (fastestFallingSpeed < -PlayerMovementManager.FastFallSpeed)
 				{
 					//Going fast, transition to landing animation
 					animator.SetInteger(AnimationConstants.Player.FallSpeed, 1);
