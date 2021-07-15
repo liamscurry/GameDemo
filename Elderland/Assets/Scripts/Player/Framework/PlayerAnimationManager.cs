@@ -284,7 +284,7 @@ public class PlayerAnimationManager
 			GetAnim("TakeOutSword"), 
 			PlayerInfo.AbilityManager.OnCombatStanceOn,
 			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOn);
-		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay);
+		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.GameplayOverride);
 		PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
 	}
 
@@ -295,7 +295,7 @@ public class PlayerAnimationManager
 			GetAnim("PutSwordAway"),
 			PlayerInfo.AbilityManager.OnCombatStanceOff,
 			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOff);
-		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay);
+		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.GameplayOverride);
 		PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
 	}
 

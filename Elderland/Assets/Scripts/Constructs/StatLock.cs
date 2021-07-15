@@ -11,6 +11,7 @@ public class StatLock<T>
     public object Tracker { get { return tracker; } }
     private T storedValue;
     private Action onOverride;
+    private Action onAvailable;
 
     public StatLock()
     {
@@ -42,6 +43,25 @@ public class StatLock<T>
             this.tracker = null;
             this.onOverride = null;
             Value = value;
+
+            if (onAvailable != null)
+            {
+                onAvailable.Invoke();
+                onAvailable = null;
+            }
+        }
+    }
+
+    public void NotifyLock(Action onAvailable)
+    {
+        if (tracker == null)
+        {
+            onAvailable.Invoke();
+            this.onAvailable = null;
+        }
+        else
+        {
+            this.onAvailable = onAvailable;
         }
     }
 
@@ -104,5 +124,32 @@ public class StatLock<T>
         UT.CheckEquality<bool>(lock1.Value, true);  
         UT.CheckEquality<bool>(lock1.tracker == object1, true);  
         UT.CheckEquality<bool>(lock1.tracker == object2, false);  
+    }
+
+    public static void NotifyLockTests()
+    {
+        var lock1 = new StatLock<bool>();
+        object object1 = new object();
+        object object2 = new object();
+
+        notifyIndicator = 0;
+        UT.CheckEquality<int>(notifyIndicator, 0);  
+        lock1.NotifyLock(NotifyLockTestsHelper);
+        UT.CheckEquality<bool>(lock1.onAvailable == null, true);    
+        UT.CheckEquality<int>(notifyIndicator, 1);
+
+        lock1.ClaimLock(object1, true);
+        lock1.NotifyLock(NotifyLockTestsHelper);
+        UT.CheckEquality<bool>(lock1.onAvailable == null, false);   
+        UT.CheckEquality<int>(notifyIndicator, 1);  
+        lock1.TryReleaseLock(object1, false);
+        UT.CheckEquality<bool>(lock1.onAvailable == null, true);   
+        UT.CheckEquality<int>(notifyIndicator, 2);  
+    }
+
+    private static int notifyIndicator = 0;
+    private static void NotifyLockTestsHelper()
+    {
+        notifyIndicator++;
     }
 }

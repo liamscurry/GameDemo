@@ -57,7 +57,7 @@ public abstract class PlayerAbility : Ability
             pressedOverloadFrame &&
             WaitCondition() &&
             (GameInfo.Manager.ReceivingInput.Value == GameInput.Full || 
-             GameInfo.Manager.ReceivingInput.Value == GameInput.Gameplay && 
+             GameInfo.Manager.ReceivingInput.Value == GameInput.GameplayOverride && 
              GameInfo.Manager.ReceivingInput.Tracker == this))
         {
             system.CurrentAbility = this;
@@ -69,7 +69,7 @@ public abstract class PlayerAbility : Ability
 
             if (firstTimeCalling)
             {
-                GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay, onClaimOverride);
+                GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.GameplayOverride, onClaimOverride);
                 system.Animator.SetTrigger("runAbility");
                 system.Animator.SetBool("exitAbility", false);
                 system.Animator.ResetTrigger("proceedAbility");

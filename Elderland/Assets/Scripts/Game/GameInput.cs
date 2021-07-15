@@ -1,4 +1,4 @@
 public enum GameInput
 {
-    None, Gameplay, Full
+    None, GameplayOverride, GameplayUnoverride, Full
 }

@@ -229,7 +229,7 @@ public class CameraController : MonoBehaviour
     {
         state = State.GameplayCutscene;
         this.gameplayCutscene = gameplayCutscene;
-        this.gameplayCutscene.Start();
+        this.gameplayCutscene.StartCutscene();
         targetFov = 60;
         if (!this.gameplayCutscene.TurnWaypointUIOffOnEnd)
             GameInfo.Menu.ObjectiveManager.DisableWaypoints(this);

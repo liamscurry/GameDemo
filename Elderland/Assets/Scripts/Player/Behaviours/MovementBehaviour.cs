@@ -67,7 +67,7 @@ public class MovementBehaviour : StateMachineBehaviour
     {
         if (!PlayerInfo.CharMoveSystem.Grounded)
         {
-            GameInfo.Manager.ReceivingInput.ClaimLock(PlayerInfo.MovementManager, GameInput.Gameplay);
+            GameInfo.Manager.ReceivingInput.ClaimLock(PlayerInfo.MovementManager, GameInput.GameplayUnoverride);
             PlayerInfo.CharMoveSystem.HorizontalOnExit.ClaimLock(PlayerInfo.MovementManager, true);
             animator.SetBool(AnimationConstants.Player.Falling, true);
             exiting = true;

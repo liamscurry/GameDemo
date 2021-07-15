@@ -156,7 +156,7 @@ public class PlayerMovementManager
     {
         if (GameInfo.Manager.ReceivingInput.Value == GameInput.Full)
         {
-            GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.Gameplay);
+            GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.GameplayUnoverride);
             PlayerInfo.CharMoveSystem.HorizontalOnExit.ClaimLock(this, true);
             Jumping = true;
             PlayerInfo.CharMoveSystem.Push(Vector3.up * jumpStrength);

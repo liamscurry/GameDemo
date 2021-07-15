@@ -33,11 +33,18 @@ public class GameManager : MonoBehaviour
     private const float combatCheckDuration = 1f;
     private const float combatCheckRadius = 30f;
 
+    // GameplayOverride Input
     // Can be overriden (by overriders marked below), yet do not override:
     // Player abilities
+    // Sword take out and put away.
+
+    // GameplayUnoverride Input
     // Cannot be overriden, yet do not override:
-    // interactions
-    // Cannot be overriden, do override:
+    // Player falling
+
+    // None Input
+    // Cannot be overriden, may override:
+    // Interactions
     // Cutscenes
     public StatLock<GameInput> ReceivingInput { get; private set; }
     public bool Respawning { get { return respawning; } }

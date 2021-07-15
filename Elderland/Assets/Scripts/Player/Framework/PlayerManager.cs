@@ -82,7 +82,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         
         //Input based
         PlayerInfo.AnimationManager.UpdateAnimations();
-        //PlayerInfo.AbilityManager.UpdateAbilities();
+        PlayerInfo.AbilityManager.UpdateAbilities();
         PlayerInfo.MovementManager.UpdateMovement();
         PlayerInfo.CharMoveSystem.UpdateSystem();
     }
@@ -119,7 +119,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
 
         //PlayerInfo.MovementSystem.FixedUpdateSystem();
         //PlayerInfo.PhysicsSystem.FixedUpdateSystem();
-        //PlayerInfo.AbilityManager.FixedUpdateAbilities();
+        PlayerInfo.AbilityManager.FixedUpdateAbilities();
     }
 
     public void ForceClamp()

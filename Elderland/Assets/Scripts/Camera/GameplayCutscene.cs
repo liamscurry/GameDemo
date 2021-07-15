@@ -53,7 +53,7 @@ public class GameplayCutscene
 		loopNames = new string[] { "GameplayCutsceneTravel", "GameplayCutsceneWait" };
 	}
 
-	public void Start()
+	public void StartCutscene()
 	{
 		Camera camera = GameInfo.CameraController.Camera;
 		animationLoop.ResetSegmentIndex();

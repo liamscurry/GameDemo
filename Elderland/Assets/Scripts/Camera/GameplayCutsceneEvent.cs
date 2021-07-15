@@ -10,6 +10,13 @@ public class GameplayCutsceneEvent : MonoBehaviour
 	[SerializeField]
 	private bool turnWaypointUIOffOnEnd;
 
+	// Non overriding invoke, waits until there are no gameplay unoverride states going.
+	public void WaitInvoke()
+	{
+		GameInfo.Manager.ReceivingInput.NotifyLock(Invoke);
+	}
+
+	// Overriding invoke. Assumes not in gameplay unoverride state such as in interactions.
 	public void Invoke()
 	{
 		if (waypoints.Length == 0)
