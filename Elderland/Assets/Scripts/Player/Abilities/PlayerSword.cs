@@ -739,6 +739,7 @@ public sealed class PlayerSword : PlayerAbility
 
     public override void ShortCircuitLogic()
     {
+        Debug.Log("short circuit called");
         ActEnd();
         PlayerInfo.Animator.InterruptMatchTarget(false);
     }

@@ -33,7 +33,9 @@ public class ReceivingInputUT : MonoBehaviour
     [SerializeField]
     private ReceivingInputTestType testType;
     [SerializeField]
-    private GameplayCutsceneEvent gameplayCutscene;
+    private GameplayCutsceneEvent gameplayUniqueCutscene;
+    [SerializeField]
+    private GameplayCutsceneEvent gameplayOverrideCutscene;
     [SerializeField]
     private CameraCutsceneEvent cameraCutscene;
     [SerializeField]
@@ -78,7 +80,6 @@ public class ReceivingInputUT : MonoBehaviour
                 break;*/
         }
         
-        
         Debug.Log("Receiving Input: Success");
     }
 
@@ -89,16 +90,30 @@ public class ReceivingInputUT : MonoBehaviour
     */
     private IEnumerator OverrideTest()
     {
-        QueueSword();
+        //yield return OverrideTestHelper(cameraCutscene.Invoke);
+        yield return OverrideTestHelper(gameplayOverrideCutscene.Invoke);
+    }
 
-        yield return new WaitUntil(() => PlayerInfo.AbilityManager.CurrentAbility != null);
+    private IEnumerator OverrideTestHelper(Action overrideCall)
+    {
+        //QueueSword();
 
-        cameraCutscene.Invoke();
+        //yield return new WaitUntil(() => PlayerInfo.AbilityManager.CurrentAbility != null);
+
+        overrideCall.Invoke();
+        // test found bug: GameplayCutsceneBehaviour uses target match info, yet this overlaps with
+        // ability target matching, causing the gameplay cutscene to immediately exit.
+        // one question is where is the ability short circuited in camera cutscene call? is the
+        // ability short circuited  at all in gameplay cutscene call? => called from lock override.
 
         try
         {
             UT.CheckEquality<bool>(
                 PlayerInfo.AbilityManager.CurrentAbility == null,
+                true);  
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Tracker != PlayerInfo.AbilityManager &&
+                GameInfo.Manager.ReceivingInput.Tracker != null,
                 true);  
         }
         catch (Exception e)
@@ -107,29 +122,30 @@ public class ReceivingInputUT : MonoBehaviour
             yield break;
         }
 
-        DisableSword();
+        //DisableSword();
 
         // Take out/put away disable
-        Time.timeScale = 12f;
-        yield return new WaitForSeconds(12f);
-        Time.timeScale = 1;
-
+        //Time.timeScale = 12f;
+        //yield return new WaitForSeconds(12f);
+        //Time.timeScale = 1;
+        
+        /*
         QueueSword();
 
         yield return new WaitUntil(
             () => PlayerInfo.AnimationManager.UpperLayer.GetLayerWeight > overrideTakeOutSwordThreshold);
 
-        cameraCutscene.Invoke(); 
+        overrideCall.Invoke();
 
         try
         {
             // not instantanious. override for upper actions happens when new actions occur.
             // since new actions have not occured, still not in combat stance yet.
-            /*
-            UT.CheckEquality<bool>(
-                PlayerInfo.AbilityManager.InCombatStance,
-                true);  
-                */
+
+            //UT.CheckEquality<bool>(
+            //    PlayerInfo.AbilityManager.InCombatStance,
+            //    true);  
+                
             UT.CheckEquality<bool>(
                 GameInfo.Manager.ReceivingInput.Tracker != PlayerInfo.AnimationManager,
                 true);  
@@ -145,11 +161,11 @@ public class ReceivingInputUT : MonoBehaviour
         Time.timeScale = 9f;
         yield return new WaitForSeconds(9f);
         Time.timeScale = 1;
-
+        
         yield return new WaitUntil(
             () => PlayerInfo.AnimationManager.UpperLayer.GetLayerWeight > overrideTakeOutSwordThreshold);
 
-        cameraCutscene.Invoke(); 
+        overrideCall.Invoke();
 
         try
         {
@@ -162,6 +178,9 @@ public class ReceivingInputUT : MonoBehaviour
             Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
             yield break;
         }
+
+        yield return new WaitForSeconds(3);
+        */
     }
 
     // Tests:
@@ -177,6 +196,7 @@ public class ReceivingInputUT : MonoBehaviour
         yield return InteractionTest();
         yield return FallingTest();
         yield return JumpTest();
+        yield return CutsceneTest();
     }
 
     // Right now only tests falling to the extent that the animator doesn't go into the falling state.
@@ -217,6 +237,7 @@ public class ReceivingInputUT : MonoBehaviour
         TurnOffAllUnique();
 
         yield return new WaitForSeconds(2f);
+        yield return CheckForFreeLock();
     }
 
     // Will add more strenious test for falling when interacting after adding kinematic mode for
@@ -259,7 +280,8 @@ public class ReceivingInputUT : MonoBehaviour
 
         TurnOffAllUnique();
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(5f);
+        yield return CheckForFreeLock();
     }
 
     private IEnumerator FallingTest()
@@ -292,6 +314,10 @@ public class ReceivingInputUT : MonoBehaviour
         }
 
         TurnOffAllUnique();
+        SetFakeControllerDirection(new Vector2(0, 0));
+
+        yield return new WaitForSeconds(2f);
+        yield return CheckForFreeLock();
     }
 
     private IEnumerator JumpTest()
@@ -324,6 +350,87 @@ public class ReceivingInputUT : MonoBehaviour
         }
 
         TurnOffAllUnique();
+        SetFakeControllerDirection(new Vector2(0, 0));
+
+        yield return new WaitForSeconds(2);
+        yield return CheckForFreeLock();
+    }
+
+    private IEnumerator CutsceneTest()
+    {
+        // Camera Cutscene
+        yield return new WaitForSeconds(2f);
+
+        cameraCutscene.Invoke();
+        
+        // Tests during fall
+        TurnOnAllUnique();
+
+        // Wait for next frame in order for interaction to be considered
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+
+        try
+        {
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Tracker == GameInfo.CameraController.CameraCutscene,
+                true);  
+            UT.CheckEquality<bool>(GameInfo.Manager.ReceivingInput.Value == GameInput.None, true); 
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+
+        TurnOffAllUnique();
+
+        yield return new WaitForSeconds(2f);
+        yield return CheckForFreeLock();
+
+        // Gameplay cutscene
+        gameplayUniqueCutscene.Invoke();
+        
+        // Tests during fall
+        TurnOnAllUnique();
+
+        // Wait for next frame in order for interaction to be considered
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+
+        try
+        {
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Tracker == GameInfo.CameraController.GameplayCutscene,
+                true);  
+            UT.CheckEquality<bool>(GameInfo.Manager.ReceivingInput.Value == GameInput.None, true); 
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+
+        TurnOffAllUnique();
+
+        yield return new WaitForSeconds(4f);
+        yield return CheckForFreeLock();
+    }
+
+    private IEnumerator CheckForFreeLock()
+    {
+        try
+        {
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Tracker == null,
+                true);  
+            UT.CheckEquality<bool>(GameInfo.Manager.ReceivingInput.Value == GameInput.Full, true); 
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
     }
 
     // Helper input functions. Manual update needed for chained events to be considered. //

@@ -4,8 +4,10 @@ public static class AnimationConstants
     {
         public const string GameplayCutscene = "gameplayCutscene";
         public const string Proceed = "proceedAbility";
+        public const string ProceedGameplayCutscene = "proceedGameplayCutscene";
         public const string ChoiceSeparator = "choiceSeparator";
         public const string Exit = "exitAbility";
+        public const string ExitGameplayCutscene = "exitGameplayCutscene";
         public const string ProceedUpperAction = "proceedUpperAction";
         public const string ExitUpperAction = "exitUpperAction";
         public const string GenericUpperAction = "GenericUpperAction";

@@ -38,6 +38,7 @@ public class CameraController : MonoBehaviour
 
     private State state;
     private CameraCutscene cutscene;
+    public CameraCutscene CameraCutscene { get { return cutscene; } }
    
     //Property assignment backings
     private Vector3 direction;

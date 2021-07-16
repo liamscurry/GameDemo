@@ -22,7 +22,7 @@ public class GameplayCutsceneWaitBehaviour : StateMachineBehaviour
             
             if (exiting)
             {
-                animator.SetTrigger(AnimationConstants.Player.Proceed);
+                animator.SetTrigger(AnimationConstants.Player.ProceedGameplayCutscene);
             }
         }
 	}

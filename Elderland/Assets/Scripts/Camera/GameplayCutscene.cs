@@ -76,8 +76,8 @@ public class GameplayCutscene
 		InvokeEventTimers();
 
 		PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.GameplayCutscene);
-		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.Proceed);
-		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.Exit);
+		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.ProceedGameplayCutscene);
+		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.ExitGameplayCutscene);
 		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
 
 		delayTargetDirection = false;
@@ -290,7 +290,7 @@ public class GameplayCutscene
 		PlayerInfo.PhysicsSystem.ForceTouchingFloor();
 		PlayerInfo.PhysicsSystem.Animating = false;
 
-		PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.Exit);
+		PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.ExitGameplayCutscene);
 
 		PlayerInfo.Animator.SetInteger(
 			AnimationConstants.Player.ChoiceSeparator,
