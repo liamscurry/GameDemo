@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 //Manages adding/removing abilities(equiping) and updates each ability every frame. When weapon abilities are active (primary and secondary abilities) other abilities and skills can override them.
 
@@ -163,19 +165,19 @@ public class PlayerAbilityManager : AbilitySystem
                 Input.GetKey(KeyCode.Joystick1Button4) : false;
             meleeInput =
                 (MeleeAvailable) ? 
-                Input.GetKey(GameInfo.Settings.MeleeAbilityKey) || Input.GetKey(GameInfo.Settings.AlternateMeleeAbilityKey) : false;
+                GameInfo.Settings.CurrentGamepad[GameInfo.Settings.MeleeAbilityKey].isPressed : false;
             dashInput =
                 (DashAvailable) ?
-                Input.GetKey(GameInfo.Settings.DashAbilityKey) : false;
+                GameInfo.Settings.CurrentGamepad[GameInfo.Settings.DashAbilityKey].isPressed : false;
             dodgeInput =
                 (DodgeAvailable) ?
-                Input.GetKey(GameInfo.Settings.DodgeAbilityKey) : false;
+                GameInfo.Settings.CurrentGamepad[GameInfo.Settings.DodgeAbilityKey].isPressed : false;
             //bool blockInput = 
             //    (BlockAvailable) ? 
             //    Input.GetKeyDown(GameInfo.Settings.BlockAbilityKey) : false;
             finisherInput = 
                 (AbilitiesAvailable) ? 
-                Input.GetKeyDown(GameInfo.Settings.FinisherAbilityKey): 
+                GameInfo.Settings.CurrentGamepad[GameInfo.Settings.FinisherAbilityKey].isPressed: 
                 false;
         }
 
@@ -205,6 +207,29 @@ public class PlayerAbilityManager : AbilitySystem
 
         UpdateRangedZoom();
 
+        UpdateCombatStance(weaponHeldDown, meleeInput, finisherInput);
+
+        if (ranged != null)
+            ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
+
+        if (aoe != null)
+            aoe.UpdateAbility(aoe == weaponHeldDown, aoeInput);
+
+        if (dash != null)
+            dash.UpdateAbility(dash == weaponHeldDown, dashInput);
+
+        if (dodge != null)
+            dodge.UpdateAbility(dodge == weaponHeldDown, dodgeInput);
+
+        //if (block != null)
+        //    block.UpdateAbility(block == weaponHeldDown, blockInput);
+	}
+
+    private void UpdateCombatStance(
+        PlayerAbility weaponHeldDown,
+        bool meleeInput,
+        bool finisherInput)
+    {
         if (!inCombatStance)
         {
             bool tryingToUseWeapon = 
@@ -239,22 +264,7 @@ public class PlayerAbilityManager : AbilitySystem
                 notUsedTimer = 0;
             }
         }
-
-        if (ranged != null)
-            ranged.UpdateAbility(ranged == weaponHeldDown, rangedInput);
-
-        if (aoe != null)
-            aoe.UpdateAbility(aoe == weaponHeldDown, aoeInput);
-
-        if (dash != null)
-            dash.UpdateAbility(dash == weaponHeldDown, dashInput);
-
-        if (dodge != null)
-            dodge.UpdateAbility(dodge == weaponHeldDown, dodgeInput);
-
-        //if (block != null)
-        //    block.UpdateAbility(block == weaponHeldDown, blockInput);
-	}
+    }
 
     private void UpdateRangedZoom()
     {
@@ -299,10 +309,7 @@ public class PlayerAbilityManager : AbilitySystem
 
     public override bool Ready()
     {
-        return 
-            Physics.TouchingFloor &&
-            !PlayerInfo.Animator.GetBool("jump") &&
-            !PlayerInfo.Animator.GetBool("falling");
+        return PlayerInfo.CharMoveSystem.Grounded;
     }
 
     //Equip an ability to an ability slot, overriding the current ability if available.

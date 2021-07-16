@@ -8,14 +8,11 @@ public class GameSettings : MonoBehaviour
 {
     //Input
     //Abilities
-    public KeyCode MeleeAbilityKey { get; set; }
-    public KeyCode AlternateMeleeAbilityKey { get; set; }
-    public KeyCode DodgeAbilityKey { get; set; }
-    public KeyCode DashAbilityKey { get; set; }
-    public KeyCode BlockAbilityKey { get; set; }
-    public KeyCode UtilityAbilityKey { get; set; }
-    public KeyCode UltimateAbilityKey { get; set; }
-    public KeyCode FinisherAbilityKey { get; private set; }
+    public GamepadButton MeleeAbilityKey { get; set; }
+    public GamepadButton DodgeAbilityKey { get; set; }
+    public GamepadButton DashAbilityKey { get; set; }
+    public GamepadButton BlockAbilityKey { get; set; }
+    public GamepadButton FinisherAbilityKey { get; private set; }
 
     public float FireballRightTrigger { get { return Input.GetAxis("Right Trigger"); } }
     public float FireballLeftTrigger { get { return Input.GetAxis("Left Trigger"); } }
@@ -24,14 +21,10 @@ public class GameSettings : MonoBehaviour
 
     public int ObjectiveTrigger { get { return (int) Input.GetAxis("Horizontal DPad"); } }
 
-    //Skills
-    public KeyCode DodgeKey { get; set; }
-    public KeyCode BlinkKey { get; set; }
-
     //Misc
     public GamepadButton JumpKey { get; set; }
     public GamepadButton SprintKey { get; set; }
-    public KeyCode UseKey { get; set; }
+    public GamepadButton UseKey { get; set; }
 
     public Gamepad CurrentGamepad { get; set; }
     public Gamepad DefaultGamepad { get; set; }
@@ -81,16 +74,15 @@ public class GameSettings : MonoBehaviour
 
         //Input
         //Abilities
-        MeleeAbilityKey = KeyCode.Joystick1Button2;
-        AlternateMeleeAbilityKey = KeyCode.Joystick1Button2;
-        DodgeAbilityKey = KeyCode.JoystickButton0;
-        DashAbilityKey = KeyCode.Joystick1Button1;
-        BlockAbilityKey = KeyCode.Joystick1Button5;
-        FinisherAbilityKey = KeyCode.Joystick1Button9;
+        MeleeAbilityKey = GamepadButton.West;
+        DodgeAbilityKey = GamepadButton.South;
+        DashAbilityKey = GamepadButton.East;
+        BlockAbilityKey = GamepadButton.RightShoulder;
+        FinisherAbilityKey = GamepadButton.RightStick;
 
         //Misc
         JumpKey = GamepadButton.North;
         SprintKey = GamepadButton.LeftStick;
-        UseKey = KeyCode.Joystick1Button0;
+        UseKey = GamepadButton.South;
     }
 }

@@ -24,7 +24,7 @@ public class PopupEvent : MonoBehaviour
     
     public void Update()
     {
-        if (Input.GetKeyDown(GameInfo.Settings.UseKey))
+        if (GameInfo.Settings.CurrentGamepad[GameInfo.Settings.UseKey].isPressed)
         {
             //if (!executed)
             {

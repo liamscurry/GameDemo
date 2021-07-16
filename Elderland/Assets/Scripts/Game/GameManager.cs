@@ -164,7 +164,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator WaitForUseToUnfreezeCoroutine()
     {
-        yield return new WaitUntil(() => Input.GetKeyDown(GameInfo.Settings.UseKey));
+        yield return new WaitUntil(() => GameInfo.Settings.CurrentGamepad[GameInfo.Settings.UseKey].isPressed);
 
         UnfreezeGame();
     }

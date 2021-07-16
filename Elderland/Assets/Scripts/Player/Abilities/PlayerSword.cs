@@ -67,7 +67,6 @@ public sealed class PlayerSword : PlayerAbility
     public bool IsAbilitySpeedReset { get { return Time.time - hitTime > resetHitTime; } }
 
     private PlayerAbilityHold holdSegmentHold;
-    private KeyCode keyUsed;
 
     // Swing Direction
     private int flipSign;
@@ -168,15 +167,6 @@ public sealed class PlayerSword : PlayerAbility
 
     public override bool Wait(bool firstTimeCalling)
     {
-        if (Input.GetKey(GameInfo.Settings.MeleeAbilityKey))
-        {
-            keyUsed = GameInfo.Settings.MeleeAbilityKey;
-        }
-        else
-        {
-            keyUsed = GameInfo.Settings.AlternateMeleeAbilityKey;
-        }
-
         bool success = base.Wait(firstTimeCalling);
 
         return success;
@@ -184,13 +174,15 @@ public sealed class PlayerSword : PlayerAbility
 
     private bool HeldPredicate()
     {
-        return !Input.GetKey(keyUsed);
+        return false;
+        //return !Input.GetKey(keyUsed);
     }
 
     public override void GlobalConstantUpdate()
     {
-        if (PlayerInfo.PhysicsSystem.TouchingFloor)
+        if (PlayerInfo.CharMoveSystem.Grounded)
         {
+            /*
             RaycastHit raycast;
 
             bool hit = UnityEngine.Physics.SphereCast(
@@ -201,6 +193,7 @@ public sealed class PlayerSword : PlayerAbility
                 (PlayerInfo.Capsule.height / 2) + PlayerInfo.Capsule.radius * 0.5f,
                 LayerConstants.GroundCollision);
 
+            
             if (hit)
             {
                 float height = PlayerInfo.Player.transform.position.y - (raycast.distance) + (PlayerInfo.Capsule.height / 2 - PlayerInfo.Capsule.radius);
@@ -217,7 +210,7 @@ public sealed class PlayerSword : PlayerAbility
                     matchTarget.positionWeight = Vector3.zero;
                     PlayerInfo.AnimationManager.StartTargetImmediately(matchTarget);
                 }
-            }   
+            }   */
         }
 
         PlayerInfo.AbilityManager.LastDirFocus = Time.time;
@@ -252,7 +245,7 @@ public sealed class PlayerSword : PlayerAbility
             Matho.StdProj2D(GameInfo.CameraController.Direction);
 
         playerPlanarDirection =
-            Matho.PlanarDirectionalDerivative(playerDirection, PlayerInfo.PhysicsSystem.Normal).normalized;
+            Matho.PlanarDirectionalDerivative(playerDirection, PlayerInfo.CharMoveSystem.GroundNormal).normalized;
 
         //Scan for enemies
         Vector3 center = 2f * playerPlanarDirection;
@@ -292,7 +285,9 @@ public sealed class PlayerSword : PlayerAbility
             target = minCollider;
             targetDisplacement = (minCollider.transform.parent.position - PlayerInfo.Player.transform.position);
             targetPlanarDirection =
-                Matho.PlanarDirectionalDerivative(Matho.StdProj2D(targetDisplacement).normalized, PlayerInfo.PhysicsSystem.Normal).normalized;
+                Matho.PlanarDirectionalDerivative(
+                    Matho.StdProj2D(targetDisplacement).normalized,
+                    PlayerInfo.CharMoveSystem.GroundNormal).normalized;
 
             float theta = Matho.AngleBetween(targetDisplacement, targetPlanarDirection);
             targetHorizontalDistance = targetDisplacement.magnitude * Mathf.Cos(theta * Mathf.Deg2Rad);
@@ -339,15 +334,6 @@ public sealed class PlayerSword : PlayerAbility
             //act.Clip = actNoTargetClip;
 
             type = Type.NoTarget;
-        }
-
-        if (Input.GetKey(GameInfo.Settings.MeleeAbilityKey))
-        {
-            castDirection = 0;
-        }
-        else
-        {
-            castDirection = 1;
         }
 
         if (Time.time - hitTime > resetHitTime)
@@ -520,7 +506,8 @@ public sealed class PlayerSword : PlayerAbility
 
         horizontalRotation = Quaternion.FromToRotation(new Vector3(0, 0, 1), PlayerInfo.Player.transform.forward);
 
-        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
+        Quaternion normalRotation =
+            Quaternion.FromToRotation(Vector3.up, PlayerInfo.CharMoveSystem.GroundNormal);
 
         float verticalRandom = Random.value;
         verticalSign = (verticalRandom > 0.5) ? 1 : -1;

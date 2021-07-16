@@ -25,7 +25,7 @@ public class InteractionHoldEventBehaviour : StateMachineBehaviour
             PlayerInfo.Manager.Interaction.HoldNormalizedTime = percentage;
             PlayerInfo.Manager.Interaction.HoldEvent();
 
-            if ((!Input.GetKey(GameInfo.Settings.UseKey) &&
+            if ((!GameInfo.Settings.CurrentGamepad[GameInfo.Settings.UseKey].isPressed &&
                 stateInfo.normalizedTime * stateInfo.length >= PlayerInfo.Manager.Interaction.MinimumHoldDuration) ||
                 stateInfo.normalizedTime * stateInfo.length >= PlayerInfo.Manager.Interaction.HoldDuration)
             {

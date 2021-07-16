@@ -93,7 +93,7 @@ public sealed class PlayerBlock : PlayerAbility
     {
         timer += Time.deltaTime;
         if (((PlayerAbilityManager) system).Stamina < staminaCostPerBlock ||
-            (!Input.GetKey(GameInfo.Settings.BlockAbilityKey) && timer > minDuration) ||
+            (!GameInfo.Settings.CurrentGamepad[GameInfo.Settings.BlockAbilityKey].isPressed && timer > minDuration) ||
             broke)
         {
             ActiveProcess.IndefiniteFinished = true;

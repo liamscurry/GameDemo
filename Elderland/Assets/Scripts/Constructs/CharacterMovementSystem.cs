@@ -37,6 +37,7 @@ public class CharacterMovementSystem : MonoBehaviour
     private bool grounded;
     public bool Grounded { get { return grounded; } }
     private Vector3 groundNormal;
+    public Vector3 GroundNormal { get { return (grounded) ? groundNormal : Vector3.up; } }
 
     public StatLock<bool> ApplyGravity { get; private set; }
     public StatLock<bool> HorizontalOnExit { get; private set; }

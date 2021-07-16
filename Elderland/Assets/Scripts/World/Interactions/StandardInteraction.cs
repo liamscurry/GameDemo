@@ -49,6 +49,7 @@ public class StandardInteraction : MonoBehaviour
 	protected UnityEvent endEvent;
 
 	protected bool activated;
+	public bool Activated { get { return activated; } }
 
 	public Vector3 ValidityDirection { get { return transform.forward; } }
 	public Type InteractionType { get { return type; } }
