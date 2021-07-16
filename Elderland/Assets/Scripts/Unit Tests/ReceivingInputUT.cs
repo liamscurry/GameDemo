@@ -28,6 +28,10 @@ Three types of tests:
 
 public class ReceivingInputUT : MonoBehaviour
 {
+    public enum ReceivingInputTestType { Uniqueness, Override, Nonoverride }
+
+    [SerializeField]
+    private ReceivingInputTestType testType;
     [SerializeField]
     private GameplayCutsceneEvent gameplayCutscene;
     [SerializeField]
@@ -37,7 +41,9 @@ public class ReceivingInputUT : MonoBehaviour
     [SerializeField]
     private StandardInteraction interactionUniquenessObject2;
 
-    XInputController fakeController;
+    private XInputController fakeController;
+
+    private const float overrideTakeOutSwordThreshold = 0.25f;
     
     private void Start()
     {
@@ -58,9 +64,104 @@ public class ReceivingInputUT : MonoBehaviour
         // Wait until scene is fully loaded to test properly (inputs occur when they are supposed to)
         yield return new WaitForSeconds(1f);
 
-        yield return UniquenessTest();
+        switch (testType)
+        {
+            case ReceivingInputTestType.Uniqueness:
+                yield return UniquenessTest();
+                break;
+            case ReceivingInputTestType.Override:
+                yield return OverrideTest();
+                break;
+                /*
+            case ReceivingInputTestType.Uniqueness:
+                yield return UniquenessTest();
+                break;*/
+        }
+        
         
         Debug.Log("Receiving Input: Success");
+    }
+
+    // Tests:
+    /*
+    Abilities
+    Take out/put away sword
+    */
+    private IEnumerator OverrideTest()
+    {
+        QueueSword();
+
+        yield return new WaitUntil(() => PlayerInfo.AbilityManager.CurrentAbility != null);
+
+        cameraCutscene.Invoke();
+
+        try
+        {
+            UT.CheckEquality<bool>(
+                PlayerInfo.AbilityManager.CurrentAbility == null,
+                true);  
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+
+        DisableSword();
+
+        // Take out/put away disable
+        Time.timeScale = 12f;
+        yield return new WaitForSeconds(12f);
+        Time.timeScale = 1;
+
+        QueueSword();
+
+        yield return new WaitUntil(
+            () => PlayerInfo.AnimationManager.UpperLayer.GetLayerWeight > overrideTakeOutSwordThreshold);
+
+        cameraCutscene.Invoke(); 
+
+        try
+        {
+            // not instantanious. override for upper actions happens when new actions occur.
+            // since new actions have not occured, still not in combat stance yet.
+            /*
+            UT.CheckEquality<bool>(
+                PlayerInfo.AbilityManager.InCombatStance,
+                true);  
+                */
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Tracker != PlayerInfo.AnimationManager,
+                true);  
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+
+        DisableSword();
+
+        Time.timeScale = 9f;
+        yield return new WaitForSeconds(9f);
+        Time.timeScale = 1;
+
+        yield return new WaitUntil(
+            () => PlayerInfo.AnimationManager.UpperLayer.GetLayerWeight > overrideTakeOutSwordThreshold);
+
+        cameraCutscene.Invoke(); 
+
+        try
+        {
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Tracker != PlayerInfo.AnimationManager,
+                true);  
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
     }
 
     // Tests:

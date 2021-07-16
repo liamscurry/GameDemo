@@ -291,6 +291,7 @@ public class PlayerAbilityManager : AbilitySystem
     {
         PlayerInfo.AnimConnector.GraspMelee();
         OnCombatStanceOn();
+        Debug.Log("called");
     }
 
     public void OnCombatStanceOff()

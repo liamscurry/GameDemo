@@ -189,11 +189,12 @@ public abstract class PlayerAbility : Ability
         //StopCoroutine("SegmentCoroutine");
         StopAllCoroutines();
 
-        if (ActiveProcess.End != null)
+        if (ActiveProcess != null && ActiveProcess.End != null)
             ActiveProcess.End();
 
         ResetAnimatorSettings();
-        ActiveSegment.Finished = true;
+        if (ActiveSegment != null)
+            ActiveSegment.Finished = true;
 
         ShortCircuitLogic();
 

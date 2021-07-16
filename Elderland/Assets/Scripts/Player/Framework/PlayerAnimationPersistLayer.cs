@@ -21,6 +21,8 @@ public class PlayerAnimationPersistLayer
 
     private Object user;
 
+    public float GetLayerWeight { get { return PlayerInfo.Animator.GetLayerWeight(layerIndex); } }
+
     public PlayerAnimationPersistLayer(float transitionDur, string layerName)
     {
         this.transitionDur = transitionDur;

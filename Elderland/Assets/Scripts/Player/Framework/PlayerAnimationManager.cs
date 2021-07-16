@@ -21,6 +21,7 @@ public class PlayerAnimationManager
 
 	// Anim layers
 	private PlayerAnimationPersistLayer combatLayer;
+	public PlayerAnimationPersistLayer CombatLayer { get { return combatLayer; } }
 	private PlayerAnimationPersistLayer walkAbilityLayer;
 	public PlayerAnimationPersistLayer WalkAbilityLayer { get { return walkAbilityLayer; } }
 

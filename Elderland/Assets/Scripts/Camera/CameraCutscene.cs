@@ -135,8 +135,6 @@ public class CameraCutscene
 							GameInfo.CameraController.StartIdle();
 						}
 
-						Debug.Log(GameInfo.Manager.ReceivingInput.Tracker == this);
-
 						if (unfreezeInputUponFinish)
 							GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
 

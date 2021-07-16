@@ -21,7 +21,7 @@ public class AbilityBehaviour : StateMachineBehaviour
 	{
 		if (PlayerInfo.AbilityManager.CurrentAbility != null)
 		{
-			if (!segment.Finished)
+			if (segment != null && !segment.Finished)
 			{
 				ability.StartFixed();
 				if (ability.ActiveProcess.Update != null &&

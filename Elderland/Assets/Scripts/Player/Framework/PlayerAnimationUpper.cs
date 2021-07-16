@@ -17,6 +17,8 @@ public class PlayerAnimationUpper
     public Action OnEnd { get; private set; }
     public Action OnShortCircuit { get; private set; }
 
+    public float GetLayerWeight { get { return PlayerInfo.Animator.GetLayerWeight(layerIndex); } }
+
     public PlayerAnimationUpper()
     {
         layerIndex = PlayerInfo.Animator.GetLayerIndex("UpperAction");
