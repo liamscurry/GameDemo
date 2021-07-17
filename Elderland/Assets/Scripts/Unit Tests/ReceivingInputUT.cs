@@ -28,7 +28,7 @@ Three types of tests:
 
 public class ReceivingInputUT : MonoBehaviour
 {
-    public enum ReceivingInputTestType { Uniqueness, Override, Nonoverride }
+    public enum ReceivingInputTestType { Uniqueness, Override, Unoverride }
 
     [SerializeField]
     private ReceivingInputTestType testType;
@@ -37,7 +37,11 @@ public class ReceivingInputUT : MonoBehaviour
     [SerializeField]
     private GameplayCutsceneEvent gameplayOverrideCutscene;
     [SerializeField]
+    private GameplayCutsceneEvent gameplayUnoverrideCutscene;
+    [SerializeField]
     private CameraCutsceneEvent cameraCutscene;
+    [SerializeField]
+    private CameraCutsceneEvent cameraUnoverrideCutscene;
     [SerializeField]
     private StandardInteraction interactionUniquenessObject1;
     [SerializeField]
@@ -74,13 +78,78 @@ public class ReceivingInputUT : MonoBehaviour
             case ReceivingInputTestType.Override:
                 yield return OverrideTest();
                 break;
-                /*
-            case ReceivingInputTestType.Uniqueness:
-                yield return UniquenessTest();
-                break;*/
+            case ReceivingInputTestType.Unoverride:
+                yield return UnoverrideTest();
+                break;
         }
         
         Debug.Log("Receiving Input: Success");
+    }
+
+    // Tests:
+    /*
+    Falling with Gameplay and Camera Cutscenes.
+    */
+    private IEnumerator UnoverrideTest()
+    {
+        yield return UnoverrideTestHelper(gameplayUnoverrideCutscene.WaitInvoke);
+        yield return UnoverrideTestHelper(cameraUnoverrideCutscene.WaitInvoke);
+    }
+
+    private IEnumerator UnoverrideTestHelper(Action overrideCall)
+    {
+        // Move forward
+        SetFakeControllerDirection(new Vector2(1, 0).normalized * 0.95f);
+        yield return new WaitForSeconds(3f);
+        SetFakeControllerDirection(new Vector2(0, 1).normalized * 0.95f);
+
+        yield return new WaitUntil(() => !PlayerInfo.CharMoveSystem.Grounded);
+        yield return new WaitForEndOfFrame();
+
+        // Test unoverride in the air
+        overrideCall.Invoke();
+
+        try
+        {
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Tracker == PlayerInfo.MovementManager,
+                true);  
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Value == GameInput.GameplayUnoverride,
+                true);  
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+
+        yield return new WaitForSeconds(3f);
+        
+        try
+        {
+            UT.CheckEquality<bool>(
+                PlayerInfo.CharMoveSystem.Grounded,
+                true);  
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Tracker == GameInfo.CameraController.GameplayCutscene ||
+                GameInfo.Manager.ReceivingInput.Tracker == GameInfo.CameraController.CameraCutscene,
+                true);  
+            UT.CheckEquality<bool>(
+                GameInfo.Manager.ReceivingInput.Value == GameInput.None,
+                true);  
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+
+        SetFakeControllerDirection(new Vector2(0, 0).normalized * 0.95f);
+
+        Time.timeScale = 10f;
+        yield return new WaitForSeconds(10f);
+        Time.timeScale = 1;
     }
 
     // Tests:
