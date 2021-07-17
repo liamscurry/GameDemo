@@ -96,7 +96,7 @@ public abstract class EnemyAbility : Ability
         system.Animator.SetTrigger("proceedAbility");
     }
 
-    public sealed override void ShortCircuit(bool forceNoReuse = false)
+    public sealed override void ShortCircuit()
     {
         ShortCircuitLogic();
 

@@ -26,6 +26,7 @@ public class PlayerAnimationManager
 	public PlayerAnimationPersistLayer WalkAbilityLayer { get { return walkAbilityLayer; } }
 
 	private Coroutine directTargetCorou;
+	public bool InDirectTargetMatch { get { return directTargetCorou != null; } }
 
 	private bool rotatingModel;
 
@@ -418,6 +419,8 @@ public class PlayerAnimationManager
 		if (directTargetCorou != null)
 			PlayerInfo.Manager.StopCoroutine(directTargetCorou);
 		
+		PlayerInfo.Animator.InterruptMatchTarget(false);
+		
 		directTargetCorou = PlayerInfo.Manager.StartCoroutine(DirectTargetCoroutine(target));
 	}
 
@@ -449,6 +452,7 @@ public class PlayerAnimationManager
 		Quaternion startRotation = PlayerInfo.Player.transform.rotation;
 		Vector3 percTargetPos =
 			startPosition * (1 - target.positionWeight.x) + target.position * target.positionWeight.x;
+		percTargetPos += PlayerInfo.CharMoveSystem.Controller.skinWidth * Vector3.up;
 		Quaternion percTargetRot =
 			Quaternion.Lerp(startRotation, target.rotation, target.rotationWeight);
 		while (currentTime < animDuration)

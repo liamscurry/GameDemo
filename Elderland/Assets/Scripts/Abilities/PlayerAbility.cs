@@ -184,7 +184,7 @@ public abstract class PlayerAbility : Ability
     protected virtual void ContinousStart() {}
     protected virtual void ContinousEnd() {}
 
-    public sealed override void ShortCircuit(bool forceNoReuse = false)
+    public sealed override void ShortCircuit()
     {
         //StopCoroutine("SegmentCoroutine");
         StopAllCoroutines();
@@ -198,7 +198,7 @@ public abstract class PlayerAbility : Ability
 
         ShortCircuitLogic();
 
-        if (continous && !forceNoReuse)
+        if (continous)
         {
             system.CurrentAbility = null;
             state = AbilityState.Waiting;
@@ -212,6 +212,7 @@ public abstract class PlayerAbility : Ability
             ToCoolDown();
         }
         system.Animator.SetTrigger("proceedAbility");
+        system.Animator.ResetTrigger("runAbility");
     }
 
     public virtual void FallUponFinish()

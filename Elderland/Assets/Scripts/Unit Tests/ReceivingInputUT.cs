@@ -90,21 +90,20 @@ public class ReceivingInputUT : MonoBehaviour
     */
     private IEnumerator OverrideTest()
     {
-        //yield return OverrideTestHelper(cameraCutscene.Invoke);
+        yield return OverrideTestHelper(cameraCutscene.Invoke);
         yield return OverrideTestHelper(gameplayOverrideCutscene.Invoke);
     }
 
     private IEnumerator OverrideTestHelper(Action overrideCall)
     {
-        //QueueSword();
+        QueueSword(); 
+        // Bug Fix:
+        // Leaving gameplay cutscene early due to any state transition into ability call.
+        // Added reset trigger of run ability inside of player short circuit ability definition. Fixed issue.
 
-        //yield return new WaitUntil(() => PlayerInfo.AbilityManager.CurrentAbility != null);
+        yield return new WaitUntil(() => PlayerInfo.AbilityManager.CurrentAbility != null);
 
         overrideCall.Invoke();
-        // test found bug: GameplayCutsceneBehaviour uses target match info, yet this overlaps with
-        // ability target matching, causing the gameplay cutscene to immediately exit.
-        // one question is where is the ability short circuited in camera cutscene call? is the
-        // ability short circuited  at all in gameplay cutscene call? => called from lock override.
 
         try
         {
@@ -122,14 +121,13 @@ public class ReceivingInputUT : MonoBehaviour
             yield break;
         }
 
-        //DisableSword();
+        DisableSword();
 
         // Take out/put away disable
-        //Time.timeScale = 12f;
-        //yield return new WaitForSeconds(12f);
-        //Time.timeScale = 1;
+        Time.timeScale = 12f;
+        yield return new WaitForSeconds(12f);
+        Time.timeScale = 1;
         
-        /*
         QueueSword();
 
         yield return new WaitUntil(
@@ -157,7 +155,7 @@ public class ReceivingInputUT : MonoBehaviour
         }
 
         DisableSword();
-
+        
         Time.timeScale = 9f;
         yield return new WaitForSeconds(9f);
         Time.timeScale = 1;
@@ -180,7 +178,6 @@ public class ReceivingInputUT : MonoBehaviour
         }
 
         yield return new WaitForSeconds(3);
-        */
     }
 
     // Tests:

@@ -126,7 +126,8 @@ public abstract class Ability : MonoBehaviour
         AdvanceSegment();
     }
 
-    public abstract void ShortCircuit(bool forceNoReuse = false);
+    public abstract void ShortCircuit(); // Removed force no reuse, will add back if needed, seemed obsolete.
+    // 7.17.21. Only true value passed into function in PlayerAbilityManager.UnequipAbility.
     public abstract void ShortCircuitLogic();
 
     protected IEnumerator ProcessSegment()

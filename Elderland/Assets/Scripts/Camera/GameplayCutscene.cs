@@ -198,7 +198,6 @@ public class GameplayCutscene
 			if (CurrentWaypointNode.Value.OnCompleteMatch != null)
 				CurrentWaypointNode.Value.OnCompleteMatch.Invoke();
 			exiting = true;
-
 			if (CurrentWaypointNode.Value.waitTime > minimumWaitTime)
 			{
 				PlayerInfo.Animator.SetInteger(

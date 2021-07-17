@@ -17,6 +17,7 @@ using UnityEngine;
 public class CharacterMovementSystem : MonoBehaviour
 {
     private CharacterController controller;
+    public CharacterController Controller { get { return controller; } }
 
     private const float gravityStrength = 11f;
     private const float groundFrictionStrength = 50 * 0.3f;

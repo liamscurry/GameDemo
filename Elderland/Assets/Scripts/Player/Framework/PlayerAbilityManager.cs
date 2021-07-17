@@ -251,6 +251,7 @@ public class PlayerAbilityManager : AbilitySystem
             
             if (currentAbility == null && !GameInfo.Manager.InCombat)
             {
+                //Debug.Log("waiting to remove: " + notUsedTimer + ", " + notUsedDuration + ", " + GameInfo.Manager.ReceivingInput.Value);
                 notUsedTimer += Time.deltaTime;
                 if (notUsedTimer > notUsedDuration &&
                     GameInfo.Manager.ReceivingInput.Value == GameInput.Full)
@@ -328,7 +329,7 @@ public class PlayerAbilityManager : AbilitySystem
     {
         PlayerAbility temp = slot;
         if (currentAbility == temp)
-            temp.ShortCircuit(true);
+            temp.ShortCircuit();
         temp.DeleteResources();
         GameObject.Destroy(temp);
         slot = null;

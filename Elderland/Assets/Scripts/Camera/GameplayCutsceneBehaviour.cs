@@ -8,7 +8,6 @@ using UnityEngine.Animations;
 public class GameplayCutsceneBehaviour : StateMachineBehaviour
 {
     private bool exiting;
-    private bool hasStartedMatching;
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
@@ -23,9 +22,8 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
                 GameInfo.CameraController.GameplayCutscene.CurrentStateNormDuration
             );
 
-        PlayerInfo.AnimationManager.StartTarget(matchTarget);
+        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
         exiting = false;
-        hasStartedMatching = false;
 	}
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -45,12 +43,6 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
 	{
         if (!exiting)
         {
-            bool inMatchTarget = animator.isMatchingTarget;
-            if (inMatchTarget && !hasStartedMatching)
-            {
-                hasStartedMatching = true;
-            }
-
             /*
             var currentClips = 
                 animator.GetCurrentAnimatorClipInfo(0);
@@ -64,8 +56,8 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
 
 		    exiting =
                 GameInfo.CameraController.GameplayCutscene.UpdateTravel(
-                    hasStartedMatching && !inMatchTarget);
-            
+                    !PlayerInfo.AnimationManager.InDirectTargetMatch);
+
             if (exiting)
             {
                 animator.SetTrigger(AnimationConstants.Player.ProceedGameplayCutscene);
