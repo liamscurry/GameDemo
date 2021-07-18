@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StatLock<T>
+public class StatLock<T> where T : IComparable
 {
     private object tracker;
 
@@ -12,6 +12,7 @@ public class StatLock<T>
     private T storedValue;
     private Action onOverride;
     private Action onAvailable;
+    private readonly Action<T> onValueChange;
 
     public StatLock()
     {
@@ -24,6 +25,13 @@ public class StatLock<T>
         Value = value;
     }
 
+    public StatLock(T value, Action<T> onValueChange)
+    {
+        this.tracker = null;
+        Value = value;
+        this.onValueChange = onValueChange;
+    }
+
     public void ClaimLock(object tracker, T value, Action onOverride = null)
     {
         if (this.tracker != null)
@@ -33,6 +41,11 @@ public class StatLock<T>
         }
         this.tracker = tracker;
         this.onOverride = onOverride;
+        if (Value.CompareTo(value) != 0)
+        {
+            if (onValueChange != null)
+                onValueChange.Invoke(value);
+        }
         Value = value;
     }
 
@@ -42,6 +55,11 @@ public class StatLock<T>
         {
             this.tracker = null;
             this.onOverride = null;
+            if (Value.CompareTo(value) != 0)
+            {
+                if (onValueChange != null)
+                    onValueChange.Invoke(value);
+            }
             Value = value;
 
             if (onAvailable != null)
@@ -151,5 +169,44 @@ public class StatLock<T>
     private static void NotifyLockTestsHelper()
     {
         notifyIndicator++;
+    }
+
+    public static void OnValueChangeTests()
+    {
+        var lock1 = new StatLock<bool>(false, OnValueChangeLockTestsHelper);
+        object object1 = new object();
+        object object2 = new object();
+        lock1.ClaimLock(object1, false);
+        UT.CheckEquality<int>(valueChangeIndicator, 0);  
+        lock1.ClaimLock(object2, false);
+        UT.CheckEquality<int>(valueChangeIndicator, 0);  
+        lock1.ClaimLock(object1, true);
+        UT.CheckEquality<int>(valueChangeIndicator, 1);  
+        lock1.ClaimLock(object2, true);
+        UT.CheckEquality<int>(valueChangeIndicator, 1);  
+        lock1.TryReleaseLock(object2, true);
+        UT.CheckEquality<int>(valueChangeIndicator, 1);  
+        lock1.ClaimLock(object1, true);
+        UT.CheckEquality<int>(valueChangeIndicator, 1);  
+        lock1.TryReleaseLock(object2, false);
+        UT.CheckEquality<int>(valueChangeIndicator, 1);  
+        lock1.TryReleaseLock(object1, false);
+        UT.CheckEquality<int>(valueChangeIndicator, 2);  
+    }
+
+    private static int valueChangeIndicator = 0;
+    private static void OnValueChangeLockTestsHelper(bool value)
+    {
+        if (valueChangeIndicator == 0)
+        {
+            UT.CheckEquality<bool>(value, true);  
+        }
+
+        if (valueChangeIndicator == 1)
+        {
+            UT.CheckEquality<bool>(value, false);  
+        }
+        
+        valueChangeIndicator++;
     }
 }

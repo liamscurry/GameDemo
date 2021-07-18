@@ -428,7 +428,9 @@ public class PlayerAnimationManager
 	{
 		float startTime = 0;
 		float animDuration = 0;
-		if (PlayerInfo.Animator.IsInTransition(0))
+		bool inTransition;
+		// assumes when transitioning that the next state is still in first loop (normalized time < 1)
+		if (PlayerInfo.Animator.IsInTransition(0)) 
 		{
 			var nextState = 
 				PlayerInfo.Animator.GetNextAnimatorStateInfo(0);
@@ -436,6 +438,7 @@ public class PlayerAnimationManager
 				PlayerInfo.Animator.GetNextAnimatorClipInfo(0);
 			startTime = nextState.normalizedTime;
 			animDuration = nextClip[0].clip.length;
+			inTransition = true;
 		}
 		else
 		{
@@ -445,6 +448,7 @@ public class PlayerAnimationManager
 				PlayerInfo.Animator.GetCurrentAnimatorClipInfo(0);
 			startTime = currentState.normalizedTime;
 			animDuration = currentClip[0].clip.length;
+			inTransition = false;
 		}
 		
 		float currentTime = startTime * animDuration;
@@ -455,9 +459,19 @@ public class PlayerAnimationManager
 		percTargetPos += PlayerInfo.CharMoveSystem.Controller.skinWidth * Vector3.up;
 		Quaternion percTargetRot =
 			Quaternion.Lerp(startRotation, target.rotation, target.rotationWeight);
-		while (currentTime < animDuration)
+		
+		while (DirectTargetCondition(inTransition, currentTime, startTime, animDuration, target.endTime))
 		{
-			float percentage = currentTime / animDuration;
+			float percentage;
+			if (inTransition)
+			{
+				percentage = currentTime / animDuration;
+			} 
+			else
+			{
+				percentage = (currentTime - (startTime * animDuration)) / (animDuration * target.endTime);
+			}
+				
 			PlayerInfo.Player.transform.position =
 				startPosition * (1 - percentage) + percTargetPos * percentage;
 			PlayerInfo.Player.transform.rotation = 
@@ -470,6 +484,37 @@ public class PlayerAnimationManager
 		PlayerInfo.Player.transform.position = percTargetPos;
 		PlayerInfo.Player.transform.rotation = percTargetRot;
 		directTargetCorou = null;
+	}
+
+	/*
+	Helper method for direct target coroutine needed for edge case where current clip has a normalized
+	time greater than 1.
+
+	Inputs:
+	bool : inTransition : is the state in transition.
+	float : currentTime : current time of current state.
+	float : startTime : start time of state when starting coroutine.
+	float : animDuration : duration of one loop of current animation.
+	float : endTime : end time of match target in invokation of direct target.
+
+	Outputs:
+	bool : returns whether the loop for interpolating the player is done or not.
+	*/
+	private bool DirectTargetCondition(
+		bool inTransition,
+		float currentTime,
+		float startTime,
+		float animDuration,
+		float endTime)
+	{
+		if (inTransition)
+		{
+			return currentTime < animDuration;
+		}
+		else
+		{
+			return currentTime < animDuration * (endTime + startTime);
+		}
 	}
 
 	public void KinematicEnable()

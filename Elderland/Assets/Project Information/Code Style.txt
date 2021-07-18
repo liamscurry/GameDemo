@@ -9,12 +9,22 @@ Before methods:
 * Words go here. Only describe WHY this function needs to exist.
 */
 
-Include descriptions of parameters and what they should be.
+Include names and types of parameters, what they are. Also include return types and what they are.
+Syntax: 
+type : name : short description.
+Have inputs below: Inputs:
+and outputs below: Outputs:
+one on each line.
 
 Inside methods:
 Section parts of code with headers. Also include complex part descriptions 
 for why you are doing these operations
 // Comment example.
+
+Explicit Setter Methods:
+These methods are setters that should only becalled by specific classes on specific occasions.
+They are more restrictive properties. Description above method should be for simplicity: 
+// Explicit setter for Action fieldName
 
 Properties:
 If need to have explicit backing local variable, declare it on the

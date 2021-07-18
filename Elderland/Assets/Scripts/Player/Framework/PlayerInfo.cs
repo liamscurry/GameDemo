@@ -89,6 +89,7 @@ public static class PlayerInfo
         BuffManager = new BuffManager<PlayerManager>(Manager);
         InteractionManager = new PlayerInteractionManager();
         MovementManager = new PlayerMovementManager();
+        CharMoveSystem.SetOnKinematicOff(MovementManager.ZeroSpeed);
         StatsManager = new PlayerStatsManager();
         SkillManager = new PlayerSkillManager();
 

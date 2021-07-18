@@ -21,6 +21,7 @@ public class StatLockUT : MonoBehaviour
             StatLock<bool>.ClaimLockTests();
             StatLock<bool>.TryReleaseLockTests();
             StatLock<bool>.NotifyLockTests();
+            StatLock<bool>.OnValueChangeTests();
 
             Debug.Log("StatLockUT: Success");
         } 

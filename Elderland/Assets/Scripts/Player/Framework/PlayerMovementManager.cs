@@ -302,6 +302,7 @@ public class PlayerMovementManager
     public void ZeroSpeed()
     {
         CurrentPercentileSpeed = 0;
+        TargetPercentileSpeed = 0;
     }
 
     public void UnlockSprint()

@@ -1,5 +1,6 @@
 //#define DebugOutput
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -40,7 +41,6 @@ public class CharacterMovementSystem : MonoBehaviour
     private Vector3 groundNormal;
     public Vector3 GroundNormal { get { return (grounded) ? groundNormal : Vector3.up; } }
 
-    public StatLock<bool> ApplyGravity { get; private set; }
     public StatLock<bool> HorizontalOnExit { get; private set; }
 
     private float groundSlopeLimit;
@@ -58,6 +58,16 @@ public class CharacterMovementSystem : MonoBehaviour
 
     private const float clampCheckTreshold = 0.2f;
 
+    private Action onKinematicOff;
+    public StatLock<bool> Kinematic { get; private set; }
+
+    /*
+    Initialize needed instead of constructor. Called in player info initializer.
+
+    Inputs:
+    GameObject : effectedObject : which object the script is moving.
+    Action : onKinematicOff : method to be called when the character controller starts considering its velocity.
+    */
     public void Initialize(GameObject effectedObject)
     {
         this.effectedObject = effectedObject;
@@ -66,9 +76,43 @@ public class CharacterMovementSystem : MonoBehaviour
         groundSlopeLimit = controller.slopeLimit;
         minMoveDistance = controller.minMoveDistance;
         considerDynamicCollisions = false;
-        ApplyGravity = new StatLock<bool>(true);
         HorizontalOnExit = new StatLock<bool>(false);
         exitNormalQueue = new Queue<(float, Vector3)>();
+        Kinematic = new StatLock<bool>(false, OnKinematicChange);
+    }
+
+    /*
+    Helper delagate used to notify the system that kinematic has been enabled or disabled.
+    Only gets called when new value is set for the lock.
+
+    Inputs:
+    bool : newValue : new value lock has been changed to.
+
+    Outputs:
+    None
+    */
+    private void OnKinematicChange(bool newValue)
+    {
+        if (newValue)
+        {
+            grounded = false;
+        }
+        else
+        {
+            constantAirVelocity = Vector3.zero;
+            constantVelocity = Vector3.zero;
+            dynamicAirVelocity = Vector3.zero;
+            dynamicVelocity = Vector3.zero;
+
+            if (onKinematicOff != null)
+                onKinematicOff.Invoke();
+        }
+    }
+
+    // Explicit setter for Action onKinematicOff
+    public void SetOnKinematicOff(Action onKinematicOff)
+    {
+        this.onKinematicOff = onKinematicOff;
     }
 
     // Almost all ported over.
@@ -93,73 +137,73 @@ public class CharacterMovementSystem : MonoBehaviour
 
     public void UpdateSystem()
     {
-        if (!grounded)
+        if (!Kinematic.Value)
         {
-            UpdateAirMovement();
-            controller.slopeLimit = Mathf.Infinity;
-        }
-        else
-        {
-            controller.slopeLimit = groundSlopeLimit;
-        }
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            Time.timeScale = 0.1f;
-            //ApplyGravity.ClaimLock(this, false);
+            if (!grounded)
+            {
+                UpdateAirMovement();
+                controller.slopeLimit = Mathf.Infinity;
+            }
+            else
+            {
+                controller.slopeLimit = groundSlopeLimit;
+            }
         }
     }
 
     public void LateUpdateSystem()
     {
-        Vector3 compoundVelocity = Vector3.zero;
-        
-        controller.minMoveDistance = minMoveDistance * Time.timeScale;
-
-        if (grounded)
+        if (!Kinematic.Value)
         {
-            compoundVelocity += constantVelocity;
-            compoundVelocity += dynamicVelocity;
+            Vector3 compoundVelocity = Vector3.zero;
             
-            considerDynamicCollisions = true;
-            controller.Move(compoundVelocity * Time.deltaTime);
-            considerDynamicCollisions = false;
+            controller.minMoveDistance = minMoveDistance * Time.timeScale;
 
-            clampCheck = ClampCheck();
-            if (clampCheck)
+            if (grounded)
             {
-                controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
-                groundCheck = GroundCheck(compoundVelocity, false);
+                compoundVelocity += constantVelocity;
+                compoundVelocity += dynamicVelocity;
+                
+                considerDynamicCollisions = true;
+                controller.Move(compoundVelocity * Time.deltaTime);
+                considerDynamicCollisions = false;
+
+                clampCheck = ClampCheck();
+                if (clampCheck)
+                {
+                    controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
+                    groundCheck = GroundCheck(compoundVelocity, false);
+                }
+                else
+                {
+                    groundCheck = false;
+                    #if DebugOutput
+                    Debug.Log("Exit: Clamp detected steep ledge");
+                    #endif
+                }
+
+                GroundFriction();
+                //ParseExitNormalQueue();
+                CheckForGroundExit();
             }
             else
             {
-                groundCheck = false;
+                compoundVelocity += constantAirVelocity;
+                compoundVelocity += dynamicAirVelocity;
+
                 #if DebugOutput
-                Debug.Log("Exit: Clamp detected steep ledge");
+                Debug.Log("Constant Air velocity: " + constantAirVelocity);
+                Debug.Log("Dynamic Air  velocity: " + dynamicAirVelocity);
+                Debug.Log("Compound velocity: " + compoundVelocity);
                 #endif
+
+                considerDynamicCollisions = true;
+                controller.Move(compoundVelocity * Time.deltaTime);
+                considerDynamicCollisions = false;
             }
 
-            GroundFriction();
-            //ParseExitNormalQueue();
-            CheckForGroundExit();
+            constantVelocity = Vector3.zero;
         }
-        else
-        {
-            compoundVelocity += constantAirVelocity;
-            compoundVelocity += dynamicAirVelocity;
-
-            #if DebugOutput
-            Debug.Log("Constant Air velocity: " + constantAirVelocity);
-            Debug.Log("Dynamic Air  velocity: " + dynamicAirVelocity);
-            Debug.Log("Compound velocity: " + compoundVelocity);
-            #endif
-
-            considerDynamicCollisions = true;
-            controller.Move(compoundVelocity * Time.deltaTime);
-            considerDynamicCollisions = false;
-        }
-
-        constantVelocity = Vector3.zero;
     }
 
     /*
@@ -461,14 +505,7 @@ public class CharacterMovementSystem : MonoBehaviour
 
     private void UpdateAirMovement()
     {
-        if (ApplyGravity.Value)
-        {
-            dynamicAirVelocity += gravityStrength * Time.deltaTime * Vector3.down;
-        }
-        else
-        {
-            dynamicAirVelocity = Vector3.zero;
-        }
+        dynamicAirVelocity += gravityStrength * Time.deltaTime * Vector3.down;
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
