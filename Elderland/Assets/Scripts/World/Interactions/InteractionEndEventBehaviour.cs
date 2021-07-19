@@ -29,19 +29,6 @@ public class InteractionEndEventBehaviour : StateMachineBehaviour
             PlayerInfo.Manager.Interaction.Reset();
         }
         GameInfo.CameraController.TargetDirection = Vector3.zero;
+        PlayerInfo.AnimationManager.CurrentInteraction = null;
     }
-
-    /*
-    public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        if (!exiting)
-        {
-            timer += Time.deltaTime;
-            if (timer > duration)
-            {
-                exiting = true;
-                animator.SetTrigger("exitInteraction");
-            }
-        }
-    }*/
 }

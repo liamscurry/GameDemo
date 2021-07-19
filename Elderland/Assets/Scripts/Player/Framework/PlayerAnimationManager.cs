@@ -10,6 +10,8 @@ public class PlayerAnimationManager
 {
 	public Queue<MatchTarget> matchTargets;
 
+	public StandardInteraction CurrentInteraction { get; set; }
+
 	public StateMachineBehaviour AnimationPhysicsBehaviour { get; set; }
 	public StateMachineBehaviour KinematicBehaviour { get; set; }
 	public PlayerAnimationUpper UpperLayer { get; private set; }
@@ -93,7 +95,6 @@ public class PlayerAnimationManager
 			if (angle < 75 &&
 			 	(GameInfo.Settings.CurrentGamepad[GameInfo.Settings.UseKey].isPressed ||
 				 PlayerInfo.Sensor.Interaction.Access == StandardInteraction.AccessType.Trigger) &&
-				PlayerInfo.AbilityManager.CurrentAbility == null &&
 				!PlayerInfo.TeleportingThisFrame)
 			{
 				PlayerInfo.Sensor.Interaction.Invoke();
@@ -420,7 +421,7 @@ public class PlayerAnimationManager
 			PlayerInfo.Manager.StopCoroutine(directTargetCorou);
 		
 		PlayerInfo.Animator.InterruptMatchTarget(false);
-		
+		PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
 		directTargetCorou = PlayerInfo.Manager.StartCoroutine(DirectTargetCoroutine(target));
 	}
 
@@ -484,6 +485,7 @@ public class PlayerAnimationManager
 		PlayerInfo.Player.transform.position = percTargetPos;
 		PlayerInfo.Player.transform.rotation = percTargetRot;
 		directTargetCorou = null;
+		PlayerInfo.CharMoveSystem.Kinematic.TryReleaseLock(this, false);
 	}
 
 	/*

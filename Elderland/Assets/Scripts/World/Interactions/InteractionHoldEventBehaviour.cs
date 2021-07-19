@@ -40,6 +40,7 @@ public class InteractionHoldEventBehaviour : StateMachineBehaviour
                     {
                         PlayerInfo.Manager.Interaction.Reset();
                     }
+                    PlayerInfo.AnimationManager.CurrentInteraction = null;
                 }
             }
         }

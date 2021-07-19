@@ -88,6 +88,8 @@ public class StandardInteraction : MonoBehaviour
 		}
 	}
 
+
+
 	public enum Type { press, holdUntilRelease, holdUntilReleaseOrComplete }  
 	public enum AccessType { Input, Trigger }  
 
@@ -99,33 +101,33 @@ public class StandardInteraction : MonoBehaviour
 		}
 	}
 
+	public void StartDirectTarget()
+	{
+		if (useTarget)
+		{
+			Quaternion rotation = Quaternion.LookRotation(GeneratedTargetRotation, Vector3.up);
+			var matchTarget =
+				new PlayerAnimationManager.MatchTarget(
+					GeneratedTargetPosition,
+					rotation,
+					AvatarTarget.Root,
+					positionWeight,
+					rotationWeight,
+					0,
+					targetEndtime);
+			PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+		}
+	}
+
 	public void Invoke()
 	{
 		if (!activated)
 		{
+			PlayerInfo.AnimationManager.CurrentInteraction = this;
+
 			activated = true;
 			GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
 			GameInfo.CameraController.AllowZoom = false;
-
-			if (useTarget)
-			{
-				Quaternion rotation = Quaternion.LookRotation(GeneratedTargetRotation, Vector3.up);
-				var matchTarget =
-					new PlayerAnimationManager.MatchTarget(
-						GeneratedTargetPosition,
-						rotation,
-						AvatarTarget.Root,
-						positionWeight,
-						rotationWeight,
-						0,
-						targetEndtime);
-				PlayerInfo.AnimationManager.EnqueueTarget(matchTarget);
-				PlayerInfo.Animator.SetBool("targetMatch", true);
-			}
-			else
-			{
-				PlayerInfo.Animator.SetBool("targetMatch", false);
-			}
 			
 			PlayerInfo.Animator.SetTrigger("interacting");
 			PlayerInfo.Animator.SetTrigger("generalInteracting");
