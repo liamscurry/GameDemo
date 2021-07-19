@@ -8,6 +8,9 @@ using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Controls;
 
 // Input based UT
+/*
+Tests kinematic mode transitions for character move system.
+*/
 
 public class CharacterMovementSystemKinematicUT : MonoBehaviour
 {
@@ -20,6 +23,9 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
         StartCoroutine(InputCoroutine());
     }
 
+    /*
+    * Coroutine that runs all specified tests.
+    */
     private IEnumerator InputCoroutine()
     {
         GameInfo.Settings.CurrentGamepad = fakeController;
@@ -28,21 +34,11 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
         {
             yield return new WaitForEndOfFrame();
         }
-
-        /*
-        InputEventPtr sprintEvent;
-        using (StateEvent.From(fakeController, out sprintEvent))
-        {
-            fakeController.leftStickButton.pressPoint = 0.0f;
-            fakeController.leftStickButton.WriteValueIntoEvent(1.0f, sprintEvent);
-            InputSystem.QueueEvent(sprintEvent);
-        }
-
-        SetFakeControllerDirection(new Vector2(0, 1).normalized * 0.95f);
-        */
         
         yield return StillTest();
         yield return KinematicStationaryFallTest();
+        yield return KinematicGlideFallTest();
+        yield return KinematicLedgeFallTest();
 
         Debug.Log("Char Move System Kinematic: Success");
     }
@@ -95,6 +91,68 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
         yield return AssertNotMoving();
 
         yield return new WaitForSeconds(1);
+        yield return AssertGrounded();
+    }
+
+    private IEnumerator KinematicGlideFallTest()
+    {
+        yield return new WaitForSeconds(1.3f);
+
+        var matchTarget = new PlayerAnimationManager.MatchTarget(
+            PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 6,
+            Quaternion.identity,
+            AvatarTarget.Root,
+            Vector3.one,
+            0,
+            0,
+            0.5f    
+        );
+        PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
+        yield return AssertInAir();
+        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+
+        yield return new WaitUntil(() => !PlayerInfo.AnimationManager.InDirectTargetMatch);
+        yield return AssertInAir();
+
+        PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, false);
+        yield return AssertInAir();
+        yield return AssertNotMoving();
+
+        yield return new WaitForSeconds(1);
+        yield return AssertGrounded();
+    }
+
+    private IEnumerator KinematicLedgeFallTest()
+    {
+        yield return new WaitForSeconds(1.5f);
+
+        Vector3 targetPos =
+            PlayerInfo.Player.transform.position +
+            PlayerInfo.Player.transform.forward * 2.55f +
+            PlayerInfo.Player.transform.up * -1f;
+        var matchTarget = new PlayerAnimationManager.MatchTarget(
+            targetPos,
+            Quaternion.identity,
+            AvatarTarget.Root,
+            Vector3.one,
+            0,
+            0,
+            0.5f    
+        );
+
+        PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
+        yield return AssertInAir();
+        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+        SetFakeControllerDirection(new Vector2(-1, 1).normalized * 0.95f);
+
+        yield return new WaitUntil(() => !PlayerInfo.AnimationManager.InDirectTargetMatch);
+        yield return AssertInAir();
+
+        PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, false);
+        yield return AssertInAir();
+        yield return AssertNotMoving();
+
+        yield return new WaitForSeconds(2);
         yield return AssertGrounded();
     }
 
