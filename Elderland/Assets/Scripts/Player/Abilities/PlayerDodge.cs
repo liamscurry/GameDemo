@@ -22,8 +22,6 @@ public sealed class PlayerDodge : PlayerAbility
     private const float sideRotateDegrees = 40f;
     private const float sideRotateSpeed = 5f;
 
-    private float swordSpeedModifier;
-
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         this.system = abilityManager;
@@ -48,19 +46,6 @@ public sealed class PlayerDodge : PlayerAbility
 
     protected override void GlobalStart()
     {
-        if (!((PlayerSword) PlayerInfo.AbilityManager.Melee).IsAbilitySpeedReset)
-        {
-            swordSpeedModifier = PlayerInfo.AbilityManager.Melee.AbilitySpeed;
-            abilitySpeed = 1 / swordSpeedModifier;
-        }
-        else
-        {
-            swordSpeedModifier = 1;
-            abilitySpeed = 1;
-        }
-
-        abilitySpeed *= 0.75f;
-
         Vector2 playerInput =
             PlayerInfo.MovementManager.DirectionToPlayerCoord(GameInfo.Settings.LeftDirectionalInput);
         playerInput.x *= 0.75f;
@@ -127,7 +112,7 @@ public sealed class PlayerDodge : PlayerAbility
     private void DuringAct()
     {
         float compositeSpeed = 
-            speed * (1 / abilitySpeed) * PlayerInfo.StatsManager.MovespeedMultiplier.Value;
+            speed * PlayerInfo.StatsManager.MovespeedMultiplier.Value;
         system.CharMoveSystem.GroundMove(direction * compositeSpeed);
     }
 
@@ -145,7 +130,7 @@ public sealed class PlayerDodge : PlayerAbility
     private void DuringSlide()
     {
         float compositeSpeed = 
-            speed * (1 / abilitySpeed) * PlayerInfo.StatsManager.MovespeedMultiplier.Value * 0.5f;
+            speed * PlayerInfo.StatsManager.MovespeedMultiplier.Value * 0.5f;
         system.CharMoveSystem.GroundMove(direction * compositeSpeed);
     }
 

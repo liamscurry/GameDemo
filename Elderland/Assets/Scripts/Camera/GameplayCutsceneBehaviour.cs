@@ -22,7 +22,7 @@ public class GameplayCutsceneBehaviour : StateMachineBehaviour
                 GameInfo.CameraController.GameplayCutscene.CurrentStateNormDuration
             );
 
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
         exiting = false;
 	}
 

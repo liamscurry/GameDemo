@@ -81,7 +81,7 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
         );
         PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
         yield return AssertInAir();
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, false);
 
         yield return new WaitUntil(() => !PlayerInfo.AnimationManager.InDirectTargetMatch);
         yield return AssertInAir();
@@ -109,7 +109,7 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
         );
         PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
         yield return AssertInAir();
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, false);
 
         yield return new WaitUntil(() => !PlayerInfo.AnimationManager.InDirectTargetMatch);
         yield return AssertInAir();
@@ -142,7 +142,7 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
 
         PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
         yield return AssertInAir();
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, false);
         SetFakeControllerDirection(new Vector2(-1, 1).normalized * 0.95f);
 
         yield return new WaitUntil(() => !PlayerInfo.AnimationManager.InDirectTargetMatch);

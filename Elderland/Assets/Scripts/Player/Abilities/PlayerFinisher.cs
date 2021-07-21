@@ -229,7 +229,7 @@ public sealed class PlayerFinisher : PlayerAbility
                     interuptedTarget = true;
                     PlayerInfo.Animator.InterruptMatchTarget(false);
                     matchTarget.positionWeight = Vector3.zero;
-                    PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+                    PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
                 }
             }   
         }
@@ -328,7 +328,7 @@ public sealed class PlayerFinisher : PlayerAbility
                 1);
 
         charge.LoopFactor = 1;
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
 
         dashPosition = targetPosition;
     }

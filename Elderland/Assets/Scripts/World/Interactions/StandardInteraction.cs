@@ -115,7 +115,7 @@ public class StandardInteraction : MonoBehaviour
 					rotationWeight,
 					0,
 					targetEndtime);
-			PlayerInfo.AnimationManager.StartDirectTarget(matchTarget);
+			PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
 		}
 	}
 

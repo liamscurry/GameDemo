@@ -415,17 +415,17 @@ public class PlayerAnimationManager
 	* Direct target methods are for abilities. These are custom target coroutines that allow for
 	* movement even when the player animator is in a transition.
 	*/
-	public void StartDirectTarget(MatchTarget target)
+	public void StartDirectTarget(MatchTarget target, bool clamp)
 	{
 		if (directTargetCorou != null)
 			PlayerInfo.Manager.StopCoroutine(directTargetCorou);
 		
 		PlayerInfo.Animator.InterruptMatchTarget(false);
 		PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
-		directTargetCorou = PlayerInfo.Manager.StartCoroutine(DirectTargetCoroutine(target));
+		directTargetCorou = PlayerInfo.Manager.StartCoroutine(DirectTargetCoroutine(target, clamp));
 	}
 
-	private IEnumerator DirectTargetCoroutine(MatchTarget target)
+	private IEnumerator DirectTargetCoroutine(MatchTarget target, bool clamp)
 	{
 		float startTime = 0;
 		float animDuration = 0;
@@ -456,7 +456,7 @@ public class PlayerAnimationManager
 		Vector3 startPosition = PlayerInfo.Player.transform.position;
 		Quaternion startRotation = PlayerInfo.Player.transform.rotation;
 		Vector3 percTargetPos =
-			startPosition * (1 - target.positionWeight.x) + target.position * target.positionWeight.x;
+			DirectTargetGoal(startPosition, target, clamp);
 		percTargetPos += PlayerInfo.CharMoveSystem.Controller.skinWidth * Vector3.up;
 		Quaternion percTargetRot =
 			Quaternion.Lerp(startRotation, target.rotation, target.rotationWeight);
@@ -486,6 +486,73 @@ public class PlayerAnimationManager
 		PlayerInfo.Player.transform.rotation = percTargetRot;
 		directTargetCorou = null;
 		PlayerInfo.CharMoveSystem.Kinematic.TryReleaseLock(this, false);
+	}
+
+	/*
+	Inputs:
+	Vector3 : startPosition : start position that coroutine lerps from.
+	MatchTarget : target : target structure that was passsed into coroutine.
+	bool : clamp : should the target position clamp to the ground, considering the skin width of the 
+	players physics hitbox.
+
+	Outputs:
+	Vector3 : target position that direct target loops too.
+	*/
+	private Vector3 DirectTargetGoal(Vector3 startPosition, MatchTarget target, bool clamp)
+	{
+		Vector3 weightedTarget = 
+			new Vector3(
+				startPosition.x * (1 - target.positionWeight.x) + target.position.x * target.positionWeight.x,
+				startPosition.y * (1 - target.positionWeight.y) + target.position.y* target.positionWeight.y,
+				startPosition.z * (1 - target.positionWeight.z) + target.position.z * target.positionWeight.z
+			);
+		
+		if (clamp)
+		{
+			float controllerHeight = PlayerInfo.CharMoveSystem.Controller.height;
+			float controllerRadius = PlayerInfo.CharMoveSystem.Controller.radius;
+			float controllerSkinWidth = PlayerInfo.CharMoveSystem.Controller.skinWidth;
+			float controllerContact = PlayerInfo.CharMoveSystem.Controller.contactOffset;
+
+			RaycastHit hitInfo;
+			Vector3 topOffset =
+				(controllerHeight / 2 - controllerRadius) *
+				Vector3.up;
+
+			bool hit = Physics.CapsuleCast(
+				weightedTarget + topOffset,
+				weightedTarget - topOffset,
+				controllerRadius,
+				Vector3.down,
+				out hitInfo,
+				PlayerInfo.CharMoveSystem.Controller.height / 2,
+				LayerConstants.GroundCollision
+			);
+
+			/*
+			Debug.DrawLine(
+				weightedTarget + controllerHeight / 2 * Vector3.up,
+				weightedTarget - controllerHeight / 2 * Vector3.up,
+				Color.green,
+				5f);
+				*/
+
+			if (!hit)
+			{
+				return weightedTarget;
+			}
+			else
+			{
+				Vector3 clampedTarget =
+					weightedTarget + 
+					Vector3.down * (hitInfo.distance);
+				return clampedTarget;
+			}
+		}
+		else
+		{
+			return weightedTarget;
+		}
 	}
 
 	/*
