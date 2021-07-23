@@ -73,12 +73,11 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
 	private void Update()
     {
         //Systems//
-        //PlayerInfo.PhysicsSystem.UpdateSystem();
         //PlayerInfo.MovementSystem.UpdateSystem();
 
         //Managers//
         //Data based
-        //PlayerInfo.BuffManager.UpdateBuffs();
+        PlayerInfo.BuffManager.UpdateBuffs();
         
         //Input based
         PlayerInfo.AnimationManager.UpdateAnimations();
@@ -91,7 +90,6 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     {
         //Frame specific data
         //PlayerInfo.MovementSystem.LateUpdateSystem();
-        //PlayerInfo.PhysicsSystem.LateUpdateSystem();
         PlayerInfo.MovementManager.LateUpdateMovement();
         PlayerInfo.CharMoveSystem.LateUpdateSystem();
         GameInfo.CameraController.UpdateController();
@@ -100,25 +98,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
 
     private void FixedUpdate()
     {
-        /*
-        if (!PlayerInfo.PhysicsSystem.Animating)
-        {
-            PlayerInfo.Body.velocity = PlayerInfo.PhysicsSystem.CalculatedVelocity;
-        } 
-        else
-        {
-            PlayerInfo.Body.velocity = PlayerInfo.PhysicsSystem.AnimationVelocity;
-        }       
-
-        //Friction
-        if (PlayerInfo.PhysicsSystem.TouchingFloor)
-        {
-            PlayerInfo.PhysicsSystem.DynamicDrag(12f);
-        }
-        */
-
         //PlayerInfo.MovementSystem.FixedUpdateSystem();
-        //PlayerInfo.PhysicsSystem.FixedUpdateSystem();
         PlayerInfo.AbilityManager.FixedUpdateAbilities();
     }
 

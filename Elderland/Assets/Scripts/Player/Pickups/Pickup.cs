@@ -39,7 +39,7 @@ public abstract class Pickup : MonoBehaviour
             Vector3 normalOffset = 
                 Matho.Rotate(Vector3.up, startOffset, pathRotation);
 
-            startOffset = Matho.StandardProjection3D(startOffset).normalized;
+            startOffset = Matho.StdProj3D(startOffset).normalized;
 
             Vector3 lerpPosition =
                 startPosition * (1f - seekTimer / seekDuration) +

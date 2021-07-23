@@ -30,8 +30,6 @@ public class PlayerAnimationManager
 	private Coroutine directTargetCorou;
 	public bool InDirectTargetMatch { get { return directTargetCorou != null; } }
 
-	private bool rotatingModel;
-
 	public const float ModelRotSpeedIdle = 2f;
 	public const float ModelRotSpeedMoving = 9f;
 
@@ -41,6 +39,14 @@ public class PlayerAnimationManager
 
     private const float positionAnalogSpeed = 1.7f;
     private const float reverseAnalogSpeed = 1.35f;
+
+	// 0 is stationary, 1 is rotation to the right of the character, -1 is rotating left.
+    public float CurrentRotationSpeed { get; private set; }
+    public const float RotationStartMin = 45f;
+    public const float RotationStopMin = 2f;
+	public const float RotationObserverMin = 0.2f;
+    private const float rotationSpeedSpeedIncrease = 7f;
+    private const float rotationSpeedSpeedDecrease = 3f;
 
 	private bool movedThisFrame;
 
@@ -52,7 +58,6 @@ public class PlayerAnimationManager
 		walkAbilityLayer = new PlayerAnimationPersistLayer(0.5f, "WalkAbilityLayer");
 		UpperLayer = new PlayerAnimationUpper();
 
-		rotatingModel = false;
 		AnimatorController =
 			Resources.Load<AnimatorController>(ResourceConstants.Player.Art.AnimatorController);
 
@@ -62,25 +67,7 @@ public class PlayerAnimationManager
 
 	public void UpdateAnimations()
 	{
-        if (!PlayerInfo.Animator.GetBool("falling") &&
-			PlayerInfo.PhysicsSystem.ExitedFloor &&
-			!PlayerInfo.Animator.GetBool("jump") &&
-			!IgnoreFallingAnimation)
-        {
-			if (PlayerInfo.AbilityManager.CurrentAbility == PlayerInfo.AbilityManager.Dodge ||
-				PlayerInfo.AbilityManager.CurrentAbility == PlayerInfo.AbilityManager.Melee)
-			{
-				PlayerInfo.AbilityManager.CurrentAbility.FallUponFinish();
-				PlayerInfo.Animator.SetBool("falling", true);
-			}
-			else
-			{
-				//moved shortcut to after triggers/bools, was before before
-            	PlayerInfo.Animator.SetBool("falling", true);
-				PlayerInfo.Animator.SetTrigger("fall");		
-				PlayerInfo.AbilityManager.ShortCircuit(false);
-			}
-		}
+
 	}
 
 	public void LateUpdateAnimations()
@@ -173,7 +160,7 @@ public class PlayerAnimationManager
 				LayerConstants.GroundCollision))
 			{
 				Vector3 projectedNormal =
-					Matho.StandardProjection3D(-obstructionHit.normal);
+					Matho.StdProj3D(-obstructionHit.normal);
 				if (projectedNormal.magnitude != 0)
 				{
 					geometryModifier = Matho.AngleBetween(projectedNormal, currentDirection3D) / 180f;
@@ -215,65 +202,53 @@ public class PlayerAnimationManager
 				PlayerInfo.MovementManager.AnimationPercentileSpeed);
 		}
     }
-
-	/*
-	* Helper function for behaviours to update model rotation to camera forward (or blended if in combat)
-	*/
-	public void UpdateRotation(bool moving)
+	
+	public void UpdateRotationProperties()
     {
-        if (!moving)
+        int targetRotationSpeed = 0;
+        Vector3 targetDirection3D =
+			Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+        Vector3 currentDirection3D =
+			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
+   
+        if (Matho.AngleBetween(targetDirection3D, currentDirection3D) > RotationStartMin)
         {
-            UpdateStillModelRotation();
+            Vector3 zenith = Vector3.Cross(targetDirection3D, currentDirection3D);
+            
+            if (Matho.AngleBetween(zenith, Vector3.up) < 90f)
+            {
+                targetRotationSpeed = -1;
+            }
+            else
+            {
+                targetRotationSpeed = 1;
+            }
         }
-        else
-        {
-            UpdateMovingModelRotation();
-        }
+
+        float usedRotSpeed = (targetRotationSpeed != 0) ? rotationSpeedSpeedIncrease : rotationSpeedSpeedDecrease;
+        CurrentRotationSpeed =
+            Mathf.MoveTowards(
+                CurrentRotationSpeed,
+                targetRotationSpeed,
+                usedRotSpeed * Time.deltaTime);
+        
+        PlayerInfo.Animator.SetFloat("rotationSpeed", CurrentRotationSpeed);
     }
 
-	private void UpdateMovingModelRotation()
+	/*
+	Helper method called in states where UpdateWalkProperties is called in. Should be called at the start
+	of the state.
+
+	Inputs:
+	None
+
+	Outputs:
+	None
+	*/
+	public void ResetWalkProperties()
 	{
-		rotatingModel = false;
-
-		Vector3 targetRotation =
-			Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
-		Vector3 currentRotation =
-			Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
-
-		Vector3 incrementedRotation =
-			Vector3.RotateTowards(
-				currentRotation,
-				targetRotation,
-				PlayerAnimationManager.ModelRotSpeedMoving * Time.deltaTime,
-				0f);
-		Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
-		PlayerInfo.Player.transform.rotation = rotation;
-	}
-
-	private void UpdateStillModelRotation()
-	{
-		Vector3 targetRotation =
-			Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
-		Vector3 currentRotation =
-			Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
-
-		if (Matho.AngleBetween(targetRotation, currentRotation) > PlayerMovementManager.RotationStartMin)
-			rotatingModel = true;  
-
-		if (rotatingModel)
-		{
-			Vector3 incrementedRotation =
-				Vector3.RotateTowards(
-					currentRotation,
-					targetRotation,
-					PlayerAnimationManager.ModelRotSpeedIdle * Time.deltaTime,
-					0f);
-			Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
-			PlayerInfo.Player.transform.rotation = rotation;
-
-			if (Matho.AngleBetween(targetRotation, currentRotation) < PlayerMovementManager.RotationStopMin)
-				rotatingModel = false;
-		}
+		CurrentRotationSpeed = 0;
+		PlayerInfo.Animator.SetFloat("rotationSpeed", CurrentRotationSpeed);
 	}
 
 	/*

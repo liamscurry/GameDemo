@@ -74,7 +74,7 @@ public sealed class PlayerChainLightning : PlayerAbility
         }
         else
         {
-            Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
+            Vector3 targetRotation = Matho.StdProj3D(GameInfo.CameraController.Direction).normalized;
             
             PlayerInfo.MovementManager.TargetDirection = movementDirection;
 
@@ -96,8 +96,8 @@ public sealed class PlayerChainLightning : PlayerAbility
 
     public void DuringCharge()
     {
-        Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
-        Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
+        Vector3 targetRotation = Matho.StdProj3D(GameInfo.CameraController.Direction).normalized;
+        Vector3 currentRotation = Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
         Vector3 incrementedRotation = Vector3.RotateTowards(currentRotation, targetRotation, 10 * Time.deltaTime, 0f);
         Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
         PlayerInfo.Player.transform.rotation = rotation;
@@ -137,8 +137,8 @@ public sealed class PlayerChainLightning : PlayerAbility
 
     public void DuringAct()
     {
-        Vector3 targetRotation = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
-        Vector3 currentRotation = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
+        Vector3 targetRotation = Matho.StdProj3D(GameInfo.CameraController.Direction).normalized;
+        Vector3 currentRotation = Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
         Vector3 incrementedRotation = Vector3.RotateTowards(currentRotation, targetRotation, 10 * Time.deltaTime, 0f);
         Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
         PlayerInfo.Player.transform.rotation = rotation;

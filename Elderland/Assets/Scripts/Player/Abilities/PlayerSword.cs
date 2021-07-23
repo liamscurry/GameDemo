@@ -27,13 +27,14 @@ public sealed class PlayerSword : PlayerAbility
     private float knockbackStrength = 3.5f;
     private PlayerMultiDamageHitbox hitbox;
     private Vector3 hitboxScale = new Vector3(3f, 2, 2);
+    private const float maxSpeedOnExit = 5f;
 
     private AbilityProcess chargeProcess;
     private AbilityProcess actProcess;
     private AbilitySegment charge;
     private AbilitySegment act;
 
-    private enum Type { NoTarget, FarTarget, CloseTarget }
+    private enum Type { NoTarget, FarTarget, CloseTarget, NotCalculated }
     private Type type;
 
     private Vector2 playerDirection;
@@ -44,16 +45,26 @@ public sealed class PlayerSword : PlayerAbility
     private float targetWidth;
     private float targetHorizontalDistance;
 
+    // Movement info
+    private Vector3 startPosition;
+    private Vector3 targetPosition;
+    private Vector2 projStartPos;
+    private Vector2 projTargetPos;
+    private bool calculatedTargetInfo;
+
+    // Rotate info
+    private Quaternion startRotation;
+    private Quaternion targetRotation;
+    private const float rotateDuration = 1f;
+    private float rotateTimer;
+
     private PlayerAnimationManager.MatchTarget matchTarget;
-    private bool interuptedTarget;
 
     private int castDirection;
     private float baseSpeed = 1f;
     private float maxSpeed = 1.5f;
     private float hitTime;
     private const float resetHitTime = 3.5f;
-
-    private PlayerAbilityHold holdSegmentHold;
 
     // Swing Direction
     private int flipSign;
@@ -62,6 +73,9 @@ public sealed class PlayerSword : PlayerAbility
 
     private float hitboxTimer;
     private const float hitboxDelay = 0.05f;
+
+    private const float noTargetDistance = 1.5f;
+    private const float noTargetSpeed = 10f;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -96,7 +110,6 @@ public sealed class PlayerSword : PlayerAbility
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, ChargeEnd, 1);
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1f);
         charge = new AbilitySegment(null, chargeProcess);
-        charge.Type = AbilitySegmentType.RootMotion;
         act = new AbilitySegment(null, actProcess);
         segments = new AbilitySegmentList();
         segments.AddSegment(charge);
@@ -125,74 +138,15 @@ public sealed class PlayerSword : PlayerAbility
     public override bool Wait(bool firstTimeCalling)
     {
         bool success = base.Wait(firstTimeCalling);
-
         return success;
-    }
-
-    public override void GlobalConstantUpdate()
-    {
-        if (PlayerInfo.CharMoveSystem.Grounded)
-        {
-            /*
-            RaycastHit raycast;
-
-            bool hit = UnityEngine.Physics.SphereCast(
-                PlayerInfo.Player.transform.position,
-                PlayerInfo.Capsule.radius,
-                Vector3.down,
-                out raycast,
-                (PlayerInfo.Capsule.height / 2) + PlayerInfo.Capsule.radius * 0.5f,
-                LayerConstants.GroundCollision);
-
-            
-            if (hit)
-            {
-                float height = PlayerInfo.Player.transform.position.y - (raycast.distance) + (PlayerInfo.Capsule.height / 2 - PlayerInfo.Capsule.radius);
-                //PlayerInfo.Manager.test = PlayerInfo.Player.transform.position + (raycast.distance) * Vector3.down;
-                PlayerInfo.Player.transform.position = new Vector3(PlayerInfo.Player.transform.position.x, height, PlayerInfo.Player.transform.position.z);
-            }
-
-            if (!interuptedTarget && PlayerInfo.Animator.isMatchingTarget)
-            {
-                if (CheckForGround())
-                {
-                    interuptedTarget = true;
-                    PlayerInfo.Animator.InterruptMatchTarget(false);
-                    matchTarget.positionWeight = Vector3.zero;
-                    PlayerInfo.AnimationManager.StartTargetImmediately(matchTarget);
-                }
-            }   */
-        }
-
-        PlayerInfo.AbilityManager.LastDirFocus = Time.time;
-        PlayerInfo.AbilityManager.DirFocus = PlayerInfo.Player.transform.forward;
-    }
-
-    private bool CheckForGround()
-    {
-        Vector3 interuptDirection = (dashPosition - PlayerInfo.Player.transform.position).normalized;
-
-        Collider[] overlapColliders = UnityEngine.Physics.OverlapSphere(
-            PlayerInfo.Player.transform.position + PlayerInfo.Capsule.BottomSphereOffset() + Vector3.up * 0.2f + interuptDirection * 0.3f,
-            PlayerInfo.Capsule.radius,
-            LayerConstants.GroundCollision | LayerConstants.Destructable);
-        
-        if (overlapColliders.Length == 0)
-        {
-            return false;
-        }
-
-        return true;
     }
 
     protected override void GlobalStart()
     {
         GenRanDirection();
-
-        interuptedTarget = false;
           
         playerDirection = (GameInfo.Settings.LeftDirectionalInput.magnitude > 0.5f) ?
-            GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput) :
+            GameInfo.CameraController.StdToCameraDir(GameInfo.Settings.LeftDirectionalInput) :
             Matho.StdProj2D(GameInfo.CameraController.Direction);
 
         playerPlanarDirection =
@@ -232,7 +186,6 @@ public sealed class PlayerSword : PlayerAbility
             }
 
             //Target info
-            //GameInfo.CameraController.SecondaryTarget = minCollider.transform;
             target = minCollider;
             targetDisplacement = (minCollider.transform.parent.position - PlayerInfo.Player.transform.position);
             targetPlanarDirection =
@@ -248,11 +201,8 @@ public sealed class PlayerSword : PlayerAbility
             target.Raycast(enemyRay, out enemyHit, targetHorizontalDistance);
             targetWidth = targetDisplacement.magnitude - enemyHit.distance;
 
-            //Far target
             if (targetHorizontalDistance - PlayerInfo.Capsule.radius - targetWidth > hitboxScale.z / 2)
             {
-                float distance = targetHorizontalDistance - PlayerInfo.Capsule.radius - targetWidth;
-
                 type = Type.FarTarget;
             }
             else
@@ -264,6 +214,14 @@ public sealed class PlayerSword : PlayerAbility
         {
             type = Type.NoTarget;
         }
+
+        calculatedTargetInfo = false;
+    }
+
+    public override void GlobalConstantUpdate()
+    {
+        if (calculatedTargetInfo)
+            MoveTowardsGoal();
     }
 
     public void ChargeBegin()
@@ -281,59 +239,45 @@ public sealed class PlayerSword : PlayerAbility
             FarTargetDirectTarget();
         }
 
-        PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
+        calculatedTargetInfo = true;
+
+        startRotation = PlayerInfo.Player.transform.rotation;
+        rotateTimer = 0;
+
+        PlayerInfo.CharMoveSystem.MaxConstantOnExit.ClaimLock(this, maxSpeedOnExit);
     }
 
     private void NoTargetDirectTarget()
     {
-        RaycastHit distanceHit;
-        bool distanceRegistered =
-            Physics.SphereCast(
-                PlayerInfo.Player.transform.position,
-                PlayerInfo.Capsule.radius,
-                playerPlanarDirection.normalized,
-                out distanceHit,
-                1,
-                LayerConstants.GroundCollision | LayerConstants.Destructable);
+        Vector2 worldAnalogInput2D = 
+            GameInfo.CameraController.StdToCameraDir(GameInfo.Settings.LeftDirectionalInput);
+        Vector3 targetDirection = 
+            (GameInfo.Settings.LeftDirectionalInput.magnitude < PlayerAbilityManager.deadzone) ?
+            GameInfo.CameraController.Direction :
+            new Vector3(worldAnalogInput2D.x, 0, worldAnalogInput2D.y);
 
-        float distance = (distanceRegistered) ? distanceHit.distance : 1;
+        targetPosition =
+            PlayerInfo.Player.transform.position +
+            Matho.StdProj3D(targetDirection) * noTargetDistance;
 
-        Collider[] overlappingColliders = 
-        Physics.OverlapSphere(
-            PlayerInfo.Player.transform.position + playerPlanarDirection.normalized * 0.5f,
-            PlayerInfo.Capsule.radius,
-            LayerConstants.GroundCollision | LayerConstants.Destructable);
+        startPosition = PlayerInfo.Player.transform.position;
+
+        projStartPos = Matho.StdProj2D(startPosition);
+        projTargetPos = Matho.StdProj2D(targetPosition);
         
-        if (overlappingColliders.Length > 0)
-            distance = 0;
-
-        Vector3 targetPosition =
-            PlayerInfo.Player.transform.position + playerPlanarDirection.normalized * distance;
-        Debug.Log(targetPosition.y + ", " + PlayerInfo.Player.transform.position.y);
-        Quaternion targetRotation =
-            Quaternion.LookRotation(Matho.StandardProjection3D(playerPlanarDirection), Vector3.up);
-        matchTarget =
-            new PlayerAnimationManager.MatchTarget(
-                targetPosition,
-                targetRotation,
-                AvatarTarget.Root,
-                new Vector3(1, 1, 1),
-                1);
         charge.LoopFactor = 1;
 
-        Debug.DrawLine(transform.position, targetPosition, Color.red, 3f);
-        dashPosition = targetPosition;
-
-        if (CheckForGround())
-            matchTarget.positionWeight = Vector3.zero;
-            
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
+        //dashPosition = targetPosition;
+        targetRotation = 
+            Quaternion.LookRotation(
+                Matho.StdProj3D(targetDirection),
+                Vector3.up);
     }
 
     private void CloseTargetDirectTarget()
     {
         Quaternion targetRotation =
-             Quaternion.LookRotation(Matho.StandardProjection3D(targetDisplacement).normalized, Vector3.up);
+             Quaternion.LookRotation(Matho.StdProj3D(targetDisplacement).normalized, Vector3.up);
         matchTarget =
             new PlayerAnimationManager.MatchTarget(
                 Vector3.zero,
@@ -378,7 +322,7 @@ public sealed class PlayerSword : PlayerAbility
         }
 
         Quaternion targetRotation =
-            Quaternion.LookRotation(Matho.StandardProjection3D(targetDisplacement).normalized, Vector3.up);
+            Quaternion.LookRotation(Matho.StdProj3D(targetDisplacement).normalized, Vector3.up);
         matchTarget =
             new PlayerAnimationManager.MatchTarget(
                 targetPosition,
@@ -397,19 +341,12 @@ public sealed class PlayerSword : PlayerAbility
 
     public void DuringCharge()
     {
-        if (Physics.OverlapSphere(
-            PlayerInfo.Player.transform.position,
-            PlayerInfo.Capsule.radius * 1.75f,
-            LayerConstants.Enemy).Length != 0)
-        {
-            PlayerInfo.Animator.InterruptMatchTarget(false);
-            ForceAdvanceSegment();
-        }
+        RotateTowardsGoal();
     }
 
     public void ChargeEnd()
     {
-
+        FinishRotateTowardsGoal();
     }
 
     public void ActBegin()
@@ -437,6 +374,73 @@ public sealed class PlayerSword : PlayerAbility
         PlayerInfo.AbilityManager.SwordParticles.Play();
 
         hitboxTimer = 0;
+    }
+
+    /*
+    Moves the player using the char move system to the target goal found earlier. Does not overshoot.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Bugs fixed: 
+    - Player stops after charging. Solution: lowered duration of transition to abilities. It
+      was hanging as it was waiting for transition to end.
+    */
+    private void MoveTowardsGoal()
+    {
+        if (type == Type.NoTarget)
+        {   
+            if (Vector2.Distance(projStartPos, projTargetPos) >
+                Vector2.Distance(projStartPos, Matho.StdProj2D(PlayerInfo.Player.transform.position)))
+            {
+                Vector2 direction = 
+                    Matho.StdProj2D(targetPosition - PlayerInfo.Player.transform.position).normalized;
+
+                PlayerInfo.CharMoveSystem.GroundMove(direction * noTargetSpeed);
+            }
+        }
+
+        if (Physics.OverlapSphere(
+            PlayerInfo.Player.transform.position,
+            PlayerInfo.Capsule.radius * 1.75f,
+            LayerConstants.Enemy).Length != 0)
+        {
+            ForceAdvanceSegment();
+        }
+    }
+    
+    /*
+    Rotates the player during charge in order to align the sword direction towards targets
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void RotateTowardsGoal()
+    {
+        rotateTimer += Time.deltaTime;
+        float rotatePerc = Mathf.Clamp01(rotateTimer / rotateDuration);
+        PlayerInfo.Player.transform.rotation =
+            Quaternion.Lerp(startRotation, targetRotation, rotatePerc);
+    }
+
+    /*
+    Snaps player rotation to end rotation after RotateTowardsGoal function.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void FinishRotateTowardsGoal()
+    {
+        PlayerInfo.Player.transform.rotation = targetRotation;
     }
 
     /*
@@ -558,6 +562,7 @@ public sealed class PlayerSword : PlayerAbility
         PlayerInfo.MovementManager.SnapDirection();
         PlayerInfo.MovementManager.ZeroSpeed();
 
+        /*
         float exitMoveSpeed = 0;
         if (GameInfo.Settings.LeftDirectionalInput.magnitude > 0.2f)
         {
@@ -569,8 +574,12 @@ public sealed class PlayerSword : PlayerAbility
             PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
         }
         PlayerInfo.Animator.SetFloat("speed", exitMoveSpeed);
+        */
 
-        PlayerInfo.CharMoveSystem.Kinematic.TryReleaseLock(this, false);
+        PlayerInfo.AbilityManager.LastDirFocus = Time.time;
+        PlayerInfo.AbilityManager.DirFocus = PlayerInfo.Player.transform.forward;
+
+        PlayerInfo.CharMoveSystem.MaxConstantOnExit.TryReleaseLock(this, float.MaxValue);
     }
 
     public override bool OnHit(GameObject character)
@@ -585,8 +594,7 @@ public sealed class PlayerSword : PlayerAbility
             directionalDamageModifier = 0.5f;
 
         enemy.ChangeHealth(
-            -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * directionalDamageModifier,
-            holdSegmentHold.Held);
+            -damage * PlayerInfo.StatsManager.DamageMultiplier.Value * directionalDamageModifier);
         
         if (enemy.Health > enemy.ZeroHealth)
         {
@@ -648,7 +656,7 @@ public sealed class PlayerSword : PlayerAbility
     */
 
     /*
-    // Inside of on Hit
+    // Inside of OnHit. Used to be used for changing swing particles intensity.
     hitboxParticles.transform.localScale = Vector3.one * 1.5f;
     
     // Based on Particle System manual API.

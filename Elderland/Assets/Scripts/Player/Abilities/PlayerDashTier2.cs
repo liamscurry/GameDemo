@@ -55,7 +55,7 @@ public sealed class PlayerDashTier2 : PlayerAbility
 
     private void ActBegin()
     {
-        direction = GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput);
+        direction = GameInfo.CameraController.StdToCameraDir(GameInfo.Settings.LeftDirectionalInput);
         PlayerInfo.MovementManager.TargetDirection = direction;
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;

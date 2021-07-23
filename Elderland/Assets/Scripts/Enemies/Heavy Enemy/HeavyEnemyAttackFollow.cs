@@ -121,7 +121,7 @@ public class HeavyEnemyAttackFollow : StateMachineBehaviour
 
                 if (remainingDistance < rotateDistance)
                 {
-                    Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
+                    Vector3 targetForward = Matho.StdProj3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
                     Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 2f * Time.deltaTime, 0f);
                     manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
                 }
@@ -129,7 +129,7 @@ public class HeavyEnemyAttackFollow : StateMachineBehaviour
             else
             {
                 manager.Agent.updateRotation = false;
-                Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
+                Vector3 targetForward = Matho.StdProj3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
                 Vector3 forward = Vector3.RotateTowards(manager.transform.forward, targetForward, 2f * Time.deltaTime, 0f);
                 manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
             }

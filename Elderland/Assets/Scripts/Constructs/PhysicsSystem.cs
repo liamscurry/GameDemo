@@ -524,12 +524,12 @@ public class PhysicsSystem
         Theta = Matho.AngleBetween(Normal, Vector3.up);
 
         Vector3 point = groundContact.point - groundContact.separation * groundContact.normal;
-        float horizontalContactDistance = Vector3.Distance(Matho.StandardProjection3D(capsule.transform.position), Matho.StandardProjection3D(point));
+        float horizontalContactDistance = Vector3.Distance(Matho.StdProj3D(capsule.transform.position), Matho.StdProj3D(point));
         float horizontalSquareDifference = Mathf.Pow(capsule.radius, 2) - Mathf.Pow(horizontalContactDistance, 2);
         if (horizontalSquareDifference < 0)
             horizontalSquareDifference = 0;
         float bottomCapsuleContactCenter = Mathf.Sqrt(horizontalSquareDifference) + point.y;
-        PlayerInfo.Manager.test = Matho.StandardProjection3D(PlayerInfo.Player.transform.position) + bottomCapsuleContactCenter * Vector3.up;
+        PlayerInfo.Manager.test = Matho.StdProj3D(PlayerInfo.Player.transform.position) + bottomCapsuleContactCenter * Vector3.up;
         Distance = (capsule.transform.position.y + BottomSphereOffset.y) - bottomCapsuleContactCenter + capsule.radius;
 
         //Ground contact offset adjustment
@@ -552,7 +552,7 @@ public class PhysicsSystem
 
             if (slopeTheta != 0)
             {
-                Vector3 projectedNormal = Matho.StandardProjection3D(Normal);
+                Vector3 projectedNormal = Matho.StdProj3D(Normal);
                 Vector3 crossedNormal = Vector3.Cross(projectedNormal, Normal);
                 slopeDirection = Matho.Rotate(Normal, crossedNormal, -90);
             }

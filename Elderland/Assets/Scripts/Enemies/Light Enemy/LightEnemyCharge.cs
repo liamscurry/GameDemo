@@ -55,7 +55,7 @@ public sealed class LightEnemyCharge : EnemyAbility
 
     private void ActBegin()
     {
-        direction = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
+        direction = Matho.StdProj3D(PlayerInfo.Player.transform.position - transform.position).normalized;
         hitbox.Invoke(this);
         hitbox.gameObject.SetActive(true);
     }

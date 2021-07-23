@@ -42,6 +42,7 @@ public class CharacterMovementSystem : MonoBehaviour
     public Vector3 GroundNormal { get { return (grounded) ? groundNormal : Vector3.up; } }
 
     public StatLock<bool> HorizontalOnExit { get; private set; }
+    public StatLock<float> MaxConstantOnExit { get; private set; }
 
     private float groundSlopeLimit;
     private const float groundSlopeThreshold = 3f;
@@ -77,6 +78,7 @@ public class CharacterMovementSystem : MonoBehaviour
         minMoveDistance = controller.minMoveDistance;
         considerDynamicCollisions = false;
         HorizontalOnExit = new StatLock<bool>(false);
+        MaxConstantOnExit = new StatLock<float>(float.MaxValue);
         exitNormalQueue = new Queue<(float, Vector3)>();
         Kinematic = new StatLock<bool>(false, OnKinematicChange);
     }
@@ -246,7 +248,7 @@ public class CharacterMovementSystem : MonoBehaviour
     {
         // works up to here, developing step 3. 
         // So far in step, cast start positions correct.
-        Vector3 castOffset = Matho.StandardProjection3D(capsuleHitInfo.point - transform.position);
+        Vector3 castOffset = Matho.StdProj3D(capsuleHitInfo.point - transform.position);
         Vector3 castOrientation = castOffset.normalized;
         Vector3 nearCastStart =
             transform.position + castOffset + castOrientation * clampCastWidth;
@@ -567,9 +569,15 @@ public class CharacterMovementSystem : MonoBehaviour
             //exitNormalQueue.Clear();
 
             dynamicAirVelocity = dynamicVelocity; 
+
+            if (constantVelocity.magnitude > MaxConstantOnExit.Value)
+            {
+                constantVelocity = constantVelocity.normalized * MaxConstantOnExit.Value;
+            }
+
             if (HorizontalOnExit.Value)
             {
-                constantAirVelocity = Matho.StandardProjection3D(constantVelocity);
+                constantAirVelocity = Matho.StdProj3D(constantVelocity);
             }
             else
             {

@@ -17,14 +17,14 @@ public class MovementBehaviour : StateMachineBehaviour
         PlayerInfo.MovementManager.AnimationPercentileSpeed = 
             PlayerInfo.MovementManager.CurrentPercentileSpeed;
         keepSprintOnExit = false;
+        PlayerInfo.AnimationManager.ResetWalkProperties();
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{   
         if (!exiting && GameInfo.Manager.ReceivingInput.Value != GameInput.None)
         {
-            PlayerInfo.MovementManager.UpdateWalkMovement();
-            PlayerInfo.AnimationManager.UpdateWalkProperties();
+            PlayerInfo.MovementManager.UpdateWalkMovement(true);
 
             //Transitions//
             if (!animator.IsInTransition(0))

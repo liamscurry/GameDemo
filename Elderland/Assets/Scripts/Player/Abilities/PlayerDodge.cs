@@ -75,7 +75,7 @@ public sealed class PlayerDodge : PlayerAbility
 
     public override void GlobalUpdate()
     {
-        PlayerInfo.AnimationManager.UpdateRotation(true);
+        //PlayerInfo.MovementManager.UpdateRotation(true);
 
         if (dodgeType != DodgeType.Normal)
         {
@@ -96,7 +96,7 @@ public sealed class PlayerDodge : PlayerAbility
 
     private void ActBegin()
     {
-        direction = GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput);
+        direction = GameInfo.CameraController.StdToCameraDir(GameInfo.Settings.LeftDirectionalInput);
         PlayerInfo.MovementManager.TargetDirection = direction;
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;

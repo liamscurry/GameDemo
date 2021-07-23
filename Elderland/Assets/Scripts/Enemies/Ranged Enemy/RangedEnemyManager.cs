@@ -112,7 +112,7 @@ public sealed class RangedEnemyManager : EnemyManager
         rectangleCenter += Matho.StdProj2D(direction).normalized;
         Vector3 rectangleCenterNav = GameInfo.CurrentLevel.NavCast(rectangleCenter);
         Vector3 rectangleSize = new Vector3(2, 3, 1f - 0.1f);
-        Quaternion rectangleRotation = Quaternion.LookRotation(Matho.StandardProjection3D(direction).normalized, Vector3.up);
+        Quaternion rectangleRotation = Quaternion.LookRotation(Matho.StdProj3D(direction).normalized, Vector3.up);
 
         Collider[] enemies = Physics.OverlapBox(rectangleCenterNav, rectangleSize / 2f, rectangleRotation, LayerConstants.EnemyHitbox);
 
@@ -130,7 +130,7 @@ public sealed class RangedEnemyManager : EnemyManager
         Vector3 direction = PlayerInfo.Player.transform.position - transform.position;
         Vector3 rectangleCenter = transform.position + transform.forward;
         Vector3 rectangleSize = new Vector3(2, 3, 2f - 0.1f);
-        Quaternion rectangleRotation = Quaternion.LookRotation(Matho.StandardProjection3D(direction).normalized, Vector3.up);        
+        Quaternion rectangleRotation = Quaternion.LookRotation(Matho.StdProj3D(direction).normalized, Vector3.up);        
         Collider[] enemies = Physics.OverlapBox(rectangleCenter, rectangleSize / 2f, rectangleRotation, LayerConstants.EnemyHitbox);
         foreach (Collider enemy in enemies)
         {
@@ -153,7 +153,7 @@ public sealed class RangedEnemyManager : EnemyManager
         rectangleCenter += Matho.StdProj2D(direction).normalized;
         Vector3 rectangleCenterNav = GameInfo.CurrentLevel.NavCast(rectangleCenter);
         Vector3 rectangleSize = new Vector3(2, 3, 1f - 0.1f);
-        Quaternion rectangleRotation = Quaternion.LookRotation(Matho.StandardProjection3D(direction).normalized, Vector3.up);
+        Quaternion rectangleRotation = Quaternion.LookRotation(Matho.StdProj3D(direction).normalized, Vector3.up);
         Gizmos.matrix = Matrix4x4.TRS(rectangleCenterNav, rectangleRotation, Vector3.one);
         Gizmos.color = Color.red;
         Gizmos.DrawCube(Vector3.zero, rectangleSize);

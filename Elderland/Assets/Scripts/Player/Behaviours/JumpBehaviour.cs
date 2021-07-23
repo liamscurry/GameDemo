@@ -9,16 +9,14 @@ public class JumpBehaviour : StateMachineBehaviour
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
 		exiting = false;
-		PlayerInfo.MovementManager.UpdateWalkMovement();
-		PlayerInfo.AnimationManager.UpdateWalkProperties();
+		PlayerInfo.MovementManager.UpdateWalkMovement(true);
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
 		if (!exiting)
 		{
-			PlayerInfo.MovementManager.UpdateWalkMovement();
-            PlayerInfo.AnimationManager.UpdateWalkProperties();
+			PlayerInfo.MovementManager.UpdateWalkMovement(true);
 		}
 	}
 }

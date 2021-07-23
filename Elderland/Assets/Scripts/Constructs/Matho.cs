@@ -191,7 +191,7 @@ public static class Matho
         return new Vector2(v.x, v.z);
     }
 
-    public static Vector3 StandardProjection3D(Vector3 v)
+    public static Vector3 StdProj3D(Vector3 v)
     {
         return new Vector3(v.x, 0, v.z);
     }

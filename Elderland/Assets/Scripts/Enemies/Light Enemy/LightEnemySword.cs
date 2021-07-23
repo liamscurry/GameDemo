@@ -61,7 +61,7 @@ public sealed class LightEnemySword : EnemyAbility
 
     public void DuringRotate()
     {
-        Vector3 targetForward = Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
+        Vector3 targetForward = Matho.StdProj3D(PlayerInfo.Player.transform.position - transform.position).normalized;
         Vector3 forward = Vector3.RotateTowards(transform.forward, targetForward, 3f * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }

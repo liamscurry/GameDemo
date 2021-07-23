@@ -48,6 +48,16 @@ public abstract class PlayerAbility : Ability
         }
 
         CheckForConstantUpdate();
+
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            Time.timeScale = 0.2f;
+        }
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            Time.timeScale = 1f;
+        }
     }
 
     //Waits for valid input.

@@ -62,6 +62,8 @@ public class PlayerAbilityManager : AbilitySystem
     private ParticleSystem swordParticles;
     public ParticleSystem SwordParticles { get { return swordParticles; } }
 
+    public const float deadzone = 0.2f; // deadzone of analog stick inputs.
+
     public PlayerAbilityManager(
         Animator animator,
         PhysicsSystem physics,

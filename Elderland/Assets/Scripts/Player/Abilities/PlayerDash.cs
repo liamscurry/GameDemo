@@ -62,12 +62,12 @@ public sealed class PlayerDash : PlayerAbility
 
     public override void GlobalUpdate()
     {
-        PlayerInfo.AnimationManager.UpdateRotation(true);
+        //PlayerInfo.MovementManager.UpdateRotation(true);
     }
 
     private void ActBegin()
     {
-        direction = GameInfo.CameraController.StandardToCameraDirection(GameInfo.Settings.LeftDirectionalInput);
+        direction = GameInfo.CameraController.StdToCameraDir(GameInfo.Settings.LeftDirectionalInput);
         PlayerInfo.MovementManager.TargetDirection = direction;
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;

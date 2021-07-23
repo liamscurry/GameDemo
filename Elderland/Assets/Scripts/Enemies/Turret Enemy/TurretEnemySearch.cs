@@ -113,7 +113,7 @@ public class TurretEnemySearch : StateMachineBehaviour
         Vector3 playerDisplacement =
             PlayerInfo.Player.transform.position - manager.MeshParent.transform.position;
         playerDisplacement = 
-            Matho.StandardProjection3D(playerDisplacement).normalized;
+            Matho.StdProj3D(playerDisplacement).normalized;
         float playerAngle = 
             Matho.AngleBetween(manager.MeshParent.transform.forward, playerDisplacement);
         if (hasLOS && playerAngle < manager.PassiveSearchConeAngle / 2f)
@@ -127,7 +127,7 @@ public class TurretEnemySearch : StateMachineBehaviour
         Vector3 targetForward =
             PlayerInfo.Player.transform.position - manager.MeshParent.transform.position;
         targetForward = 
-            Matho.StandardProjection3D(targetForward).normalized;
+            Matho.StdProj3D(targetForward).normalized;
         
         Vector3 incrementedForward =
             Vector3.RotateTowards(manager.MeshParent.transform.forward, targetForward, manager.ActiveSearchSpeed * Time.deltaTime, 0);

@@ -7,7 +7,7 @@ public class LookTowardsCamera : MonoBehaviour
     private void Update()
     {
         Vector3 direction = 
-            Matho.StandardProjection3D(GameInfo.CameraController.transform.position - transform.position).normalized;
+            Matho.StdProj3D(GameInfo.CameraController.transform.position - transform.position).normalized;
         if (direction != Vector3.zero)
         {
             transform.rotation = Quaternion.LookRotation(direction, Vector3.up);  

@@ -124,9 +124,9 @@ public sealed class PlayerFinisher : PlayerAbility
                     Vector3.Distance(enemyColliders[i].transform.position, PlayerInfo.Player.transform.position);
                 Vector3 enemyOffset = 
                     enemyColliders[i].transform.position - PlayerInfo.Player.transform.position;
-                enemyOffset = Matho.StandardProjection3D(enemyOffset);
+                enemyOffset = Matho.StdProj3D(enemyOffset);
                 Vector3 projectedCameraForward = 
-                    Matho.StandardProjection3D(GameInfo.CameraController.transform.forward);
+                    Matho.StdProj3D(GameInfo.CameraController.transform.forward);
                 float cameraForwardEnemyAngle =
                     Matho.AngleBetween(enemyOffset, projectedCameraForward);
                 
@@ -316,7 +316,7 @@ public sealed class PlayerFinisher : PlayerAbility
 
         Quaternion targetRotation =
             Quaternion.LookRotation(
-                Matho.StandardProjection3D(targetDisplacement).normalized,
+                Matho.StdProj3D(targetDisplacement).normalized,
                 Vector3.up);
 
         matchTarget =

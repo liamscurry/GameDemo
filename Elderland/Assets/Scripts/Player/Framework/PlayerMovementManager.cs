@@ -27,12 +27,6 @@ public class PlayerMovementManager
 
     public Vector2 CurrentDirection { get; private set; }
 
-    // 0 is stationary, 1 is rotation to the right of the character, -1 is rotating left.
-    public float CurrentRotationSpeed { get; private set; }
-    public const float RotationStartMin = 45f;
-    public const float RotationStopMin = 2f;
-    private const float rotationSpeedSpeedIncrease = 7f;
-    private const float rotationSpeedSpeedDecrease = 3f;
     public float CurrentPercentileSpeed { get; private set; }
     public float AnimationPercentileSpeed { get; set; }
     public float PercSpeedObstructedModifier { get; set; }
@@ -97,6 +91,8 @@ public class PlayerMovementManager
             float percentage = 
                 (Time.time - PlayerInfo.AbilityManager.LastDirFocus) / (PlayerAbilityManager.DirFocusDuration * 0.5f);
             percentage = Mathf.Clamp01(percentage);
+
+            percentage = (percentage > 0.9) ? 1 : 0;
             
             return PlayerInfo.AbilityManager.DirFocus * (1 - percentage) +
                     GameInfo.CameraController.Direction * percentage;
@@ -119,9 +115,10 @@ public class PlayerMovementManager
 
     public void UpdateMovement()
     {
-        CurrentDirection = Matho.RotateTowards(CurrentDirection, TargetDirection, directionSpeed * Time.deltaTime);
-
-        CurrentPercentileSpeed = Mathf.SmoothDamp(CurrentPercentileSpeed, TargetPercentileSpeed, ref speedVelocity, speedGradation);
+        CurrentDirection =
+            Matho.RotateTowards(CurrentDirection, TargetDirection, directionSpeed * Time.deltaTime);
+        CurrentPercentileSpeed =
+            Mathf.SmoothDamp(CurrentPercentileSpeed, TargetPercentileSpeed, ref speedVelocity, speedGradation);
         CurrentPercentileSpeed *= 1 - Matho.AngleBetween(TargetDirection, CurrentDirection) / 180f * 0.7f;
 
         /*if (PlayerInfo.PhysicsSystem.ExitedFloor && !PlayerInfo.CharMoveSystem.Jumping)
@@ -143,8 +140,6 @@ public class PlayerMovementManager
                     1 * PercSpeedObstructedModifier,
                     percentileSpeedSpeed * Time.deltaTime);
         }
-        
-        UpdateRotationSpeed();
     }
 
     public void LateUpdateMovement()
@@ -169,7 +164,7 @@ public class PlayerMovementManager
         }
     }
 
-    public void UpdateWalkMovement()
+    public void UpdateWalkMovement(bool updateAnimProperties)
     {
         if (!movedThisFrame)
         {
@@ -189,12 +184,16 @@ public class PlayerMovementManager
                 PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
                 Sprinting = false;
                 if (!PlayerInfo.Animator.IsInTransition(0))
-                    PlayerInfo.AnimationManager.UpdateRotation(false);
+                {
+                    UpdateRotation(false);
+                    if (updateAnimProperties)
+                        PlayerInfo.AnimationManager.UpdateRotationProperties();
+                }
             }
             else
             {
                 Vector3 targetRotation =
-                    Matho.StandardProjection3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+                    Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
 
                 PlayerInfo.MovementManager.TargetDirection = movementDirection;
 
@@ -206,15 +205,74 @@ public class PlayerMovementManager
                 PlayerInfo.MovementManager.TargetPercentileSpeed =
                     GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
                 if (!PlayerInfo.Animator.IsInTransition(0))
-                    PlayerInfo.AnimationManager.UpdateRotation(true);
+                {
+                    UpdateRotation(true);
+                    if (updateAnimProperties)
+                        PlayerInfo.AnimationManager.UpdateRotationProperties();
+                }
             }
 
             PlayerInfo.CharMoveSystem.GroundMove(
                 PlayerInfo.MovementManager.CurrentDirection *
                 PlayerInfo.MovementManager.CurrentPercentileSpeed *
                 PlayerInfo.StatsManager.Movespeed);
+
+            if (updateAnimProperties)
+                PlayerInfo.AnimationManager.UpdateWalkProperties();
         }
     }
+
+    /*
+	Helper function for behaviours to update model rotation to camera forward (or blended if in combat).
+	*/
+	private void UpdateRotation(bool moving)
+    {
+        if (!moving)
+        {
+            UpdateStillModelRotation();
+        }
+        else
+        {
+            UpdateMovingModelRotation();
+        }
+    }
+
+	private void UpdateStillModelRotation()
+	{
+		Vector3 targetRotation =
+			Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+		Vector3 currentRotation =
+			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
+
+		if (Mathf.Abs(PlayerInfo.Animator.GetFloat("rotationSpeed")) > PlayerAnimationManager.RotationObserverMin)
+		{
+			Vector3 incrementedRotation =
+				Vector3.RotateTowards(
+					currentRotation,
+					targetRotation,
+					PlayerAnimationManager.ModelRotSpeedIdle * Time.deltaTime,
+					0f);
+			Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
+			PlayerInfo.Player.transform.rotation = rotation;
+		}
+	}
+
+	private void UpdateMovingModelRotation()
+	{
+		Vector3 targetRotation =
+			Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+		Vector3 currentRotation =
+			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
+
+		Vector3 incrementedRotation =
+			Vector3.RotateTowards(
+				currentRotation,
+				targetRotation,
+				PlayerAnimationManager.ModelRotSpeedMoving * Time.deltaTime,
+				0f);
+		Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
+		PlayerInfo.Player.transform.rotation = rotation;
+	}
 
     private void UpdateSprinting(Vector2 analogMovementDirection)
     {
@@ -243,40 +301,10 @@ public class PlayerMovementManager
         Vector2 up = Matho.StdProj2D(PlayerInfo.Player.transform.forward);
         Vector2 right = Matho.Rotate(up, 90f);
         Vector2 worldDir =
-            GameInfo.CameraController.StandardToCameraDirection(direction);
+            GameInfo.CameraController.StdToCameraDir(direction);
         float projXInput = Matho.ProjectScalar(worldDir, right);
         float projYInput = Matho.ProjectScalar(worldDir, up);
         return new Vector2(projXInput, projYInput);
-    }
-
-    private void UpdateRotationSpeed()
-    {
-        int targetRotationSpeed = 0;
-        Vector3 targetDirection3D = Matho.StandardProjection3D(GameInfo.CameraController.Direction).normalized;
-        Vector3 currentDirection3D = Matho.StandardProjection3D(PlayerInfo.Player.transform.forward).normalized;
-   
-        if (Matho.AngleBetween(targetDirection3D, currentDirection3D) > RotationStartMin)
-        {
-            Vector3 zenith = Vector3.Cross(targetDirection3D, currentDirection3D);
-            
-            if (Matho.AngleBetween(zenith, Vector3.up) < 90f)
-            {
-                targetRotationSpeed = -1;
-            }
-            else
-            {
-                targetRotationSpeed = 1;
-            }
-        }
-
-        float usedRotSpeed = (targetRotationSpeed != 0) ? rotationSpeedSpeedIncrease : rotationSpeedSpeedDecrease;
-        CurrentRotationSpeed =
-            Mathf.MoveTowards(
-                CurrentRotationSpeed,
-                targetRotationSpeed,
-                usedRotSpeed * Time.deltaTime);
-        
-        PlayerInfo.Animator.SetFloat("rotationSpeed", CurrentRotationSpeed);
     }
 
     public void LockDirection()

@@ -254,7 +254,7 @@ public class CameraController : MonoBehaviour
         GameInfo.Menu.ObjectiveManager.DisableWaypoints(this);
     }
 
-    public Vector2 StandardToCameraDirection(Vector2 v)
+    public Vector2 StdToCameraDir(Vector2 v)
     {
         Vector2 vertical = Matho.StdProj2D(direction).normalized;
         Vector2 horizontal = Matho.Rotate(vertical, 90);

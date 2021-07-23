@@ -185,7 +185,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         return 
             PlayerInfo.Player.transform.position -
             PlayerInfo.BottomSphereOffset +
-            Matho.StandardProjection3D(offset);
+            Matho.StdProj3D(offset);
     }
 
     public void UpdateSpawnPath()
@@ -273,7 +273,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
             {
                 updatingRotation = false;
                 Vector3 targetForward =
-                    Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
+                    Matho.StdProj3D(PlayerInfo.Player.transform.position - transform.position).normalized;
                 Vector3 forward =
                     Vector3.RotateTowards(transform.forward, targetForward, 1f * Time.deltaTime, 0f);
                 transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
@@ -284,7 +284,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     public void RotateLocallyTowardsPlayer()
     {
         Vector3 targetForward =
-            Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
+            Matho.StdProj3D(PlayerInfo.Player.transform.position - transform.position).normalized;
         Vector3 forward =
             Vector3.RotateTowards(transform.forward, targetForward, 3f * Time.deltaTime, 0f);
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);

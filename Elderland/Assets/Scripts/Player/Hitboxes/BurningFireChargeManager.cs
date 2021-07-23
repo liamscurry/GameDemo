@@ -268,7 +268,7 @@ public sealed class BurningFireChargeManager : FireChargeManager
     {
         // BUG: "look rotation viewing direction vector is zero"
         Quaternion spawnRotation =
-            Quaternion.LookRotation(Matho.StandardProjection3D(velocity).normalized, Vector3.up);
+            Quaternion.LookRotation(Matho.StdProj3D(velocity).normalized, Vector3.up);
 
         RaycastHit hit;
         if (Physics.Raycast(raycastStart,

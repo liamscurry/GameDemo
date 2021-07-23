@@ -89,7 +89,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
     {
         Vector3 velocity = 
             (target - center);
-        velocity = Matho.StandardProjection3D(velocity);
+        velocity = Matho.StdProj3D(velocity);
 
         if (velocity.magnitude < offsetThreshold)
         {
@@ -165,7 +165,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
             Vector3 centerDirection = 
                 (center - enemy.Position);
             centerDirection =
-                Matho.StandardProjection3D(centerDirection).normalized;
+                Matho.StdProj3D(centerDirection).normalized;
             Vector3 tangentDirection =
                 Matho.Rotate(centerDirection, Vector3.up, 90f);
             enemy.Velocity += tangentDirection * speed;
@@ -185,7 +185,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
                     Vector3 nearbyDirection =
                         nearbyEnemy.Position - enemy.Position;
-                    nearbyDirection = Matho.StandardProjection3D(nearbyDirection);
+                    nearbyDirection = Matho.StdProj3D(nearbyDirection);
 
                     if (spin)
                         nearbyDirection = SpinExpand(target, nearbyEnemy, nearbyDirection);
@@ -232,7 +232,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
         Vector3 targetDirection = 
             target - nearbyEnemy.Position;
         targetDirection = 
-            Matho.StandardProjection3D(targetDirection);
+            Matho.StdProj3D(targetDirection);
 
         Vector3 tangentDirection = Vector3.zero;
             

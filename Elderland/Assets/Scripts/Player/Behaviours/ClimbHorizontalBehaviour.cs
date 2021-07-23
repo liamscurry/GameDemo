@@ -29,7 +29,7 @@ public class ClimbHorizontalBehaviour : StateMachineBehaviour
 			if (horizontalProjectionScalar < -Ladder.Width / 2)
 			{
 				float verticalPosition = PlayerInfo.Player.transform.position.y;
-				Vector3 horizontalPosition = Matho.StandardProjection3D(Ladder.transform.position);
+				Vector3 horizontalPosition = Matho.StdProj3D(Ladder.transform.position);
 				horizontalPosition += Ladder.RightDirection * (-Ladder.Width / 2);
 				horizontalPosition += Ladder.Normal * (PlayerInfo.Capsule.radius + Ladder.Depth / 2);
 				PlayerInfo.Player.transform.position = new Vector3(horizontalPosition.x, verticalPosition, horizontalPosition.z);
@@ -39,7 +39,7 @@ public class ClimbHorizontalBehaviour : StateMachineBehaviour
 			if (horizontalProjectionScalar > Ladder.Width / 2)
 			{
 				float verticalPosition = PlayerInfo.Player.transform.position.y;
-				Vector3 horizontalPosition = Matho.StandardProjection3D(Ladder.transform.position);
+				Vector3 horizontalPosition = Matho.StdProj3D(Ladder.transform.position);
 				horizontalPosition += Ladder.RightDirection * (Ladder.Width / 2);
 				horizontalPosition += Ladder.Normal * (PlayerInfo.Capsule.radius + Ladder.Depth / 2);
 				PlayerInfo.Player.transform.position = new Vector3(horizontalPosition.x, verticalPosition, horizontalPosition.z);

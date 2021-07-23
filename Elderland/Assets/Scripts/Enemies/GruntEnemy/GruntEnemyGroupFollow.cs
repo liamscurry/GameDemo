@@ -70,7 +70,7 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
                     {
                         Vector3 groupOffset =
                             manager.Group.CalculateCenter() - PlayerInfo.Player.transform.position;
-                        groupOffset = Matho.StandardProjection3D(groupOffset);
+                        groupOffset = Matho.StdProj3D(groupOffset);
 
                         if (groupOffset.magnitude <= manager.CentralStopRadius)
                         {
@@ -90,7 +90,7 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
                         // Start condition 2
                         Vector3 groupOffset =
                             manager.Group.CalculateCenter() - PlayerInfo.Player.transform.position;
-                        groupOffset = Matho.StandardProjection3D(groupOffset);
+                        groupOffset = Matho.StdProj3D(groupOffset);
 
                         if (groupOffset.magnitude > manager.CentralStopRadius + manager.CentralStopRadiusMargin)
                         {
