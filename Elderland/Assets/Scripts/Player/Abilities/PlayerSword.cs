@@ -204,15 +204,18 @@ public sealed class PlayerSword : PlayerAbility
             if (targetHorizontalDistance - PlayerInfo.Capsule.radius - targetWidth > hitboxScale.z / 2)
             {
                 type = Type.FarTarget;
+                Debug.Log("far target");
             }
             else
             {
                 type = Type.CloseTarget;
+                Debug.Log("close target");
             }
         }
         else
         {
             type = Type.NoTarget;
+            Debug.Log("no target");
         }
 
         calculatedTargetInfo = false;
@@ -247,6 +250,15 @@ public sealed class PlayerSword : PlayerAbility
         PlayerInfo.CharMoveSystem.MaxConstantOnExit.ClaimLock(this, maxSpeedOnExit);
     }
 
+    /*
+    Generates target position and rotation for when there are no nearby enemies.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
     private void NoTargetDirectTarget()
     {
         Vector2 worldAnalogInput2D = 
@@ -274,22 +286,29 @@ public sealed class PlayerSword : PlayerAbility
                 Vector3.up);
     }
 
+    /*
+    Generates target rotation for when there is a close enemy found. Does not have a target position
+    as the player is already close enough to the enemy.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
     private void CloseTargetDirectTarget()
     {
-        Quaternion targetRotation =
-             Quaternion.LookRotation(Matho.StdProj3D(targetDisplacement).normalized, Vector3.up);
-        matchTarget =
-            new PlayerAnimationManager.MatchTarget(
-                Vector3.zero,
-                targetRotation,
-                AvatarTarget.Root,
-                Vector3.zero,
-                1);
+        Vector3 targetDirection = 
+            Matho.StdProj3D(target.transform.position - PlayerInfo.Player.transform.position).normalized;
+
         charge.LoopFactor = 1;
 
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
+        //dashPosition = PlayerInfo.Player.transform.position;
 
-        dashPosition = PlayerInfo.Player.transform.position;
+        targetRotation = 
+            Quaternion.LookRotation(
+                Matho.StdProj3D(targetDirection),
+                Vector3.up);
     }
 
     private void FarTargetDirectTarget()
