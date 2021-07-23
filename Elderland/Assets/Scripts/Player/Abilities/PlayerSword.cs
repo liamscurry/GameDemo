@@ -54,9 +54,7 @@ public sealed class PlayerSword : PlayerAbility
 
     // Rotate info
     private Quaternion startRotation;
-    private Quaternion targetRotation;
-    private const float rotateDuration = 1f;
-    private float rotateTimer;
+    private const float rotateSpeed = 1f;
 
     private PlayerAnimationManager.MatchTarget matchTarget;
 
@@ -245,7 +243,6 @@ public sealed class PlayerSword : PlayerAbility
         calculatedTargetInfo = true;
 
         startRotation = PlayerInfo.Player.transform.rotation;
-        rotateTimer = 0;
 
         PlayerInfo.CharMoveSystem.MaxConstantOnExit.ClaimLock(this, maxSpeedOnExit);
     }
@@ -280,10 +277,6 @@ public sealed class PlayerSword : PlayerAbility
         charge.LoopFactor = 1;
 
         //dashPosition = targetPosition;
-        targetRotation = 
-            Quaternion.LookRotation(
-                Matho.StdProj3D(targetDirection),
-                Vector3.up);
     }
 
     /*
@@ -304,11 +297,14 @@ public sealed class PlayerSword : PlayerAbility
         charge.LoopFactor = 1;
 
         //dashPosition = PlayerInfo.Player.transform.position;
+        targetPosition =
+            PlayerInfo.Player.transform.position +
+            Matho.StdProj3D(targetDirection) * noTargetDistance;
 
-        targetRotation = 
-            Quaternion.LookRotation(
-                Matho.StdProj3D(targetDirection),
-                Vector3.up);
+        startPosition = PlayerInfo.Player.transform.position;
+
+        projStartPos = Matho.StdProj2D(startPosition);
+        projTargetPos = Matho.StdProj2D(targetPosition); 
     }
 
     private void FarTargetDirectTarget()
@@ -442,10 +438,22 @@ public sealed class PlayerSword : PlayerAbility
     */
     private void RotateTowardsGoal()
     {
-        rotateTimer += Time.deltaTime;
-        float rotatePerc = Mathf.Clamp01(rotateTimer / rotateDuration);
-        PlayerInfo.Player.transform.rotation =
-            Quaternion.Lerp(startRotation, targetRotation, rotatePerc);
+        Vector3 targetLook =
+            Matho.StdProj3D(targetPosition - PlayerInfo.Player.transform.position).normalized;
+        
+        if (targetLook.magnitude != 0)
+        {
+            Vector3 interLook = 
+                Vector3.RotateTowards(
+                    PlayerInfo.Player.transform.forward,
+                    targetLook,
+                    rotateSpeed * Time.deltaTime,
+                    float.MaxValue);
+            PlayerInfo.Player.transform.rotation =
+                Quaternion.LookRotation(
+                    interLook,
+                    Vector3.up);
+        }
     }
 
     /*
@@ -459,7 +467,16 @@ public sealed class PlayerSword : PlayerAbility
     */
     private void FinishRotateTowardsGoal()
     {
-        PlayerInfo.Player.transform.rotation = targetRotation;
+        Vector3 targetLook =
+            Matho.StdProj3D(targetPosition - PlayerInfo.Player.transform.position).normalized;
+
+        if (targetLook.magnitude != 0)
+        {
+            PlayerInfo.Player.transform.rotation =
+                Quaternion.LookRotation(
+                    targetLook,
+                    Vector3.up);
+        }   
     }
 
     /*
