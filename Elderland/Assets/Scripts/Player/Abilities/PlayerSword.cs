@@ -320,51 +320,50 @@ public sealed class PlayerSword : PlayerAbility
         projTargetPos = Matho.StdProj2D(targetPosition); 
     }
 
+    /*
+    Generates target position and rotation for when there is a far enemy found.
+
+    Assumptions:
+    Enemy colliders are cylindrical.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
     private void FarTargetDirectTarget()
     {
-        //need to limit matchtarget here
-        RaycastHit directionHit;
-        float offset = PlayerInfo.Capsule.radius + targetWidth + hitboxScale.z / 3;
-        bool hit = Physics.CapsuleCast(
-                            PlayerInfo.Capsule.TopSpherePosition(),
-                            PlayerInfo.Capsule.BottomSpherePosition(),
-                            PlayerInfo.Capsule.radius - 0.05f,
-                            targetPlanarDirection,
-                            out directionHit,
-                            targetHorizontalDistance - offset,
-                            LayerConstants.GroundCollision | LayerConstants.Destructable);
-        float targetDistance = (hit) ? directionHit.distance : targetHorizontalDistance - offset;
-        Vector3 targetPosition = PlayerInfo.Player.transform.position + targetDistance * targetPlanarDirection;
+        Vector3 targetDirection = 
+            Matho.StdProj3D(target.transform.position - PlayerInfo.Player.transform.position);
+
+        float targetWidth = target.bounds.extents.x;
+        float distance = targetDirection.magnitude - PlayerInfo.Capsule.radius - targetWidth;
+
+        targetDirection.Normalize();
+
+        targetPosition =
+            PlayerInfo.Player.transform.position +
+            targetDirection * distance;
+
+        startPosition = PlayerInfo.Player.transform.position;
+
+        projStartPos = Matho.StdProj2D(startPosition);
+        projTargetPos = Matho.StdProj2D(targetPosition); 
         
+        // Needed to account for variable distance to enemy, may increase number of times going
+        // through state timer.
         float loopFactor = 0;
-        float distance = targetHorizontalDistance - PlayerInfo.Capsule.radius - targetWidth;
         if (distance > (hitboxScale.z / 2) && distance < (2.5f * hitboxScale.z / 2))
         {
             loopFactor = 1;
         }
         else
         {
-            loopFactor =
-                (targetHorizontalDistance - PlayerInfo.Capsule.radius - targetWidth) /
-                (2.5f * (hitboxScale.z / 2));
+            loopFactor = distance / (2.5f * (hitboxScale.z / 2));
         }
 
-        Quaternion targetRotation =
-            Quaternion.LookRotation(Matho.StdProj3D(targetDisplacement).normalized, Vector3.up);
-        matchTarget =
-            new PlayerAnimationManager.MatchTarget(
-                targetPosition,
-                targetRotation,
-                AvatarTarget.Root,
-                Vector3.one,
-                loopFactor / 0.25f,
-                0,
-                loopFactor);
         charge.LoopFactor = loopFactor;
-
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
-
-        dashPosition = targetPosition;
     }
 
     public void DuringCharge()
@@ -419,7 +418,7 @@ public sealed class PlayerSword : PlayerAbility
     */
     private void MoveTowardsGoal()
     {
-        if (type == Type.NoTarget)
+        if (type == Type.NoTarget || type == Type.FarTarget)
         {   
             Vector2 direction = 
                 Matho.StdProj2D(targetPosition - PlayerInfo.Player.transform.position);
