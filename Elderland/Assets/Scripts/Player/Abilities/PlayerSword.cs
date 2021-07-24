@@ -52,9 +52,15 @@ public sealed class PlayerSword : PlayerAbility
     private Vector2 projTargetPos;
     private bool calculatedTargetInfo;
 
+    private const float targetSlowRatio = 1.2f;
+    private const float targetSlowRadius = 1f;
+    private const float targetNearRadius = 0.2f;
+
     // Rotate info
     private Quaternion startRotation;
-    private const float rotateSpeed = 1f;
+    private const float rotateSpeed = 30f;
+
+    private bool leftGround;
 
     private PlayerAnimationManager.MatchTarget matchTarget;
 
@@ -217,12 +223,19 @@ public sealed class PlayerSword : PlayerAbility
         }
 
         calculatedTargetInfo = false;
+        leftGround = false;
     }
 
     public override void GlobalConstantUpdate()
     {
-        if (calculatedTargetInfo)
+        if (!PlayerInfo.CharMoveSystem.Grounded)
+            leftGround = true;
+
+        if (calculatedTargetInfo && !leftGround)
+        {
             MoveTowardsGoal();
+            RotateTowardsGoal();
+        }
     }
 
     public void ChargeBegin()
@@ -356,12 +369,12 @@ public sealed class PlayerSword : PlayerAbility
 
     public void DuringCharge()
     {
-        RotateTowardsGoal();
+
     }
 
     public void ChargeEnd()
     {
-        FinishRotateTowardsGoal();
+
     }
 
     public void ActBegin()
@@ -408,14 +421,18 @@ public sealed class PlayerSword : PlayerAbility
     {
         if (type == Type.NoTarget)
         {   
-            if (Vector2.Distance(projStartPos, projTargetPos) >
-                Vector2.Distance(projStartPos, Matho.StdProj2D(PlayerInfo.Player.transform.position)))
-            {
-                Vector2 direction = 
-                    Matho.StdProj2D(targetPosition - PlayerInfo.Player.transform.position).normalized;
+            Vector2 direction = 
+                Matho.StdProj2D(targetPosition - PlayerInfo.Player.transform.position);
 
-                PlayerInfo.CharMoveSystem.GroundMove(direction * noTargetSpeed);
-            }
+            float slowPercent = (targetSlowRadius - direction.magnitude) / targetSlowRadius;
+            float dampedSpeed =
+                (direction.magnitude > targetSlowRadius) ?
+                noTargetSpeed :
+                Mathf.Clamp(noTargetSpeed - slowPercent * (noTargetSpeed * targetSlowRatio), 0, float.MaxValue);
+
+            direction.Normalize();
+
+            PlayerInfo.CharMoveSystem.GroundMove(direction * dampedSpeed);
         }
 
         if (Physics.OverlapSphere(
@@ -441,7 +458,7 @@ public sealed class PlayerSword : PlayerAbility
         Vector3 targetLook =
             Matho.StdProj3D(targetPosition - PlayerInfo.Player.transform.position).normalized;
         
-        if (targetLook.magnitude != 0)
+        if (targetLook.magnitude > targetNearRadius)
         {
             Vector3 interLook = 
                 Vector3.RotateTowards(
@@ -454,29 +471,6 @@ public sealed class PlayerSword : PlayerAbility
                     interLook,
                     Vector3.up);
         }
-    }
-
-    /*
-    Snaps player rotation to end rotation after RotateTowardsGoal function.
-
-    Inputs:
-    None
-
-    Outputs:
-    None
-    */
-    private void FinishRotateTowardsGoal()
-    {
-        Vector3 targetLook =
-            Matho.StdProj3D(targetPosition - PlayerInfo.Player.transform.position).normalized;
-
-        if (targetLook.magnitude != 0)
-        {
-            PlayerInfo.Player.transform.rotation =
-                Quaternion.LookRotation(
-                    targetLook,
-                    Vector3.up);
-        }   
     }
 
     /*
