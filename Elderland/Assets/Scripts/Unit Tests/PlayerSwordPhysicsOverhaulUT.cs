@@ -56,9 +56,27 @@ public class PlayerSwordPhysicsOverhaulUT : MonoBehaviour
         }
     }
 
+    /*
+    Expected Behaviour:
+    Walks right, swings forward and ends up next to target. Walks right then forward a bit,
+    swings and goes almost horizontally in the air, falls and keeps swinging while below target
+    which is on the ledge.
+    */
     private IEnumerator FarTargetTest()
     {
+        PlayerUT.SetFakeControllerDirection(fakeController, new Vector2(1, 0).normalized * 0.95f);
         yield return new WaitForSeconds(2f);
+        PlayerUT.SetFakeControllerDirection(fakeController, Vector2.zero);
+        QueueSword();
+        yield return new WaitForSeconds(1.0f);
+        CancelSword();
+
+        yield return new WaitForSeconds(2f);
+        PlayerUT.SetFakeControllerDirection(fakeController, new Vector2(1, 0).normalized * 0.95f);
+        yield return new WaitForSeconds(2f);
+        PlayerUT.SetFakeControllerDirection(fakeController, new Vector2(0, 1).normalized * 0.95f);
+        yield return new WaitForSeconds(0.65f);
+        QueueSword();
     }   
 
     /*
