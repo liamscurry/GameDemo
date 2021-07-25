@@ -9,6 +9,7 @@ public sealed class PlayerDash : PlayerAbility
     //Fields
     private Vector2 direction;
     private float speed = 15f;
+    private const float maxSpeedOnExit = 5f;
 
     private ParticleSystem dashParticles;
 
@@ -60,57 +61,38 @@ public sealed class PlayerDash : PlayerAbility
         act.Clip = dashClip;
     }
 
-    public override void GlobalUpdate()
-    {
-        //PlayerInfo.MovementManager.UpdateRotation(true);
-    }
-
     private void ActBegin()
     {
         direction = GameInfo.CameraController.StdToCameraDir(GameInfo.Settings.LeftDirectionalInput);
         PlayerInfo.MovementManager.TargetDirection = direction;
         PlayerInfo.MovementManager.SnapDirection();
-        system.Physics.GravityStrength = 0;
-        //system.Movement.ExitEnabled = false;
+
         PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
 
         dashParticles.Play();
 
         GameInfo.CameraController.Speed = 0.5f;
         GameInfo.CameraController.TargetSpeed = 0;
-        GameInfo.CameraController.SpeedGradation = .15f;
+        GameInfo.CameraController.SpeedGradation = 0.15f;
 
         PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
+        PlayerInfo.CharMoveSystem.MaxConstantOnExit.ClaimLock(this, maxSpeedOnExit);
     }
 
     private void DuringAct()
     {
         system.CharMoveSystem.GroundMove(direction * speed);
-        
-        /*
-        if (system.Physics.TouchingFloor)
-        {
-            actVelocity = system.CharMoveSystem.GroundMove(direction * speed);
-        }
-        else
-        {
-            system.Physics.AnimationVelocity += system.Movement.ExitVelocity;
-            actVelocity = system.Movement.ExitVelocity;
-        }  */
     }
 
     private void ActEnd()
     {  
-        //PlayerInfo.MovementManager.TargetDirection = direction;
-        //PlayerInfo.MovementManager.SnapDirection();
         PlayerInfo.MovementManager.TargetPercentileSpeed = 1;
         PlayerInfo.MovementManager.SnapSpeed();
-        system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
-        //system.Movement.ExitEnabled = true;
 
         dashParticles.Stop();
 
         PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(this, false);
+        PlayerInfo.CharMoveSystem.MaxConstantOnExit.TryReleaseLock(this, float.MaxValue);
     }
 
     public override bool OnHit(GameObject character)
