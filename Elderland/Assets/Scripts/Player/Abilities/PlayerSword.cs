@@ -181,31 +181,21 @@ public sealed class PlayerSword : PlayerAbility
             Collider minCollider = enemyColliders[0];
             for (int i = 1; i < enemyColliders.Count; i++)
             {
-                float distance = Vector3.Distance(enemyColliders[i].transform.position, PlayerInfo.Player.transform.position);
-                if (distance < minDistance)
+                float currentDistance = Vector3.Distance(enemyColliders[i].transform.position, PlayerInfo.Player.transform.position);
+                if (currentDistance < minDistance)
                 {
-                    minDistance = distance;
+                    minDistance = currentDistance;
                     minCollider = enemyColliders[i];
                 }
             }
 
             //Target info
             target = minCollider;
-            targetDisplacement = (minCollider.transform.parent.position - PlayerInfo.Player.transform.position);
-            targetPlanarDirection =
-                Matho.PlanarDirectionalDerivative(
-                    Matho.StdProj2D(targetDisplacement).normalized,
-                    PlayerInfo.CharMoveSystem.GroundNormal).normalized;
-
-            float theta = Matho.AngleBetween(targetDisplacement, targetPlanarDirection);
-            targetHorizontalDistance = targetDisplacement.magnitude * Mathf.Cos(theta * Mathf.Deg2Rad);
-
-            Ray enemyRay = new Ray(PlayerInfo.Player.transform.position, targetPlanarDirection);
-            RaycastHit enemyHit;
-            target.Raycast(enemyRay, out enemyHit, targetHorizontalDistance);
-            targetWidth = targetDisplacement.magnitude - enemyHit.distance;
-
-            if (targetHorizontalDistance - PlayerInfo.Capsule.radius - targetWidth > hitboxScale.z / 2)
+            Vector3 targetDirection = 
+                Matho.StdProj3D(target.transform.position - PlayerInfo.Player.transform.position);
+            float targetWidth = target.bounds.extents.x;
+            float distance = targetDirection.magnitude - PlayerInfo.Capsule.radius - targetWidth;
+            if (distance > hitboxScale.z / 2)
             {
                 type = Type.FarTarget;
                 Debug.Log("far target");

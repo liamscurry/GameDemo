@@ -57,3 +57,12 @@ by the description.
 
 Constant names:
 Camil case (including first letter caps).
+
+Unit Tests Info:
+Vision: test requires visual observation to validate. Unit tests with vision requirements
+should have an Expected Behaviour section comment above its test method.
+
+Input: input based tests use a fake controller and thus the controller cannot be used.
+
+Feedback: feedback tests validate themselves via output, posting a success upon completion if
+no bugs were detected.

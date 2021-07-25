@@ -9,6 +9,11 @@ using UnityEngine.InputSystem.Controls;
 
 /*
 Helpful UT methods aimed specificly at asserting player states. Addon to general UT class.
+
+Input tests need to not have any background inputs in the editor while they are running, as 
+this often causes abnormalities in tests as inputs are not sequenced correctly in the fake controller.
+This was tested even with different frame rates, and the tests still run the same as long as
+now outside editor input occurs during the tests as mentioned above. 7.24.21
 */
 public static class PlayerUT
 {
