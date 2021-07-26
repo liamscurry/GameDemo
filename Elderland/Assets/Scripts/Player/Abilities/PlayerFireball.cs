@@ -43,7 +43,7 @@ public sealed class PlayerFireball : PlayerAbility
         actSegment.Type = AbilitySegmentType.Normal;
 
         segments = new AbilitySegmentList();
-        //segments.AddSegment(chargeSegment);
+
         segments.AddSegment(actSegment);
         segments.NormalizeSegments();
 
@@ -165,18 +165,6 @@ public sealed class PlayerFireball : PlayerAbility
             ProjectileArgs.Empty);
     }
 
-    /*
-    protected override void Stop()
-    {
-        //Reset movespeed if not edited
-        if (PlayerInfo.StatsManager.MovespeedEditor == gameObject)
-        {
-            PlayerInfo.StatsManager.MovespeedModifier = 1;
-            PlayerInfo.StatsManager.MovespeedEditor = null;
-        }
-    }
-    */
-
     public override bool OnHit(GameObject character)
     {
         if (character != null)
@@ -198,7 +186,7 @@ public sealed class PlayerFireball : PlayerAbility
 
     public override void ShortCircuitLogic()
     {
-        
+        ActEnd();
     }
 
     public override void DeleteResources()

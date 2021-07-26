@@ -142,6 +142,21 @@ public class PlayerAbilityManager : AbilitySystem
     //Updates each ability slot, called by PlayerManager.
 	public override void UpdateAbilities() 
     {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            ShortCircuit(true);
+        }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            Time.timeScale = 0.1f;
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Time.timeScale = 1f;
+        }
+
         //Try to run specified ability if held down
         bool rangedInput = false;
         bool aoeInput = false;

@@ -236,22 +236,6 @@ public class PlayerAnimationManager
     }
 
 	/*
-	Helper method called in states where UpdateWalkProperties is called in. Should be called at the start
-	of the state.
-
-	Inputs:
-	None
-
-	Outputs:
-	None
-	*/
-	public void ResetWalkProperties()
-	{
-		CurrentRotationSpeed = 0;
-		PlayerInfo.Animator.SetFloat("rotationSpeed", CurrentRotationSpeed);
-	}
-
-	/*
 	* The following two methods are helper methods for combat layer that transitions from and to
 	* the combat layers when fighting enemies. This is needed to pull out the sword and put it away.
 	*/

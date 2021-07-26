@@ -207,9 +207,12 @@ public abstract class PlayerAbility : Ability
             ActiveSegment.Finished = true;
 
         ShortCircuitLogic();
-
+        
         if (continous)
         {
+            ContinousEnd();
+            GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
+
             system.CurrentAbility = null;
             state = AbilityState.Waiting;
 
@@ -220,6 +223,7 @@ public abstract class PlayerAbility : Ability
         {
             system.Animator.SetBool("exitAbility", true);
             ToCoolDown();
+            GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
         }
         system.Animator.SetTrigger("proceedAbility");
         system.Animator.ResetTrigger("runAbility");

@@ -14,7 +14,10 @@ public class GameSettings : MonoBehaviour
     public GamepadButton BlockAbilityKey { get; set; }
     public GamepadButton FinisherAbilityKey { get; private set; }
 
-    public float FireballRightTrigger { get { return Input.GetAxis("Right Trigger"); } }
+    public float FireballRightTrigger
+    { 
+        get { return GameInfo.Settings.CurrentGamepad.rightTrigger.EvaluateMagnitude(); }
+    }
     public float FireballLeftTrigger { get { return Input.GetAxis("Left Trigger"); } }
     public float FireballTriggerOffThreshold { get { return 0.1f; } }
     public float FireballTriggerOnThreshold { get { return 0.5f; } }

@@ -14,10 +14,7 @@ public class MovementBehaviour : StateMachineBehaviour
 	{
 		exiting = false;
         movespeedVelocity = 0;
-        PlayerInfo.MovementManager.AnimationPercentileSpeed = 
-            PlayerInfo.MovementManager.CurrentPercentileSpeed;
         keepSprintOnExit = false;
-        PlayerInfo.AnimationManager.ResetWalkProperties();
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
