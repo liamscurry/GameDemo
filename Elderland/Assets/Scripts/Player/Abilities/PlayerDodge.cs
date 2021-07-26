@@ -10,9 +10,10 @@ public sealed class PlayerDodge : PlayerAbility
 
     //Fields
     private Vector2 direction;
-    private float speed = 2.5f;
+    private float speed = 5f;
+    private const float maxSpeedOnExit = 2.5f;
 
-    private AbilitySegment act;
+    private AbilitySegment dodgeSegment;
     private AbilityProcess actProcess;
     private AbilityProcess slideProcess;
 
@@ -28,11 +29,11 @@ public sealed class PlayerDodge : PlayerAbility
 
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 0.82f);
         slideProcess = new AbilityProcess(null, DuringSlide, SlideEnd, 1 - 0.82f);
-        act = new AbilitySegment(null, actProcess, slideProcess);
-        act.Type = AbilitySegmentType.Physics;
+        dodgeSegment = new AbilitySegment(null, actProcess, slideProcess);
+        dodgeSegment.Type = AbilitySegmentType.Physics;
 
         segments = new AbilitySegmentList();
-        segments.AddSegment(act);
+        segments.AddSegment(dodgeSegment);
         segments.NormalizeSegments();
 
         coolDownDuration = 0.5f;
@@ -52,7 +53,7 @@ public sealed class PlayerDodge : PlayerAbility
         AnimationClip actClip =
             GetDirAnim(ResourceConstants.Player.Art.Dodge, playerInput);
 
-        act.Clip = actClip;
+        dodgeSegment.Clip = actClip;
 
         if (playerInput.x > sideThreshold)
         {
@@ -75,12 +76,10 @@ public sealed class PlayerDodge : PlayerAbility
 
     public override void GlobalUpdate()
     {
-        //PlayerInfo.MovementManager.UpdateRotation(true);
-
         if (dodgeType != DodgeType.Normal)
         {
             Vector3 targetPlayerDirection =
-            Matho.Rotate(startPlayerDirection, Vector3.up, sideRotateDegrees * (int) dodgeType);
+                Matho.Rotate(startPlayerDirection, Vector3.up, sideRotateDegrees * (int) dodgeType);
         
             Vector3 incrementedRotation = PlayerInfo.Player.transform.forward;
             incrementedRotation =
@@ -100,13 +99,13 @@ public sealed class PlayerDodge : PlayerAbility
         PlayerInfo.MovementManager.TargetDirection = direction;
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;
-        //system.Movement.ExitEnabled = false;
 
         GameInfo.CameraController.Speed = 0.45f;
         GameInfo.CameraController.TargetSpeed = 0;
         GameInfo.CameraController.SpeedGradation = 0.22f;
 
         PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
+        PlayerInfo.CharMoveSystem.MaxConstantOnExit.ClaimLock(this, maxSpeedOnExit);
     }
 
     private void DuringAct()
@@ -122,8 +121,7 @@ public sealed class PlayerDodge : PlayerAbility
         PlayerInfo.MovementManager.SnapDirection();
         PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude;
         PlayerInfo.MovementManager.SnapSpeed();
-        system.Physics.GravityStrength = PhysicsSystem.GravitationalConstant;
-        //system.Movement.ExitEnabled = true;
+
         GameInfo.CameraController.SpeedGradation = 0.08f;
     }
 
@@ -137,6 +135,7 @@ public sealed class PlayerDodge : PlayerAbility
     private void SlideEnd()
     {
         PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(this, false);
+        PlayerInfo.CharMoveSystem.MaxConstantOnExit.TryReleaseLock(this, float.MaxValue);
     }
 
     public override bool OnHit(GameObject character)
