@@ -15,7 +15,6 @@ public class InteractionEndEventBehaviour : StateMachineBehaviour
         animator.SetTrigger("exitInteraction");
         PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
         PlayerInfo.MovementManager.SnapSpeed();
-        PlayerInfo.MovementManager.AnimationPercentileSpeed = 0;
         PlayerInfo.AnimationManager.UpdateWalkProperties();
     }
 

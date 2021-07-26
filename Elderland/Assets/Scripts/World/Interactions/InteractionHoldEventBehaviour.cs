@@ -12,7 +12,6 @@ public class InteractionHoldEventBehaviour : StateMachineBehaviour
         PlayerInfo.Manager.Interaction.StartEvent();
         PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
         PlayerInfo.MovementManager.SnapSpeed();
-        PlayerInfo.MovementManager.AnimationPercentileSpeed = 0;
         PlayerInfo.AnimationManager.UpdateWalkProperties();
     }
 

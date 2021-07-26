@@ -28,7 +28,7 @@ public class PlayerMovementManager
     public Vector2 CurrentDirection { get; private set; }
 
     public float CurrentPercentileSpeed { get; private set; }
-    public float AnimationPercentileSpeed { get; set; }
+    public float AnimationPercentileSpeed { get; private set; }
     public float PercSpeedObstructedModifier { get; set; }
     
     private bool sprintUnlocked;
@@ -325,11 +325,13 @@ public class PlayerMovementManager
     public void SnapSpeed()
     {
         CurrentPercentileSpeed = TargetPercentileSpeed;
+        AnimationPercentileSpeed = (TargetPercentileSpeed > 1) ? 1 : TargetPercentileSpeed;
     }
 
     public void ZeroSpeed()
     {
         CurrentPercentileSpeed = 0;
+        AnimationPercentileSpeed = 0;
         TargetPercentileSpeed = 0;
     }
 
