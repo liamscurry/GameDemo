@@ -29,6 +29,7 @@ public class PlayerAnimationManager
 
 	private Coroutine directTargetCorou;
 	public bool InDirectTargetMatch { get { return directTargetCorou != null; } }
+	private const float directTargetClampOffset = 0.05f;
 
 	public const float ModelRotSpeedIdle = 2f;
 	public const float ModelRotSpeedMoving = 9f;
@@ -479,12 +480,12 @@ public class PlayerAnimationManager
 				Vector3.up;
 
 			bool hit = Physics.CapsuleCast(
-				weightedTarget + topOffset,
-				weightedTarget - topOffset,
+				weightedTarget + topOffset + Vector3.up * directTargetClampOffset,
+				weightedTarget - topOffset + Vector3.up * directTargetClampOffset,
 				controllerRadius,
 				Vector3.down,
 				out hitInfo,
-				PlayerInfo.CharMoveSystem.Controller.height / 2,
+				PlayerInfo.CharMoveSystem.Controller.height / 2 + directTargetClampOffset,
 				LayerConstants.GroundCollision
 			);
 
