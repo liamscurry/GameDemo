@@ -82,6 +82,32 @@ public static class PlayerUT
         }
     }
 
+    public static IEnumerator AssertKinematic()
+    {
+        try
+        {
+            UT.CheckEquality<bool>(PlayerInfo.CharMoveSystem.Kinematic.Value, true);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Test Failed: Not in kinematic mode " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+    }
+
+    public static IEnumerator AssertNotKinematic()
+    {
+        try
+        {
+            UT.CheckEquality<bool>(PlayerInfo.CharMoveSystem.Kinematic.Value, false);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Test Failed: Not in kinematic mode " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+    }
+
     public static void SetFakeControllerDirection(XInputController fakeController, Vector2 direction)
     {
         InputEventPtr walkEvent;

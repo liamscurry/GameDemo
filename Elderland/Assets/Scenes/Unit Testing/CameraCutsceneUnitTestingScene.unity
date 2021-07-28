@@ -391,6 +391,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 217845579}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &669193385
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 669193387}
+  - component: {fileID: 669193386}
+  m_Layer: 0
+  m_Name: 'Kinematic: Feedback Test'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &669193386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669193385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46b5baba8e9445c42bff2997def04e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &669193387
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669193385}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -15.051246, y: 3.4441853, z: 7.4281373}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &702554696
 GameObject:
   m_ObjectHideFlags: 0
@@ -863,7 +906,7 @@ GameObject:
   - component: {fileID: 1107592954}
   - component: {fileID: 1107592955}
   m_Layer: 0
-  m_Name: Gameplay Cutscene Test 1
+  m_Name: Camera Cutscene Test 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -892,107 +935,40 @@ MonoBehaviour:
   m_GameObject: {fileID: 1107592953}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa239cf3d31d482478fc456ca86f9f7f, type: 3}
+  m_Script: {fileID: 11500000, guid: 22c8b07d59250ae4fa092ee8ee72d4af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startConnectionTime: 1
+  startConnectionEvents: []
+  startWaitTime: 0
+  startJumpcut: 0
   waypoints:
-  - position: {x: 0, y: 0, z: 2.15}
-    rotation: {x: 0, y: 0, z: 0}
-    rotationWeight: 1
-    useRotationAsGlobal: 0
-    cameraDirection: {x: -1, y: 0, z: 0}
-    clipsPerDistance: 1
-    travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
-    waitClip: {fileID: 0}
+  - position: {x: 0, y: 0, z: 4.46}
+    horizontalRotation: -89.55
+    verticalRotation: 0
+    tiltRotation: 0
+    connectionTime: 1
     waitTime: 0
-    connectionEvents:
-    - methods:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1107592955}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: BeginningTest
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      normalizedTime: 0
-    onStateExit:
-      m_PersistentCalls:
-        m_Calls: []
-    onCompleteMatch:
-      m_PersistentCalls:
-        m_Calls: []
-  - position: {x: 0, y: 0, z: 3.84}
-    rotation: {x: 0, y: -43.54, z: 0}
-    rotationWeight: 1
-    useRotationAsGlobal: 0
-    cameraDirection: {x: -1, y: 1, z: 2.79}
-    clipsPerDistance: 0.3
-    travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
-    waitClip: {fileID: 0}
-    waitTime: 1
-    connectionEvents:
-    - methods:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1107592955}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: MiddleTest
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      normalizedTime: 0
-    onStateExit:
-      m_PersistentCalls:
-        m_Calls: []
-    onCompleteMatch:
-      m_PersistentCalls:
-        m_Calls: []
-  - position: {x: 0, y: 0, z: 3.84}
-    rotation: {x: 0, y: 90, z: 0}
-    rotationWeight: 1
-    useRotationAsGlobal: 0
-    cameraDirection: {x: 0, y: -1, z: 1}
-    clipsPerDistance: 1
-    travelClip: {fileID: 7400000, guid: 562269f0376c67b429f45504c1e82fd0, type: 2}
-    waitClip: {fileID: 0}
-    waitTime: 1
-    connectionEvents:
-    - methods:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1107592955}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: EndTest
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      normalizedTime: 0
-    onStateExit:
-      m_PersistentCalls:
-        m_Calls: []
-    onCompleteMatch:
-      m_PersistentCalls:
-        m_Calls: []
+    jumpCut: 0
+    connectionEvents: []
+  - position: {x: 6.37, y: 0, z: 5.06}
+    horizontalRotation: -31.72
+    verticalRotation: 0
+    tiltRotation: 0
+    connectionTime: 1
+    waitTime: 0
+    jumpCut: 0
+    connectionEvents: []
+  finalHorizontalAngle: 202
+  lookAtFinalWaypoint: 0
+  finalVerticalAngle: 123.3
+  makeLastWaypoint: 1
+  transitionToGameplayUponFinish: 1
+  unfreezeInputUponFinish: 1
   turnWaypointUIOffOnEnd: 0
+  endEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1168403592
 GameObject:
   m_ObjectHideFlags: 0
@@ -1590,7 +1566,7 @@ PrefabInstance:
         type: 3}
       propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1107592955}
+      objectReference: {fileID: 0}
     - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
         type: 3}
       propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
@@ -1614,12 +1590,12 @@ PrefabInstance:
     - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
         type: 3}
       propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: WaitInvoke
+      value: Invoke
       objectReference: {fileID: 0}
     - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
         type: 3}
       propertyPath: triggerEvent.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: GameplayCutsceneEvent, Assembly-CSharp
+      value: CameraCutsceneEvent, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5072158352731617911, guid: acbab058a1dea4e4ebd5c97ea6062f23,
         type: 3}

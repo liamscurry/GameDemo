@@ -11,6 +11,7 @@ public class GameplayCutsceneWaitBehaviour : StateMachineBehaviour
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
         exiting = false;
+        PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
@@ -23,6 +24,7 @@ public class GameplayCutsceneWaitBehaviour : StateMachineBehaviour
             if (exiting)
             {
                 animator.SetTrigger(AnimationConstants.Player.ProceedGameplayCutscene);
+                PlayerInfo.CharMoveSystem.Kinematic.TryReleaseLock(this, false);
             }
         }
 	}

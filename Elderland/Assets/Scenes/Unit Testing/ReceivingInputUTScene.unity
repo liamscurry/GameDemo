@@ -3322,7 +3322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ff2fa9d8ba7fac46ac627d7fb90ab4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testType: 2
+  testType: 0
   gameplayUniqueCutscene: {fileID: 1661176212}
   gameplayOverrideCutscene: {fileID: 179422790}
   gameplayUnoverrideCutscene: {fileID: 807507149}
@@ -4395,6 +4395,10 @@ PrefabInstance:
       propertyPath: disableOnStart
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 312364079, guid: 8fca63ea42b2f704eb282b0e79d22fa6, type: 3}
+      propertyPath: targetPosition.z
+      value: -2
+      objectReference: {fileID: 0}
     - target: {fileID: 382873053286881825, guid: 8fca63ea42b2f704eb282b0e79d22fa6,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -4453,7 +4457,7 @@ PrefabInstance:
     - target: {fileID: 9177388233208114945, guid: 8fca63ea42b2f704eb282b0e79d22fa6,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 7.8150005
+      value: 7.56
       objectReference: {fileID: 0}
     - target: {fileID: 9177388233208114945, guid: 8fca63ea42b2f704eb282b0e79d22fa6,
         type: 3}

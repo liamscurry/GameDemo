@@ -76,6 +76,7 @@ public class CameraCutscene
 		generatedLastWaypoint = false;
 
 		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
+		PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
 	}
 
 	public IEnumerator EventTimer(CameraCutsceneWaypoint waypoint, CameraCutsceneWaypointEvent waypointEvent)
@@ -140,8 +141,7 @@ public class CameraCutscene
 
 						if (endEvent != null)
 							endEvent.Invoke();
-						PlayerInfo.PhysicsSystem.ForceTouchingFloor();
-						PlayerInfo.PhysicsSystem.Animating = false;
+						PlayerInfo.CharMoveSystem.Kinematic.TryReleaseLock(this, false);
 					}
 				}
 			}
