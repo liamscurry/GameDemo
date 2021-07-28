@@ -127,6 +127,7 @@ public class CameraCutscene
 						waypoints.RemoveFirst();
 						if (makeLastWaypoint)
 							waypoints.RemoveLast();
+						Debug.Log("end final horizontal: " + GameInfo.CameraController.HorizontalAngle);
 						if (transitionToGameplayUponFinish)
 						{
 							GameInfo.CameraController.StartGameplay();
@@ -152,6 +153,7 @@ public class CameraCutscene
 	{
 		if (!lookAtFinalWaypoint)
 		{
+			Debug.Log("final horizontal angle: " + finalHorizontalAngle);
 			GameInfo.CameraController.HorizontalAngle = finalHorizontalAngle;
 			GameInfo.CameraController.VerticalAngle = finalVerticalAngle;
 		}

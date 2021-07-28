@@ -278,7 +278,8 @@ public class CameraController : MonoBehaviour
                 MaxRadius = 2.75f;
                 transform.rotation = GenerateRotation();
                 UpdateSprintTimer();
-                Vector3 targetPosition = GeneratePosition(FollowTarget.transform.position + GenerateSprintOffset());
+                Vector3 targetPosition =
+                    GeneratePosition(FollowTarget.transform.position + GenerateSprintOffset());
                 transform.position =
                     FollowPosition(transform.position, targetPosition);
             }
@@ -412,8 +413,8 @@ public class CameraController : MonoBehaviour
     }
 
     /*
-    * Helper method for adjusting orientation value to zero over time. Used for gameplay and 
-    * gameplay cutscenes.
+    * Helper method for adjusting orientation value to zero over time. Used for
+    * gameplay cutscenes as well.
     */
     private void SeekGameplayTargetDirection()
     {
@@ -562,18 +563,34 @@ public class CameraController : MonoBehaviour
 
     //Moves camera towards and interpolates camera settings based on the next and current waypoint.
     private void Cutscene()
-    {      
+    {    
         UpdateCutsceneSettings();
 
         cutscene.Update();
         float waypointTime = cutscene.CurrentWaypointNode.Value.time;
         float lerpTime = (cutscene.CurrentWaypointNode.Value.jumpCut) ? 1 : cutscene.Timer / waypointTime;
-        float x = Mathf.SmoothStep(cutscene.CurrentWaypointNode.Value.Position.x, cutscene.TargetWaypointNode.Value.Position.x, lerpTime);
-        float y = Mathf.SmoothStep(cutscene.CurrentWaypointNode.Value.Position.y, cutscene.TargetWaypointNode.Value.Position.y, lerpTime);
-        float z = Mathf.SmoothStep(cutscene.CurrentWaypointNode.Value.Position.z, cutscene.TargetWaypointNode.Value.Position.z, lerpTime);
+        float x = Mathf.SmoothStep(
+            cutscene.CurrentWaypointNode.Value.Position.x,
+            cutscene.TargetWaypointNode.Value.Position.x,
+            lerpTime
+        );
+        float y = Mathf.SmoothStep(
+            cutscene.CurrentWaypointNode.Value.Position.y,
+            cutscene.TargetWaypointNode.Value.Position.y,
+            lerpTime
+        );
+        float z = Mathf.SmoothStep(
+            cutscene.CurrentWaypointNode.Value.Position.z,
+            cutscene.TargetWaypointNode.Value.Position.z,
+            lerpTime
+        );
         transform.position = new Vector3(x, y, z);
 
-        transform.rotation = Quaternion.Slerp(cutscene.CurrentWaypointNode.Value.Rotation, cutscene.TargetWaypointNode.Value.Rotation, lerpTime);
+        transform.rotation =
+            Quaternion.Slerp(
+                cutscene.CurrentWaypointNode.Value.Rotation,
+                cutscene.TargetWaypointNode.Value.Rotation,
+                lerpTime);
     }
 
     /*
@@ -653,7 +670,8 @@ public class CameraController : MonoBehaviour
 
     private void UpdateCutsceneSettings()
     {
-        SeekGameplayTargetDirection();
+        orientationDelta = 0;
+        sprintOrientation = Mathf.MoveTowards(sprintOrientation, orientationDelta, 1.8f * Time.deltaTime);
         
         fov = Mathf.SmoothDamp(fov, targetFov, ref fovVelocity, fovSpeedGradation, 100f);
         Camera.fieldOfView = fov;
