@@ -48,21 +48,21 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
         SetFakeControllerDirection(new Vector2(0, 1).normalized * 0.95f);
         yield return new WaitForSeconds(1f);
 
-        yield return AssertGrounded();
+        yield return PlayerUT.AssertGrounded();
 
         PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
         SetFakeControllerDirection(new Vector2(0, 0));
 
-        yield return AssertInAir();
+        yield return PlayerUT.AssertInAir();
         yield return new WaitForSeconds(3f);
-        yield return AssertInAir();
+        yield return PlayerUT.AssertInAir();
 
         PlayerInfo.CharMoveSystem.Kinematic.TryReleaseLock(this, false);
-
-        yield return AssertInAir();
+        yield return PlayerUT.AssertGrounded();
         yield return AssertNotMoving();
+
         yield return new WaitForSeconds(1f);
-        yield return AssertGrounded();
+        yield return PlayerUT.AssertGrounded();
     }
 
     private IEnumerator KinematicStationaryFallTest()
@@ -80,18 +80,18 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
             0.5f    
         );
         PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
-        yield return AssertInAir();
+        yield return PlayerUT.AssertInAir();
         PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, false);
 
         yield return new WaitUntil(() => !PlayerInfo.AnimationManager.InDirectTargetMatch);
-        yield return AssertInAir();
+        yield return PlayerUT.AssertInAir();
 
         PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, false);
-        yield return AssertInAir();
+        yield return PlayerUT.AssertInAir();
         yield return AssertNotMoving();
 
         yield return new WaitForSeconds(1);
-        yield return AssertGrounded();
+        yield return PlayerUT.AssertGrounded();
     }
 
     private IEnumerator KinematicGlideFallTest()
@@ -108,18 +108,15 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
             0.5f    
         );
         PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
-        yield return AssertInAir();
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, false);
+        yield return PlayerUT.AssertInAir();
+        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
 
         yield return new WaitUntil(() => !PlayerInfo.AnimationManager.InDirectTargetMatch);
-        yield return AssertInAir();
-
-        PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, false);
-        yield return AssertInAir();
+        yield return PlayerUT.AssertGrounded(); // lock released in direct target.
         yield return AssertNotMoving();
 
         yield return new WaitForSeconds(1);
-        yield return AssertGrounded();
+        yield return PlayerUT.AssertGrounded();
     }
 
     private IEnumerator KinematicLedgeFallTest()
@@ -141,19 +138,19 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
         );
 
         PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
-        yield return AssertInAir();
+        yield return PlayerUT.AssertInAir();
         PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, false);
         SetFakeControllerDirection(new Vector2(-1, 1).normalized * 0.95f);
 
         yield return new WaitUntil(() => !PlayerInfo.AnimationManager.InDirectTargetMatch);
-        yield return AssertInAir();
+        yield return PlayerUT.AssertInAir();
 
         PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, false);
-        yield return AssertInAir();
+        yield return PlayerUT.AssertInAir();
         yield return AssertNotMoving();
 
         yield return new WaitForSeconds(2);
-        yield return AssertGrounded();
+        yield return PlayerUT.AssertGrounded();
     }
 
     private IEnumerator AssertNotMoving()
@@ -165,33 +162,6 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
         catch (Exception e)
         {
             Debug.Log("Char Move System Kinematic: Failed. Not on ground " + e.Message + " " + e.StackTrace);
-            yield break;
-        }
-    }
-
-
-    private IEnumerator AssertGrounded()
-    {
-        try
-        {
-            UT.CheckEquality<bool>(PlayerInfo.CharMoveSystem.Grounded, true);
-        }
-        catch (Exception e)
-        {
-            Debug.Log("Char Move System Kinematic: Failed. Not on ground " + e.Message + " " + e.StackTrace);
-            yield break;
-        }
-    }
-
-    private IEnumerator AssertInAir()
-    {
-        try
-        {
-            UT.CheckEquality<bool>(PlayerInfo.CharMoveSystem.Grounded, false);
-        }
-        catch (Exception e)
-        {
-            Debug.Log("Char Move System Kinematic: Failed. Not in air " + e.Message + " " + e.StackTrace);
             yield break;
         }
     }

@@ -62,7 +62,7 @@ public class MovementBehaviour : StateMachineBehaviour
 
     private void FallingTransition(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (!PlayerInfo.CharMoveSystem.Grounded)
+        if (!PlayerInfo.CharMoveSystem.Grounded && !PlayerInfo.CharMoveSystem.Kinematic.Value)
         {
             GameInfo.Manager.ReceivingInput.ClaimLock(PlayerInfo.MovementManager, GameInput.GameplayUnoverride);
             PlayerInfo.CharMoveSystem.HorizontalOnExit.ClaimLock(PlayerInfo.MovementManager, true);

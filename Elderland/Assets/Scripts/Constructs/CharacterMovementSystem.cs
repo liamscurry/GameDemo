@@ -106,6 +106,8 @@ public class CharacterMovementSystem : MonoBehaviour
             dynamicAirVelocity = Vector3.zero;
             dynamicVelocity = Vector3.zero;
 
+            KinematicCheckForGround();
+
             if (onKinematicOff != null)
                 onKinematicOff.Invoke();
         }
@@ -115,6 +117,26 @@ public class CharacterMovementSystem : MonoBehaviour
     public void SetOnKinematicOff(Action onKinematicOff)
     {
         this.onKinematicOff = onKinematicOff;
+    }
+
+    /*
+    Helper method called when kinematic mode is switched to kinematic off.
+    This method checks to see if calls to ground checks would result in the character
+    leaving the ground.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void KinematicCheckForGround()
+    {
+        bool kinematicClampCheck = ClampCheck();
+        if (kinematicClampCheck)
+        {
+            controller.Move(effectedObject.transform.up * -2f * controller.skinWidth);
+        }
     }
 
     // Almost all ported over.

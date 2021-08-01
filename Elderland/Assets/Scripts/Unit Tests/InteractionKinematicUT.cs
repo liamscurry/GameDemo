@@ -79,7 +79,7 @@ public class InteractionKinematicUT : MonoBehaviour
         PlayerUT.SetFakeControllerDirection(fakeController, Vector2.zero);
 
         yield return new WaitForSeconds(1);
-        yield return PlayerUT.AssertInAir();
+        yield return PlayerUT.AssertGrounded();
         yield return PlayerUT.AssertInteracting();
 
         yield return new WaitForSeconds(2);
@@ -109,7 +109,7 @@ public class InteractionKinematicUT : MonoBehaviour
         yield return PlayerUT.AssertInAir();
 
         yield return new WaitForSeconds(1);
-        yield return PlayerUT.AssertInAir();
+        yield return PlayerUT.AssertGrounded();
         yield return new WaitForSeconds(1);
         
         yield return PlayerUT.AssertInteracting();
@@ -138,7 +138,7 @@ public class InteractionKinematicUT : MonoBehaviour
         yield return PlayerUT.AssertInAir();
 
         yield return new WaitForSeconds(1);
-        yield return PlayerUT.AssertInAir();
+        yield return PlayerUT.AssertGrounded();
         yield return new WaitForSeconds(1);
         
         yield return PlayerUT.AssertInteracting();
