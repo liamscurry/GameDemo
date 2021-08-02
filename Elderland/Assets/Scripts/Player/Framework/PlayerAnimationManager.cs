@@ -31,8 +31,8 @@ public class PlayerAnimationManager
 	public bool InDirectTargetMatch { get { return directTargetCorou != null; } }
 	private const float directTargetClampOffset = 0.05f;
 
-	public const float ModelRotSpeedIdle = 2f;
-	public const float ModelRotSpeedMoving = 9f;
+	public const float ModelRotSpeedIdle = 4f;
+	public const float ModelRotSpeedMoving = 4f;
 
 	// Walk helper fields
 	private Vector2 positionAnalogDirection;
@@ -44,10 +44,10 @@ public class PlayerAnimationManager
 	// 0 is stationary, 1 is rotation to the right of the character, -1 is rotating left.
     public float CurrentRotationSpeed { get; private set; }
     public const float RotationStartMin = 45f;
-    public const float RotationStopMin = 2f;
+    public const float RotationStopMin = 1f;
 	public const float RotationObserverMin = 0.2f;
-    private const float rotationSpeedSpeedIncrease = 7f;
-    private const float rotationSpeedSpeedDecrease = 3f;
+    private const float rotationSpeedSpeedIncrease = 3f;
+    private const float rotationSpeedSpeedDecrease = 1.4f;
 
 	private bool movedThisFrame;
 
@@ -194,10 +194,10 @@ public class PlayerAnimationManager
 
 			PlayerInfo.Animator.SetFloat(
 				"speed",
-				positionAnalogDirection.x);
-			PlayerInfo.Animator.SetFloat(
-				"strafe",
-				positionAnalogDirection.y);
+				PlayerInfo.MovementManager.CurrentPercentileSpeed);
+			/*PlayerInfo.Animator.SetFloat(
+				"slowDown",
+				positionAnalogDirection.y);*/
 			PlayerInfo.Animator.SetFloat(
 				"percentileSpeed",
 				PlayerInfo.MovementManager.AnimationPercentileSpeed);
@@ -208,10 +208,18 @@ public class PlayerAnimationManager
     {
         int targetRotationSpeed = 0;
         Vector3 targetDirection3D =
-			Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+			new Vector3(
+				PlayerInfo.MovementManager.TargetDirection.x,
+				0,
+				PlayerInfo.MovementManager.TargetDirection.y).normalized;
+
         Vector3 currentDirection3D =
-			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
-   
+			new Vector3(
+				PlayerInfo.MovementManager.CurrentDirection.x,
+				0,
+				PlayerInfo.MovementManager.CurrentDirection.y).normalized;
+
+		Debug.Log(Matho.AngleBetween(targetDirection3D, currentDirection3D));
         if (Matho.AngleBetween(targetDirection3D, currentDirection3D) > RotationStartMin)
         {
             Vector3 zenith = Vector3.Cross(targetDirection3D, currentDirection3D);

@@ -57,6 +57,7 @@ public class PlayerMovementManager
 		}
 	}
     public bool SprintAvailable { get; set; }
+    private const float MinAnimationPercSpeed = 0.2f;
 
     private const float jumpStrength = 4.0f;
     public bool Jumping { get; set; }
@@ -182,12 +183,12 @@ public class PlayerMovementManager
             {
                 PlayerInfo.MovementManager.LockDirection();
                 PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
-                Sprinting = false;
+                
                 if (!PlayerInfo.Animator.IsInTransition(0))
                 {
                     UpdateRotation(false);
-                    if (updateAnimProperties)
-                        PlayerInfo.AnimationManager.UpdateRotationProperties();
+                    //if (updateAnimProperties)
+                    //    PlayerInfo.AnimationManager.UpdateRotationProperties();
                 }
             }
             else
@@ -196,18 +197,15 @@ public class PlayerMovementManager
                     Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
 
                 PlayerInfo.MovementManager.TargetDirection = movementDirection;
-
-                float forwardsAngle = Matho.AngleBetween(Matho.StdProj2D(targetRotation), movementDirection);
-                float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
                 
                 float sprintingModifier = (Sprinting) ? 2f : 1f;
             
                 PlayerInfo.MovementManager.TargetPercentileSpeed =
-                    GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
+                    GameInfo.Settings.LeftDirectionalInput.magnitude * sprintingModifier;
                 if (!PlayerInfo.Animator.IsInTransition(0))
                 {
                     UpdateRotation(true);
-                    if (updateAnimProperties)
+                    //if (updateAnimProperties)
                         PlayerInfo.AnimationManager.UpdateRotationProperties();
                 }
             }
@@ -216,6 +214,8 @@ public class PlayerMovementManager
                 PlayerInfo.MovementManager.CurrentDirection *
                 PlayerInfo.MovementManager.CurrentPercentileSpeed *
                 PlayerInfo.StatsManager.Movespeed);
+
+            PlayerInfo.AnimationManager.UpdateRotationProperties();
 
             if (updateAnimProperties)
                 PlayerInfo.AnimationManager.UpdateWalkProperties();
@@ -229,7 +229,7 @@ public class PlayerMovementManager
     {
         if (!moving)
         {
-            UpdateStillModelRotation();
+            //UpdateStillModelRotation();
         }
         else
         {
@@ -260,7 +260,7 @@ public class PlayerMovementManager
 	private void UpdateMovingModelRotation()
 	{
 		Vector3 targetRotation =
-			Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+			new Vector3(TargetDirection.x, 0, TargetDirection.y);
 		Vector3 currentRotation =
 			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
 
@@ -276,11 +276,8 @@ public class PlayerMovementManager
 
     private void UpdateSprinting(Vector2 analogMovementDirection)
     {
-        if (Matho.AngleBetween(Vector2.up, analogMovementDirection) > sprintDisableAngle)
-        {
+        if (AnimationPercentileSpeed < MinAnimationPercSpeed)
             Sprinting = false;
-            return;
-        }
 
         if (GameInfo.Settings.CurrentGamepad.leftStickButton.isPressed &&
             SprintUnlocked &&   
