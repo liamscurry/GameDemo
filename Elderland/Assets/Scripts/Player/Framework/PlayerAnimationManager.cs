@@ -32,7 +32,7 @@ public class PlayerAnimationManager
 	private const float directTargetClampOffset = 0.05f;
 
 	public const float ModelRotSpeedIdle = 4f;
-	public const float ModelRotSpeedMoving = 4f;
+	public const float ModelRotSpeedMoving = 2.0f;
 
 	// Walk helper fields
 	private Vector2 positionAnalogDirection;
@@ -43,11 +43,12 @@ public class PlayerAnimationManager
 
 	// 0 is stationary, 1 is rotation to the right of the character, -1 is rotating left.
     public float CurrentRotationSpeed { get; private set; }
-    public const float RotationStartMin = 45f;
-    public const float RotationStopMin = 1f;
+	public const float RotatationHardTurn = 45f;
+    public const float RotationStartMin = 2f;
+    public const float RotationStopMin = 0.1f;
 	public const float RotationObserverMin = 0.2f;
-    private const float rotationSpeedSpeedIncrease = 3f;
-    private const float rotationSpeedSpeedDecrease = 1.4f;
+    private const float rotationSpeedSpeedIncrease = 2.4f;
+    private const float rotationSpeedSpeedDecrease = 0.3f;
 
 	private bool movedThisFrame;
 
@@ -206,7 +207,7 @@ public class PlayerAnimationManager
 	
 	public void UpdateRotationProperties()
     {
-        int targetRotationSpeed = 0;
+        float targetRotationSpeed = 0;
         Vector3 targetDirection3D =
 			new Vector3(
 				PlayerInfo.MovementManager.TargetDirection.x,
@@ -219,28 +220,38 @@ public class PlayerAnimationManager
 				0,
 				PlayerInfo.MovementManager.CurrentDirection.y).normalized;
 
-		Debug.Log(Matho.AngleBetween(targetDirection3D, currentDirection3D));
-        if (Matho.AngleBetween(targetDirection3D, currentDirection3D) > RotationStartMin)
+		float directionAngle = Matho.AngleBetween(targetDirection3D, currentDirection3D);
+
+        if (directionAngle > RotationStartMin)
         {
             Vector3 zenith = Vector3.Cross(targetDirection3D, currentDirection3D);
             
+			float turnStrength = 
+				(directionAngle < RotatationHardTurn) ? 0.5f : 1f;
+
             if (Matho.AngleBetween(zenith, Vector3.up) < 90f)
             {
-                targetRotationSpeed = -1;
+                targetRotationSpeed = -1 * turnStrength;
             }
             else
             {
-                targetRotationSpeed = 1;
+                targetRotationSpeed = turnStrength;
             }
         }
 
-        float usedRotSpeed = (targetRotationSpeed != 0) ? rotationSpeedSpeedIncrease : rotationSpeedSpeedDecrease;
+        float usedRotSpeed =
+			(Mathf.Abs(targetRotationSpeed) > Mathf.Abs(CurrentRotationSpeed)) ?
+			rotationSpeedSpeedIncrease :
+			rotationSpeedSpeedDecrease;
+
         CurrentRotationSpeed =
             Mathf.MoveTowards(
                 CurrentRotationSpeed,
                 targetRotationSpeed,
                 usedRotSpeed * Time.deltaTime);
-        
+	
+		Debug.Log(CurrentRotationSpeed);
+
         PlayerInfo.Animator.SetFloat("rotationSpeed", CurrentRotationSpeed);
     }
 
