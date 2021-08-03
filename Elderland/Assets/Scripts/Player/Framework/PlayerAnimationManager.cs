@@ -51,6 +51,9 @@ public class PlayerAnimationManager
 	public const float RotationObserverMin = 0.2f;
     private const float rotationSpeedSpeedIncrease = 1.0f;
     private const float rotationSpeedSpeedDecrease = 0.2f;
+	private float slowdownTimer;
+	private const float slowdownDuration = 0.9f;
+	private const float slowdownTrigger = 0.25f;
 
 	private bool movedThisFrame;
 
@@ -243,6 +246,9 @@ public class PlayerAnimationManager
 			float turnStrength = 
 				(rotationHard) ? 1.0f : 0.5f;
 
+			if (!PlayerInfo.MovementManager.Sprinting)
+				turnStrength *= 0.5f;
+
             if (Matho.AngleBetween(zenith, Vector3.up) < 90f)
             {
                 targetRotationSpeed = -1 * turnStrength;
@@ -263,6 +269,55 @@ public class PlayerAnimationManager
 			"rotationSpeed",
 			CurrentRotationSpeed * PlayerInfo.MovementManager.AnimationPercentileSpeed);
     }
+
+	/*
+	Updates animator property "slowdownSpeed " responsible for turning on stoping animation when
+	walking.
+
+	Inputs:
+	None
+
+	Outputs:
+	None
+	*/
+	public void UpdateSlowdownProperties()
+	{
+		if (PlayerInfo.MovementManager.CurrentPercentileSpeed < slowdownTrigger * 3 &&
+			PlayerInfo.MovementManager.TargetPercentileSpeed < slowdownTrigger &&
+			PlayerInfo.MovementManager.Sprinting)
+		{
+			slowdownTimer += Time.deltaTime;
+			if (slowdownTimer > 1)
+				slowdownTimer = 1;
+		}
+		else
+		{
+			if (slowdownTimer < slowdownDuration / 2f)
+			{
+				slowdownTimer -= Time.deltaTime;
+				if (slowdownTimer < 0)
+					slowdownTimer = 0;
+			}
+			else if (slowdownTimer > slowdownDuration / 2f && slowdownTimer < slowdownDuration)
+			{
+				slowdownTimer += Time.deltaTime;
+				if (slowdownTimer > 1)
+					slowdownTimer = 1;
+			}
+			else
+			{
+				slowdownTimer = 0;
+			}
+		}
+
+		float slowdownIntensity = 0;
+		if (slowdownTimer <  slowdownDuration)
+			slowdownIntensity = Mathf.Sin(slowdownTimer / slowdownDuration * Mathf.PI);
+	
+		PlayerInfo.Animator.SetFloat(
+			AnimationConstants.Player.SlowdownSpeed,
+			slowdownIntensity);
+	}
 
 	/*
 	* The following two methods are helper methods for combat layer that transitions from and to

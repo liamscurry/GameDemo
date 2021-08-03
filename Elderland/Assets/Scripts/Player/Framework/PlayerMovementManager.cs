@@ -57,7 +57,7 @@ public class PlayerMovementManager
 		}
 	}
     public bool SprintAvailable { get; set; }
-    private const float MinAnimationPercSpeed = 0.2f;
+    private const float MinAnimationPercSpeed = 0.5f;
 
     private const float jumpStrength = 4.0f;
     public bool Jumping { get; set; }
@@ -202,6 +202,7 @@ public class PlayerMovementManager
                     UpdateRotation(true);
                     //if (updateAnimProperties)
                         PlayerInfo.AnimationManager.UpdateRotationProperties();
+                    
                 }
             }
 
@@ -211,6 +212,7 @@ public class PlayerMovementManager
                 PlayerInfo.StatsManager.Movespeed);
 
             PlayerInfo.AnimationManager.UpdateRotationProperties();
+            PlayerInfo.AnimationManager.UpdateSlowdownProperties();
 
             if (updateAnimProperties)
                 PlayerInfo.AnimationManager.UpdateWalkProperties();
