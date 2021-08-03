@@ -23,7 +23,7 @@ public class PlayerMovementManager
 
     // For animator property percentileSpeed
     private const float percentileSpeedMin = 0.125f;
-    private const float percentileSpeedSpeed = 1.5f;
+    private const float percentileSpeedSpeed = 0.75f;
 
     public Vector2 CurrentDirection { get; private set; }
 
@@ -118,15 +118,10 @@ public class PlayerMovementManager
     {
         CurrentDirection =
             Matho.RotateTowards(CurrentDirection, TargetDirection, directionSpeed * Time.deltaTime);
+        float alteredTargetPerSpeed = TargetPercentileSpeed;
+        alteredTargetPerSpeed *= 1 - Matho.AngleBetween(TargetDirection, CurrentDirection) / 180f;
         CurrentPercentileSpeed =
-            Mathf.SmoothDamp(CurrentPercentileSpeed, TargetPercentileSpeed, ref speedVelocity, speedGradation);
-        CurrentPercentileSpeed *= 1 - Matho.AngleBetween(TargetDirection, CurrentDirection) / 180f * 0.7f;
-
-        /*if (PlayerInfo.PhysicsSystem.ExitedFloor && !PlayerInfo.CharMoveSystem.Jumping)
-        {
-            TargetPercentileSpeed = 0;
-            SnapSpeed();
-        }*/
+            Mathf.SmoothDamp(CurrentPercentileSpeed, alteredTargetPerSpeed, ref speedVelocity, speedGradation);
 
         if (CurrentPercentileSpeed < percentileSpeedMin)
         {

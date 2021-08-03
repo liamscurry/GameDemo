@@ -43,12 +43,14 @@ public class PlayerAnimationManager
 
 	// 0 is stationary, 1 is rotation to the right of the character, -1 is rotating left.
     public float CurrentRotationSpeed { get; private set; }
-	public const float RotatationHardTurn = 45f;
+	private const float rotationHardTurnStart = 135f;
+	private const float rotationHardTurnStop = 90f;
+	private bool rotationHard = true;
     public const float RotationStartMin = 2f;
     public const float RotationStopMin = 0.1f;
 	public const float RotationObserverMin = 0.2f;
-    private const float rotationSpeedSpeedIncrease = 2.4f;
-    private const float rotationSpeedSpeedDecrease = 0.3f;
+    private const float rotationSpeedSpeedIncrease = 1.0f;
+    private const float rotationSpeedSpeedDecrease = 0.2f;
 
 	private bool movedThisFrame;
 
@@ -205,9 +207,18 @@ public class PlayerAnimationManager
 		}
     }
 	
+	/*
+	Updates animator property "rotationSpeed " responsible for turning on leaning animation when
+	turning around 180 degrees when traveling fast.
+
+	Inputs:
+	None
+
+	Outputs:
+	None
+	*/
 	public void UpdateRotationProperties()
     {
-        float targetRotationSpeed = 0;
         Vector3 targetDirection3D =
 			new Vector3(
 				PlayerInfo.MovementManager.TargetDirection.x,
@@ -215,19 +226,22 @@ public class PlayerAnimationManager
 				PlayerInfo.MovementManager.TargetDirection.y).normalized;
 
         Vector3 currentDirection3D =
-			new Vector3(
-				PlayerInfo.MovementManager.CurrentDirection.x,
-				0,
-				PlayerInfo.MovementManager.CurrentDirection.y).normalized;
+			PlayerInfo.Player.transform.forward;
 
 		float directionAngle = Matho.AngleBetween(targetDirection3D, currentDirection3D);
-
+		float targetRotationSpeed = 0;
         if (directionAngle > RotationStartMin)
         {
             Vector3 zenith = Vector3.Cross(targetDirection3D, currentDirection3D);
             
+			if (directionAngle > rotationHardTurnStart)
+				rotationHard = true;
+			
+			if (directionAngle < rotationHardTurnStop)
+				rotationHard = false;
+
 			float turnStrength = 
-				(directionAngle < RotatationHardTurn) ? 0.5f : 1f;
+				(rotationHard) ? 1.0f : 0.5f;
 
             if (Matho.AngleBetween(zenith, Vector3.up) < 90f)
             {
@@ -239,20 +253,15 @@ public class PlayerAnimationManager
             }
         }
 
-        float usedRotSpeed =
-			(Mathf.Abs(targetRotationSpeed) > Mathf.Abs(CurrentRotationSpeed)) ?
-			rotationSpeedSpeedIncrease :
-			rotationSpeedSpeedDecrease;
-
         CurrentRotationSpeed =
             Mathf.MoveTowards(
                 CurrentRotationSpeed,
                 targetRotationSpeed,
-                usedRotSpeed * Time.deltaTime);
-	
-		Debug.Log(CurrentRotationSpeed);
+                rotationSpeedSpeedIncrease * Time.deltaTime);
 
-        PlayerInfo.Animator.SetFloat("rotationSpeed", CurrentRotationSpeed);
+        PlayerInfo.Animator.SetFloat(
+			"rotationSpeed",
+			CurrentRotationSpeed * PlayerInfo.MovementManager.AnimationPercentileSpeed);
     }
 
 	/*
