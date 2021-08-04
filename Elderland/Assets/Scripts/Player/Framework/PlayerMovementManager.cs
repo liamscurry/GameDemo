@@ -22,8 +22,8 @@ public class PlayerMovementManager
     private float speedGradation = 0.454f; // 0.2f
 
     // For animator property percentileSpeed
-    private const float percentileSpeedMin = 0.125f;
-    private const float percentileSpeedSpeed = 0.75f;
+    private const float percentileSpeedMin = 0.25f;
+    private const float percentileSpeedSpeed = 1f;
 
     public Vector2 CurrentDirection { get; private set; }
 
@@ -57,7 +57,7 @@ public class PlayerMovementManager
 		}
 	}
     public bool SprintAvailable { get; set; }
-    private const float MinAnimationPercSpeed = 0.5f;
+    private const float MinAnimationPercSpeed = 0.7f;
 
     private const float jumpStrength = 4.0f;
     public bool Jumping { get; set; }
@@ -264,7 +264,7 @@ public class PlayerMovementManager
         float turnModifier = 1;
         if (Sprinting)
         {
-            turnModifier = (PlayerInfo.AnimationManager.RotationHard) ? 3f : 0.5f;
+            turnModifier = (PlayerInfo.AnimationManager.RotationHard) ? 3f : 0.3f;
         }
         else
         {
@@ -282,16 +282,16 @@ public class PlayerMovementManager
 
     private void UpdateSprinting(Vector2 analogMovementDirection)
     {
-        if (AnimationPercentileSpeed < MinAnimationPercSpeed)
-            Sprinting = false;
-
-        if (GameInfo.Settings.CurrentGamepad.leftStickButton.isPressed &&
+        if (GameInfo.Settings.CurrentGamepad.leftStickButton.wasPressedThisFrame &&
             SprintUnlocked &&   
             SprintAvailable &&
             PlayerInfo.AbilityManager.CurrentAbility == null)
         {
-            Sprinting = true;
+            Sprinting = !Sprinting;
         }
+
+        if (AnimationPercentileSpeed < MinAnimationPercSpeed)
+            Sprinting = false;
     }
 
     public void ResetSprint()
