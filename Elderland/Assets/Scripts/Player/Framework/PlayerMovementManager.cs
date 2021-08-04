@@ -19,7 +19,7 @@ public class PlayerMovementManager
     private float directionSpeed = 500;
 
     private float speedVelocity;
-    private float speedGradation = 0.2f; // 0.2f
+    private float speedGradation = 0.454f; // 0.2f
 
     // For animator property percentileSpeed
     private const float percentileSpeedMin = 0.125f;
@@ -51,7 +51,7 @@ public class PlayerMovementManager
 			else if (!sprinting & value)
 			{
 				// Started sprinting
-				GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -2.5f, 0.9f));
+				GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, 0, 0.9f));
 			}
 			sprinting = value;
 		}
@@ -193,7 +193,7 @@ public class PlayerMovementManager
 
                 PlayerInfo.MovementManager.TargetDirection = movementDirection;
                 
-                float sprintingModifier = (Sprinting) ? 2f : 1f;
+                float sprintingModifier = (Sprinting) ? 2.25f : 1f;
             
                 PlayerInfo.MovementManager.TargetPercentileSpeed =
                     GameInfo.Settings.LeftDirectionalInput.magnitude * sprintingModifier;
@@ -261,11 +261,20 @@ public class PlayerMovementManager
 		Vector3 currentRotation =
 			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
 
+        float turnModifier = 1;
+        if (Sprinting)
+        {
+            turnModifier = (PlayerInfo.AnimationManager.RotationHard) ? 3f : 0.5f;
+        }
+        else
+        {
+            turnModifier = (PlayerInfo.AnimationManager.RotationHard) ? 2.5f : 1;
+        }
 		Vector3 incrementedRotation =
 			Vector3.RotateTowards(
 				currentRotation,
 				targetRotation,
-				PlayerAnimationManager.ModelRotSpeedMoving * Time.deltaTime,
+				PlayerAnimationManager.ModelRotSpeedMoving * turnModifier * Time.deltaTime,
 				0f);
 		Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
 		PlayerInfo.Player.transform.rotation = rotation;

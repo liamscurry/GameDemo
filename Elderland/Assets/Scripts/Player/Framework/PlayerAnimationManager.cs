@@ -14,7 +14,8 @@ public class PlayerAnimationManager
 
 	public StateMachineBehaviour AnimationPhysicsBehaviour { get; set; }
 	public StateMachineBehaviour KinematicBehaviour { get; set; }
-	public PlayerAnimationUpper UpperLayer { get; private set; }
+	public PlayerAnimationLayer UpperLayer { get; private set; }
+	public PlayerAnimationLayer FullLayer { get; private set; }
 	public bool IgnoreFallingAnimation { get; set; }
 
 	private AnimationClip[] playerAnims;
@@ -43,9 +44,10 @@ public class PlayerAnimationManager
 
 	// 0 is stationary, 1 is rotation to the right of the character, -1 is rotating left.
     public float CurrentRotationSpeed { get; private set; }
-	private const float rotationHardTurnStart = 135f;
-	private const float rotationHardTurnStop = 90f;
+	private const float rotationHardTurnStart = 90f;
+	private const float rotationHardTurnStop = 15f;
 	private bool rotationHard = true;
+	public bool RotationHard { get { return rotationHard; } }
     public const float RotationStartMin = 2f;
     public const float RotationStopMin = 0.1f;
 	public const float RotationObserverMin = 0.2f;
@@ -53,7 +55,8 @@ public class PlayerAnimationManager
     private const float rotationSpeedSpeedDecrease = 0.2f;
 	private float slowdownTimer;
 	private const float slowdownDuration = 0.9f;
-	private const float slowdownTrigger = 0.25f;
+	private const float slowdownTrigger = 0.35f;
+	private bool slowingDown;
 
 	private bool movedThisFrame;
 
@@ -63,7 +66,8 @@ public class PlayerAnimationManager
 		matchTargets = new Queue<MatchTarget>();
 		combatLayer = new PlayerAnimationPersistLayer(0.5f, "CombatStanceLayer");
 		walkAbilityLayer = new PlayerAnimationPersistLayer(0.5f, "WalkAbilityLayer");
-		UpperLayer = new PlayerAnimationUpper();
+		UpperLayer = new PlayerAnimationLayer("upperAction");
+		FullLayer = new PlayerAnimationLayer("fullAction");
 
 		AnimatorController =
 			Resources.Load<AnimatorController>(ResourceConstants.Player.Art.AnimatorController);
@@ -283,14 +287,18 @@ public class PlayerAnimationManager
 	public void UpdateSlowdownProperties()
 	{
 		if (PlayerInfo.MovementManager.CurrentPercentileSpeed < slowdownTrigger * 3 &&
+			PlayerInfo.MovementManager.CurrentPercentileSpeed > slowdownTrigger / 3f &&
 			PlayerInfo.MovementManager.TargetPercentileSpeed < slowdownTrigger &&
 			PlayerInfo.MovementManager.Sprinting)
 		{
+			/*
 			slowdownTimer += Time.deltaTime;
 			if (slowdownTimer > 1)
 				slowdownTimer = 1;
+				*/
+			TriggerSlowdown();
 		}
-		else
+		/*else
 		{
 			if (slowdownTimer < slowdownDuration / 2f)
 			{
@@ -309,7 +317,8 @@ public class PlayerAnimationManager
 				slowdownTimer = 0;
 			}
 		}
-
+		*/
+		/*
 		float slowdownIntensity = 0;
 		if (slowdownTimer <  slowdownDuration)
 			slowdownIntensity = Mathf.Sin(slowdownTimer / slowdownDuration * Mathf.PI);
@@ -317,6 +326,29 @@ public class PlayerAnimationManager
 		PlayerInfo.Animator.SetFloat(
 			AnimationConstants.Player.SlowdownSpeed,
 			slowdownIntensity);
+			*/
+	}
+
+	public void TriggerSlowdown()
+	{
+		if (!slowingDown)
+		{
+			FullLayer.RequestAction(
+				GetAnim("Slowdown"), 
+				OnSlowdownComplete,
+				OnSlowdownShortCircuit);
+			slowingDown = true;
+		}
+	}
+
+	private void OnSlowdownComplete()
+	{
+		slowingDown = false;
+	}
+
+	private void OnSlowdownShortCircuit()
+	{
+		slowingDown = false;
 	}
 
 	/*
