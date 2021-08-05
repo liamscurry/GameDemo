@@ -254,6 +254,16 @@ public class CameraController : MonoBehaviour
         GameInfo.Menu.ObjectiveManager.DisableWaypoints(this);
     }
 
+    /*
+    Converts analog controller stick input to world space direction using the camera direction/rotation.
+    Ex: Vector(0, 1) => world direction vector equal to horizontal component of camera forward.
+
+    Inputs:
+    Vector2 : v : analog controller stick input
+
+    Outputs:
+    Vector2 : world space direction
+    */
     public Vector2 StdToCameraDir(Vector2 v)
     {
         Vector2 vertical = Matho.StdProj2D(direction).normalized;

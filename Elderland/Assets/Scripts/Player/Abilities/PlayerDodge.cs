@@ -6,8 +6,6 @@ using UnityEngine;
 
 public sealed class PlayerDodge : PlayerAbility 
 {
-    private enum DodgeType { Left = 1, Normal = 0, Right = -1 }
-
     //Fields
     private Vector2 direction;
     private float speed = 5f;
@@ -17,11 +15,9 @@ public sealed class PlayerDodge : PlayerAbility
     private AbilityProcess actProcess;
     private AbilityProcess slideProcess;
 
-    private Vector3 startPlayerDirection;
-    private DodgeType dodgeType;
-    private const float sideThreshold = 0.25f;
-    private const float sideRotateDegrees = 40f;
-    private const float sideRotateSpeed = 5f;
+    private Vector3 targetPlayerPoint;
+    private const float rotationSpeed = 9f;
+    private const float lookDistance = 0.3f;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -55,20 +51,9 @@ public sealed class PlayerDodge : PlayerAbility
 
         dodgeSegment.Clip = actClip;
 
-        if (playerInput.x > sideThreshold)
-        {
-            dodgeType = DodgeType.Right;
-        }
-        else if (playerInput.x < -sideThreshold)
-        {
-            dodgeType = DodgeType.Left;
-        }
-        else
-        {
-            dodgeType = DodgeType.Normal;
-        }
-
-        startPlayerDirection = PlayerInfo.Player.transform.forward;
+        targetPlayerPoint =
+            PlayerInfo.Player.transform.position +
+            PlayerInfo.Player.transform.forward * lookDistance;
 
         PlayerInfo.AbilityManager.LastDirFocus = Time.time;
         PlayerInfo.AbilityManager.DirFocus = PlayerInfo.Player.transform.forward;
@@ -76,17 +61,17 @@ public sealed class PlayerDodge : PlayerAbility
 
     public override void GlobalUpdate()
     {
-        if (dodgeType != DodgeType.Normal)
+        Vector3 targetPlayerDir = targetPlayerPoint - PlayerInfo.Player.transform.position;
+        targetPlayerDir = Matho.StdProj3D(targetPlayerDir).normalized;
+
+        if (targetPlayerDir.magnitude != 0)
         {
-            Vector3 targetPlayerDirection =
-                Matho.Rotate(startPlayerDirection, Vector3.up, sideRotateDegrees * (int) dodgeType);
-        
             Vector3 incrementedRotation = PlayerInfo.Player.transform.forward;
             incrementedRotation =
                 Vector3.RotateTowards(
                     incrementedRotation,
-                    targetPlayerDirection,
-                    sideRotateSpeed * Time.deltaTime,
+                    targetPlayerDir,
+                    rotationSpeed * Time.deltaTime,
                     Mathf.Infinity);
             PlayerInfo.Player.transform.rotation =
                 Quaternion.LookRotation(incrementedRotation, Vector3.up);
