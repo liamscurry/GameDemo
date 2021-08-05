@@ -16,7 +16,7 @@ public class PlayerMovementManager
     private Vector2 targetDirection;
     private float targetPercentileSpeed;
 
-    private float directionSpeed = 500;
+    private float directionSpeed = 400;
 
     private float speedVelocity;
     private float speedGradation = 0.454f; // 0.2f
@@ -264,7 +264,7 @@ public class PlayerMovementManager
         float turnModifier = 1;
         if (Sprinting)
         {
-            turnModifier = (PlayerInfo.AnimationManager.RotationHard) ? 3f : 0.3f;
+            turnModifier = (PlayerInfo.AnimationManager.RotationHard) ? 2.5f : 0.4f;
         }
         else
         {

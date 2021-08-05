@@ -44,7 +44,7 @@ public class PlayerAnimationManager
 
 	// 0 is stationary, 1 is rotation to the right of the character, -1 is rotating left.
     public float CurrentRotationSpeed { get; private set; }
-	private const float rotationHardTurnStart = 90f;
+	private const float rotationHardTurnStart = 70f;
 	private const float rotationHardTurnStop = 15f;
 	private bool rotationHard = true;
 	public bool RotationHard { get { return rotationHard; } }
@@ -248,7 +248,7 @@ public class PlayerAnimationManager
 				rotationHard = false;
 
 			float turnStrength = 
-				(rotationHard) ? 1.0f : 0.5f;
+				(rotationHard) ? 1.0f : 0.3f; // Only want lerp of slight turn animation
 
 			if (!PlayerInfo.MovementManager.Sprinting)
 				turnStrength *= 0.5f;
@@ -291,42 +291,8 @@ public class PlayerAnimationManager
 			PlayerInfo.MovementManager.TargetPercentileSpeed < slowdownTrigger &&
 			PlayerInfo.MovementManager.Sprinting)
 		{
-			/*
-			slowdownTimer += Time.deltaTime;
-			if (slowdownTimer > 1)
-				slowdownTimer = 1;
-				*/
 			TriggerSlowdown();
 		}
-		/*else
-		{
-			if (slowdownTimer < slowdownDuration / 2f)
-			{
-				slowdownTimer -= Time.deltaTime;
-				if (slowdownTimer < 0)
-					slowdownTimer = 0;
-			}
-			else if (slowdownTimer > slowdownDuration / 2f && slowdownTimer < slowdownDuration)
-			{
-				slowdownTimer += Time.deltaTime;
-				if (slowdownTimer > 1)
-					slowdownTimer = 1;
-			}
-			else
-			{
-				slowdownTimer = 0;
-			}
-		}
-		*/
-		/*
-		float slowdownIntensity = 0;
-		if (slowdownTimer <  slowdownDuration)
-			slowdownIntensity = Mathf.Sin(slowdownTimer / slowdownDuration * Mathf.PI);
-	
-		PlayerInfo.Animator.SetFloat(
-			AnimationConstants.Player.SlowdownSpeed,
-			slowdownIntensity);
-			*/
 	}
 
 	public void TriggerSlowdown()
