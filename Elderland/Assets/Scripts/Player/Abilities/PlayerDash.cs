@@ -15,13 +15,18 @@ public sealed class PlayerDash : PlayerAbility
 
     private AbilitySegment act;
     private AbilityProcess actProcess;
+    private const float rotationSpeed = 20f;
+    private Vector3 targetPlayerDir;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
         this.system = abilityManager;
 
+        AnimationClip actClip = 
+            PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.Dash);
+
         actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1);
-        act = new AbilitySegment(null, actProcess);
+        act = new AbilitySegment(actClip, actProcess);
         act.Type = AbilitySegmentType.Physics;
 
         segments = new AbilitySegmentList();
@@ -54,11 +59,22 @@ public sealed class PlayerDash : PlayerAbility
 
     protected override void GlobalStart()
     {
-        Vector2 playerInput =
-            PlayerInfo.MovementManager.DirectionToPlayerCoord(GameInfo.Settings.LeftDirectionalInput);
-        AnimationClip dashClip =
-            GetDirAnim(ResourceConstants.Player.Art.Dash, playerInput);
-        act.Clip = dashClip;
+        Vector2 targetPlayerDir2D = 
+            GameInfo.CameraController.StdToCameraDir(GameInfo.Settings.LeftDirectionalInput);
+        targetPlayerDir = new Vector3(targetPlayerDir2D.x, 0, targetPlayerDir2D.y).normalized;
+    }
+
+    public override void GlobalUpdate()
+    {
+        Vector3 incrementedRotation = Vector3.zero;
+        incrementedRotation =
+            Vector3.RotateTowards(
+                PlayerInfo.Player.transform.forward,
+                targetPlayerDir,
+                rotationSpeed * Time.deltaTime,
+                Mathf.Infinity);
+        PlayerInfo.Player.transform.rotation =
+            Quaternion.LookRotation(incrementedRotation, Vector3.up);
     }
 
     private void ActBegin()
@@ -71,7 +87,7 @@ public sealed class PlayerDash : PlayerAbility
 
         dashParticles.Play();
 
-        GameInfo.CameraController.Speed = 0.5f;
+        GameInfo.CameraController.Speed = 0.25f;
         GameInfo.CameraController.TargetSpeed = 0;
         GameInfo.CameraController.SpeedGradation = 0.15f;
 
@@ -86,8 +102,9 @@ public sealed class PlayerDash : PlayerAbility
 
     private void ActEnd()
     {  
-        PlayerInfo.MovementManager.TargetPercentileSpeed = 1;
+        PlayerInfo.MovementManager.TargetPercentileSpeed = PlayerInfo.MovementManager.SprintModifier;
         PlayerInfo.MovementManager.SnapSpeed();
+        PlayerInfo.MovementManager.TurnOnSprint();
 
         dashParticles.Stop();
 

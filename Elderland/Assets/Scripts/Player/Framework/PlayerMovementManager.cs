@@ -56,6 +56,7 @@ public class PlayerMovementManager
 			sprinting = value;
 		}
 	}
+    public float SprintModifier { get { return 2.25f; } }
     public bool SprintAvailable { get; set; }
     private const float MinAnimationPercSpeed = 0.7f;
 
@@ -193,7 +194,7 @@ public class PlayerMovementManager
 
                 PlayerInfo.MovementManager.TargetDirection = movementDirection;
                 
-                float sprintingModifier = (Sprinting) ? 2.25f : 1f;
+                float sprintingModifier = (Sprinting) ? SprintModifier : 1f;
             
                 PlayerInfo.MovementManager.TargetPercentileSpeed =
                     GameInfo.Settings.LeftDirectionalInput.magnitude * sprintingModifier;
@@ -297,6 +298,11 @@ public class PlayerMovementManager
     public void ResetSprint()
     {
         Sprinting = false;
+    }
+
+    public void TurnOnSprint()
+    {
+        Sprinting = true;
     }
 
     public Vector2 DirectionToPlayerCoord(Vector3 direction)
