@@ -410,26 +410,24 @@ public sealed class PlayerSword : PlayerAbility
     {
         if (type == Type.NoTarget || type == Type.FarTarget)
         {   
-            Vector2 direction = 
+            if (!(Physics.OverlapSphere(
+                PlayerInfo.Player.transform.position,
+                PlayerInfo.Capsule.radius * 1.75f,
+                LayerConstants.Enemy).Length != 0))
+            {
+                Vector2 direction = 
                 Matho.StdProj2D(targetPosition - PlayerInfo.Player.transform.position);
 
-            float slowPercent = (targetSlowRadius - direction.magnitude) / targetSlowRadius;
-            float dampedSpeed =
-                (direction.magnitude > targetSlowRadius) ?
-                noTargetSpeed :
-                Mathf.Clamp(noTargetSpeed - slowPercent * (noTargetSpeed * targetSlowRatio), 0, float.MaxValue);
+                float slowPercent = (targetSlowRadius - direction.magnitude) / targetSlowRadius;
+                float dampedSpeed =
+                    (direction.magnitude > targetSlowRadius) ?
+                    noTargetSpeed :
+                    Mathf.Clamp(noTargetSpeed - slowPercent * (noTargetSpeed * targetSlowRatio), 0, float.MaxValue);
 
-            direction.Normalize();
+                direction.Normalize();
 
-            PlayerInfo.CharMoveSystem.GroundMove(direction * dampedSpeed);
-        }
-
-        if (Physics.OverlapSphere(
-            PlayerInfo.Player.transform.position,
-            PlayerInfo.Capsule.radius * 1.75f,
-            LayerConstants.Enemy).Length != 0)
-        {
-            ForceAdvanceSegment();
+                PlayerInfo.CharMoveSystem.GroundMove(direction * dampedSpeed);
+            }
         }
     }
     
@@ -659,7 +657,6 @@ public sealed class PlayerSword : PlayerAbility
     Vector3 scanSize;
     Quaternion scanRotation;
     Vector3 dashPosition;
-    /*
     private void OnDrawGizmosSelected()
     {
         Gizmos.DrawLine(dashPosition, PlayerInfo.Player.transform.position);
@@ -672,7 +669,6 @@ public sealed class PlayerSword : PlayerAbility
 
         Gizmos.matrix = Matrix4x4.identity;
     }
-    */
 
     /*
     // Inside of OnHit. Used to be used for changing swing particles intensity.

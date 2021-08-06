@@ -29,6 +29,7 @@ public class PlayerMovementManager
 
     public float CurrentPercentileSpeed { get; private set; }
     public float AnimationPercentileSpeed { get; private set; }
+    public float LastAnimationPercentileSpeed { get; private set; }
     public float PercSpeedObstructedModifier { get; set; }
     
     private bool sprintUnlocked;
@@ -39,7 +40,7 @@ public class PlayerMovementManager
 
     private bool sprinting; // should only be referenced inside of property.
     public bool Sprinting {  
-		get { return sprinting; } 
+		get { return sprinting || GameInfo.Manager.InCombat; } 
 
 		set
 		{
@@ -56,7 +57,7 @@ public class PlayerMovementManager
 			sprinting = value;
 		}
 	}
-    public float SprintModifier { get { return 2.25f; } }
+    public float SprintModifier { get { return 2.0f; } }
     public bool SprintAvailable { get; set; }
     private const float MinAnimationPercSpeed = 0.7f;
 
@@ -142,6 +143,7 @@ public class PlayerMovementManager
     public void LateUpdateMovement()
     {
         movedThisFrame = false;
+        LastAnimationPercentileSpeed = AnimationPercentileSpeed;
     }
 
     public bool TryJump()
@@ -291,7 +293,8 @@ public class PlayerMovementManager
             Sprinting = !Sprinting;
         }
 
-        if (AnimationPercentileSpeed < MinAnimationPercSpeed)
+        if (AnimationPercentileSpeed < MinAnimationPercSpeed && 
+            LastAnimationPercentileSpeed >= MinAnimationPercSpeed)
             Sprinting = false;
     }
 

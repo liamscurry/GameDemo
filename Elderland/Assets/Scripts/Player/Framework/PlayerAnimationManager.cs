@@ -64,8 +64,8 @@ public class PlayerAnimationManager
 	{
 		playerAnims = Resources.LoadAll<AnimationClip>(ResourceConstants.Player.Art.Model);
 		matchTargets = new Queue<MatchTarget>();
-		combatLayer = new PlayerAnimationPersistLayer(0.5f, "CombatStanceLayer");
-		walkAbilityLayer = new PlayerAnimationPersistLayer(0.5f, "WalkAbilityLayer");
+		combatLayer = new PlayerAnimationPersistLayer(0.5f, "CombatStanceLayer", 0.55f);
+		walkAbilityLayer = new PlayerAnimationPersistLayer(0.5f, "WalkAbilityLayer", 1f);
 		UpperLayer = new PlayerAnimationLayer("upperAction");
 		FullLayer = new PlayerAnimationLayer("fullAction");
 

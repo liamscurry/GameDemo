@@ -20,15 +20,23 @@ public class PlayerAnimationPersistLayer
     private IEnumerator weightSmoothCoro;
 
     private Object user;
+    private float opacity;
 
     public float GetLayerWeight { get { return PlayerInfo.Animator.GetLayerWeight(layerIndex); } }
 
-    public PlayerAnimationPersistLayer(float transitionDur, string layerName)
+    /*
+    Inputs:
+    float : transitionDur : how long the transition (on and off) is in seconds.
+    string : layerName : the name of the animation layer in the animator controller which will be toggled.
+    float : opacity : how much the animator layer should override (0 is all off, 1 is all on).
+    */
+    public PlayerAnimationPersistLayer(float transitionDur, string layerName, float opacity)
     {
         this.transitionDur = transitionDur;
         layerIndex = PlayerInfo.Animator.GetLayerIndex(layerName);
         weightSmoothCoro = null;
         this.layerName = layerName;
+        this.opacity = opacity;
     }
 
     public void TurnOn()
@@ -38,7 +46,7 @@ public class PlayerAnimationPersistLayer
             PlayerInfo.Manager.StopCoroutine(weightSmoothCoro);
         }
 
-        weightSmoothCoro = FadeWeight(0, 1);
+        weightSmoothCoro = FadeWeight(0, opacity);
         PlayerInfo.Manager.StartCoroutine(weightSmoothCoro);
     }
 
@@ -49,7 +57,7 @@ public class PlayerAnimationPersistLayer
             PlayerInfo.Manager.StopCoroutine(weightSmoothCoro);
         }
 
-        weightSmoothCoro = FadeWeight(1, 0);
+        weightSmoothCoro = FadeWeight(opacity, 0);
         PlayerInfo.Manager.StartCoroutine(weightSmoothCoro);
     }
 
@@ -63,7 +71,7 @@ public class PlayerAnimationPersistLayer
 
         int layerIndex = PlayerInfo.Animator.GetLayerIndex(layerName);
         float layerWeight = PlayerInfo.Animator.GetLayerWeight(layerIndex);
-        weightSmoothCoro = FadeWeight(layerWeight, 1);
+        weightSmoothCoro = FadeWeight(layerWeight, opacity);
         PlayerInfo.Manager.StartCoroutine(weightSmoothCoro);
     }
 
@@ -103,7 +111,7 @@ public class PlayerAnimationPersistLayer
     {
         Object obj1 = new Object();
         Object obj2 = new Object();
-        var layer = new PlayerAnimationPersistLayer(1f, "test");
+        var layer = new PlayerAnimationPersistLayer(1f, "test", 1);
         UT.CheckEquality<bool>(layer.user == null, true);  
         layer.ClaimTurnOn(obj1);
         UT.CheckEquality<bool>(layer.user == obj1, true);  
@@ -115,7 +123,7 @@ public class PlayerAnimationPersistLayer
     {
         Object obj1 = new Object();
         Object obj2 = new Object();
-        var layer = new PlayerAnimationPersistLayer(1f, "test");
+        var layer = new PlayerAnimationPersistLayer(1f, "test", 1);
         UT.CheckEquality<bool>(layer.user == null, true);  
         layer.ClaimTurnOn(obj1);
         UT.CheckEquality<bool>(layer.user == obj1, true);  
