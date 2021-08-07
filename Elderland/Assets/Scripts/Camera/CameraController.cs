@@ -175,7 +175,7 @@ public class CameraController : MonoBehaviour
 
         fov = 60;
         targetFov = 60;
-        fovSpeedGradation = 0.825f;
+        fovSpeedGradation = 0.325f;
 
         zoomModifier = 1;
         SensitivityModifier = 1;

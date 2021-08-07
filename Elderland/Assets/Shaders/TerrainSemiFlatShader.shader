@@ -36,7 +36,7 @@ Shader "Custom/TerrainSemiFlatShader"
     }
     SubShader
     {
-                //Cull off
+        //Cull off
         LOD 400
 
         // Via SpeedTree.shader

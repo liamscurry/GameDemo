@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public static class EnemyInfo
 {
@@ -29,6 +30,8 @@ public static class EnemyInfo
     public static Color FinisherHealthColor { get; private set; }
     public static float ShadowColorDim { get; private set; }
     
+    private const float obstructionCheckMargin = 0.25f;
+
     public static void Initialize(
         Color armorColor,
         Color healthColor,
@@ -51,5 +54,19 @@ public static class EnemyInfo
         HealthColor = healthColor;
         FinisherHealthColor = finisherHealthColor;
         ShadowColorDim = shadowColorDim;
+    }
+
+    public static bool IsEnemyObstructed(Collider other)
+    {
+        NavMeshHit navMeshHit;
+        Vector3 endPosition = 
+            Vector3.MoveTowards(
+                PlayerInfo.Player.transform.position,
+                other.transform.parent.position,
+                obstructionCheckMargin);
+
+        return other.GetComponentInParent<NavMeshAgent>().Raycast(
+                endPosition,
+                out navMeshHit);
     }
 }

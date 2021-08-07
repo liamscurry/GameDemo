@@ -7,22 +7,16 @@ using UnityEngine.AI;
 
 public sealed class PlayerFinisher : PlayerAbility 
 {
-    private enum SwingType { DiagonalRight, DiagonalLeft, ForwardRight }
+    private enum SwingType { DiagonalLeft, DiagonalRight, ForwardRight }
 
-    //Fields
-    private AnimationClip chargeClip1;
-    private AnimationClip actClip1;
-
-    private AnimationClip chargeClip2;
-    private AnimationClip actClip2;
-
-    private AnimationClip chargeClip3;
-    private AnimationClip actClip3;
+    private float damage = 0.5f;
+    private float strength = 18;
+    private const float knockbackStrength = 3f;
+    private const float maxSpeedOnExit = 5f;
 
     private AbilityProcess chargeProcess;
     private AbilityProcess actProcess;
-    private AbilityProcess actPauseProcess;
-    private AbilityProcess actLeaveProcess; // used for resetting camera settings
+    private AbilityProcess actLeaveProcess;
     private AbilitySegment charge;
     private AbilitySegment act;
 
@@ -33,18 +27,53 @@ public sealed class PlayerFinisher : PlayerAbility
     private Vector3 targetPlanarDirection;
     private float targetWidth;
     private float targetHorizontalDistance;
-    private Vector3 dashPosition;
 
-    private float obstructionCheckMargin = 0.25f;
-    private float endPositionOffset = 0.5f / 3;
-    private const float finisherHealthMargin = 0.1f;
+    // Movement info
+    private Vector3 startPosition;
+    private Vector3 targetPosition;
+    private Vector2 projStartPos;
+    private Vector2 projTargetPos;
+    private bool calculatedTargetInfo;
+
+    private const float targetSlowRatio = 1.2f;
+    private const float targetSlowRadius = 1f;
+    private const float targetNearRadius = 0.2f;
+
+    // Rotate info
+    private Quaternion startRotation;
+    private const float rotateSpeed = 40f;
+
+    private bool leftGround;
 
     private PlayerAnimationManager.MatchTarget matchTarget;
-    private bool interuptedTarget;
 
-    private const float knockbackStrength = 7f;
+    private int castDirection;
+    private float baseSpeed = 1f;
+    private float maxSpeed = 1.5f;
+    private float hitTime;
+    private const float resetHitTime = 3.5f;
+
+    // Swing Direction
+    private int flipSign;
+    private float rotationSign;
+    private int verticalSign;
+
+    private const float noTargetDistance = 1.5f;
+    private const float noTargetSpeed = 10f;
+
+    // Animation Clips
+    private AnimationClip chargeClip1;
+    private AnimationClip actClip1;
+
+    private AnimationClip chargeClip2;
+    private AnimationClip actClip2;
+
+    private AnimationClip chargeClip3;
+    private AnimationClip actClip3;
 
     private SwingType swingType;
+
+    private const float finisherHealthMargin = 0.1f;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -65,12 +94,10 @@ public sealed class PlayerFinisher : PlayerAbility
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherAct3);
 
         chargeProcess = new AbilityProcess(ChargeBegin, null, null, 1);
-        actProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.15f);
-        actPauseProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 0.3f);
-        actLeaveProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 1 - (0.15f + 0.3f));
-        charge = new AbilitySegment(null, chargeProcess);
-        charge.Type = AbilitySegmentType.RootMotion;
-        act = new AbilitySegment(null, actProcess, actPauseProcess, actLeaveProcess);
+        actProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.75f);
+        actLeaveProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 0.25f);
+        charge = new AbilitySegment(chargeClip1, chargeProcess);
+        act = new AbilitySegment(actClip1, actProcess, actLeaveProcess);
         segments = new AbilitySegmentList();
         segments.AddSegment(charge);
         segments.AddSegment(act);
@@ -80,76 +107,76 @@ public sealed class PlayerFinisher : PlayerAbility
         this.system = abilityManager;
         continous = true;
 
-        //Hitbox initializations
-        GameObject hitboxObject =
-            Instantiate(
-                Resources.Load<GameObject>(
-                    ResourceConstants.Player.Hitboxes.RectangularMultiHitbox),
-                    transform.position,
-                    Quaternion.identity);
-        hitboxObject.transform.parent = PlayerInfo.MeleeObjects.transform;
-        hitboxObject.SetActive(false);
+        scanRotation = Quaternion.identity;   
     }
 
     protected override bool WaitCondition()
     {
-        if (!PlayerInfo.AbilityManager.InCombatStance)
-        {
-            return false;
-        }
+        return FinisherEnemyNearby();
+    }
+
+    private bool FinisherEnemyNearby()
+    {
+        playerDirection = 
+            Matho.StdProj2D(GameInfo.CameraController.Direction);
+
+        playerPlanarDirection =
+            Matho.PlanarDirectionalDerivative(playerDirection, PlayerInfo.CharMoveSystem.GroundNormal).normalized;
 
         //Scan for enemies
+        Vector3 center = 2f * playerPlanarDirection;
+        Vector3 size = new Vector3(2.25f, 2, 2);
+        Quaternion rotation =
+            Quaternion.FromToRotation(Vector3.right, playerPlanarDirection);
         Collider[] hitboxColliders =
-            Physics.OverlapSphere(PlayerInfo.Player.transform.position, 6, LayerConstants.Hitbox);
+            Physics.OverlapBox(PlayerInfo.Player.transform.position + center, size / 2, rotation, LayerConstants.Hitbox);
+
+        //Draw parameters   
+        scanCenter = PlayerInfo.Player.transform.position + center;
+        scanSize = size;
+        scanRotation = rotation;
 
         List<Collider> enemyColliders = new List<Collider>();
         foreach (Collider collider in hitboxColliders)
         {
-            if (collider.tag == TagConstants.EnemyHitbox && collider.gameObject.activeSelf)
+            if (collider.tag == TagConstants.EnemyHitbox &&
+                IsEnemyInFinisherState(collider) &&
+                !EnemyInfo.IsEnemyObstructed(collider))
+            {
                 enemyColliders.Add(collider);
+            }
         }
 
-        if (enemyColliders.Count == 0)
-        {
-            return false;
-        }
-        else
+        if (enemyColliders.Count > 0)
         {
             //Locate closest enemy
-            float minDistance = 0;
-            Collider minCollider = null;
-            for (int i = 0; i < enemyColliders.Count; i++)
+            float minDistance =
+                Vector3.Distance(enemyColliders[0].transform.position, PlayerInfo.Player.transform.position);
+            Collider minCollider = enemyColliders[0];
+            for (int i = 1; i < enemyColliders.Count; i++)
             {
-                float distance =
+                float currentDistance =
                     Vector3.Distance(enemyColliders[i].transform.position, PlayerInfo.Player.transform.position);
-                Vector3 enemyOffset = 
-                    enemyColliders[i].transform.position - PlayerInfo.Player.transform.position;
-                enemyOffset = Matho.StdProj3D(enemyOffset);
-                Vector3 projectedCameraForward = 
-                    Matho.StdProj3D(GameInfo.CameraController.transform.forward);
-                float cameraForwardEnemyAngle =
-                    Matho.AngleBetween(enemyOffset, projectedCameraForward);
-                
-                if (((minCollider != null && distance < minDistance) ||
-                    (minCollider == null)) &&
-                    cameraForwardEnemyAngle < 90f && 
-                    IsEnemyInFinisherState(enemyColliders[i]) &&
-                    !IsEnemyObstructed(enemyColliders[i]))
+                if (currentDistance < minDistance)
                 {
-                    minDistance = distance;
+                    minDistance = currentDistance;
                     minCollider = enemyColliders[i];
                 }
             }
 
-            if (minCollider != null)
-            {
-                CalculateEnemyPositionalInfo(minCollider);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            //Target info
+            target = minCollider;
+            Vector3 targetDirection = 
+                Matho.StdProj3D(target.transform.position - PlayerInfo.Player.transform.position);
+            float targetWidth = target.bounds.extents.x;
+            float distance = targetDirection.magnitude - PlayerInfo.Capsule.radius - targetWidth;
+
+            calculatedTargetInfo = false;
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -160,114 +187,6 @@ public sealed class PlayerFinisher : PlayerAbility
         
         return enemyManager.Health < enemyManager.FinisherHealth ||
                Matho.IsInRange(enemyManager.Health, enemyManager.FinisherHealth, finisherHealthMargin);
-    }
-
-    private bool IsEnemyObstructed(Collider other)
-    {
-        NavMeshHit navMeshHit;
-        Vector3 endPosition = 
-            Vector3.MoveTowards(
-                PlayerInfo.Player.transform.position,
-                other.transform.parent.position,
-                obstructionCheckMargin);
-
-        return other.GetComponentInParent<NavMeshAgent>().Raycast(
-                endPosition,
-                out navMeshHit);
-    }
-
-    private void CalculateEnemyPositionalInfo(Collider minCollider)
-    {
-        //Target info
-        target = minCollider;
-        targetDisplacement =
-            (minCollider.transform.parent.position - PlayerInfo.Player.transform.position);
-        targetPlanarDirection =
-            Matho.PlanarDirectionalDerivative(
-                Matho.StdProj2D(targetDisplacement).normalized,
-                PlayerInfo.PhysicsSystem.Normal).normalized;
-
-        float theta = Matho.AngleBetween(targetDisplacement, targetPlanarDirection);
-        targetHorizontalDistance = targetDisplacement.magnitude * Mathf.Cos(theta * Mathf.Deg2Rad);
-
-        Ray enemyRay = new Ray(PlayerInfo.Player.transform.position, targetPlanarDirection);
-        RaycastHit enemyHit;
-        target.Raycast(enemyRay, out enemyHit, targetHorizontalDistance);
-        targetWidth = targetDisplacement.magnitude - enemyHit.distance;
-    }
-
-    public override void GlobalConstantUpdate()
-    {
-        if (PlayerInfo.PhysicsSystem.TouchingFloor)
-        {
-            RaycastHit raycast;
-
-            bool hit = UnityEngine.Physics.SphereCast(
-                PlayerInfo.Player.transform.position,
-                PlayerInfo.Capsule.radius,
-                Vector3.down,
-                out raycast,
-                (PlayerInfo.Capsule.height / 2) + PlayerInfo.Capsule.radius * 0.5f,
-                LayerConstants.GroundCollision);
-
-            if (hit)
-            {
-                float height =
-                    PlayerInfo.Player.transform.position.y -
-                    (raycast.distance) +
-                    (PlayerInfo.Capsule.height / 2 -
-                    PlayerInfo.Capsule.radius);
-                
-                PlayerInfo.Player.transform.position =
-                    new Vector3(PlayerInfo.Player.transform.position.x, height, PlayerInfo.Player.transform.position.z);
-            }
-
-            if (!interuptedTarget && PlayerInfo.Animator.isMatchingTarget)
-            {
-                if (CheckForGround())
-                {
-                    interuptedTarget = true;
-                    PlayerInfo.Animator.InterruptMatchTarget(false);
-                    matchTarget.positionWeight = Vector3.zero;
-                    PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
-                }
-            }   
-        }
-    }
-
-    private bool CheckForGround()
-    {
-        Vector3 interuptDirection = (dashPosition - PlayerInfo.Player.transform.position).normalized;
-
-        {
-            Collider[] overlapColliders = UnityEngine.Physics.OverlapSphere(
-                PlayerInfo.Player.transform.position + PlayerInfo.Capsule.BottomSphereOffset() + Vector3.up * 0.2f + interuptDirection * 0.3f,
-                PlayerInfo.Capsule.radius,
-                LayerConstants.GroundCollision | LayerConstants.Destructable);
-            
-            if (overlapColliders.Length == 0)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    protected override void GlobalStart()
-    {
-        interuptedTarget = false;
-        if (target != null)
-        {
-            Vector3 enemyDirection = 
-                -(target.transform.position - transform.position);
-            enemyDirection = Matho.Rotate(enemyDirection, Vector3.up, -30f);
-            GameInfo.CameraController.TargetDirection = enemyDirection;
-            GameInfo.CameraController.TargetZoom = 1;
-            GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.8f));
-        }
-
-        SelectRandomSwing();
     }
 
     private void SelectRandomSwing()
@@ -292,47 +211,147 @@ public sealed class PlayerFinisher : PlayerAbility
                 break;
         }
     }
+    
+    protected override void GlobalStart()
+    {
+        if (target != null)
+        {
+            Vector3 enemyDirection = 
+                -(target.transform.position - transform.position);
+            enemyDirection = Matho.Rotate(enemyDirection, Vector3.up, -30f);
+            targetDisplacement = enemyDirection;
+            GameInfo.CameraController.TargetDirection = enemyDirection;
+            GameInfo.CameraController.TargetZoom = 1;
+            GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.8f));
+        }
+
+        SelectRandomSwing();
+        leftGround = false;
+    }
+
+    public override void GlobalConstantUpdate()
+    {
+        if (!PlayerInfo.CharMoveSystem.Grounded)
+            leftGround = true;
+
+        if (target != null && calculatedTargetInfo && !leftGround)
+        {
+            MoveTowardsGoal();
+            RotateTowardsGoal();
+        }
+    }
 
     public void ChargeBegin()
     {
-        RaycastHit directionHit;
-        float offset = PlayerInfo.Capsule.radius + targetWidth + endPositionOffset;
-        bool hit =
-            Physics.CapsuleCast(
-                PlayerInfo.Capsule.TopSpherePosition(),
-                PlayerInfo.Capsule.BottomSpherePosition(),
-                PlayerInfo.Capsule.radius - 0.05f,
-                targetPlanarDirection,
-                out directionHit,
-                targetHorizontalDistance - offset,
-                LayerConstants.GroundCollision | LayerConstants.Destructable);
+        FarTargetDirectTarget();
 
-        float targetDistance =
-            (hit) ?
-            directionHit.distance :
-            targetHorizontalDistance - offset;
+        calculatedTargetInfo = true;
 
-        Vector3 targetPosition = PlayerInfo.Player.transform.position + targetDistance * targetPlanarDirection;
+        startRotation = PlayerInfo.Player.transform.rotation;
 
-        Quaternion targetRotation =
-            Quaternion.LookRotation(
-                Matho.StdProj3D(targetDisplacement).normalized,
-                Vector3.up);
-
-        matchTarget =
-            new PlayerAnimationManager.MatchTarget(
-                targetPosition,
-                targetRotation,
-                AvatarTarget.Root,
-                Vector3.one,
-                1);
-
-        charge.LoopFactor = 1;
-        PlayerInfo.AnimationManager.StartDirectTarget(matchTarget, true);
-
-        dashPosition = targetPosition;
+        PlayerInfo.CharMoveSystem.MaxConstantOnExit.ClaimLock(this, maxSpeedOnExit);
+        PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
     }
 
+    /*
+    Generates target position and rotation for when there is a far enemy found.
+
+    Assumptions:
+    Enemy colliders are cylindrical.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void FarTargetDirectTarget()
+    {
+        if (target != null)
+        {
+            Vector3 targetDirection = 
+                Matho.StdProj3D(target.transform.position - PlayerInfo.Player.transform.position);
+
+            float targetWidth = target.bounds.extents.x;
+            float distance = targetDirection.magnitude - PlayerInfo.Capsule.radius - targetWidth;
+
+            targetDirection.Normalize();
+
+            targetPosition =
+                PlayerInfo.Player.transform.position +
+                targetDirection * distance;
+
+            startPosition = PlayerInfo.Player.transform.position;
+
+            projStartPos = Matho.StdProj2D(startPosition);
+            projTargetPos = Matho.StdProj2D(targetPosition); 
+        }
+    }
+
+    /*
+    Moves the player using the char move system to the target goal found earlier. Does not overshoot.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Bugs fixed: 
+    - Player stops after charging. Solution: lowered duration of transition to abilities. It
+      was hanging as it was waiting for transition to end.
+    */
+    private void MoveTowardsGoal()
+    {
+        if (!(Physics.OverlapSphere(
+            PlayerInfo.Player.transform.position,
+            PlayerInfo.Capsule.radius * 1.75f,
+            LayerConstants.Enemy).Length != 0))
+        {
+            Vector2 direction = 
+            Matho.StdProj2D(targetPosition - PlayerInfo.Player.transform.position);
+
+            float slowPercent = (targetSlowRadius - direction.magnitude) / targetSlowRadius;
+            float dampedSpeed =
+                (direction.magnitude > targetSlowRadius) ?
+                noTargetSpeed :
+                Mathf.Clamp(noTargetSpeed - slowPercent * (noTargetSpeed * targetSlowRatio), 0, float.MaxValue);
+
+            direction.Normalize();
+
+            PlayerInfo.CharMoveSystem.GroundMove(direction * dampedSpeed);
+        }
+    }
+    
+    /*
+    Rotates the player during charge in order to align the sword direction towards targets
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void RotateTowardsGoal()
+    {
+        Vector3 targetLook =
+            Matho.StdProj3D(target.transform.position - PlayerInfo.Player.transform.position).normalized;
+        
+        if (targetLook.magnitude > targetNearRadius)
+        {
+            Vector3 interLook = 
+                Vector3.RotateTowards(
+                    PlayerInfo.Player.transform.forward,
+                    targetLook,
+                    rotateSpeed * Time.deltaTime,
+                    float.MaxValue);
+            PlayerInfo.Player.transform.rotation =
+                Quaternion.LookRotation(
+                    interLook,
+                    Vector3.up);
+        }
+    }
+    
     public void ActBegin()
     {
         Quaternion horizontalRotation;
@@ -368,14 +387,6 @@ public sealed class PlayerFinisher : PlayerAbility
 
     public void ActEnd()
     {
-        //hitbox.gameObject.SetActive(false);
-        PlayerInfo.MovementManager.TargetDirection = Matho.StdProj2D(PlayerInfo.Player.transform.forward).normalized;
-        PlayerInfo.MovementManager.SnapDirection();
-        PlayerInfo.MovementManager.ZeroSpeed();
-
-        PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
-        PlayerInfo.Animator.SetFloat("speed", 0);
-
         if (target != null && target.gameObject.activeSelf)
         {
             EnemyManager enemy =
@@ -399,13 +410,24 @@ public sealed class PlayerFinisher : PlayerAbility
 
     public void ActLeaveBegin()
     {
-        GameInfo.CameraController.TargetDirection = -targetDisplacement;
+        Vector3 targetCamDir = Matho.Rotate(targetDisplacement, Vector3.up, -5f);
+        GameInfo.CameraController.TargetDirection = -targetCamDir;
+        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0));
     }
 
     public void ActLeaveEnd()
     {
         GameInfo.CameraController.TargetDirection = Vector3.zero;
-        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0));
+
+        target = null;
+
+        PlayerInfo.MovementManager.TargetDirection =
+            Matho.StdProj2D(PlayerInfo.Player.transform.forward).normalized;
+        PlayerInfo.MovementManager.SnapDirection();
+        PlayerInfo.MovementManager.ZeroSpeed();
+
+        PlayerInfo.CharMoveSystem.MaxConstantOnExit.TryReleaseLock(this, float.MaxValue);
+        PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(this, false);
     }
 
     public override bool OnHit(GameObject character)
@@ -415,7 +437,26 @@ public sealed class PlayerFinisher : PlayerAbility
 
     public override void ShortCircuitLogic()
     {
-        ActEnd();
+        ActLeaveEnd();
         PlayerInfo.Animator.InterruptMatchTarget(false);
     }
+
+    Vector3 scanCenter;
+    Vector3 scanSize;
+    Quaternion scanRotation;
+    Vector3 dashPosition;
+    /*
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawLine(dashPosition, PlayerInfo.Player.transform.position);
+        //scan
+        Matrix4x4 customMatrix = Matrix4x4.TRS(scanCenter, scanRotation, Vector3.one);
+        Gizmos.matrix = customMatrix;
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawCube(Vector3.zero, scanSize);
+
+        Gizmos.matrix = Matrix4x4.identity;
+    }
+    */
 }
