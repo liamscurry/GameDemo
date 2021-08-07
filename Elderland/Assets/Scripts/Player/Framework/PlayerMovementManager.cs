@@ -344,6 +344,7 @@ public class PlayerMovementManager
     {
         CurrentPercentileSpeed = 0;
         AnimationPercentileSpeed = 0;
+        LastAnimationPercentileSpeed = 0;
         TargetPercentileSpeed = 0;
     }
 

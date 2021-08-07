@@ -15,5 +15,6 @@ public static class AnimationConstants
         public const string FallSpeed = "fallSpeed";
 
         public const string SlowdownSpeed = "slowdownSpeed";
+        public const string Slowdown = "slowdown";
     }
 }

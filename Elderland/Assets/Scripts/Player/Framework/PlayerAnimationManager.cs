@@ -299,20 +299,12 @@ public class PlayerAnimationManager
 	{
 		if (!slowingDown)
 		{
-			FullLayer.RequestAction(
-				GetAnim("Slowdown"), 
-				OnSlowdownComplete,
-				OnSlowdownShortCircuit);
+			PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.Slowdown);
 			slowingDown = true;
 		}
 	}
 
-	private void OnSlowdownComplete()
-	{
-		slowingDown = false;
-	}
-
-	private void OnSlowdownShortCircuit()
+	public void EndSlowdown()
 	{
 		slowingDown = false;
 	}

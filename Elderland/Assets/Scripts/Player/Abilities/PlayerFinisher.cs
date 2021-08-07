@@ -94,8 +94,8 @@ public sealed class PlayerFinisher : PlayerAbility
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.FinisherAct3);
 
         chargeProcess = new AbilityProcess(ChargeBegin, null, null, 1);
-        actProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.75f);
-        actLeaveProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 0.25f);
+        actProcess = new AbilityProcess(ActBegin, null, ActEnd, 0.25f);
+        actLeaveProcess = new AbilityProcess(ActLeaveBegin, null, ActLeaveEnd, 0.75f);
         charge = new AbilitySegment(chargeClip1, chargeProcess);
         act = new AbilitySegment(actClip1, actProcess, actLeaveProcess);
         segments = new AbilitySegmentList();
