@@ -90,7 +90,7 @@ public sealed class PlayerFireball : PlayerAbility
 
     public override void GlobalConstantUpdate()
     {
-        PlayerInfo.MovementManager.UpdateWalkMovement(true);
+        PlayerInfo.MovementManager.UpdateOctagonalWalkMovement(true);
     }
 
     protected override void ContinousStart()

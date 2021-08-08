@@ -12,7 +12,7 @@ public class InteractionHoldEventBehaviour : StateMachineBehaviour
         PlayerInfo.Manager.Interaction.StartEvent();
         PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
         PlayerInfo.MovementManager.SnapSpeed();
-        PlayerInfo.AnimationManager.UpdateWalkProperties();
+        PlayerInfo.AnimationManager.UpdateFreeWalkProperties();
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

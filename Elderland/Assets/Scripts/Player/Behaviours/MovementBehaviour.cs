@@ -21,7 +21,7 @@ public class MovementBehaviour : StateMachineBehaviour
 	{   
         if (!exiting && GameInfo.Manager.ReceivingInput.Value != GameInput.None)
         {
-            PlayerInfo.MovementManager.UpdateWalkMovement(true);
+            PlayerInfo.MovementManager.UpdateFreeWalkMovement(true);
 
             //Transitions//
             if (!animator.IsInTransition(0))

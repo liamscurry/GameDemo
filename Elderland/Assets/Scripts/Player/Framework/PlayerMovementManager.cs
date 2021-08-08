@@ -163,7 +163,18 @@ public class PlayerMovementManager
         }
     }
 
-    public void UpdateWalkMovement(bool updateAnimProperties)
+    /*
+    Updates player movement via the character controller, updating fields related to sprinting etc.
+    In addition, may update animation properties if specified for walk animations. Standard free directional
+    animations.
+
+    Inputs:
+    bool : updateAnimProperties : Should the method update free direction walk properties for animator.
+
+    Outputs:
+    None
+    */
+    public void UpdateFreeWalkMovement(bool updateAnimProperties)
     {
         if (!movedThisFrame)
         {
@@ -184,7 +195,7 @@ public class PlayerMovementManager
                 
                 if (!PlayerInfo.Animator.IsInTransition(0))
                 {
-                    UpdateRotation(false);
+                    UpdateFreeRotation(false);
                     //if (updateAnimProperties)
                     //    PlayerInfo.AnimationManager.UpdateRotationProperties();
                 }
@@ -202,9 +213,9 @@ public class PlayerMovementManager
                     GameInfo.Settings.LeftDirectionalInput.magnitude * sprintingModifier;
                 if (!PlayerInfo.Animator.IsInTransition(0))
                 {
-                    UpdateRotation(true);
+                    UpdateFreeRotation(true);
                     //if (updateAnimProperties)
-                        PlayerInfo.AnimationManager.UpdateRotationProperties();
+                        PlayerInfo.AnimationManager.UpdateFreeRotationProperties();
                     
                 }
             }
@@ -214,50 +225,26 @@ public class PlayerMovementManager
                 PlayerInfo.MovementManager.CurrentPercentileSpeed *
                 PlayerInfo.StatsManager.Movespeed);
 
-            PlayerInfo.AnimationManager.UpdateRotationProperties();
+            PlayerInfo.AnimationManager.UpdateFreeRotationProperties();
             PlayerInfo.AnimationManager.UpdateSlowdownProperties();
 
             if (updateAnimProperties)
-                PlayerInfo.AnimationManager.UpdateWalkProperties();
+                PlayerInfo.AnimationManager.UpdateFreeWalkProperties();
         }
     }
 
     /*
 	Helper function for behaviours to update model rotation to camera forward (or blended if in combat).
 	*/
-	private void UpdateRotation(bool moving)
+	private void UpdateFreeRotation(bool moving)
     {
-        if (!moving)
+        if (moving)
         {
-            //UpdateStillModelRotation();
-        }
-        else
-        {
-            UpdateMovingModelRotation();
+            UpdateFreeMovingModelRot();
         }
     }
 
-	private void UpdateStillModelRotation()
-	{
-		Vector3 targetRotation =
-			Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
-		Vector3 currentRotation =
-			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
-
-		if (Mathf.Abs(PlayerInfo.Animator.GetFloat("rotationSpeed")) > PlayerAnimationManager.RotationObserverMin)
-		{
-			Vector3 incrementedRotation =
-				Vector3.RotateTowards(
-					currentRotation,
-					targetRotation,
-					PlayerAnimationManager.ModelRotSpeedIdle * Time.deltaTime,
-					0f);
-			Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
-			PlayerInfo.Player.transform.rotation = rotation;
-		}
-	}
-
-	private void UpdateMovingModelRotation()
+	private void UpdateFreeMovingModelRot()
 	{
 		Vector3 targetRotation =
 			new Vector3(TargetDirection.x, 0, TargetDirection.y);
@@ -278,6 +265,151 @@ public class PlayerMovementManager
 				currentRotation,
 				targetRotation,
 				PlayerAnimationManager.ModelRotSpeedMoving * turnModifier * Time.deltaTime,
+				0f);
+		Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
+		PlayerInfo.Player.transform.rotation = rotation;
+	}
+
+    /*
+    Updates player movement via the character controller, updating fields related to sprinting etc.
+    In addition, may update animation properties if specified for walk animations. Octagonal directional
+    animations.
+
+    Inputs:
+    bool : updateAnimProperties : Should the method update octagonal direction walk properties for animator.
+
+    Outputs:
+    None
+    */
+    public void UpdateOctagonalWalkMovement(bool updateAnimProperties)
+    {
+        if (!movedThisFrame)
+        {
+            movedThisFrame = true;
+
+            Vector2 projectedCameraDirection = Matho.StdProj2D(GameInfo.CameraController.Direction).normalized;
+            Vector2 forwardDirection = (GameInfo.Settings.LeftDirectionalInput.y * projectedCameraDirection);
+            Vector2 sidewaysDirection = (GameInfo.Settings.LeftDirectionalInput.x * Matho.Rotate(projectedCameraDirection, 90));
+            Vector2 movementDirection = forwardDirection + sidewaysDirection;
+
+            UpdateSprinting(GameInfo.Settings.LeftDirectionalInput);
+
+            //Direction and speed targets
+            if (GameInfo.Settings.LeftDirectionalInput.magnitude <= 0.5f)
+            {
+                PlayerInfo.MovementManager.LockDirection();
+                PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
+                Sprinting = false;
+                if (!PlayerInfo.Animator.IsInTransition(0))
+                {
+                    UpdateOctagonalRotation(false);
+                    if (updateAnimProperties)
+                        PlayerInfo.AnimationManager.UpdateOctagonalRotationProperties();
+                }
+            }
+            else
+            {
+                Vector3 targetRotation =
+                    Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+
+                PlayerInfo.MovementManager.TargetDirection = movementDirection;
+
+                float forwardsAngle = Matho.AngleBetween(Matho.StdProj2D(targetRotation), movementDirection);
+                float forwardsModifier = Mathf.Cos(forwardsAngle * 0.4f * Mathf.Deg2Rad);
+                
+                float sprintingModifier = (Sprinting) ? SprintModifier : 1f;
+            
+                PlayerInfo.MovementManager.TargetPercentileSpeed =
+                    GameInfo.Settings.LeftDirectionalInput.magnitude * forwardsModifier * sprintingModifier;
+                if (!PlayerInfo.Animator.IsInTransition(0))
+                {
+                    UpdateOctagonalRotation(true);
+                    if (updateAnimProperties)
+                        PlayerInfo.AnimationManager.UpdateOctagonalRotationProperties();
+                }
+            }
+
+            PlayerInfo.CharMoveSystem.GroundMove(
+                PlayerInfo.MovementManager.CurrentDirection *
+                PlayerInfo.MovementManager.CurrentPercentileSpeed *
+                PlayerInfo.StatsManager.Movespeed);
+
+            if (updateAnimProperties)
+                PlayerInfo.AnimationManager.UpdateOctagonalWalkProperties();
+        }
+    }
+
+    /*
+    Updates player rotation during octagonal movement.
+
+    Inputs:
+    bool : moving : Has the player moved this frame.
+
+    Outputs:
+    None
+    */
+    private void UpdateOctagonalRotation(bool moving)
+    {
+        if (!moving)
+        {
+            UpdateOctagonalStillModelRot();
+        }
+        else
+        {
+            UpdateOctagonalMovingModelRot();
+        }
+    }
+
+    /*
+    Helper method for updating player model rotation when the player is still during octagonal movement.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+	private void UpdateOctagonalStillModelRot()
+	{
+		Vector3 targetRotation =
+			Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+		Vector3 currentRotation =
+			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
+
+		if (Mathf.Abs(PlayerInfo.Animator.GetFloat("rotationSpeed")) > PlayerAnimationManager.RotationObserverMin)
+		{
+			Vector3 incrementedRotation =
+				Vector3.RotateTowards(
+					currentRotation,
+					targetRotation,
+					PlayerAnimationManager.ModelRotSpeedIdle * Time.deltaTime,
+					0f);
+			Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
+			PlayerInfo.Player.transform.rotation = rotation;
+		}
+	}
+
+    /*
+    Helper method for updating player model rotation when the player is moving during octagonal movement.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void UpdateOctagonalMovingModelRot()
+	{
+		Vector3 targetRotation =
+			Matho.StdProj3D(PlayerInfo.MovementManager.ModelTargetForward).normalized;
+		Vector3 currentRotation =
+			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
+
+		Vector3 incrementedRotation =
+			Vector3.RotateTowards(
+				currentRotation,
+				targetRotation,
+				PlayerAnimationManager.ModelRotSpeedMoving * Time.deltaTime,
 				0f);
 		Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
 		PlayerInfo.Player.transform.rotation = rotation;
