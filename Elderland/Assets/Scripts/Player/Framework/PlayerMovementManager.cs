@@ -40,7 +40,11 @@ public class PlayerMovementManager
 
     private bool sprinting; // should only be referenced inside of property.
     public bool Sprinting {  
-		get { return sprinting || GameInfo.Manager.InCombat; } 
+		get
+        {
+            return sprinting ||
+                   (GameInfo.Manager.InCombat && PlayerInfo.AbilityManager.CurrentAbility != null);
+        } 
 
 		set
 		{
@@ -260,11 +264,14 @@ public class PlayerMovementManager
         {
             turnModifier = (PlayerInfo.AnimationManager.RotationHard) ? 2.5f : 1;
         }
+        
+        float rotSpeedModifier = 
+            PlayerInfo.AnimationManager.ModelRotModifier.Value;
 		Vector3 incrementedRotation =
 			Vector3.RotateTowards(
 				currentRotation,
 				targetRotation,
-				PlayerAnimationManager.ModelRotSpeedMoving * turnModifier * Time.deltaTime,
+				PlayerAnimationManager.ModelRotSpeedMoving * rotSpeedModifier * turnModifier * Time.deltaTime,
 				0f);
 		Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
 		PlayerInfo.Player.transform.rotation = rotation;
@@ -378,11 +385,13 @@ public class PlayerMovementManager
 
 		if (Mathf.Abs(PlayerInfo.Animator.GetFloat("rotationSpeed")) > PlayerAnimationManager.RotationObserverMin)
 		{
+            float rotSpeedModifier = 
+                PlayerInfo.AnimationManager.ModelRotModifier.Value;
 			Vector3 incrementedRotation =
 				Vector3.RotateTowards(
 					currentRotation,
 					targetRotation,
-					PlayerAnimationManager.ModelRotSpeedIdle * Time.deltaTime,
+					PlayerAnimationManager.ModelRotSpeedIdle * rotSpeedModifier * Time.deltaTime,
 					0f);
 			Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
 			PlayerInfo.Player.transform.rotation = rotation;
@@ -405,11 +414,13 @@ public class PlayerMovementManager
 		Vector3 currentRotation =
 			Matho.StdProj3D(PlayerInfo.Player.transform.forward).normalized;
 
+        float rotSpeedModifier = 
+            PlayerInfo.AnimationManager.ModelRotModifier.Value;
 		Vector3 incrementedRotation =
 			Vector3.RotateTowards(
 				currentRotation,
 				targetRotation,
-				PlayerAnimationManager.ModelRotSpeedMoving * Time.deltaTime,
+				PlayerAnimationManager.ModelRotSpeedMoving * rotSpeedModifier * Time.deltaTime,
 				0f);
 		Quaternion rotation = Quaternion.LookRotation(incrementedRotation, Vector3.up);
 		PlayerInfo.Player.transform.rotation = rotation;

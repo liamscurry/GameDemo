@@ -34,6 +34,7 @@ public class PlayerAnimationManager
 
 	public const float ModelRotSpeedIdle = 4f;
 	public const float ModelRotSpeedMoving = 2.0f;
+	public StatLock<float> ModelRotModifier;
 
 	// Walk helper fields
 	private Vector2 positionAnalogDirection;
@@ -74,6 +75,8 @@ public class PlayerAnimationManager
 
 		positionAnalogDirection = Vector2.zero;
 		movedThisFrame = false;
+
+		ModelRotModifier = new StatLock<float>(1.0f);
 	}
 
 	public void UpdateAnimations()
@@ -425,10 +428,10 @@ public class PlayerAnimationManager
 				Vector2.MoveTowards(reverseAnalogDirection, analogDirection, reverseAnalogSpeed * Time.deltaTime);
 
 			PlayerInfo.Animator.SetFloat(
-				"speed",
+				"octagonalSpeed",
 				positionAnalogDirection.x);
 			PlayerInfo.Animator.SetFloat(
-				"strafe",
+				"octagonalStrafe",
 				positionAnalogDirection.y);
 			PlayerInfo.Animator.SetFloat(
 				"percentileSpeed",
@@ -477,6 +480,21 @@ public class PlayerAnimationManager
         
         PlayerInfo.Animator.SetFloat("rotationSpeed", CurrentRotationSpeed);
     }
+
+	/*
+	Changes animator properties when transitioning from octagonal to free directional movement.
+	This reduces hickups in animation transitions and makes them more smooth.
+
+	Inputs:
+	None
+
+	Outputs:
+	None
+	*/
+	public void UpdateOctagonalToFreeProperties()
+	{
+		CurrentRotationSpeed = 0;
+	}
 
 	/*
 	* The following two methods are helper methods for combat layer that transitions from and to
