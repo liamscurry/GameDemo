@@ -43,7 +43,7 @@ public class PlayerMovementManager
 		get
         {
             return sprinting ||
-                   (GameInfo.Manager.InCombat && PlayerInfo.AbilityManager.CurrentAbility != null);
+                   (GameInfo.Manager.InCombat && PlayerInfo.AbilityManager.CurrentAbility == null);
         } 
 
 		set

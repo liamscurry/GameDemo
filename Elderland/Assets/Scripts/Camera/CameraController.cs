@@ -520,7 +520,8 @@ public class CameraController : MonoBehaviour
     public Quaternion GenerateRotation()
     {
         //Rotation assignment
-        Vector3 rotationDirection = Matho.SphericalToCartesianX(1, HorizontalAngle - HorizontalOffset, VerticalAngle + 180);
+        Vector3 rotationDirection =
+            Matho.SphericalToCartesianX(1, HorizontalAngle - HorizontalOffset, VerticalAngle + 180);
         Direction = rotationDirection;
         
         Quaternion sprintTilt = Quaternion.Euler(0,0, -3 * sprintOrientation);

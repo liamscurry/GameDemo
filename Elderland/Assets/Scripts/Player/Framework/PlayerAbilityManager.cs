@@ -136,7 +136,14 @@ public class PlayerAbilityManager : AbilitySystem
         out Quaternion normalRotation)
     {
         horizontalRotation = Quaternion.FromToRotation(new Vector3(0, 0, 1), PlayerInfo.Player.transform.forward);
-        normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.PhysicsSystem.Normal);
+        if (PlayerInfo.CharMoveSystem.Grounded)
+        {
+            normalRotation = Quaternion.FromToRotation(Vector3.up, PlayerInfo.CharMoveSystem.GroundNormal);
+        }
+        else
+        {
+            normalRotation = Quaternion.identity;
+        }
     }
 
     //Updates each ability slot, called by PlayerManager.
@@ -362,7 +369,7 @@ public class PlayerAbilityManager : AbilitySystem
         #if DevMode
         EquipAbility<PlayerDash>(ref dash);
         EquipAbility<PlayerFireball>(ref ranged);
-        EquipAbility<PlayerFireChargeTier1>(ref aoe);
+        EquipAbility<PlayerKnockbackPush>(ref aoe);
         //EquipAbility<PlayerBlock>(ref block);
         #endif
     }
@@ -370,10 +377,9 @@ public class PlayerAbilityManager : AbilitySystem
     private void UpdateCooldownIconPositions()
     {
         var cooldownIconOrder = new List<PlayerAbility>();
-        cooldownIconOrder.Add(aoe);
+        //cooldownIconOrder.Add(aoe);
         cooldownIconOrder.Add(dash);
         cooldownIconOrder.Add(ranged);
-        //cooldownIconOrder.Add(aoe);
 
         float heightOffset = 0;
 

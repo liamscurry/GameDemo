@@ -134,6 +134,9 @@ public static class ResourceConstants
             public const string FinisherCharge3 = "FinisherTakedownCharge3";
             public const string FinisherAct3 = "FinisherTakedownAct3";
 
+            public const string KnockbackPushCharge = "KnockbackPushCharge";
+            public const string KnockbackPushAct = "KnockbackPushAct";
+
             public const string Block1 = "Block1";
             public const string Block2 = "Block2";
         }
