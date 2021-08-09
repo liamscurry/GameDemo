@@ -296,11 +296,11 @@ public class PlayerAbilityManager : AbilitySystem
         if (Mathf.Abs(GameInfo.Settings.FireballLeftTrigger) > GameInfo.Settings.FireballTriggerOnThreshold &&
             GameInfo.Manager.ReceivingInput.Value != GameInput.None)
         {
-            GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.6f));
+            GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.6f, 1f));
         }
         else
         {
-            GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0));
+            GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0, 0));
         }
     }
 

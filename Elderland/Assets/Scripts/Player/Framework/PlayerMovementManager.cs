@@ -51,12 +51,12 @@ public class PlayerMovementManager
 			if (sprinting && !value)
 			{
 				// Stopped sprinting
-				GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0f, 0f));
+				GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0f, 0f, 0f));
 			}
 			else if (!sprinting & value)
 			{
 				// Started sprinting
-				GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, 0, 0.9f));
+				GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, 0, 0.9f, 1f));
 			}
 			sprinting = value;
 		}

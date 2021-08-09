@@ -62,6 +62,8 @@ public class PlayerKnockbackPush : PlayerAbility
             Matho.StdProj3D(GameInfo.CameraController.transform.forward).normalized;
         if (targetDirection.magnitude == 0) 
             targetDirection = PlayerInfo.Player.transform.forward;
+
+        GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, 1, 1f, 2f));
     }
 
     public void DuringCharge()
@@ -88,6 +90,8 @@ public class PlayerKnockbackPush : PlayerAbility
         hitbox.transform.rotation = normalRotation * horizontalRotation;
         hitbox.gameObject.SetActive(true);
         hitbox.Invoke(this, PlayerMultiDamageHitbox.ObstructionType.PlayerOrigin);
+
+        GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -4, 1f, 0.4f));
     }
 
     public void DuringAct()
@@ -99,6 +103,7 @@ public class PlayerKnockbackPush : PlayerAbility
     public void ActEnd()
     {
         hitbox.gameObject.SetActive(false);
+        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0, 1));
     }
 
     public override bool OnHit(GameObject character)

@@ -76,7 +76,7 @@ public sealed class PlayerBlock : PlayerAbility
 
     protected override void GlobalStart()
     {
-        GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -5, 0.32f));
+        GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -5, 0.32f, 1f));
         int animChoser = ((new System.Random().Next()) % 2) + 1;
         segment.Clip = (animChoser == 1) ? block1Clip : block2Clip;
     }
@@ -104,7 +104,7 @@ public sealed class PlayerBlock : PlayerAbility
     {  
         PlayerInfo.StatsManager.Blocking = false;
         blockParticles.Stop();
-        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0));
+        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0, 0f));
     }
 
     public override bool OnHit(GameObject character)

@@ -97,7 +97,13 @@ public class CameraController : MonoBehaviour
     public float Radius { get; private set; }
 
     public bool AllowZoom { get; set; }
-    public StatLock<(bool, float, float)> ZoomIn { get; private set; }
+
+    // Tuple arrangement
+    // bool : should the fov/zoom sensitivity floats below be utilized
+    // float : fov delta
+    // float : zoom sensitivity modifier
+    // float : zoom speed modifier
+    public StatLock<(bool, float, float, float)> ZoomIn { get; private set; }
 
     public float OrientationModifier 
     { 
@@ -115,8 +121,9 @@ public class CameraController : MonoBehaviour
     float targetFov;
     float fovVelocity;
     float fovSpeedGradation;
+    float fovSpeedModifier;
 
-    float zoomModifier;
+    float sensitivityModifier;
 
     float sprintTimer;
     float sprintPercentage;
@@ -177,12 +184,12 @@ public class CameraController : MonoBehaviour
         targetFov = 60;
         fovSpeedGradation = 0.325f;
 
-        zoomModifier = 1;
+        sensitivityModifier = 1;
         SensitivityModifier = 1;
 
         Camera = GetComponent<Camera>();
 
-        ZoomIn = new StatLock<(bool, float, float)>((false, -10.0f, 0.32f));
+        ZoomIn = new StatLock<(bool, float, float, float)>((false, -10.0f, 0.32f, 1f));
     }
 
     public void UpdateController()
@@ -307,21 +314,15 @@ public class CameraController : MonoBehaviour
     {
         if (!ZoomIn.Value.Item1)
         {
-            if (PlayerInfo.MovementManager.Sprinting)
-            {
-                targetFov = 60;
-                zoomModifier = 1;
-            }
-            else
-            {
-                targetFov = 60;
-                zoomModifier = 1;
-            }
+            targetFov = 60;
+            sensitivityModifier = 1;
+            fovSpeedModifier = ZoomIn.Value.Item4;
         }
         else
         {
             targetFov = 60 + ZoomIn.Value.Item2;
-            zoomModifier = ZoomIn.Value.Item3;
+            sensitivityModifier = ZoomIn.Value.Item3;
+            fovSpeedModifier = ZoomIn.Value.Item4;
         }
     }   
 
@@ -373,7 +374,7 @@ public class CameraController : MonoBehaviour
                 HorizontalAngle -= 
                     GameInfo.Settings.RightDirectionalInput.x *
                     (sensitivity * SensitivityModifier) *
-                    zoomModifier *
+                    sensitivityModifier *
                     OrientationModifier *
                     Time.deltaTime;
             orientationDelta = Mathf.Sign(GameInfo.Settings.RightDirectionalInput.x);
@@ -408,13 +409,13 @@ public class CameraController : MonoBehaviour
                 HorizontalAngle -= 
                     GameInfo.Settings.RightDirectionalInput.x *
                     (sensitivity * SensitivityModifier) *
-                    zoomModifier *
+                    sensitivityModifier *
                     OrientationModifier *
                     Time.deltaTime;
                 VerticalAngle += 
                     GameInfo.Settings.RightDirectionalInput.y *
                     (sensitivity * SensitivityModifier) *
-                    zoomModifier *
+                    sensitivityModifier *
                     OrientationModifier *
                     Time.deltaTime;
                 VerticalAngle = Mathf.Clamp(VerticalAngle, 45, 135);
@@ -657,7 +658,7 @@ public class CameraController : MonoBehaviour
             float newTheta = Mathf.SmoothDamp(currentTheta, 0, ref directionVelocity, DirectionGradation, 100f);
             float deltaTheta = currentTheta - newTheta;
 
-            fov = Mathf.SmoothDamp(fov, targetFov, ref fovVelocity, fovSpeedGradation, 100f);
+            fov = Mathf.SmoothDamp(fov, targetFov, ref fovVelocity, fovSpeedGradation * fovSpeedModifier, 100f);
         }
         else
         {
@@ -684,7 +685,7 @@ public class CameraController : MonoBehaviour
         orientationDelta = 0;
         sprintOrientation = Mathf.MoveTowards(sprintOrientation, orientationDelta, 1.8f * Time.deltaTime);
         
-        fov = Mathf.SmoothDamp(fov, targetFov, ref fovVelocity, fovSpeedGradation, 100f);
+        fov = Mathf.SmoothDamp(fov, targetFov, ref fovVelocity, fovSpeedGradation * fovSpeedModifier, 100f);
         Camera.fieldOfView = fov;
 
         sprintPercentage -= Time.deltaTime;

@@ -222,7 +222,7 @@ public sealed class PlayerFinisher : PlayerAbility
             targetDisplacement = enemyDirection;
             GameInfo.CameraController.TargetDirection = enemyDirection;
             GameInfo.CameraController.TargetZoom = 1;
-            GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.8f));
+            GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -10, 0.8f, 1f));
         }
 
         SelectRandomSwing();
@@ -412,7 +412,7 @@ public sealed class PlayerFinisher : PlayerAbility
     {
         Vector3 targetCamDir = Matho.Rotate(targetDisplacement, Vector3.up, -5f);
         GameInfo.CameraController.TargetDirection = -targetCamDir;
-        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0));
+        GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0, 0));
     }
 
     public void ActLeaveEnd()
