@@ -54,6 +54,8 @@ Shader "Custom/KnockbackPushImageEffect"
                 float4 screenPos : TEXCOORD4;
                 float4 grabPos : TEXCOORD5;
                 float2 uvOriginal : TEXCOORD6;
+                float3 ray : TEXCOORD7;
+                float4 cameraPos : TEXCOORD8;
                 float4 color : COLOR0;
             };
 
@@ -74,10 +76,12 @@ Shader "Custom/KnockbackPushImageEffect"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                o.cameraPos = mul(UNITY_MATRIX_MV, v.vertex);
                 o.screenPos = ComputeScreenPos(o.vertex);
                 o.normal = UnityObjectToWorldNormal(normal);
                 // From grab pass manual.
                 o.grabPos = ComputeGrabScreenPos(o.vertex);
+                o.ray = UnityObjectToViewPos(v.vertex) * float3(-1, -1, 1);
                 o.uvOriginal = v.uv;
                 o.color = v.color;
                 return o;
@@ -85,8 +89,21 @@ Shader "Custom/KnockbackPushImageEffect"
 
             fixed4 frag (v2f i, float3 normal : NORMAL) : SV_Target
             {
-                //float2 screenPos = i.screenPos.xy / i.screenPos.w;
-                //float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
+                // For fading out image effect when objects are near plane. (near plane fade out for
+                // camera is another multiplier below).
+                //Found in Internal-DeferredReflections frag function
+                float2 screenPos = i.screenPos.xy / i.screenPos.w;
+                float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPos));
+                i.ray = i.ray * (_ProjectionParams.z / i.ray.z);
+                float4 viewPosition = float4(i.ray * depth, 1);
+                float4 existingWorldPosition = mul(unity_CameraToWorld, viewPosition);
+                float closePlaneStrength = saturate(length(i.worldPos - existingWorldPosition));
+                // Close Plane Strength Visualizer
+                //return float4(closePlaneStrength, closePlaneStrength, closePlaneStrength, 1);
+
+                float nearPlaneCameraStrength = saturate(-i.cameraPos.z - _ProjectionParams.y * 20);
+                // Near Plane Camera Strength Visualizer
+                //return float4(nearPlaneCameraStrength, nearPlaneCameraStrength, nearPlaneCameraStrength, 1);
 
                 float warpUVStrength = 
                     length(i.uvOriginal - float2(0.5, 0.5)) - _Radius;
@@ -109,13 +126,16 @@ Shader "Custom/KnockbackPushImageEffect"
                 // Radial Strength Visualizer
                 //return float4(warpUVStrength, warpUVStrength, warpUVStrength, 1);
 
+                float compositeStrength =
+                    closePlaneStrength * nearPlaneCameraStrength * warpUVStrength * _SizeWarpStrength;
+
                 float2 centerDisplacement = float2(0.5, 0.5) - i.uvOriginal;
                 float4 warpDirection = float4(normalize(centerDisplacement).x, 0, 0, 0);
-                warpDirection.x *= warpUVStrength * _SizeWarpStrength;
-                warpDirection.y *= warpUVStrength * _SizeWarpStrength;
+                warpDirection.x *= compositeStrength;
+                warpDirection.y *= compositeStrength;
                 float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos + warpDirection);
                 
-                float lightnessMultiplier = 0.075 * _Dimness * (warpUVStrength * _SizeWarpStrength);
+                float lightnessMultiplier = 0.075 * _Dimness * compositeStrength;
 
                 existingColor = existingColor - 
                     float4(lightnessMultiplier,
