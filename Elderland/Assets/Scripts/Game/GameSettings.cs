@@ -13,6 +13,7 @@ public class GameSettings : MonoBehaviour
     public GamepadButton DashAbilityKey { get; set; }
     public GamepadButton BlockAbilityKey { get; set; }
     public GamepadButton FinisherAbilityKey { get; private set; }
+    public GamepadButton AOEAbilityKey { get; private set; }
 
     public float FireballRightTrigger
     { 
@@ -82,6 +83,7 @@ public class GameSettings : MonoBehaviour
         DashAbilityKey = GamepadButton.East;
         BlockAbilityKey = GamepadButton.RightShoulder;
         FinisherAbilityKey = GamepadButton.RightStick;
+        AOEAbilityKey = GamepadButton.LeftShoulder;
 
         //Misc
         JumpKey = GamepadButton.North;

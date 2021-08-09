@@ -1,3 +1,5 @@
+//#define UT
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -85,7 +87,7 @@ public class PlayerKnockbackPush : PlayerAbility
             
         hitbox.transform.rotation = normalRotation * horizontalRotation;
         hitbox.gameObject.SetActive(true);
-        hitbox.Invoke(this);
+        hitbox.Invoke(this, PlayerMultiDamageHitbox.ObstructionType.PlayerOrigin);
     }
 
     public void DuringAct()
@@ -101,6 +103,11 @@ public class PlayerKnockbackPush : PlayerAbility
 
     public override bool OnHit(GameObject character)
     {
+        #if UT
+        Debug.Log("Hit Enemy: " + character.name);
+        #endif
+
+        #if !UT
         EnemyManager enemy = character.GetComponent<EnemyManager>();
         enemy.ChangeHealth(
             -damage * PlayerInfo.StatsManager.DamageMultiplier.Value);
@@ -110,6 +117,7 @@ public class PlayerKnockbackPush : PlayerAbility
         {
             enemy.TryFlinch();
         }
+        #endif
 
         return true;
     }

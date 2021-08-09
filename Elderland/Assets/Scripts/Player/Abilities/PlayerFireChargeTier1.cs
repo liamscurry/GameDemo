@@ -117,14 +117,14 @@ public sealed class PlayerFireChargeTier1 : PlayerAbility
         segment1.gameObject.transform.position =
             transform.position - GameInfo.CameraController.transform.right * 0.5f;
         segment1.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
-        hitbox1.Invoke(this);
+        hitbox1.Invoke(this, PlayerMultiDamageHitbox.ObstructionType.LocalOrigin);
         hitbox1.gameObject.SetActive(true);
         segment1.PostInitialization();
 
         segment2.gameObject.transform.position =
             transform.position + GameInfo.CameraController.transform.right * 0.5f;
         segment2.Initialize(this, direction * speed, lifeDurationPercentage * coolDownDuration);
-        hitbox2.Invoke(this);
+        hitbox2.Invoke(this, PlayerMultiDamageHitbox.ObstructionType.LocalOrigin);
         hitbox2.gameObject.SetActive(true);
         segment2.PostInitialization();
 

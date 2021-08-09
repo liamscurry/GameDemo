@@ -477,7 +477,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
 
     public void UnlockHeal()
     {
-        PlayerInfo.AbilityManager.HealAvailable = true;
+        PlayerInfo.AbilityManager.AOEAvailable = true;
         EquipTier1Firecharge();
         firechargeTierOneButton.Unlock(false);
         firechargeTierOneButton.TryAcquire();
@@ -500,7 +500,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
 
     public void LockHeal()
     {
-        PlayerInfo.AbilityManager.HealAvailable = false;
+        PlayerInfo.AbilityManager.AOEAvailable = false;
     }
 
     private IEnumerator WalkToTransformCoroutine(WalkToTuple tuple)

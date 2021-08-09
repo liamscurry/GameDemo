@@ -122,7 +122,7 @@ public sealed class PlayerChainLightning : PlayerAbility
     public void ActBegin()
     {
         hitbox.gameObject.SetActive(true);
-        hitbox.Invoke(this);
+        hitbox.Invoke(this, PlayerMultiDamageHitbox.ObstructionType.PlayerOrigin);
 
         hitbox.gameObject.transform.position = PlayerInfo.Player.transform.position;
         hitboxTrigger.center = scaledHitboxPosition;

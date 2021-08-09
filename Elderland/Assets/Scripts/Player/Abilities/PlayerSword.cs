@@ -560,11 +560,11 @@ public sealed class PlayerSword : PlayerAbility
             hitbox.gameObject.SetActive(true);
             if (type == Type.CloseTarget || type == Type.FarTarget)
             {
-                hitbox.Invoke(this, target);
+                hitbox.Invoke(this, PlayerMultiDamageHitbox.ObstructionType.PlayerOrigin, target);
             }
             else
             {
-                hitbox.Invoke(this);
+                hitbox.Invoke(this, PlayerMultiDamageHitbox.ObstructionType.PlayerOrigin);
             }
             hitbox.gameObject.transform.position =
                 PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 0.5f;

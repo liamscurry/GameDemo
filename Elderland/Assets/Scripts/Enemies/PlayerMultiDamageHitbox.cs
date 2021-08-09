@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ using UnityEngine;
 // Only multi damage hitbox supports overlap check on deactivation as of right now.
 public class PlayerMultiDamageHitbox : MonoBehaviour
 {
+    public enum ObstructionType { LocalOrigin, PlayerOrigin }
+
     [SerializeField]
     private GameObject display;
     [SerializeField]
@@ -16,7 +19,9 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
 
     private bool callOnHit;
     private bool callOnStay;
-    //private bool disableNextFrame;
+    private Func<Collider, bool> obsCheck;
+            
+    private ObstructionType obsType;
 
     public GameObject Display { get { return display; } }
 
@@ -25,28 +30,24 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
         enemiesHit = new List<Collider>();
     }
 
-    /*private void FixedUpdate()
-    {
-        if (disableNextFrame)
-        {
-            Deactivate();
-            gameObject.SetActive(false);
-            disableNextFrame = false;
-        }
-    }*/
-
-    public void Invoke(PlayerAbility ability, bool callOnHit = true, bool callOnStay = false)
+    public void Invoke(PlayerAbility ability, ObstructionType obsType, bool callOnHit = true, bool callOnStay = false)
     {
         Reset();
         this.ability = ability;
         this.callOnHit = callOnHit;
         this.callOnStay = callOnStay;
-    }
+        this.obsType = obsType;
 
-    /*public void DisableNextFrame()
-    {
-        disableNextFrame = true;
-    }*/
+        obsCheck = null;
+        if (obsType == ObstructionType.LocalOrigin) 
+        {
+            obsCheck += CheckForLocalObstruction;
+        }
+        else
+        {
+            obsCheck += CheckForPlayerObstruction;
+        }
+    }
 
     private void Reset()
     {
@@ -95,28 +96,26 @@ public class PlayerMultiDamageHitbox : MonoBehaviour
         {
             if (!enemiesHit.Contains(other))
             {
-                if ((callOnHit && !CheckForObstruction(other) && ability.OnHit(other.transform.parent.gameObject)) || (!callOnHit))
+                if ((callOnHit && !obsCheck.Invoke(other) && ability.OnHit(other.transform.parent.gameObject)) || (!callOnHit))
                     enemiesHit.Add(other);
             }
-            else if (callOnStay && !CheckForObstruction(other))
+            else if (callOnStay && !obsCheck.Invoke(other))
             {
                 ability.OnStay(other.transform.parent.gameObject);
             }
         }
     }
 
-    private bool CheckForObstruction(Collider other)
+    private bool CheckForLocalObstruction(Collider other)
     {
         return Physics.Linecast(transform.position, other.transform.position, LayerConstants.GroundCollision);
     }
 
-    /*
-    private void OnTriggerExit(Collider other)
+    private bool CheckForPlayerObstruction(Collider other)
     {
-        if (other.tag == "EnemyHealth" && enemiesHit.Contains(other))
-        {
-            enemiesHit.Remove(other);
-            ability.OnLeave(other.transform.parent.gameObject);
-        }
-    }*/ //may need to have this for firecharge abilities, will have to look into supporting both.
+        return Physics.Linecast(
+                PlayerInfo.Player.transform.position,
+                other.transform.position,
+                LayerConstants.GroundCollision);
+    }
 }

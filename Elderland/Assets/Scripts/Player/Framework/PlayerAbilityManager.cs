@@ -45,7 +45,7 @@ public class PlayerAbilityManager : AbilitySystem
     public bool DashAvailable { get; set; }
     public bool BlockAvailable { get; set; }
     public bool RangedAvailable { get; set; }
-    public bool HealAvailable { get; set; }
+    public bool AOEAvailable { get; set; }
     public bool AbilitiesAvailable { get; set; }
 
     public const float MaxStamina = 4;
@@ -88,7 +88,7 @@ public class PlayerAbilityManager : AbilitySystem
         #if DevMode
         MeleeAvailable = true;
         RangedAvailable = true;
-        HealAvailable = true;
+        AOEAvailable = true;
         DodgeAvailable = true;
         DashAvailable = true;
         BlockAvailable = true;
@@ -185,8 +185,8 @@ public class PlayerAbilityManager : AbilitySystem
                 (RangedAvailable) ?
                 Mathf.Abs(GameInfo.Settings.FireballRightTrigger) > GameInfo.Settings.FireballTriggerOnThreshold : false;
             aoeInput =
-                (HealAvailable) ?
-                Input.GetKey(KeyCode.Joystick1Button4) : false;
+                (AOEAvailable) ?
+                GameInfo.Settings.CurrentGamepad[GameInfo.Settings.AOEAbilityKey].isPressed : false;
             meleeInput =
                 (MeleeAvailable) ? 
                 GameInfo.Settings.CurrentGamepad[GameInfo.Settings.MeleeAbilityKey].isPressed : false;
