@@ -42,8 +42,12 @@ public class PlayerMovementManager
     public bool Sprinting {  
 		get
         {
-            return sprinting ||
-                   (GameInfo.Manager.InCombat && PlayerInfo.AbilityManager.CurrentAbility == null);
+            bool effectiveSprinting =
+                sprinting ||
+                (GameInfo.Manager.InCombat && PlayerInfo.AbilityManager.CurrentAbility == null);
+            if (!sprinting && effectiveSprinting)
+                Sprinting = true;
+            return effectiveSprinting;
         } 
 
 		set

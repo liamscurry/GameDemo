@@ -7,13 +7,15 @@ using UnityEngine;
 // Ability that does AOE damage and pushes enemies in the area backwards.
 public class PlayerKnockbackPush : PlayerAbility
 {
-    private float damage = 1.5f;
-    private float knockbackStrength = 7.5f;
+    private float damage = 1.0f;
+    private float knockbackStrength = 9.5f;
     private PlayerMultiDamageHitbox hitbox;
     private Vector3 hitboxScale = new Vector3(4f, 2, 5);
 
+    private float zeroSpeedOnExit = 0.25f;
+
     private Vector3 targetDirection;
-    private const float rotationSpeed = 40f;
+    private const float rotationSpeed = 15f;
 
     private AnimationClip chargeClip;
     private AnimationClip actClip;
@@ -22,6 +24,8 @@ public class PlayerKnockbackPush : PlayerAbility
     private AbilityProcess actProcess;
     private AbilitySegment charge;
     private AbilitySegment act;
+
+    private Animator warpPlaneAnimator;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -54,6 +58,8 @@ public class PlayerKnockbackPush : PlayerAbility
         segments.AddSegment(charge);
         segments.AddSegment(act);
         segments.NormalizeSegments();
+
+        InitializeWarpPlane();
     }
 
     public void ChargeBegin()
@@ -63,7 +69,16 @@ public class PlayerKnockbackPush : PlayerAbility
         if (targetDirection.magnitude == 0) 
             targetDirection = PlayerInfo.Player.transform.forward;
 
-        GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, 1, 1f, 2f));
+        //GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, 1, 1f, 2f));
+
+        warpPlaneAnimator.gameObject.transform.position =
+            PlayerInfo.Player.transform.position +
+            targetDirection * 1.5f +
+            Matho.Rotate(targetDirection, Vector3.up, 90f) * -1;
+        warpPlaneAnimator.gameObject.transform.rotation =
+            Quaternion.LookRotation(targetDirection, Vector3.up);
+            
+        warpPlaneAnimator.Play(ResourceConstants.Player.Art.KnockbackPushWarpAnimation);
     }
 
     public void DuringCharge()
@@ -102,8 +117,9 @@ public class PlayerKnockbackPush : PlayerAbility
 
     public void ActEnd()
     {
-        hitbox.gameObject.SetActive(false);
         GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0, 1));
+        if (GameInfo.Settings.LeftDirectionalInput.magnitude < zeroSpeedOnExit)
+            PlayerInfo.MovementManager.ZeroSpeed();
     }
 
     public override bool OnHit(GameObject character)
@@ -132,8 +148,21 @@ public class PlayerKnockbackPush : PlayerAbility
         ActEnd();
     }
 
+    private void InitializeWarpPlane()
+    {
+        string knockbackWarpPath = ResourceConstants.Player.Abilities.KnockbackPushWarpObject;
+
+        GameObject warpObject =
+            GameObject.Instantiate(
+                Resources.Load<GameObject>(knockbackWarpPath),
+                PlayerInfo.MeleeObjects.transform);
+        warpPlaneAnimator = warpObject.GetComponent<Animator>();
+        warpPlaneAnimator.gameObject.SetActive(true);
+    }
+
     public override void DeleteResources()
     {
+        GameObject.Destroy(warpPlaneAnimator.gameObject);
         //DeleteAbilityIcon();
         //GameObject.Destroy(dashParticles);
     }

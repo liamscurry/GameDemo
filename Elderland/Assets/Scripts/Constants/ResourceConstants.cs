@@ -83,6 +83,8 @@ public static class ResourceConstants
             public const string FireballTier3Icon = "Player/Abilities/Icons/FireballTier3Icon";
             public const string HoldBar = "Player/Abilities/HoldBar";
 
+            public const string KnockbackPushWarpObject = "Player/Abilities/KnockbackPush/KnockbackWarpEffect";
+
             // Clips
             public const string SwordHoldClip = "Player/Abilities/Sword/SwordHoldClip";
         }
@@ -136,6 +138,8 @@ public static class ResourceConstants
 
             public const string KnockbackPushCharge = "KnockbackPushCharge";
             public const string KnockbackPushAct = "KnockbackPushAct";
+
+            public const string KnockbackPushWarpAnimation = "Warp";
 
             public const string Block1 = "Block1";
             public const string Block2 = "Block2";
