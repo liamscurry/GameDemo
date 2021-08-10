@@ -21,6 +21,7 @@ public class PlayerKnockbackPush : PlayerAbility
     private AnimationClip actClip;
 
     private AbilityProcess chargeProcess;
+    private AbilityProcess actHitboxProcess;
     private AbilityProcess actProcess;
     private AbilitySegment charge;
     private AbilitySegment act;
@@ -52,9 +53,10 @@ public class PlayerKnockbackPush : PlayerAbility
             PlayerInfo.AnimationManager.GetAnim(ResourceConstants.Player.Art.KnockbackPushAct);
 
         chargeProcess = new AbilityProcess(ChargeBegin, DuringCharge, null, 1);
-        actProcess = new AbilityProcess(ActBegin, DuringAct, ActEnd, 1f);
+        actHitboxProcess = new AbilityProcess(ActHitboxBegin, DuringActHitbox, ActHitboxEnd, 0.25f);
+        actProcess = new AbilityProcess(null, null, ActEnd, 0.75f);
         charge = new AbilitySegment(chargeClip, chargeProcess);
-        act = new AbilitySegment(actClip, actProcess);
+        act = new AbilitySegment(actClip, actHitboxProcess, actProcess);
         segments = new AbilitySegmentList();
         segments.AddSegment(charge);
         segments.AddSegment(act);
@@ -103,7 +105,7 @@ public class PlayerKnockbackPush : PlayerAbility
             Quaternion.LookRotation(incrementedRotation, Vector3.up);
     }
 
-    public void ActBegin()
+    public void ActHitboxBegin()
     {
         Quaternion horizontalRotation;
         Quaternion normalRotation;
@@ -118,10 +120,15 @@ public class PlayerKnockbackPush : PlayerAbility
         GameInfo.CameraController.ZoomIn.ClaimLock(this, (true, -4, 1f, 0.4f));
     }
 
-    public void DuringAct()
+    public void DuringActHitbox()
     {
         hitbox.gameObject.transform.position =
             PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 2.5f;
+    }
+
+    public void ActHitboxEnd()
+    {
+        hitbox.gameObject.SetActive(false);
     }
 
     public void ActEnd()
@@ -154,6 +161,7 @@ public class PlayerKnockbackPush : PlayerAbility
 
     public override void ShortCircuitLogic()
     {
+        ActHitboxEnd();
         ActEnd();
     }
 
