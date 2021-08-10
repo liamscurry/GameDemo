@@ -149,19 +149,14 @@ public class PlayerAbilityManager : AbilitySystem
     //Updates each ability slot, called by PlayerManager.
 	public override void UpdateAbilities() 
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            ShortCircuit(true);
-        }
-
         if (Input.GetKeyDown(KeyCode.W))
         {
-            Time.timeScale = 0.1f;
+            EquipAbility<PlayerKnockbackPush>(ref aoe);
         }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            Time.timeScale = 1f;
+            UnequipAbility<PlayerKnockbackPush>(ref aoe);
         }
 
         //Try to run specified ability if held down
@@ -377,7 +372,7 @@ public class PlayerAbilityManager : AbilitySystem
     private void UpdateCooldownIconPositions()
     {
         var cooldownIconOrder = new List<PlayerAbility>();
-        //cooldownIconOrder.Add(aoe);
+        cooldownIconOrder.Add(aoe);
         cooldownIconOrder.Add(dash);
         cooldownIconOrder.Add(ranged);
 

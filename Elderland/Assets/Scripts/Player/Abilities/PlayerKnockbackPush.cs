@@ -32,6 +32,7 @@ public class PlayerKnockbackPush : PlayerAbility
         this.system = abilityManager;
         continous = false;
         coolDownDuration = 2f;
+        staminaCost = 1.5f;    
         
         //Hitbox initializations
         GameObject hitboxObject =
@@ -60,6 +61,12 @@ public class PlayerKnockbackPush : PlayerAbility
         segments.NormalizeSegments();
 
         InitializeWarpPlane();
+        InitializeIcon();
+    }
+
+    protected override bool WaitCondition()
+    {
+        return PlayerInfo.AbilityManager.Stamina >= staminaCost;
     }
 
     public void ChargeBegin()
@@ -79,6 +86,8 @@ public class PlayerKnockbackPush : PlayerAbility
             Quaternion.LookRotation(targetDirection, Vector3.up);
             
         warpPlaneAnimator.Play(ResourceConstants.Player.Art.KnockbackPushWarpAnimation);
+
+        PlayerInfo.AbilityManager.ChangeStamina(-staminaCost);
     }
 
     public void DuringCharge()
@@ -148,6 +157,14 @@ public class PlayerKnockbackPush : PlayerAbility
         ActEnd();
     }
 
+    private void InitializeIcon()
+    {
+        GenerateCoolDownIcon(
+            staminaCost,
+            Resources.Load<Sprite>(ResourceConstants.Player.Abilities.KnockbackPushIcon),
+            "I");
+    }
+
     private void InitializeWarpPlane()
     {
         string knockbackWarpPath = ResourceConstants.Player.Abilities.KnockbackPushWarpObject;
@@ -163,7 +180,7 @@ public class PlayerKnockbackPush : PlayerAbility
     public override void DeleteResources()
     {
         GameObject.Destroy(warpPlaneAnimator.gameObject);
-        //DeleteAbilityIcon();
-        //GameObject.Destroy(dashParticles);
+        GameObject.Destroy(hitbox.gameObject);
+        DeleteAbilityIcon();
     }
 }

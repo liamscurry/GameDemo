@@ -83,6 +83,7 @@ public static class ResourceConstants
             public const string FireballTier3Icon = "Player/Abilities/Icons/FireballTier3Icon";
             public const string HoldBar = "Player/Abilities/HoldBar";
 
+            public const string KnockbackPushIcon = "Player/Abilities/Icons/KnockbackPushIcon";
             public const string KnockbackPushWarpObject = "Player/Abilities/KnockbackPush/KnockbackWarpEffect";
 
             // Clips
