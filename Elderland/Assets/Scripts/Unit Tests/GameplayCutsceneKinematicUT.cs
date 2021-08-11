@@ -49,9 +49,12 @@ public class GameplayCutsceneKinematicUT : MonoBehaviour
     {
         PlayerUT.SetFakeControllerDirection(fakeController, new Vector2(0, 1).normalized * 0.95f);
         PlayerUT.AssertNotKinematic();
+        PlayerUT.AssertVulnerable();
         yield return new WaitUntil(() => GameInfo.CameraController.CameraState == CameraController.State.GameplayCutscene);
         PlayerUT.AssertKinematic();
+        PlayerUT.AssertInvulnerable();
         yield return new WaitUntil(() => GameInfo.CameraController.CameraState == CameraController.State.Gameplay);
         PlayerUT.AssertNotKinematic();
+        PlayerUT.AssertVulnerable();
     }   
 }

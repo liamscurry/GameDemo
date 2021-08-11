@@ -73,10 +73,12 @@ public class InteractionKinematicUT : MonoBehaviour
         }
         InputSystem.Update();
 
+        yield return PlayerUT.AssertVulnerable();
         yield return new WaitUntil(() => PlayerInfo.AnimationManager.CurrentInteraction != null);
         yield return new WaitUntil(() => PlayerInfo.AnimationManager.InDirectTargetMatch);
         yield return PlayerUT.AssertInAir();
         PlayerUT.SetFakeControllerDirection(fakeController, Vector2.zero);
+        yield return PlayerUT.AssertInvulnerable();
 
         yield return new WaitForSeconds(1);
         yield return PlayerUT.AssertGrounded();
@@ -86,6 +88,7 @@ public class InteractionKinematicUT : MonoBehaviour
 
         yield return PlayerUT.AssertNotInteracting();
         yield return PlayerUT.AssertGrounded();
+        yield return PlayerUT.AssertVulnerable();
     }
 
     private IEnumerator PressAirTest()
@@ -104,9 +107,11 @@ public class InteractionKinematicUT : MonoBehaviour
         }
         InputSystem.Update();
 
+        yield return PlayerUT.AssertVulnerable();
         yield return new WaitUntil(() => PlayerInfo.AnimationManager.CurrentInteraction != null);
         yield return new WaitUntil(() => PlayerInfo.AnimationManager.InDirectTargetMatch);
         yield return PlayerUT.AssertInAir();
+        yield return PlayerUT.AssertInvulnerable();
 
         yield return new WaitForSeconds(1);
         yield return PlayerUT.AssertGrounded();
@@ -118,12 +123,13 @@ public class InteractionKinematicUT : MonoBehaviour
         yield return new WaitForSeconds(2f);
         yield return PlayerUT.AssertNotInteracting();
         yield return PlayerUT.AssertGrounded();
+        yield return PlayerUT.AssertVulnerable();
     }
 
     private IEnumerator HoldAirTest()
     {
         PlayerUT.SetFakeControllerDirection(fakeController, new Vector2(0, 1).normalized * 0.95f);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1f);
 
         InputEventPtr pressEvent;
         using (StateEvent.From(fakeController, out pressEvent))
@@ -133,9 +139,11 @@ public class InteractionKinematicUT : MonoBehaviour
         }
         InputSystem.Update();
 
+        yield return PlayerUT.AssertVulnerable();
         yield return new WaitUntil(() => PlayerInfo.AnimationManager.CurrentInteraction != null);
         yield return new WaitUntil(() => PlayerInfo.AnimationManager.InDirectTargetMatch);
         yield return PlayerUT.AssertInAir();
+        yield return PlayerUT.AssertInvulnerable();
 
         yield return new WaitForSeconds(1);
         yield return PlayerUT.AssertGrounded();
@@ -150,5 +158,6 @@ public class InteractionKinematicUT : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
         yield return PlayerUT.AssertNotInteracting();
+        yield return PlayerUT.AssertVulnerable();
     }
 }

@@ -88,8 +88,6 @@ public class StandardInteraction : MonoBehaviour
 		}
 	}
 
-
-
 	public enum Type { press, holdUntilRelease, holdUntilReleaseOrComplete }  
 	public enum AccessType { Input, Trigger }  
 
@@ -127,6 +125,7 @@ public class StandardInteraction : MonoBehaviour
 
 			activated = true;
 			GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
+			PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
 			GameInfo.CameraController.AllowZoom = false;
 			
 			PlayerInfo.Animator.SetTrigger("interacting");
@@ -158,6 +157,7 @@ public class StandardInteraction : MonoBehaviour
 	public void ReleaseInteraction()
 	{
 		GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
+		PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(this, false);
 	}
 
 	protected IEnumerator UITimer()

@@ -4,7 +4,10 @@ using UnityEngine;
 
 // Combat mechanic that damages the player over time. 
 // Meant to be an optional area the player can walk on yet will take damage.
-public class CorruptionFire : LevelMechanic
+
+// 8.11.21 Must use player health tag for collision detection as we are only concerned with the players
+// hitbox on whether the player is touching the fire.
+public class CorruptionFire : MonoBehaviour
 {
     [SerializeField]
     private float timeBetweenDamage;
@@ -17,20 +20,10 @@ public class CorruptionFire : LevelMechanic
     private bool touchingPlayer;
     private bool slowingPlayer;
 
-    public override void InvokeSelf()
-    {
-        
-    }
-
-    public override void ResetSelf()
+    public void DisableSelf()
     {
         timer = 0;
         RemoveSlows();
-    }
-
-    public override void DisableSelf()
-    {
-        ResetSelf();
     }
 
     private void Update()
@@ -43,24 +36,24 @@ public class CorruptionFire : LevelMechanic
                 timer = 0;
                 Damage();
             }
-            ApplySlow();
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == TagConstants.Player)
+        if (other.tag == TagConstants.PlayerHitbox)
         {
             touchingPlayer = true;
+            timer = 0;
+            ApplySlow();
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag == TagConstants.Player)
+        if (other.tag == TagConstants.PlayerHitbox)
         {
             touchingPlayer = false;
-            timer = 0;
             RemoveSlows();
         }
     }

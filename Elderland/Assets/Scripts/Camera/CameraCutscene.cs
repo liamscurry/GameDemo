@@ -76,6 +76,7 @@ public class CameraCutscene
 		generatedLastWaypoint = false;
 
 		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
+		PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
 		PlayerInfo.CharMoveSystem.Kinematic.ClaimLock(this, true);
 	}
 
@@ -143,6 +144,7 @@ public class CameraCutscene
 						if (endEvent != null)
 							endEvent.Invoke();
 						PlayerInfo.CharMoveSystem.Kinematic.TryReleaseLock(this, false);
+						PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(this, false);
 					}
 				}
 			}

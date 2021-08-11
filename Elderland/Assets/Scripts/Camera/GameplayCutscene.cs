@@ -79,6 +79,7 @@ public class GameplayCutscene
 		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.ProceedGameplayCutscene);
 		PlayerInfo.Animator.ResetTrigger(AnimationConstants.Player.ExitGameplayCutscene);
 		GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
+		PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
 
 		delayTargetDirection = false;
 	}
@@ -285,6 +286,7 @@ public class GameplayCutscene
 		GameInfo.CameraController.TargetDirection = Vector3.zero;
 		GameInfo.CameraController.StartGameplay();
 		GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
+		PlayerInfo.StatsManager.Invulnerable.TryReleaseLock(this, false);
 		
 		PlayerInfo.PhysicsSystem.ForceTouchingFloor();
 		PlayerInfo.PhysicsSystem.Animating = false;

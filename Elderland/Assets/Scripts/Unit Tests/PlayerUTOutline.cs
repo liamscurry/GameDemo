@@ -108,6 +108,32 @@ public static class PlayerUT
         }
     }
 
+    public static IEnumerator AssertInvulnerable()
+    {
+        try
+        {
+            UT.CheckEquality<bool>(PlayerInfo.StatsManager.Invulnerable.Value, true);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Test Failed: Not in kinematic mode " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+    }
+
+    public static IEnumerator AssertVulnerable()
+    {
+        try
+        {
+            UT.CheckEquality<bool>(PlayerInfo.StatsManager.Invulnerable.Value, false);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Test Failed: Not in kinematic mode " + e.Message + " " + e.StackTrace);
+            yield break;
+        }
+    }
+
     public static void SetFakeControllerDirection(XInputController fakeController, Vector2 direction)
     {
         InputEventPtr walkEvent;

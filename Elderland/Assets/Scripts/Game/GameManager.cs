@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
     // Player falling
 
     // None Input
-    // Cannot be overriden, may override:
+    // Cannot be overriden, may override, player cannot be hurt:
     // Interactions
     // Cutscenes
     public StatLock<GameInput> ReceivingInput { get; private set; }

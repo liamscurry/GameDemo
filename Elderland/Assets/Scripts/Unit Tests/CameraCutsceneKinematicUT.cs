@@ -9,7 +9,8 @@ using UnityEngine.InputSystem.Controls;
 
 // Vision, Input based UT
 /*
-Ability test with new physics system integration (CharacterMovementSystem)
+Ability test with new physics system integration (CharacterMovementSystem). Also tests to make sure
+player is invulnerable during cutscene.
 Tested by inspection.
 */
 public class CameraCutsceneKinematicUT : MonoBehaviour
@@ -46,9 +47,12 @@ public class CameraCutsceneKinematicUT : MonoBehaviour
     {
         PlayerUT.SetFakeControllerDirection(fakeController, new Vector2(0, 1).normalized * 0.95f);
         PlayerUT.AssertNotKinematic();
+        PlayerUT.AssertVulnerable();
         yield return new WaitUntil(() => GameInfo.CameraController.CameraState == CameraController.State.Cutscene);
         PlayerUT.AssertKinematic();
+        PlayerUT.AssertInvulnerable();
         yield return new WaitUntil(() => GameInfo.CameraController.CameraState == CameraController.State.Gameplay);
         PlayerUT.AssertNotKinematic();
+        PlayerUT.AssertVulnerable();
     }   
 }
