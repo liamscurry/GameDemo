@@ -63,9 +63,16 @@
 
     float _CrossFade;
     float _WorldMaxHeight;
+    sampler2D _MainTex;
+    float _Threshold;
 
+    // Point light brightening takes into account light position and normals of object.
     fixed4 lightHelperFrag(v2f i, fixed facingCamera : VFACE) : SV_Target
     {
+        float4 textureColor = tex2D(_MainTex, i.uv);
+        if (textureColor.a < _Threshold)
+            clip(textureColor.a - _Threshold);
+
         // Learned in AutoLight.cginc
         // Shadow Fade
         float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
@@ -109,6 +116,39 @@
         }
 
         return attenuation * lightDarkPercentage * _LightColor0 * attenuationFade;
+    }
+
+    // Point lightbrightening without normal based darkening. (pixels in area are lit by light no matter what)
+    fixed4 lightHelperNoOccludeFrag(v2f i, fixed facingCamera : VFACE) : SV_Target
+    {
+        float4 textureColor = tex2D(_MainTex, i.uv);
+        if (textureColor.a < _Threshold)
+            clip(textureColor.a - _Threshold);
+
+        // Learned in AutoLight.cginc
+        // Shadow Fade
+        float zDistance = length(mul(UNITY_MATRIX_V, (_WorldSpaceCameraPos - i.worldPos.xyz)));
+        float fadeDistance = UnityComputeShadowFadeDistance(i.worldPos.xyz, zDistance);
+        float fadeValue = UnityComputeShadowFade(fadeDistance);
+
+        // For disabling point lights on a shader.
+        if (_ApplyLight < 0.5)
+        {
+            return fixed4(0,0,0,0);
+        }
+
+        float3 fragWorldPosition = mul(unity_ObjectToWorld, i.objectPos);
+        ApplyDither(i.screenPos, _CrossFade);
+        ApplyCharacterFade(i.objectPos, _WorldMaxHeight);
+
+        UNITY_LIGHT_ATTENUATION(attenuation, i, i.worldPos.xyz);
+
+        float3 localLightDirection = normalize(i.worldPos - _WorldSpaceLightPos0.xyz);
+        float shadowProduct = AngleBetween(i.normal, localLightDirection) / 3.151592;
+        //return length(i.worldPos - _WorldSpaceLightPos0.xyz) / 20;
+        float attenuationFade = 1 - saturate(fadeValue - 0.2);
+
+        return attenuation * _LightColor0 * attenuationFade;
     }
 
 /*   ENDCG
