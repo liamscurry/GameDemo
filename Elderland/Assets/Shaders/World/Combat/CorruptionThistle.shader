@@ -5,6 +5,7 @@ Shader "Custom/CorruptionThistle"
         _MainTex ("Texture", 2D) = "white" {}
 
         _Color ("Color", Color) = (1,1,1,1)
+        _RootDarkenMultiplier ("RootDarkenMultiplier", Range(0, 1)) = 0.5
         _Threshold ("Threshold", Range(0, 1)) = 0.1
         _ThresholdMargin ("ThresholdMargin", Range(0, 1)) = 0
         _CrossFade ("CrossFade", float) = 0
@@ -89,16 +90,18 @@ Shader "Custom/CorruptionThistle"
                 float4 pos : SV_POSITION;
                 SHADOW_COORDS(1)
                 float3 worldPos : TEXCOORD2;
+                float3 worldNormal : TEXCOORD3;
             };
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
                 v2f o;
-                float3 alteredObjectVertex = WarpGrass(v.vertex, v.uv.y, normal);
+                float4 alteredObjectVertex = float4(WarpGrass(v.vertex, v.uv.y, normal), 1);
                 o.pos = UnityObjectToClipPos(alteredObjectVertex);
                 o.worldPos = mul(unity_ObjectToWorld, alteredObjectVertex);
                 TRANSFER_SHADOW(o)
                 o.uv = v.uv;
+                o.worldNormal = UnityObjectToWorldNormal(float3(0, 0, 1));
                 return o;
             }
 
@@ -106,10 +109,13 @@ Shader "Custom/CorruptionThistle"
             float _Threshold;
             float _ThresholdMargin;
             float4 _Color;
+            float _RootDarkenMultiplier;
 
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 textureColor = tex2D(_MainTex, i.uv);
+                float rootDarkenMultiplier = (1 + _RootDarkenMultiplier) * i.uv.y + 1 * (1 - i.uv.y);
+                textureColor *= float4(rootDarkenMultiplier, rootDarkenMultiplier, rootDarkenMultiplier, 1);
 
                 if (textureColor.a < _Threshold)
                     clip(textureColor.a - _Threshold);
@@ -125,9 +131,22 @@ Shader "Custom/CorruptionThistle"
 
                 float4 shadowModifier = float4(1 - _ShadowStrength, 1 - _ShadowStrength, 1 - _ShadowStrength, 1);
 
+                // Horizontal Active Highlight
+                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+                float3 reflectedDir = reflect(-_WorldSpaceLightPos0.xyz, float3(0, 1, 0));
+
+                // Light side color calculation
+                float activeHighlight =
+                    1 - saturate(AngleBetween(reflectedDir, viewDir) / (3.141592 * .5));
+                activeHighlight = pow(activeHighlight, 3);
+                activeHighlight = saturate(activeHighlight * 0.55);
+                activeHighlight *= pow(i.uv.y, 3);
+                float4 highlightedColor =
+                    textureColor + float4(activeHighlight, activeHighlight, activeHighlight, 1);
+
                 return
-                    textureColor * (fadeValue) +
-                    textureColor * shadowModifier * (1 - fadeValue);
+                    highlightedColor * (fadeValue) +
+                    highlightedColor * shadowModifier * (1 - fadeValue);
             }
             ENDCG
         }
