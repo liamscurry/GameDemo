@@ -18,9 +18,14 @@ Shader "Custom/SkewScreenImageEffect"
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" }// "LightMode"="ForwardBase"
+        //Tags { "RenderType"="Transparent" }// "LightMode"="ForwardBase"
+        Tags 
+        { 
+            "LightMode"="ForwardBase"
+            "RenderType"="Geometry+500"
+        }
         GrabPass { }
-        Blend SrcAlpha OneMinusSrcAlpha
+        //Blend SrcAlpha OneMinusSrcAlpha
         //LOD 100
         Cull Off
 

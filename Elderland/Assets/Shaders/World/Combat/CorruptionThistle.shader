@@ -77,6 +77,7 @@ Shader "Custom/CorruptionThistle"
             #include "AutoLight.cginc"
             #include "Assets/Shaders/HelperCgincFiles/ShadingHelper.cginc"
             #include "Assets/Shaders/FolliageHelper.cginc"
+            #include "Assets/Shaders/HelperCgincFiles/LODHelper.cginc"
 
             struct appdata
             {
@@ -91,6 +92,7 @@ Shader "Custom/CorruptionThistle"
                 SHADOW_COORDS(1)
                 float3 worldPos : TEXCOORD2;
                 float3 worldNormal : TEXCOORD3;
+                float4 screenPos : TEXCOORD4;
             };
 
             v2f vert (appdata v, float3 normal : NORMAL)
@@ -102,6 +104,7 @@ Shader "Custom/CorruptionThistle"
                 TRANSFER_SHADOW(o)
                 o.uv = v.uv;
                 o.worldNormal = UnityObjectToWorldNormal(float3(0, 0, 1));
+                o.screenPos = ComputeScreenPos(o.pos);
                 return o;
             }
 
@@ -110,9 +113,12 @@ Shader "Custom/CorruptionThistle"
             float _ThresholdMargin;
             float4 _Color;
             float _RootDarkenMultiplier;
+            float _CrossFade;
 
             fixed4 frag (v2f i) : SV_Target
             {
+                ApplyDither(i.screenPos, _CrossFade);
+
                 fixed4 textureColor = tex2D(_MainTex, i.uv);
                 float rootDarkenMultiplier = (1 + _RootDarkenMultiplier) * i.uv.y + 1 * (1 - i.uv.y);
                 textureColor *= float4(rootDarkenMultiplier, rootDarkenMultiplier, rootDarkenMultiplier, 1);
