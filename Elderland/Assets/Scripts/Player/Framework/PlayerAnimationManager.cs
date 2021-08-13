@@ -277,7 +277,7 @@ public class PlayerAnimationManager
         CurrentRotationSpeed =
             Mathf.MoveTowards(
                 CurrentRotationSpeed,
-                targetRotationSpeed,
+                targetRotationSpeed * PlayerInfo.StatsManager.MovespeedMultiplier.Value,
                 rotationSpeedSpeedIncrease * Time.deltaTime);
 
         PlayerInfo.Animator.SetFloat(
@@ -475,7 +475,7 @@ public class PlayerAnimationManager
         CurrentRotationSpeed =
             Mathf.MoveTowards(
                 CurrentRotationSpeed,
-                targetRotationSpeed,
+                targetRotationSpeed * PlayerInfo.StatsManager.MovespeedMultiplier.Value,
                 usedRotSpeed * Time.deltaTime);
         
         PlayerInfo.Animator.SetFloat("rotationSpeed", CurrentRotationSpeed);

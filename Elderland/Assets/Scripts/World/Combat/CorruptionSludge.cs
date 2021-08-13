@@ -4,7 +4,7 @@ using UnityEngine;
 
 // Combat mechanic that slows the player over time, reaching a cap slow speed. 
 // Meant to be an optional area the player can walk on yet will have debuff.
-public class CorruptionSludge : LevelMechanic
+public class CorruptionSludge : MonoBehaviour
 {
     [SerializeField]
     private float timeBetweenSlows;
@@ -18,20 +18,10 @@ public class CorruptionSludge : LevelMechanic
 
     private float currentNumberOfSlows;
 
-    public override void InvokeSelf()
-    {
-        
-    }
-
-    public override void ResetSelf()
+    public void DisableSelf()
     {
         timer = 0;
         RemoveSlows();
-    }
-
-    public override void DisableSelf()
-    {
-        ResetSelf();
     }
 
     private void Update()
@@ -49,18 +39,18 @@ public class CorruptionSludge : LevelMechanic
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == TagConstants.Player)
+        if (other.tag == TagConstants.PlayerHitbox)
         {
             touchingPlayer = true;
+            timer = 0;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag == TagConstants.Player)
+        if (other.tag == TagConstants.PlayerHitbox)
         {
             touchingPlayer = false;
-            timer = 0;
             RemoveSlows();
         }
     }
@@ -69,6 +59,11 @@ public class CorruptionSludge : LevelMechanic
     {
         if (currentNumberOfSlows < maximumNumberOfSlows)
         {
+            if (currentNumberOfSlows == 0)
+            {
+                PlayerInfo.MovementManager.SprintAvailable.ClaimLock(this, false);
+            }
+
             currentNumberOfSlows++;
             PlayerInfo.StatsManager.MovespeedMultiplier.AddModifier(individualSlowAmount);
         }
@@ -81,5 +76,6 @@ public class CorruptionSludge : LevelMechanic
             PlayerInfo.StatsManager.MovespeedMultiplier.RemoveModifier(individualSlowAmount);
         }
         currentNumberOfSlows = 0;
+        PlayerInfo.MovementManager.SprintAvailable.TryReleaseLock(this, true);
     }
 }

@@ -61,7 +61,7 @@ public class PlayerMovementManager
 		}
 	}
     public float SprintModifier { get { return 2.0f; } }
-    public bool SprintAvailable { get; set; }
+    public StatLock<bool> SprintAvailable { get; private set; }
     private const float MinAnimationPercSpeed = 0.7f;
 
     private const float jumpStrength = 4.0f;
@@ -115,7 +115,7 @@ public class PlayerMovementManager
 
         PlayerInfo.PhysicsSystem.SlidIntoGround += OnSlidIntoGround;
         movedThisFrame = false;
-        SprintAvailable = true;
+        SprintAvailable = new StatLock<bool>(true);
         Jumping = false;
     }
 
@@ -123,7 +123,7 @@ public class PlayerMovementManager
     {
         CurrentDirection =
             Matho.RotateTowards(CurrentDirection, TargetDirection, directionSpeed * Time.deltaTime);
-        float alteredTargetPerSpeed = TargetPercentileSpeed;
+        float alteredTargetPerSpeed = TargetPercentileSpeed * PlayerInfo.StatsManager.MovespeedMultiplier.Value;
         alteredTargetPerSpeed *= 1 - Matho.AngleBetween(TargetDirection, CurrentDirection) / 180f;
         CurrentPercentileSpeed =
             Mathf.SmoothDamp(CurrentPercentileSpeed, alteredTargetPerSpeed, ref speedVelocity, speedGradation);
@@ -429,14 +429,14 @@ public class PlayerMovementManager
     {
         if (GameInfo.Settings.CurrentGamepad.leftStickButton.wasPressedThisFrame &&
             SprintUnlocked &&   
-            SprintAvailable &&
             PlayerInfo.AbilityManager.CurrentAbility == null)
         {
             Sprinting = !Sprinting;
         }
 
         if (AnimationPercentileSpeed < MinAnimationPercSpeed && 
-            LastAnimationPercentileSpeed >= MinAnimationPercSpeed)
+            LastAnimationPercentileSpeed >= MinAnimationPercSpeed ||
+            !SprintAvailable.Value)
             Sprinting = false;
     }
 
