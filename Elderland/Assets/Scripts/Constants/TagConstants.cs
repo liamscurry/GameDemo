@@ -27,4 +27,6 @@ public static class TagConstants
 	public const string PlayerProjectile = "PlayerProjectile";
 
     public const string TeleporterObject = "TeleporterObject";
+
+    public const string ThistleGen = "ThistleGen";
 }
