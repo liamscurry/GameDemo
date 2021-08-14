@@ -67,6 +67,8 @@ sampler2D _MainTex;
 sampler2D _BumpMap;
 float _BumpMapIntensity;
 sampler2D _SpecularMap;
+sampler2D _SmoothnessMap;
+float _ClampSmoothnessMap;
 
 float _Threshold;
 
@@ -85,7 +87,18 @@ fixed4 semiFlatFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
         TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, tangentNormal);
     half3 originalWorldNormal = 
         TangentToWorldSpace(i.tanX1, i.tanX2, i.tanX3, half3(0,0,1));
-    worldNormal = worldNormal * _BumpMapIntensity + originalWorldNormal * (1 - _BumpMapIntensity);
+
+    float compositeBumpMapIntensity = _BumpMapIntensity;
+    float smoothnessMapIntensity = tex2D(_SmoothnessMap, i.uv).r;
+    if (_ClampSmoothnessMap > 0.5)
+    {
+        if (smoothnessMapIntensity  > 0.01)
+        {
+            compositeBumpMapIntensity = 0;
+        }
+    }
+
+    worldNormal = worldNormal * compositeBumpMapIntensity + originalWorldNormal * (1 - compositeBumpMapIntensity);
     
     // Reflections
     float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos)); 
@@ -106,7 +119,6 @@ fixed4 semiFlatFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
     float inShadow = SHADOW_ATTENUATION(i);
     float4 localColor = _Color;
     localColor *= textureColor;
-    reflectedColor *= (float4(1,1,1,1) * 0.5 + _Color * 0.5);
 
     // Learned in AutoLight.cginc
     // Shadow Fade
@@ -117,14 +129,31 @@ fixed4 semiFlatFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
     float specular = tex2D(_SpecularMap, i.uv).r;
     float4 shadedColor = Shade(worldNormal, i.worldPos, localColor, inShadow, fadeValue, specular);
     float4 fresnelColor = reflectedColor * fresnelValue + shadedColor * (1 - fresnelValue);
-    if (_Smoothness <= 1)
+    
+    float areaSunAngle =
+        AngleBetween(-_WorldSpaceLightPos0.xyz, reflectionDirection) / (3.151592);
+    if (areaSunAngle < 0.1)
+        areaSunAngle = 0;
+    areaSunAngle = pow(areaSunAngle, 7) * 0.6;
+    areaSunAngle *= inShadow;
+    areaSunAngle *= smoothnessMapIntensity * _Smoothness;
+
+    float4 returnColor =
+        fresnelColor * (smoothnessMapIntensity * _Smoothness) +
+        shadedColor * (1 - smoothnessMapIntensity * _Smoothness);
+        
+    if (smoothnessMapIntensity * _Smoothness > 1)
     {
-        fresnelColor = fresnelColor * (_Smoothness) + shadedColor * (1 - _Smoothness);
-    }
-    else
-    {
-        fresnelColor = reflectedColor * (_Smoothness - 1) + fresnelColor * (1 - (_Smoothness - 1));
+       
+        float excessSmoothness = (smoothnessMapIntensity * _Smoothness) - 1;
+        //return float4(excessSmoothness, excessSmoothness, excessSmoothness, 1);
+        returnColor =
+            reflectedColor * (excessSmoothness) +
+            fresnelColor * (1 - (excessSmoothness));
     }
 
-    STANDARD_FOG(fresnelColor, worldNormal);
+    returnColor =
+        returnColor * (1 - areaSunAngle) + float4(1, 1, 1, 1) * areaSunAngle;
+
+    STANDARD_FOG(returnColor, worldNormal);
 }

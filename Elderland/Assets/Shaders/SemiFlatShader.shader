@@ -29,6 +29,8 @@ Shader "Custom/SemiFlatShader"
 
         _ReflectedIntensity ("ReflectedIntensity", Range(0, 6)) = 1
         _Smoothness ("Smoothness", Range(0, 2)) = 0
+        _SmoothnessMap ("SmoothnessMap", 2D) = "white" {}
+        _ClampSmoothnessMap ("ClampSmoothnessMap", Range(0, 1)) = 0 //Clamps values of the smoothness map to 1 or 0.
 
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 1
         _ApplyLight ("ApplyLight", Range(0.0, 1.0)) = 1.0

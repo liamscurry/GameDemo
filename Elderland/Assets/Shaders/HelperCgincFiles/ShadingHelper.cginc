@@ -26,7 +26,7 @@ float _Smoothness;
 
 float Fresnel(float3 normal, float3 viewDir)
 {
-    return saturate(pow(AngleBetween(normal, viewDir) / 3.151592 * 2.2, 3.5));
+    return saturate(pow(AngleBetween(normal, viewDir) / 3.151592 * 1.7, 3.5));
 } 
 
 float StandardShadeFade(float distance)

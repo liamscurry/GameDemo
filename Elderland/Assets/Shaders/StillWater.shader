@@ -5,29 +5,50 @@ Shader "Custom/StillWater"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _ReflectionMap ("ReflectionMap", 2D) = "white" {}
+        _Skybox ("Skybox", CUBE) = "" {}
+        _SkyboxIntensity ("SkyboxIntensity", Range(0, 1)) = 0.5
         _WaterBedColor ("WaterBedColor", Color) = (0,0,0,0)
-        _SkyboxColor ("SkyboxColor", Color) = (0,0,0,0)
         _WaterLineThreshold ("WaterLineThreshold", Range(0, 1)) = 0
         _WarmColorStrength ("WarmColorStrength", Range(0, 1)) = 0
+        _Clearness ("Clearness", Range(0, 1)) = 1
+        _ReflectedIntensity ("ReflectedIntensity", Range(0, 1)) = 1
         _EnableFog ("EnableFog", Range(0.0, 1.0)) = 0.0
+        _ShadowStrength ("ShadowStrength", Range(0, 1)) = 0
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" "LightMode"="ForwardBase" }
-        GrabPass { }
-        //LOD 100
-
+        // SemiFlatShader pass structure
         Pass
         {
+            Name "SemiFlatShaderShadow"
+            Tags { "LightMode"="ShadowCaster" }
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment semiFlatFrag
+            #pragma multi_compile_shadowcaster
+            
+            #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderShadowCaster.cginc"
+            ENDCG
+        }
+
+        GrabPass { }
+        Pass
+        {
+            Tags { "RenderType"="Geometry+20" "LightMode"="ForwardBase" }
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            //#pragma multi_compile_fog
-            //#pragma multi_compile_fwdbase
+
+            #pragma multi_compile_fwdbase
+
+            #pragma multi_compile_local __ _ALPHATEST_ON
+            #pragma multi_compile_local __ _NORMALMAP
 
             #include "UnityCG.cginc"
+            #include "Lighting.cginc"
+            #include "AutoLight.cginc"
             #include "Color.cginc"
             #include "/HelperCgincFiles/MathHelper.cginc"
             #include "/HelperCgincFiles/FogHelper.cginc"
@@ -42,8 +63,8 @@ Shader "Custom/StillWater"
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
-                float4 vertex : SV_POSITION;
+                SHADOW_COORDS(1)
+                float4 pos : SV_POSITION;
                 float4 worldPos : TEXCOORD2;
                 float3 normal : TEXCOORD3;
                 float3 ray : TEXCOORD4;
@@ -56,30 +77,34 @@ Shader "Custom/StillWater"
             float4 _WaterBedColor;
             sampler2D _CameraDepthTexture;
             sampler2D _GrabTexture;
+            samplerCUBE _Skybox;
+            float _SkyboxIntensity;
             float _WaterLineThreshold;
             float _WarmColorStrength;
+            float _Clearness;
+            float _ReflectedIntensity;
             float _EnableFog;
-            float4 _SkyboxColor;
 
             v2f vert (appdata v, float3 normal : NORMAL)
             {
                 v2f o;
                 //float4 alteredVertex = v.vertex;
                 //alteredVertex.y = v.vertex.y;
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.pos = UnityObjectToClipPos(v.vertex);
+                TRANSFER_SHADOW(o)
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
-                o.screenPos = ComputeScreenPos(o.vertex);
+                o.screenPos = ComputeScreenPos(o.pos);
                 o.ray = UnityObjectToViewPos(v.vertex) * float3(-1, -1, 1);
                 o.normal = UnityObjectToWorldNormal(normal);
                 // From grab pass manual.
-                o.grabPos = ComputeGrabScreenPos(o.vertex);
+                o.grabPos = ComputeGrabScreenPos(o.pos);
+                
                 return o;
             }
 
             fixed4 frag (v2f i, float3 normal : NORMAL) : SV_Target
             {
-                float inShadow = 0;
                 float3 calculatedNormal = UnityObjectToWorldNormal(normal);//1.4// * .6
                 float3 alteredNormal = normalize(
                     i.normal * 1 +
@@ -105,15 +130,19 @@ Shader "Custom/StillWater"
 
                 float waterDepthFactor = saturate(pow(abs(existingWorldPosition.y - newWorldPosition.y) / 10, .5) + .1);
                 //return waterDepthFactor;
-                if (length(existingWorldPosition - newWorldPosition) / (2 + sin(_Time.y + i.worldPos.x)) < _WaterLineThreshold)//.5
+                float sunAngle = 0;
+                float areaSunAngle = 0;
+                if (_WorldSpaceLightPos0.w < 0.5)
                 {
-                    if (_EnableFog)
+                    areaSunAngle =
+                        AngleBetween(-_WorldSpaceLightPos0.xyz, reflectionDirection) / (3.151592);
+                    areaSunAngle = pow(areaSunAngle, 6) * 1.15f;
+
+                    if (length(existingWorldPosition - newWorldPosition) /
+                        (2 + sin(_Time.y + i.worldPos.x)) < _WaterLineThreshold)
                     {
-                        STANDARD_FOG_TEMPERATURE(float4(1, 1, 1, 1), _WarmColorStrength);
-                    }
-                    else
-                    {
-                        return float4(1, 1, 1, 1);
+                        sunAngle = areaSunAngle * 1;
+                        //return float4(1,0,0,1);
                     }
                 }
                 
@@ -125,45 +154,32 @@ Shader "Custom/StillWater"
                                               0,
                                               0);
                 float4 existingColor = tex2Dproj(_GrabTexture, i.grabPos + grabPosOffset);
-                if (depth > 0.99)
-                {
-                    existingColor = _SkyboxColor;
-                }
-                //return existingColor;
 
-                /*float sunAngle = 0;
-                //if (_WorldSpaceLightPos0.w < 0.5)
-                //{
-                    sunAngle = AngleBetween(-_WorldSpaceLightPos0.xyz, reflectionDirection) / 3.151592;// / 3.151592 * 180 (
-                //}
                 
-                if (sunAngle > .95)
-                {
-                    return fixed4(1,0,0,1);
-                }*/
-                
-                //return fixed4(_WorldSpaceLightPos0.xyz, 1);
-                //return fixed4(sunAngle, sunAngle, sunAngle, 1);
-                
-                //float3 worldNormal = alteredNormal;
-                
-
-                //had to have in light mode forward base
-
-                //float fresnelAngle = saturate(pow(AngleBetween(alteredNormal, viewDir) / 3.151592 * 2.2, 3.5));
-                float fresnelAngle = saturate(pow(AngleBetween(alteredNormal, viewDir) / 3.151592, 6.5));
-                //return fixed4(fresnelAngle, fresnelAngle, fresnelAngle, 1);
-                //return waterDepthFactor;
-                float2 horizontalPosition = float2(newWorldPosition.x, newWorldPosition.z);
-                float horizontalWaterDepthFactor = pow(length(_WorldSpaceCameraPos.xz - horizontalPosition) / 25, .5);
-                //return waterDepthFactor;
-                //return waterDepthFactor;
+                float fresnelAngle = saturate(pow(AngleBetween(alteredNormal, viewDir) / 3.151592 * 2, 6.5));
+                fresnelAngle += 0.25f;
+  
                 float4 waterBedCompositeColor =
                     existingColor * (1 - waterDepthFactor) + _WaterBedColor * waterDepthFactor;
-                //return waterDepthFactor;
-                //return waterDepthFactor * (1 - horizontalWaterDepthFactor);
-                //fresnelAngle -= waterDepthFactor * (1 - horizontalWaterDepthFactor) * 1;
+
+                waterBedCompositeColor = 
+                    waterBedCompositeColor * _Clearness + _WaterBedColor * (1 - _Clearness);
+
+                float4 skyboxColor = texCUBE(_Skybox, reflectionDirection);
+
+                color = 
+                    skyboxColor * _SkyboxIntensity + color * (1 - _SkyboxIntensity);
+
+                float inShadow = SHADOW_ATTENUATION(i);
                 float4 finalColor = color * (fresnelAngle) + waterBedCompositeColor * (1 - fresnelAngle);
+                finalColor +=
+                    float4(areaSunAngle, areaSunAngle, areaSunAngle, 0) * 0.6f * inShadow;
+                finalColor = saturate(finalColor);
+                
+                //finalColor =
+                //    finalColor * (1 - sunAngle) + float4(1, 1, 1, 1) * sunAngle;
+                    
+                
                 if (_EnableFog)
                 {
                     STANDARD_FOG_TEMPERATURE(finalColor, _WarmColorStrength);
@@ -172,7 +188,6 @@ Shader "Custom/StillWater"
                 {
                     return finalColor;
                 }
-                //return _WaterBedColor * existingColor;
             }
             ENDCG
         }
