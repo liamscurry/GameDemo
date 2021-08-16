@@ -154,6 +154,9 @@ fixed4 semiFlatFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
 
     returnColor =
         returnColor * (1 - areaSunAngle) + float4(1, 1, 1, 1) * areaSunAngle;
+    
+    //returnColor =
+    //    returnColor * (1 - areaSunAngle) + _LightColor0 * areaSunAngle;
 
     STANDARD_FOG(returnColor, worldNormal);
 }

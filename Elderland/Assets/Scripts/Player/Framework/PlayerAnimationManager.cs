@@ -723,7 +723,7 @@ public class PlayerAnimationManager
 		Vector3 weightedTarget = 
 			new Vector3(
 				startPosition.x * (1 - target.positionWeight.x) + target.position.x * target.positionWeight.x,
-				startPosition.y * (1 - target.positionWeight.y) + target.position.y* target.positionWeight.y,
+				startPosition.y * (1 - target.positionWeight.y) + target.position.y * target.positionWeight.y,
 				startPosition.z * (1 - target.positionWeight.z) + target.position.z * target.positionWeight.z
 			);
 		
@@ -765,7 +765,7 @@ public class PlayerAnimationManager
 			{
 				Vector3 clampedTarget =
 					weightedTarget + 
-					Vector3.down * (hitInfo.distance);
+					Vector3.down * (hitInfo.distance - directTargetClampOffset);
 				return clampedTarget;
 			}
 		}

@@ -76,7 +76,7 @@ float4 Shade(float3 worldNormal, float3 worldPos, float4 localColor, inout float
         localShadowColor * lightIncidence +
         localColor * (1 - lightIncidence);
     lightColor =
-        (lightColor + activeHighlight * float4(1, 1, 1, 0));
+        (lightColor * (1 - activeHighlight) + (_LightColor0.rgb, 1) * activeHighlight);
 
     // Dark side color calculation
     float shadowIncidenceBounced =
