@@ -55,6 +55,7 @@ public sealed class TurretEnemyManager : EnemyManager
 
         wallForward = transform.forward;
         wallRight = transform.right;
+        StatsManager.Interuptable = false; // Needed to ignore iterrupt calls as turrets don't flinch when damaged.
     }
 
     protected override void FixedUpdate()

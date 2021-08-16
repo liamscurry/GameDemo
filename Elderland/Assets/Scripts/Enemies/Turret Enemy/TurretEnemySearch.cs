@@ -89,10 +89,11 @@ public class TurretEnemySearch : StateMachineBehaviour
                 LayerConstants.GroundCollision);
     }
 
-    private void PassiveRotate()
+    private void PassiveRotate() // rotation bug here, folows player behidn wall then rotates behind wall.
     {
         Vector3 targetForward =
             manager.WallRight * passiveSearchSign;
+        targetForward = Vector3.RotateTowards(targetForward, manager.WallForward, 5f, Mathf.Infinity);
         
         Vector3 incrementedForward =
             Vector3.RotateTowards(manager.MeshParent.transform.forward, targetForward, manager.PassiveSearchSpeed * Time.deltaTime, 0);
@@ -148,6 +149,22 @@ public class TurretEnemySearch : StateMachineBehaviour
         if (!hasLOS)
         {
             passiveSearch = true;
+
+            // Need to check to see if rotation is towards wall from active search
+            // Without this, the turret may rotate passively towards the wall instead of away from it.
+            if (Matho.AngleBetween(manager.MeshParent.transform.forward, manager.WallForward) > 90f)
+            {
+                float currentAngleDir =
+                    Matho.AngleBetween(manager.MeshParent.transform.forward, manager.WallRight);
+                if (currentAngleDir < 90f && passiveSearchSign == -1)
+                {
+                    passiveSearchSign = 1;
+                }
+                else if (currentAngleDir < 90f && passiveSearchSign == 1)
+                {
+                    passiveSearchSign = -1;
+                }
+            }
         }
     }
 
