@@ -199,7 +199,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         AttackingPlayer = true;
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         BuffManager.UpdateBuffs();
         AbilityManager.UpdateAbilities();
@@ -942,7 +942,9 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         Vector3 resolveBarScale =
             resolvebarPivot.transform.parent.localScale;
 
+        StopParticles();
         yield return (MeshTransitionTimer(1, 0f, 0.6f, 16));
+        
         //yield return ParticleTransitionTimer(0.6f, recycleParticles);
 
         healthbarPivot.transform.parent.gameObject.SetActive(false);

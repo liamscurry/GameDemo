@@ -100,51 +100,5 @@ public sealed class TurretEnemyManager : EnemyManager
         return targetPosition;
     }
 
-    protected override void SpawnPickups()
-    {
-        // Will be a percent chance to drop one health pickup.
-        /*
-        Pickup.SpawnPickups<HealthPickup>(
-            Resources.Load<GameObject>(ResourceConstants.Pickups.HealthPickup),
-            transform.position,
-            1,
-            3f,
-            90f);
-            */
-    }
-
-    /*
-    public void RotateTowardsPlayer()
-    {
-        if (!GroupMovement)
-        {
-            if (!Agent.updateRotation)
-                Agent.updateRotation = true;
-        }
-        else
-        {
-            if (Agent.updateRotation)
-            {
-                Agent.updateRotation = false;
-            }
-            else
-            {
-                Vector3 targetForward =
-                    Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
-                Vector3 forward =
-                    Vector3.RotateTowards(transform.forward, targetForward, 1f * Time.deltaTime, 0f);
-                transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
-            }
-        }
-    }*/
-
-    /*
-    public void RotateLocallyTowardsPlayer()
-    {
-        Vector3 targetForward =
-            Matho.StandardProjection3D(PlayerInfo.Player.transform.position - transform.position).normalized;
-        Vector3 forward =
-            Vector3.RotateTowards(transform.forward, targetForward, 1f * Time.deltaTime, 0f);
-        transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
-    }*/
+    protected override void SpawnPickups() {}
 }
