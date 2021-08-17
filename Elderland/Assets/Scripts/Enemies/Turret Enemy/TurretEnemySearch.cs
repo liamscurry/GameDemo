@@ -23,6 +23,9 @@ public class TurretEnemySearch : StateMachineBehaviour
     private const float passiveAngleThreshold = 1;
     private const float activeAngleThreshold = 3;
 
+    private float attackWaitTimer;
+    private const float attackWaitDuration = 1f;
+
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (manager == null)
@@ -35,6 +38,7 @@ public class TurretEnemySearch : StateMachineBehaviour
 
         checkTimer = checkDuration;
         exiting = false;
+        attackWaitTimer = 0;
 
         manager.ChooseNextAbility();
 
@@ -51,6 +55,8 @@ public class TurretEnemySearch : StateMachineBehaviour
             checkTimer += Time.deltaTime;
             distanceToPlayer = manager.DistanceToPlayer();
             remainingDistance = manager.Agent.remainingDistance;
+
+            attackWaitTimer += Time.deltaTime;
 
             if (checkTimer > checkDuration)
             {
@@ -89,12 +95,13 @@ public class TurretEnemySearch : StateMachineBehaviour
                 LayerConstants.GroundCollision);
     }
 
-    private void PassiveRotate() // rotation bug here, folows player behidn wall then rotates behind wall.
+    private void PassiveRotate()
     {
         Vector3 targetForward =
             manager.WallRight * passiveSearchSign;
-        targetForward = Vector3.RotateTowards(targetForward, manager.WallForward, 5f, Mathf.Infinity);
-        
+        targetForward =
+            Vector3.RotateTowards(targetForward, manager.WallForward, 5f * Mathf.Deg2Rad, Mathf.Infinity);
+
         Vector3 incrementedForward =
             Vector3.RotateTowards(manager.CannonGameObject.transform.forward, targetForward, manager.PassiveSearchSpeed * Time.deltaTime, 0);
 
@@ -138,7 +145,7 @@ public class TurretEnemySearch : StateMachineBehaviour
         
         float targetAngle = 
             Matho.AngleBetween(incrementedForward, targetForward);
-        if (targetAngle < activeAngleThreshold)
+        if (targetAngle < activeAngleThreshold && attackWaitTimer > attackWaitDuration)
         {
             AttackExit();
         }
