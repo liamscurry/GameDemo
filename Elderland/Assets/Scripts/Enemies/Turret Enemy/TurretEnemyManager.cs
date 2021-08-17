@@ -24,6 +24,8 @@ public sealed class TurretEnemyManager : EnemyManager
     [SerializeField]
     private GameObject meshParent;
     [SerializeField]
+    private GameObject cannonGameObject;
+    [SerializeField]
     private GameObject mainHitbox;
     [SerializeField]
     private GameObject backHitbox;
@@ -40,6 +42,7 @@ public sealed class TurretEnemyManager : EnemyManager
     public float ActiveSearchSpeed { get { return activeSearchSpeed; } }
     public float DefensiveRotateSpeed { get { return defensiveRotateSpeed; } }
     public GameObject MeshParent { get { return meshParent; } }
+    public GameObject CannonGameObject { get { return cannonGameObject; } }
     public GameObject MainHitbox { get { return mainHitbox; } }
     public GameObject BackHitbox { get { return backHitbox; } }
     public Vector3 WallForward { get { return wallForward; } }

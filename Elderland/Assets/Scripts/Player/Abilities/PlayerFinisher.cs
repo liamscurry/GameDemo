@@ -74,6 +74,7 @@ public sealed class PlayerFinisher : PlayerAbility
     private SwingType swingType;
 
     private const float finisherHealthMargin = 0.1f;
+    private const float zeroHealthMargin = 0.001f;
 
     public override void Initialize(PlayerAbilityManager abilityManager)
     {
@@ -185,8 +186,9 @@ public sealed class PlayerFinisher : PlayerAbility
         EnemyManager enemyManager = 
             other.GetComponentInParent<EnemyManager>();
         
-        return enemyManager.Health < enemyManager.FinisherHealth ||
-               Matho.IsInRange(enemyManager.Health, enemyManager.FinisherHealth, finisherHealthMargin);
+        return (enemyManager.Health < enemyManager.FinisherHealth ||
+               Matho.IsInRange(enemyManager.Health, enemyManager.FinisherHealth, finisherHealthMargin)) &&
+               !Matho.IsInRange(enemyManager.Health, 0, zeroHealthMargin);
     }
 
     private void SelectRandomSwing()

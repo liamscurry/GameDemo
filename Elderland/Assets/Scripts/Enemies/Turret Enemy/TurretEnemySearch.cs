@@ -84,7 +84,7 @@ public class TurretEnemySearch : StateMachineBehaviour
     {
         hasLOS =
             !Physics.Linecast(
-                manager.MeshParent.transform.position,
+                manager.CannonGameObject.transform.position,
                 PlayerInfo.Player.transform.position,
                 LayerConstants.GroundCollision);
     }
@@ -96,9 +96,9 @@ public class TurretEnemySearch : StateMachineBehaviour
         targetForward = Vector3.RotateTowards(targetForward, manager.WallForward, 5f, Mathf.Infinity);
         
         Vector3 incrementedForward =
-            Vector3.RotateTowards(manager.MeshParent.transform.forward, targetForward, manager.PassiveSearchSpeed * Time.deltaTime, 0);
+            Vector3.RotateTowards(manager.CannonGameObject.transform.forward, targetForward, manager.PassiveSearchSpeed * Time.deltaTime, 0);
 
-        manager.MeshParent.transform.rotation = 
+        manager.CannonGameObject.transform.rotation = 
             Quaternion.LookRotation(incrementedForward, Vector3.up);
         
         float targetAngle = 
@@ -112,11 +112,11 @@ public class TurretEnemySearch : StateMachineBehaviour
     private void IsPlayerSeen()
     {
         Vector3 playerDisplacement =
-            PlayerInfo.Player.transform.position - manager.MeshParent.transform.position;
+            PlayerInfo.Player.transform.position - manager.CannonGameObject.transform.position;
         playerDisplacement = 
             Matho.StdProj3D(playerDisplacement).normalized;
         float playerAngle = 
-            Matho.AngleBetween(manager.MeshParent.transform.forward, playerDisplacement);
+            Matho.AngleBetween(manager.CannonGameObject.transform.forward, playerDisplacement);
         if (hasLOS && playerAngle < manager.PassiveSearchConeAngle / 2f)
         {
             passiveSearch = false;
@@ -126,14 +126,14 @@ public class TurretEnemySearch : StateMachineBehaviour
     private void ActiveRotate()
     {
         Vector3 targetForward =
-            PlayerInfo.Player.transform.position - manager.MeshParent.transform.position;
+            PlayerInfo.Player.transform.position - manager.CannonGameObject.transform.position;
         targetForward = 
             Matho.StdProj3D(targetForward).normalized;
         
         Vector3 incrementedForward =
-            Vector3.RotateTowards(manager.MeshParent.transform.forward, targetForward, manager.ActiveSearchSpeed * Time.deltaTime, 0);
+            Vector3.RotateTowards(manager.CannonGameObject.transform.forward, targetForward, manager.ActiveSearchSpeed * Time.deltaTime, 0);
 
-        manager.MeshParent.transform.rotation = 
+        manager.CannonGameObject.transform.rotation = 
             Quaternion.LookRotation(incrementedForward, Vector3.up);
         
         float targetAngle = 
@@ -152,10 +152,10 @@ public class TurretEnemySearch : StateMachineBehaviour
 
             // Need to check to see if rotation is towards wall from active search
             // Without this, the turret may rotate passively towards the wall instead of away from it.
-            if (Matho.AngleBetween(manager.MeshParent.transform.forward, manager.WallForward) > 90f)
+            if (Matho.AngleBetween(manager.CannonGameObject.transform.forward, manager.WallForward) > 90f)
             {
                 float currentAngleDir =
-                    Matho.AngleBetween(manager.MeshParent.transform.forward, manager.WallRight);
+                    Matho.AngleBetween(manager.CannonGameObject.transform.forward, manager.WallRight);
                 if (currentAngleDir < 90f && passiveSearchSign == -1)
                 {
                     passiveSearchSign = 1;

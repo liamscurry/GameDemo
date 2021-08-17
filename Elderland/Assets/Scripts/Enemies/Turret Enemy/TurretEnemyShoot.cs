@@ -13,7 +13,7 @@ public sealed class TurretEnemyShoot : EnemyAbility
     [SerializeField]
     private float speed;
     [SerializeField]
-    private float shootOffset;
+    private Vector2 shootOffset;
 
     //Fields
     private float damage = 0.5f;
@@ -65,7 +65,10 @@ public sealed class TurretEnemyShoot : EnemyAbility
 
     public void ActEnd()
     {
-        Vector3 start = manager.MeshParent.transform.position + shootOffset * manager.MeshParent.transform.forward;
+        Vector3 start = 
+            manager.CannonGameObject.transform.position +
+            shootOffset.x * manager.CannonGameObject.transform.forward + 
+            shootOffset.y * manager.CannonGameObject.transform.up;
         Vector3 end = PlayerInfo.Player.transform.position + PlayerInfo.Capsule.height / 4 * Vector3.up;
         Vector3 direction = (end - start).normalized;
         Vector3 velocity = speed * direction;
