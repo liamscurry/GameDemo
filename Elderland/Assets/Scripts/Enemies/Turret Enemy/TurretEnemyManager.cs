@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// When spawning the turrets, use the turret enemy wall model prefab for back hitbox access.
+// Make sure the back of the gizmos cube on the spawner is flush with the back of the doorway arch.
 public sealed class TurretEnemyManager : EnemyManager
 {
     [SerializeField]

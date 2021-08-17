@@ -167,13 +167,15 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         State = EnemyState.None;
         Initialize();
 
-        Agent.updateRotation = false;
+        if (Agent != null)
+        {
+            Agent.updateRotation = false;
+            baseAgentSpeed = Agent.speed;
+        }
         //PhysicsSystem.Animating = false;
         waypoints = new List<Vector2>();
 
         ArrangementNode = -1;
-
-        baseAgentSpeed = Agent.speed;
 
         BottomSphereOffset = Capsule.BottomSphereOffset();
 
@@ -205,13 +207,15 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         AbilityManager.UpdateAbilities();
         UpdateMaterialSettings();
         TimeResolve();
-        Agent.speed = baseAgentSpeed * StatsManager.MovespeedMultiplier.Value;
+        if (Agent != null)
+            Agent.speed = baseAgentSpeed * StatsManager.MovespeedMultiplier.Value;
     }
 
     protected virtual void FixedUpdate()
     {
         // Temporarily disable dynamic velocity
-        Agent.Move(dynamicAgentVelocity * Time.deltaTime);
+        if (Agent != null)
+            Agent.Move(dynamicAgentVelocity * Time.deltaTime);
     
         DynamicDrag(12f);
 

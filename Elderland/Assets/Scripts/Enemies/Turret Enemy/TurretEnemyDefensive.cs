@@ -38,7 +38,6 @@ public class TurretEnemyDefensive : StateMachineBehaviour
         if (!exiting)
         {
             distanceToPlayer = manager.DistanceToPlayer();
-            remainingDistance = manager.Agent.remainingDistance;
 
             RotateTowardsDefault();
             SearchTransition();

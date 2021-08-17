@@ -13,8 +13,6 @@ public class TurretEnemySearch : StateMachineBehaviour
     private bool exiting;
     private float lastDistanceToPlayer;
     private float distanceToPlayer;
-    private float lastRemainingDistance;
-    private float remainingDistance;
 
     private bool hasLOS;
     private bool passiveSearch;
@@ -44,8 +42,6 @@ public class TurretEnemySearch : StateMachineBehaviour
 
         lastDistanceToPlayer = manager.DistanceToPlayer();
         distanceToPlayer = lastDistanceToPlayer;
-        lastRemainingDistance = distanceToPlayer;
-        remainingDistance = distanceToPlayer;
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -54,7 +50,6 @@ public class TurretEnemySearch : StateMachineBehaviour
         {
             checkTimer += Time.deltaTime;
             distanceToPlayer = manager.DistanceToPlayer();
-            remainingDistance = manager.Agent.remainingDistance;
 
             attackWaitTimer += Time.deltaTime;
 
@@ -80,7 +75,6 @@ public class TurretEnemySearch : StateMachineBehaviour
             }
 
             lastDistanceToPlayer = distanceToPlayer;
-            lastRemainingDistance = remainingDistance;
             if (checkTimer >= checkDuration)
                 checkTimer = 0;
         }
