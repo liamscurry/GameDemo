@@ -50,7 +50,7 @@ public sealed class TurretEnemyShoot : EnemyAbility
 
     private void PauseBegin()
     {
-        
+
     }
 
     private void PauseEnd()
@@ -67,8 +67,8 @@ public sealed class TurretEnemyShoot : EnemyAbility
     {
         Vector3 start = 
             manager.CannonGameObject.transform.position +
-            shootOffset.x * manager.CannonGameObject.transform.forward + 
-            shootOffset.y * manager.CannonGameObject.transform.up;
+            shootOffset.x * manager.CannonParentForward + 
+            shootOffset.y * Vector3.up;
         Vector3 end = PlayerInfo.Player.transform.position + PlayerInfo.Capsule.height / 4 * Vector3.up;
         Vector3 direction = (end - start).normalized;
         Vector3 velocity = speed * direction;

@@ -51,11 +51,11 @@ public class TurretEnemyDefensive : StateMachineBehaviour
     {
         Vector3 incrementedForward =
             Vector3.RotateTowards(
-                manager.CannonGameObject.transform.forward,
+                manager.CannonParentForward,
                 manager.WallForward,
                 manager.DefensiveRotateSpeed * Time.deltaTime, 0);
 
-        manager.CannonGameObject.transform.rotation = 
+        manager.CannonParentRotation = 
             Quaternion.LookRotation(incrementedForward, Vector3.up);
     }
 

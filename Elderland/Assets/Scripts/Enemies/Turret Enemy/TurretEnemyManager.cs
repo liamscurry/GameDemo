@@ -4,6 +4,7 @@ using UnityEngine;
 
 // When spawning the turrets, use the turret enemy wall model prefab for back hitbox access.
 // Make sure the back of the gizmos cube on the spawner is flush with the back of the doorway arch.
+// Assumed to be on flat ground.
 public sealed class TurretEnemyManager : EnemyManager
 {
     [SerializeField]
@@ -25,8 +26,14 @@ public sealed class TurretEnemyManager : EnemyManager
     private float defensiveRotateSpeed;
     [SerializeField]
     private GameObject meshParent;
+    [Header("The parent object that the cannon mesh is a child of.")]
     [SerializeField]
     private GameObject cannonGameObject;
+    [Header("The armature parent transform from the FBX file.")]
+    [SerializeField]
+    private GameObject armatureParentObject; 
+    [SerializeField]
+    private GameObject[] otherBoneObjects;
     [SerializeField]
     private GameObject mainHitbox;
     [SerializeField]
@@ -53,6 +60,14 @@ public sealed class TurretEnemyManager : EnemyManager
 
     public TurretEnemyShoot Cannon { get; private set; }
 
+    // Set in state machines, assigned in late update after internal animation update.
+    public Quaternion CannonParentRotation { get; set; }
+    public Vector3 CannonParentForward 
+    { 
+        get { return Matrix4x4.Rotate(CannonParentRotation).MultiplyPoint3x4(Vector3.forward); }
+    }
+    private Quaternion startArmatureParentRotation;
+
     protected override void Initialize() 
     {
         DeclareAbilities();
@@ -61,6 +76,22 @@ public sealed class TurretEnemyManager : EnemyManager
         wallForward = transform.forward;
         wallRight = transform.right;
         StatsManager.Interuptable = false; // Needed to ignore iterrupt calls as turrets don't flinch when damaged.
+        CannonParentRotation = cannonGameObject.transform.rotation;
+    }
+
+    /*
+    Helper update needed to be called after animation update state behaviour to get correct rotation.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void LateUpdate()
+    {  
+        armatureParentObject.transform.rotation = CannonParentRotation * Quaternion.Euler(0, 90, 0);
+        //cannonGameObject.transform.rotation = CannonParentRotation;   
     }
 
     protected override void FixedUpdate()

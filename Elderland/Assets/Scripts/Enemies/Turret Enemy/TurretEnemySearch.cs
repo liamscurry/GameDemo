@@ -97,9 +97,9 @@ public class TurretEnemySearch : StateMachineBehaviour
             Vector3.RotateTowards(targetForward, manager.WallForward, 5f * Mathf.Deg2Rad, Mathf.Infinity);
 
         Vector3 incrementedForward =
-            Vector3.RotateTowards(manager.CannonGameObject.transform.forward, targetForward, manager.PassiveSearchSpeed * Time.deltaTime, 0);
+            Vector3.RotateTowards(manager.CannonParentForward, targetForward, manager.PassiveSearchSpeed * Time.deltaTime, 0);
 
-        manager.CannonGameObject.transform.rotation = 
+        manager.CannonParentRotation = 
             Quaternion.LookRotation(incrementedForward, Vector3.up);
         
         float targetAngle = 
@@ -117,7 +117,7 @@ public class TurretEnemySearch : StateMachineBehaviour
         playerDisplacement = 
             Matho.StdProj3D(playerDisplacement).normalized;
         float playerAngle = 
-            Matho.AngleBetween(manager.CannonGameObject.transform.forward, playerDisplacement);
+            Matho.AngleBetween(manager.CannonParentForward, playerDisplacement);
         if (hasLOS && playerAngle < manager.PassiveSearchConeAngle / 2f)
         {
             passiveSearch = false;
@@ -132,9 +132,9 @@ public class TurretEnemySearch : StateMachineBehaviour
             Matho.StdProj3D(targetForward).normalized;
         
         Vector3 incrementedForward =
-            Vector3.RotateTowards(manager.CannonGameObject.transform.forward, targetForward, manager.ActiveSearchSpeed * Time.deltaTime, 0);
+            Vector3.RotateTowards(manager.CannonParentForward, targetForward, manager.ActiveSearchSpeed * Time.deltaTime, 0);
 
-        manager.CannonGameObject.transform.rotation = 
+        manager.CannonParentRotation = 
             Quaternion.LookRotation(incrementedForward, Vector3.up);
         
         float targetAngle = 
@@ -153,10 +153,10 @@ public class TurretEnemySearch : StateMachineBehaviour
 
             // Need to check to see if rotation is towards wall from active search
             // Without this, the turret may rotate passively towards the wall instead of away from it.
-            if (Matho.AngleBetween(manager.CannonGameObject.transform.forward, manager.WallForward) > 90f)
+            if (Matho.AngleBetween(manager.CannonParentForward, manager.WallForward) > 90f)
             {
                 float currentAngleDir =
-                    Matho.AngleBetween(manager.CannonGameObject.transform.forward, manager.WallRight);
+                    Matho.AngleBetween(manager.CannonParentForward, manager.WallRight);
                 if (currentAngleDir < 90f && passiveSearchSign == -1)
                 {
                     passiveSearchSign = 1;
