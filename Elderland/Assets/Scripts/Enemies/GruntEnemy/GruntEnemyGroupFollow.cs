@@ -57,7 +57,7 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
                 if (checkTimer > checkDuration)
                 {
                     if (distanceToPlayer > manager.GroupFollowRadius + manager.GroupFollowRadiusMargin ||
-                        EnemyGroup.AttackingEnemies.Count == 0)
+                        EnemyGroup.AttackingEnemies.Count < EnemyGroup.MaxAttackingEnemies)
                         manager.UpdateAgentPath();
                 }
             }
@@ -81,7 +81,7 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
                 else
                 {
                     // Start condition 1
-                    if (EnemyGroup.AttackingEnemies.Count == 0)
+                    if (EnemyGroup.AttackingEnemies.Count < EnemyGroup.MaxAttackingEnemies)
                     {
                         manager.Group.Resume();
                     }
