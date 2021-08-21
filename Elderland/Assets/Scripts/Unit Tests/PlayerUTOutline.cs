@@ -144,4 +144,86 @@ public static class PlayerUT
         }
         InputSystem.Update();
     }
+
+    /*
+    Helper function that sets the controllers X (west) button down until calling CancelAttack.
+
+    Inputs:
+    XInputController : fakeController : Gamepad controller used in UT.
+
+    Outputs:
+    None
+    */
+    public static void QueueAttack(XInputController fakeController)
+    {
+        InputEventPtr pressEvent;
+        using (StateEvent.From(fakeController, out pressEvent))
+        {
+            fakeController.buttonWest.WriteValueIntoEvent(1.0f, pressEvent);
+            InputSystem.QueueEvent(pressEvent);
+        }
+        InputSystem.Update();
+    }
+
+
+    /*
+    Helper function that sets the controllers X (west) button up (lets go of).
+
+    Inputs:
+    XInputController : fakeController : Gamepad controller used in UT.
+
+    Outputs:
+    None
+    */
+    public static void CancelAttack(XInputController fakeController)
+    {
+        InputEventPtr pressEvent;
+        using (StateEvent.From(fakeController, out pressEvent))
+        {
+            fakeController.buttonWest.WriteValueIntoEvent(0.0f, pressEvent);
+            InputSystem.QueueEvent(pressEvent);
+        }
+        InputSystem.Update();
+    }
+
+    /*
+    Helper function that sets the controllers A (south) button down until calling CancelDodge.
+
+    Inputs:
+    XInputController : fakeController : Gamepad controller used in UT.
+
+    Outputs:
+    None
+    */
+    public static void QueueDodge(XInputController fakeController)
+    {
+        InputEventPtr pressEvent;
+        using (StateEvent.From(fakeController, out pressEvent))
+        {
+            fakeController.buttonSouth.WriteValueIntoEvent(1.0f, pressEvent);
+            InputSystem.QueueEvent(pressEvent);
+        }
+        InputSystem.Update();
+    }
+
+
+    /*
+    Helper function that sets the controllers A (south) button up (lets go of).
+
+    Inputs:
+    XInputController : fakeController : Gamepad controller used in UT.
+
+    Outputs:
+    None
+    */
+    public static void CancelDodge(XInputController fakeController)
+    {
+        InputEventPtr pressEvent;
+        using (StateEvent.From(fakeController, out pressEvent))
+        {
+            fakeController.buttonSouth.WriteValueIntoEvent(0.0f, pressEvent);
+            InputSystem.QueueEvent(pressEvent);
+        }
+        InputSystem.Update();
+    }
 }
