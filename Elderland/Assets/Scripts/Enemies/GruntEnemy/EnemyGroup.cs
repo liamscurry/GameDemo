@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyGroup : IComparable<EnemyGroup>
 {
@@ -54,7 +55,494 @@ public class EnemyGroup : IComparable<EnemyGroup>
             return 1;
         }
     }
+
+    /*
+    Helper method that updates an enemy's group follow movement. There are two scenarios: in a group
+    and when not in a group. In either case, the agent moves when too far away from the group radius
+    or when there are open spots to attack the player. Moves the player via the NavMeshAgent component.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    public static void UpdateGroupFollowMovement(GruntEnemyManager manager, bool updateAlonePath)
+    {
+        if (manager.Group == null)
+        {
+            if (updateAlonePath)
+            {
+                float distanceToPlayer = manager.DistanceToPlayer();
+                if (distanceToPlayer > manager.GroupFollowRadius + manager.GroupFollowRadiusMargin ||
+                    EnemyGroup.AttackingEnemies.Count < EnemyGroup.MaxAttackingEnemies)
+                    manager.UpdateAgentPath();
+            }
+        }
+        else
+        {
+            if (!manager.Group.IsStopped)
+            {
+                // Stop condition 1
+                if (EnemyGroup.AttackingEnemies.Count == EnemyGroup.MaxAttackingEnemies)
+                {
+                    Vector3 groupOffset =
+                        manager.Group.CalculateCenter() - PlayerInfo.Player.transform.position;
+                    groupOffset = Matho.StdProj3D(groupOffset);
+
+                    if (groupOffset.magnitude <= manager.CentralStopRadius)
+                    {
+                        manager.Group.Stop();
+                    }
+                }
+            }
+            else
+            {
+                // Start condition 1
+                if (EnemyGroup.AttackingEnemies.Count < EnemyGroup.MaxAttackingEnemies)
+                {
+                    manager.Group.Resume();
+                }
+                else
+                {
+                    // Start condition 2
+                    Vector3 groupOffset =
+                        manager.Group.CalculateCenter() - PlayerInfo.Player.transform.position;
+                    groupOffset = Matho.StdProj3D(groupOffset);
+
+                    if (groupOffset.magnitude > manager.CentralStopRadius + manager.CentralStopRadiusMargin)
+                    {
+                        manager.Group.Resume();
+                    }
+                }
+            }
+
+            manager.Group.Adjust(
+                PlayerInfo.Player.transform.position,
+                3.3f * Time.deltaTime,
+                0.5f * Time.deltaTime,
+                GruntEnemyManager.ExpandSpeed * Time.deltaTime,
+                manager.NearbySensor.Radius,
+                GruntEnemyManager.ShrinkSpeed * Time.deltaTime,
+                manager.ShrinkRadius);
+
+            manager.Agent.Move(manager.Velocity);
+        }
+    }
+
+    /*
+
+    Inputs:
+    Helper function that rotates the player during group follow movement. Rotates differently depending
+    whether the enemy is in a group or not.
+
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    public static void UpdateGroupFollowRotation(GruntEnemyManager manager)
+    {
+        if (manager.Group == null)
+        {
+            if (!manager.Agent.updateRotation)
+                manager.Agent.updateRotation = true;
+            manager.UpdatingRotation = true;
+        }
+        else
+        {
+            if (manager.Agent.updateRotation)
+            {
+                manager.Agent.updateRotation = false;
+            }
+            else
+            {
+                manager.UpdatingRotation = false;
+                Vector3 targetForward =
+                    Matho.StdProj3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
+                Vector3 forward =
+                    Vector3.RotateTowards(manager.transform.forward, targetForward, 1f * Time.deltaTime, 0f);
+                manager.transform.rotation =
+                    Quaternion.LookRotation(forward, Vector3.up);
+            }
+        }
+    }
+
+    /*
+    Helper method used to move the enemy to the player when in attack state.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    public static void UpdateAttackFollowMovement(GruntEnemyManager manager)
+    {
+        if (!manager.IsInNextAttackMax())
+        {
+            AttackingGroup.Adjust(
+                PlayerInfo.Player.transform.position,
+                0,
+                0,
+                GruntEnemyManager.ExpandSpeed * 0.5f * Time.deltaTime,
+                manager.NearbySensor.Radius,
+                0,
+                0,
+                true);
+            manager.Agent.Move(manager.Velocity);
+
+            Vector3 moveDirection = 
+                PlayerInfo.Player.transform.position - manager.transform.position;
+            moveDirection.Normalize();
+            manager.Agent.Move(moveDirection * manager.AttackFollowSpeed * Time.deltaTime);
+        }
+    }
+
+    /*
+    Helper method used to rotate the enemy to the player when in attack state.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    public static void UpdateAttackFollowRotation(GruntEnemyManager manager)
+    {
+        Vector3 targetForward =
+            Matho.StdProj3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
+        Vector3 forward =
+            Vector3.RotateTowards(manager.transform.forward, targetForward, 3f * Time.deltaTime, 0f);
+        manager.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+    }
     
+    // Transitions //
+    /*
+    Helper method to transition from Group Follow to Attack Follow.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    public static void AttackTransition(GruntEnemyManager manager, ref bool exiting)
+    {
+        Vector2 horizontalOffset = 
+            Matho.StdProj2D(PlayerInfo.Player.transform.position - manager.transform.position);
+
+        if (horizontalOffset.magnitude < manager.AttackFollowRadius &&
+            EnemyGroup.AttackingEnemies.Count < EnemyGroup.MaxAttackingEnemies)
+        {
+            AttackExit(manager, ref exiting);
+        }
+    }
+
+    /*
+    Helper method called when AttackTransition meets its transition requirements.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    private static void AttackExit(GruntEnemyManager manager, ref bool exiting)
+    {
+        EnemyGroup.AttackingEnemies.Add(manager);
+        manager.Animator.SetTrigger("toAttackFollow");
+        exiting = true;
+    }
+
+    /*
+    Helper method to transition from Group Follow to Attack Follow (when overriding a fighting enemy).
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    public static void OverrideAttackTransition(GruntEnemyManager manager, ref bool exiting)
+    {
+        if (EnemyGroup.AttackingEnemies.Count == EnemyGroup.MaxAttackingEnemies)
+        {
+            Vector2 offset = 
+                Matho.StdProj2D(manager.Position - PlayerInfo.Player.transform.position);
+            foreach (IEnemyGroup enemy in EnemyGroup.AttackingEnemies)
+            {
+                Vector2 enemyOffset = 
+                    Matho.StdProj2D(enemy.Position - PlayerInfo.Player.transform.position);
+                if (offset.magnitude < enemyOffset.magnitude)
+                {
+                    // Override logic.
+                    OverrideAttackExit(enemy, manager, ref exiting);
+                    break;
+                }
+            }
+        }
+    }
+
+    /*
+    Helper method called when OverrideAttackTransition meets its transition requirements.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    private static void OverrideAttackExit(
+        IEnemyGroup other,
+        GruntEnemyManager manager,
+        ref bool exiting)
+    {
+        GruntEnemyManager enemyManager = 
+            (GruntEnemyManager) other;
+
+        enemyManager.PingedToGroup = true;
+
+        EnemyGroup.AttackingEnemies.Remove(enemyManager);
+        EnemyGroup.RemoveAttacking(enemyManager);
+
+        EnemyGroup.AttackingEnemies.Add(manager);
+        if (manager.Group != null)
+        {
+            manager.Group.Stop();
+        }
+        
+        manager.Animator.SetTrigger("toAttackFollow");
+        EnemyGroup.Remove((IEnemyGroup) manager);
+        manager.Agent.ResetPath();
+        manager.InGroupState = false;
+        exiting = true;
+    }
+
+
+    /*
+    Helper method to transition from Group Follow to Far Follow.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    public static void FarFollowTransition(GruntEnemyManager manager, ref bool exiting)
+    {
+        Vector3 enemyDirection =
+            manager.transform.position - PlayerInfo.Player.transform.position;
+        enemyDirection.Normalize();
+
+        NavMeshHit navMeshHit;
+        if (manager.DistanceToPlayer() > manager.GroupFollowRadius + manager.GroupFollowRadiusMargin ||
+            manager.Agent.Raycast(manager.PlayerNavMeshPosition(enemyDirection), out navMeshHit))
+        {
+            FarFollowExit(manager, ref exiting);
+        }
+    }
+
+    /*
+    Helper method called when FarFollowTransition meets its transition requirements.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    private static void FarFollowExit(GruntEnemyManager manager, ref bool exiting)
+    {
+        manager.Animator.SetTrigger("toFarFollow");
+        exiting = true;
+    }
+
+    /*
+    Helper method to transition from Attack Follow to Group Follow.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    public static void AttackFollowToGroupFollowTransition(GruntEnemyManager manager, ref bool exiting)
+    {
+        Vector2 horizontalOffset = 
+            Matho.StdProj2D(PlayerInfo.Player.transform.position - manager.transform.position);
+        if (horizontalOffset.magnitude > manager.AttackFollowRadius + manager.AttackFollowRadiusMargin)
+        {
+            AttackFollowToGroupFollowExit(manager, ref exiting);
+        }
+    }
+
+    /*
+    Helper method called when AttackFollowToGroupFollowTransition meets its transition requirements.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    private static void AttackFollowToGroupFollowExit(GruntEnemyManager manager, ref bool exiting)
+    {
+        manager.Animator.SetTrigger("toGroupFollow");
+        exiting = true;
+    }
+
+    /*
+    Helper method to transition from Attack Follow to Attack.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+    ref bool : exitingFromAttack : state machine behaviour boolean on whether the state is exiting
+    particularly to attack state.
+
+    Outputs:
+    None
+    */
+    public static void AttackFollowToAttackTransition(
+        GruntEnemyManager manager,
+        ref bool exiting,
+        ref bool exitingFromAttack)
+    {
+        if (manager.IsInNextAttackMax())
+        {
+            Vector3 playerEnemyDirection =
+                (PlayerInfo.Player.transform.position - manager.transform.position).normalized;
+            float playerEnemyAngle =
+                Matho.AngleBetween(
+                    Matho.StdProj2D(manager.transform.forward),
+                    Matho.StdProj2D(playerEnemyDirection));
+
+            if (playerEnemyAngle < manager.NextAttack.AttackAngleMargin)
+            {
+                AttackFollowToAttackExit(manager, ref exiting, ref exitingFromAttack);
+            }
+        }
+    }
+
+    /*
+    Helper method called when AttackFollowToAttackTransition meets its transition requirements.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+    ref bool : exitingFromAttack : state machine behaviour boolean on whether the state is exiting
+    particularly to attack state.
+
+    Outputs:
+    None
+    */
+    private static void AttackFollowToAttackExit(
+        GruntEnemyManager manager,
+        ref bool exiting,
+        ref bool exitingFromAttack)
+    {
+        manager.NextAttack.TryRun();
+        manager.Animator.SetTrigger("runAbility");
+        manager.Agent.ResetPath();
+        exiting = true;
+        exitingFromAttack = true;
+    }
+
+    // Events //
+    /*
+    Method called when OnStateEnter is invoked in the GroupFollow state machine behaviour.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    public static void OnGroupFollowEnter(GruntEnemyManager manager)
+    {
+        manager.InGroupState = true;
+        manager.Agent.updateRotation = true;
+    }
+
+    /*
+    Method called when OnStateExit is immediately invoked from an outside source in the GroupFollow
+    state machine behaviour.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    public static void OnGroupFollowImmediateExit(GruntEnemyManager manager)
+    {
+        // TODO: Would like to refactor that this is called when exiting to group follow
+        // as it seems like this can be simplified into a method call from the transition.
+        EnemyGroup.Remove((IEnemyGroup) manager);
+        manager.Agent.ResetPath();
+        manager.InGroupState = false;
+    }
+
+    /*
+    Method called when OnStateEnter is invoked in the AttackFollow state machine behaviour.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    public static void OnAttackFollowEnter(GruntEnemyManager manager)
+    {
+        manager.Agent.radius = manager.FightingAgentRadius;
+        manager.Agent.stoppingDistance = manager.NextAttack.AttackDistance * 0.8f;
+
+        EnemyGroup.AddAttacking(manager);
+        
+        manager.NearbySensor.transform.localScale =
+            3 * manager.NearbySensor.BaseRadius * Vector3.one;
+    }
+
+    /*
+    Method called when OnStateExit is immediately invoked from an outside source in the AttackFollow
+    state machine behaviour.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exitingFromAttack : state machine behaviour boolean on whether the state is exiting
+    particularly to attack state.
+
+    Outputs:
+    None
+    */
+    public static void OnAttackFollowImmediateExit(GruntEnemyManager manager, ref bool exitingFromAttack)
+    {
+        // TODO: Qualifier needed as don't want same code to be called again in ability short circuit
+        // In the future, may change this to simply check if the enemy is not in the group anymore (attacking
+        // enemies) and then not execute. This way there would not need to be this state boolean
+        // in the AttackFollow state machine script.
+        // TODO: In addition, would like to refactor that this is called when exiting to group follow
+        // as it seems like this can be simplified into a method call from the transition.
+        if (!exitingFromAttack) 
+        {
+            EnemyGroup.AttackingEnemies.Remove(manager);
+            manager.Agent.radius = manager.FollowAgentRadius;
+            manager.Agent.stoppingDistance = 0;
+            manager.Agent.ResetPath();
+            EnemyGroup.RemoveAttacking(manager);
+            manager.NearbySensor.transform.localScale = manager.NearbySensor.BaseRadius * Vector3.one;
+        }
+    }
+
     // Calculates weighted center of enemies for movement methods.
     public Vector3 CalculateCenter()
     {

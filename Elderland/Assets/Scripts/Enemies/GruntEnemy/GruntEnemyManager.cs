@@ -65,6 +65,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         }
     }
     public Vector3 Velocity { get; set; }
+    public bool UpdatingRotation { get; set; }
     public List<IEnemyGroup> NearbyEnemies
     {
         get
@@ -252,41 +253,5 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         animator.SetFloat(
             "percentileSpeed",
             currentPercSpeed);
-    }
-
-    public bool updatingRotation;
-    public void RotateTowardsPlayer()
-    {
-        if (Group == null)
-        {
-            if (!Agent.updateRotation)
-                Agent.updateRotation = true;
-            updatingRotation = true;
-        }
-        else
-        {
-            if (Agent.updateRotation)
-            {
-                Agent.updateRotation = false;
-            }
-            else
-            {
-                updatingRotation = false;
-                Vector3 targetForward =
-                    Matho.StdProj3D(PlayerInfo.Player.transform.position - transform.position).normalized;
-                Vector3 forward =
-                    Vector3.RotateTowards(transform.forward, targetForward, 1f * Time.deltaTime, 0f);
-                transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
-            }
-        }
-    }
-
-    public void RotateLocallyTowardsPlayer()
-    {
-        Vector3 targetForward =
-            Matho.StdProj3D(PlayerInfo.Player.transform.position - transform.position).normalized;
-        Vector3 forward =
-            Vector3.RotateTowards(transform.forward, targetForward, 3f * Time.deltaTime, 0f);
-        transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
 }
