@@ -129,10 +129,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
 
     private void OnDestroy()
     {
-        if (EnemyGroup.AttackingEnemies.Contains(this))
-        {
-            EnemyGroup.AttackingEnemies.Remove(this);
-        }
+        EnemyGroup.RemoveAttacking(this);
     }
 
     protected override void Initialize() 

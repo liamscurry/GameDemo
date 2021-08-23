@@ -47,21 +47,18 @@ public class GruntEnemyGroupFollow : StateMachineBehaviour
             checkTimer += Time.deltaTime;
             distanceToPlayer = manager.DistanceToPlayer();
             
-            EnemyGroup.UpdateGroupFollowMovement(manager, checkTimer > checkDuration);
-            EnemyGroup.UpdateGroupFollowRotation(manager);
-            manager.ClampToGround();
-
-            //if (!exiting)
-            //    PingTransition();
             if (!exiting)
                 EnemyGroup.FarFollowTransition(manager, ref exiting);
             if (!exiting)
                 EnemyGroup.OverrideAttackTransition(manager, ref exiting);
             if (!exiting)
                 EnemyGroup.AttackTransition(manager, ref exiting);
-            if (exiting)
+
+            if (!exiting)
             {
-                OnStateExitImmediate();
+                EnemyGroup.UpdateGroupFollowMovement(manager, checkTimer > checkDuration);
+                EnemyGroup.UpdateGroupFollowRotation(manager);
+                manager.ClampToGround();
             }
 
             if (checkTimer >= checkDuration)

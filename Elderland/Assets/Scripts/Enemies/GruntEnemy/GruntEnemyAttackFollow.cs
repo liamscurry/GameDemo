@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+// In the attack follow state, enemies are apart of the attacking enemies enemy group.
+// When they leave the state, they are not apart of the group (unless they are in attacking ability). 
+// When they enter the state they are
+// a part of the group. This way there are only a max of maximum enemies looking to attack the player at
+// a given time.
 public class GruntEnemyAttackFollow : StateMachineBehaviour
 {
     private GruntEnemyManager manager;
@@ -32,7 +37,7 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
 
     private void OnStateExitImmediate()
     {
-        EnemyGroup.OnAttackFollowImmediateExit(manager, ref exitingFromAttack);
+        EnemyGroup.OnAttackFollowImmediateExit(manager);
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -48,13 +53,9 @@ public class GruntEnemyAttackFollow : StateMachineBehaviour
             checkTimer += Time.deltaTime;
             
             if (!exiting)
-                EnemyGroup.AttackFollowToGroupFollowTransition(manager, ref exiting);
+                EnemyGroup.AttackFollowToGroupFollowTransition(manager, ref exiting, ref exitingFromAttack);
             if (!exiting)
                 EnemyGroup.AttackFollowToAttackTransition(manager, ref exiting, ref exitingFromAttack);
-            if (exiting)
-            {
-                OnStateExitImmediate();
-            }
 
             if (!exiting)
             {

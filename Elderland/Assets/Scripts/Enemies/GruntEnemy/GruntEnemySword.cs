@@ -148,18 +148,12 @@ public sealed class GruntEnemySword : EnemyAbility
     public override void ShortCircuitLogic()
     {
         hitboxPredictor.SetActive(false);
-
         ActEnd();
 
         // Assuming shortcut means from outside source,
         // thus removing from attack group.
         var manager = ((EnemyAbilityManager) system).Manager as GruntEnemyManager;
-        EnemyGroup.AttackingEnemies.Remove(manager);
-        manager.Agent.radius = manager.FollowAgentRadius;
-        manager.Agent.stoppingDistance = 0;
-        manager.Agent.ResetPath();
-        EnemyGroup.RemoveAttacking(manager);
-        manager.NearbySensor.transform.localScale = manager.NearbySensor.BaseRadius * Vector3.one;
+        EnemyGroup.OnAttackFollowImmediateExit(manager);
     }
 
     private void SetHitboxRotation(GameObject hitbox)

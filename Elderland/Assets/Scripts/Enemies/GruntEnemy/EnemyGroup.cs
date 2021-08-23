@@ -12,7 +12,6 @@ public class EnemyGroup : IComparable<EnemyGroup>
     private bool isStopped;
 
     public static readonly int MaxAttackingEnemies = 2;
-    public static List<EnemyManager> AttackingEnemies { get; }
     public static EnemyGroup AttackingGroup { get; }
 
     public bool IsStopped { get { return isStopped; } }
@@ -34,7 +33,6 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
     static EnemyGroup()
     {
-        AttackingEnemies = new List<EnemyManager>();
         AttackingGroup = new EnemyGroup();
     }
 
@@ -75,7 +73,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
             {
                 float distanceToPlayer = manager.DistanceToPlayer();
                 if (distanceToPlayer > manager.GroupFollowRadius + manager.GroupFollowRadiusMargin ||
-                    EnemyGroup.AttackingEnemies.Count < EnemyGroup.MaxAttackingEnemies)
+                    AttackingGroup.enemies.Count < EnemyGroup.MaxAttackingEnemies)
                     manager.UpdateAgentPath();
             }
         }
@@ -84,7 +82,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
             if (!manager.Group.IsStopped)
             {
                 // Stop condition 1
-                if (EnemyGroup.AttackingEnemies.Count == EnemyGroup.MaxAttackingEnemies)
+                if (AttackingGroup.enemies.Count == EnemyGroup.MaxAttackingEnemies)
                 {
                     Vector3 groupOffset =
                         manager.Group.CalculateCenter() - PlayerInfo.Player.transform.position;
@@ -99,7 +97,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
             else
             {
                 // Start condition 1
-                if (EnemyGroup.AttackingEnemies.Count < EnemyGroup.MaxAttackingEnemies)
+                if (AttackingGroup.enemies.Count < EnemyGroup.MaxAttackingEnemies)
                 {
                     manager.Group.Resume();
                 }
@@ -234,7 +232,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
             Matho.StdProj2D(PlayerInfo.Player.transform.position - manager.transform.position);
 
         if (horizontalOffset.magnitude < manager.AttackFollowRadius &&
-            EnemyGroup.AttackingEnemies.Count < EnemyGroup.MaxAttackingEnemies)
+            AttackingGroup.enemies.Count < EnemyGroup.MaxAttackingEnemies)
         {
             AttackExit(manager, ref exiting);
         }
@@ -252,8 +250,10 @@ public class EnemyGroup : IComparable<EnemyGroup>
     */
     private static void AttackExit(GruntEnemyManager manager, ref bool exiting)
     {
-        EnemyGroup.AttackingEnemies.Add(manager);
+        EnemyGroup.AddAttacking(manager);
         manager.Animator.SetTrigger("toAttackFollow");
+        manager.Agent.ResetPath();
+        manager.InGroupState = false;
         exiting = true;
     }
 
@@ -269,11 +269,11 @@ public class EnemyGroup : IComparable<EnemyGroup>
     */
     public static void OverrideAttackTransition(GruntEnemyManager manager, ref bool exiting)
     {
-        if (EnemyGroup.AttackingEnemies.Count == EnemyGroup.MaxAttackingEnemies)
+        if (AttackingGroup.enemies.Count == EnemyGroup.MaxAttackingEnemies)
         {
             Vector2 offset = 
                 Matho.StdProj2D(manager.Position - PlayerInfo.Player.transform.position);
-            foreach (IEnemyGroup enemy in EnemyGroup.AttackingEnemies)
+            foreach (IEnemyGroup enemy in AttackingGroup.enemies)
             {
                 Vector2 enemyOffset = 
                     Matho.StdProj2D(enemy.Position - PlayerInfo.Player.transform.position);
@@ -305,24 +305,17 @@ public class EnemyGroup : IComparable<EnemyGroup>
         GruntEnemyManager enemyManager = 
             (GruntEnemyManager) other;
 
-        enemyManager.PingedToGroup = true;
-
-        EnemyGroup.AttackingEnemies.Remove(enemyManager);
         EnemyGroup.RemoveAttacking(enemyManager);
 
-        EnemyGroup.AttackingEnemies.Add(manager);
-        if (manager.Group != null)
-        {
-            manager.Group.Stop();
-        }
-        
-        manager.Animator.SetTrigger("toAttackFollow");
+        EnemyGroup.AddAttacking(manager);
         EnemyGroup.Remove((IEnemyGroup) manager);
+
+        manager.Animator.SetTrigger("toAttackFollow");
         manager.Agent.ResetPath();
         manager.InGroupState = false;
+        
         exiting = true;
     }
-
 
     /*
     Helper method to transition from Group Follow to Far Follow.
@@ -345,6 +338,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
             manager.Agent.Raycast(manager.PlayerNavMeshPosition(enemyDirection), out navMeshHit))
         {
             FarFollowExit(manager, ref exiting);
+            OnGroupFollowImmediateExit(manager);
         }
     }
 
@@ -370,17 +364,24 @@ public class EnemyGroup : IComparable<EnemyGroup>
     Inputs:
     GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
     ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+    ref bool : exitingFromAttack : state machine behaviour boolean on whether the state is exiting
+    particularly to attack state.
 
     Outputs:
     None
     */
-    public static void AttackFollowToGroupFollowTransition(GruntEnemyManager manager, ref bool exiting)
+    public static void AttackFollowToGroupFollowTransition(
+        GruntEnemyManager manager,
+        ref bool exiting,
+        ref bool exitingFromAttack)
     {
         Vector2 horizontalOffset = 
             Matho.StdProj2D(PlayerInfo.Player.transform.position - manager.transform.position);
-        if (horizontalOffset.magnitude > manager.AttackFollowRadius + manager.AttackFollowRadiusMargin)
+        if (horizontalOffset.magnitude > manager.AttackFollowRadius + manager.AttackFollowRadiusMargin ||
+            !AttackingGroup.enemies.Contains(manager))
         {
             AttackFollowToGroupFollowExit(manager, ref exiting);
+            OnAttackFollowImmediateExit(manager);
         }
     }
 
@@ -475,7 +476,8 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
     /*
     Method called when OnStateExit is immediately invoked from an outside source in the GroupFollow
-    state machine behaviour.
+    state machine behaviour. Called in transition from group follow to far folllow as well
+    as it contains the same logic that needs the enemy to not be a part of a group anymore.
 
     Inputs:
     GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
@@ -485,8 +487,6 @@ public class EnemyGroup : IComparable<EnemyGroup>
     */
     public static void OnGroupFollowImmediateExit(GruntEnemyManager manager)
     {
-        // TODO: Would like to refactor that this is called when exiting to group follow
-        // as it seems like this can be simplified into a method call from the transition.
         EnemyGroup.Remove((IEnemyGroup) manager);
         manager.Agent.ResetPath();
         manager.InGroupState = false;
@@ -505,11 +505,6 @@ public class EnemyGroup : IComparable<EnemyGroup>
     {
         manager.Agent.radius = manager.FightingAgentRadius;
         manager.Agent.stoppingDistance = manager.NextAttack.AttackDistance * 0.8f;
-
-        EnemyGroup.AddAttacking(manager);
-        
-        manager.NearbySensor.transform.localScale =
-            3 * manager.NearbySensor.BaseRadius * Vector3.one;
     }
 
     /*
@@ -524,23 +519,15 @@ public class EnemyGroup : IComparable<EnemyGroup>
     Outputs:
     None
     */
-    public static void OnAttackFollowImmediateExit(GruntEnemyManager manager, ref bool exitingFromAttack)
+    public static void OnAttackFollowImmediateExit(GruntEnemyManager manager)
     {
         // TODO: Qualifier needed as don't want same code to be called again in ability short circuit
         // In the future, may change this to simply check if the enemy is not in the group anymore (attacking
-        // enemies) and then not execute. This way there would not need to be this state boolean
-        // in the AttackFollow state machine script.
-        // TODO: In addition, would like to refactor that this is called when exiting to group follow
-        // as it seems like this can be simplified into a method call from the transition.
-        if (!exitingFromAttack) 
-        {
-            EnemyGroup.AttackingEnemies.Remove(manager);
-            manager.Agent.radius = manager.FollowAgentRadius;
-            manager.Agent.stoppingDistance = 0;
-            manager.Agent.ResetPath();
-            EnemyGroup.RemoveAttacking(manager);
-            manager.NearbySensor.transform.localScale = manager.NearbySensor.BaseRadius * Vector3.one;
-        }
+        // enemies) and then not execute.
+        manager.Agent.radius = manager.FollowAgentRadius;
+        manager.Agent.stoppingDistance = 0;
+        manager.Agent.ResetPath();
+        EnemyGroup.RemoveAttacking(manager);
     }
 
     // Calculates weighted center of enemies for movement methods.
