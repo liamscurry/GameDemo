@@ -507,6 +507,51 @@ public class EnemyGroup : IComparable<EnemyGroup>
         exitingFromAttack = true;
     }
 
+    /*
+    Helper method to transition from Far Follow to Group Follow.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    public static void GroupFollowTransition(
+        GruntEnemyManager manager,
+        ref bool exiting)
+    {
+        Vector3 enemyDirection =
+            manager.transform.position - PlayerInfo.Player.transform.position;
+        enemyDirection.Normalize();
+
+        NavMeshHit navMeshHit;
+        if (manager.DistanceToPlayer() < manager.GroupFollowRadius &&
+            !manager.Agent.Raycast(manager.PlayerNavMeshPosition(enemyDirection), out navMeshHit))
+        {
+            GroupFollowExit(manager, ref exiting);
+            OnFarFollowImmediateExit(manager);
+        }
+    }
+
+    /*
+    Helper method called when GroupFollowTransition meets its transition requirements.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+    ref bool : exiting : state machine behaviour boolean on whether the state is exiting
+
+    Outputs:
+    None
+    */
+    private static void GroupFollowExit(
+        GruntEnemyManager manager,
+        ref bool exiting)
+    {
+        manager.Animator.SetTrigger("toGroupFollow");
+        exiting = true;
+    }
+
     // Events //
     /*
     Method called when OnStateEnter is invoked in the GroupFollow state machine behaviour.
@@ -562,8 +607,6 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
     Inputs:
     GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
-    ref bool : exitingFromAttack : state machine behaviour boolean on whether the state is exiting
-    particularly to attack state.
 
     Outputs:
     None
@@ -577,6 +620,36 @@ public class EnemyGroup : IComparable<EnemyGroup>
         manager.Agent.stoppingDistance = 0;
         manager.Agent.ResetPath();
         EnemyGroup.RemoveAttacking(manager);
+    }
+
+    /*
+    Method called when OnStateEnter is invoked in the FarFollow state machine behaviour.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    public static void OnFarFollowEnter(GruntEnemyManager manager)
+    {
+        manager.Agent.updateRotation = true;
+    }
+
+    /*
+    Method called when OnStateExit is immediately invoked from an outside source in the FarFollow
+    state machine behaviour.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    public static void OnFarFollowImmediateExit(GruntEnemyManager manager)
+    {
+        manager.GroupSensor.Reset();
+        manager.Agent.ResetPath();
     }
 
     // Calculates weighted center of enemies for movement methods.

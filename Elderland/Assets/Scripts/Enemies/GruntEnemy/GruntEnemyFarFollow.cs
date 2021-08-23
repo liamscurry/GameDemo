@@ -34,13 +34,13 @@ public class GruntEnemyFarFollow : StateMachineBehaviour
         distanceToPlayer = lastDistanceToPlayer;
         lastRemainingDistance = distanceToPlayer;
         remainingDistance = distanceToPlayer;
-        manager.Agent.updateRotation = true;
+
+        EnemyGroup.OnFarFollowEnter(manager);
     }
 
     private void OnStateExitImmediate()
     {
-        manager.GroupSensor.Reset();
-        manager.Agent.ResetPath();
+        EnemyGroup.OnFarFollowImmediateExit(manager);
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -57,44 +57,23 @@ public class GruntEnemyFarFollow : StateMachineBehaviour
             distanceToPlayer = manager.DistanceToPlayer();
             remainingDistance = manager.Agent.remainingDistance;
 
-            if (checkTimer > checkDuration)
-            {
-                manager.UpdateAgentPath();
-            }
-
-            manager.ClampToGround();
-            
             if (!exiting)
-                GroupFollowTransition();
-            if (exiting)
-            {
-                OnStateExitImmediate();
-            }
+                EnemyGroup.GroupFollowTransition(manager, ref exiting);
 
+            if (!exiting)
+            {
+                if (checkTimer > checkDuration)
+                {
+                    manager.UpdateAgentPath();
+                }
+
+                manager.ClampToGround();
+            }
+            
             lastDistanceToPlayer = distanceToPlayer;
             lastRemainingDistance = remainingDistance;
             if (checkTimer >= checkDuration)
                 checkTimer = 0;
         }
-    }
-
-    private void GroupFollowTransition()
-    {
-        Vector3 enemyDirection =
-            manager.transform.position - PlayerInfo.Player.transform.position;
-        enemyDirection.Normalize();
-
-        NavMeshHit navMeshHit;
-        if (distanceToPlayer < manager.GroupFollowRadius &&
-            !manager.Agent.Raycast(manager.PlayerNavMeshPosition(enemyDirection), out navMeshHit))
-        {
-            GroupFollowExit();
-        }
-    }
-
-    private void GroupFollowExit()
-    {
-        manager.Animator.SetTrigger("toGroupFollow");
-        exiting = true;
     }
 }

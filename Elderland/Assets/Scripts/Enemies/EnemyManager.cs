@@ -4,6 +4,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+/*
+Group immediate exit pattern:
+To ensure safe state exits on external factors, make sure to set manager.BehaviourLock = this;
+when entering each state. This way states can know if they are being exited internally or not.
+When this happens use the immediate exit structure below in the onUpdateState method of the state machine:
+if (manager.BehaviourLock != this && !exiting)
+{
+    OnStateExitImmediate();
+    exiting = true;
+}
+
+Transition state pattern:
+To ensure safe transitions and eliminate repeating exit calls used the following pattern in states:
+OnEnter: set exiting to false
+OnUpdate: if not exiting: check transitions, then run code. If a transition is successful, set exiting to true
+Other transitions and the code block for the state should only run if not exiting still.
+*/
 public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 {
     public enum EnemyType { Melee, Ranged }
