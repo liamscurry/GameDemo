@@ -4,6 +4,54 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+/*
+Using EnemyGroup in enemy state machines:
+Has three required states, double linked in far-group-attack fashion:
+-Far Follow
+-Group Follow
+-Attack Follow
+
+In far follow, the enemy simply moves towards the player using its agent path.
+
+In grouped follow, will move using agent path if alone, but when in a group will move with group.
+Group/single will move towards player if out of range out there are not max enemies attacking. Enemies
+can only be in a group in this state.
+
+Attack follow moves towards the player directly and only uses the unique attacking enemy group
+to distance each enemy from each other. Enemies are in the attacking group in this state and when
+using abilities, unless overriden or out of range, in which a transition will occur in attack follow 
+to go back to group follow.
+
+States are safely exited internally or externally using an immediate method that is called when
+externally exiting from another source such as when getting hit (flinch state). Some of this logic may
+be used with internal transitions, and thus may be called in interal transitions.
+
+Required method to be used:
+Group Follow:
+EnemyGroup.OnGroupFollowEnter(manager);
+EnemyGroup.FarFollowTransition(manager, ref exiting);
+EnemyGroup.OverrideAttackTransition(manager, ref exiting);
+EnemyGroup.AttackTransition(manager, ref exiting);
+EnemyGroup.UpdateGroupFollowMovement(manager, checkTimer > checkDuration);
+EnemyGroup.UpdateGroupFollowRotation(manager);
+EnemyGroup.OnGroupFollowImmediateExit(manager); also call this on all transitions from the state
+
+Attack Follow:
+EnemyGroup.OnAttackFollowEnter(manager);
+EnemyGroup.AttackFollowToGroupFollowTransition(manager, ref exiting, ref exitingFromAttack);
+EnemyGroup.AttackFollowToAttackTransition(manager, ref exiting, ref exitingFromAttack);
+EnemyGroup.UpdateAttackFollowMovement(manager);
+EnemyGroup.UpdateAttackFollowRotation(manager);
+EnemyGroup.OnAttackFollowImmediateExit(manager); also call this on transitions that leave the attack cycle.
+
+In attack shortcut logic methods:
+EnemyGroup.OnAttackFollowImmediateExit(manager);
+
+Notes:
+When removing an enemy from a group and adding to another group, do that in the remove add order
+to eliminate multi group bugs.
+*/
+
 public class EnemyGroup : IComparable<EnemyGroup>
 {
     private List<IEnemyGroup> enemies;
@@ -250,6 +298,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
     */
     private static void AttackExit(GruntEnemyManager manager, ref bool exiting)
     {
+        EnemyGroup.Remove((IEnemyGroup) manager);
         EnemyGroup.AddAttacking(manager);
         manager.Animator.SetTrigger("toAttackFollow");
         manager.Agent.ResetPath();
@@ -307,8 +356,8 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
         EnemyGroup.RemoveAttacking(enemyManager);
 
-        EnemyGroup.AddAttacking(manager);
         EnemyGroup.Remove((IEnemyGroup) manager);
+        EnemyGroup.AddAttacking(manager);
 
         manager.Animator.SetTrigger("toAttackFollow");
         manager.Agent.ResetPath();
