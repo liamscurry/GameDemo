@@ -122,7 +122,13 @@ public class EnemyGroup : IComparable<EnemyGroup>
                 float distanceToPlayer = manager.DistanceToPlayer();
                 if (distanceToPlayer > manager.GroupFollowRadius + manager.GroupFollowRadiusMargin ||
                     AttackingGroup.enemies.Count < EnemyGroup.MaxAttackingEnemies)
+                {
                     manager.UpdateAgentPath();
+                }
+                else
+                {
+                    manager.Agent.ResetPath();
+                }
             }
         }
         else
@@ -191,8 +197,16 @@ public class EnemyGroup : IComparable<EnemyGroup>
     {
         if (manager.Group == null)
         {
-            if (!manager.Agent.updateRotation)
+            if (manager.Agent.hasPath)
+            {
                 manager.Agent.updateRotation = true;
+            }
+            else
+            {
+                manager.Agent.updateRotation = false;
+                RotateTowardsPlayer(manager);
+            }
+
             manager.UpdatingRotation = true;
         }
         else
@@ -204,14 +218,29 @@ public class EnemyGroup : IComparable<EnemyGroup>
             else
             {
                 manager.UpdatingRotation = false;
-                Vector3 targetForward =
-                    Matho.StdProj3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
-                Vector3 forward =
-                    Vector3.RotateTowards(manager.transform.forward, targetForward, 1f * Time.deltaTime, 0f);
-                manager.transform.rotation =
-                    Quaternion.LookRotation(forward, Vector3.up);
+                RotateTowardsPlayer(manager);
             }
         }
+    }
+
+    /*
+    Helper function that rotates the enemy towards the player. Must have Agent.updateRotation disabled
+    for this method to have effect.
+
+    Inputs:
+    GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
+
+    Outputs:
+    None
+    */
+    private static void RotateTowardsPlayer(GruntEnemyManager manager)
+    {
+        Vector3 targetForward =
+            Matho.StdProj3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
+        Vector3 forward =
+            Vector3.RotateTowards(manager.transform.forward, targetForward, 1f * Time.deltaTime, 0f);
+        manager.transform.rotation =
+            Quaternion.LookRotation(forward, Vector3.up);
     }
 
     /*
