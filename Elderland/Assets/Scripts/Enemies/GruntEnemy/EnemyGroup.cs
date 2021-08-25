@@ -476,6 +476,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
     private static void AttackFollowToGroupFollowExit(GruntEnemyManager manager, ref bool exiting)
     {
         manager.Animator.SetTrigger("toGroupFollow");
+        EnemyGroup.RemoveAttacking(manager);
         exiting = true;
     }
 
