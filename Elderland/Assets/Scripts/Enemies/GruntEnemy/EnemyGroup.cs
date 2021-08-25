@@ -632,7 +632,9 @@ public class EnemyGroup : IComparable<EnemyGroup>
 
     /*
     Method called when OnStateExit is immediately invoked from an outside source in the AttackFollow
-    state machine behaviour.
+    state machine behaviour. Assumes right now that after being pulled out of attackfollow/attack
+    states that it will return directly afterwards to the attack follow state. If it does not
+    then this method will need to remove attacking for the manager as an input for the method (boolean).
 
     Inputs:
     GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.
@@ -642,13 +644,9 @@ public class EnemyGroup : IComparable<EnemyGroup>
     */
     public static void OnAttackFollowImmediateExit(GruntEnemyManager manager)
     {
-        // TODO: Qualifier needed as don't want same code to be called again in ability short circuit
-        // In the future, may change this to simply check if the enemy is not in the group anymore (attacking
-        // enemies) and then not execute.
         manager.Agent.radius = manager.FollowAgentRadius;
         manager.Agent.stoppingDistance = 0;
-        manager.Agent.ResetPath();
-        EnemyGroup.RemoveAttacking(manager);
+        //EnemyGroup.RemoveAttacking(manager);
     }
 
     /*
