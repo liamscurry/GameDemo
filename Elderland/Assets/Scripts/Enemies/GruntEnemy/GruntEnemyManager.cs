@@ -101,7 +101,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
     private const float positionAnalogSpeed = 1.7f;
     private Vector3 lastPosition;
     private float currentPercSpeed;
-    private const float minMoveDistance = 0.0001f;
+    private const float minMoveDistance = 0.01f;
     private const float acceleration = 7f;
 
     private void LateUpdate()
@@ -211,7 +211,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
         lastPosition = transform.position;
     }
 
-    private void UpdateWalkProperties() // need to use something other than just agent velocity, like the movement speed.
+    private void UpdateWalkProperties()
     {
         Vector2 forward = Matho.StdProj2D(transform.forward).normalized;
         Vector2 right = Matho.Rotate(forward, 90);
