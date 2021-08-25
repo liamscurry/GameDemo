@@ -96,7 +96,7 @@ public sealed class PlayerFireball : PlayerAbility
     protected override void ContinousStart()
     {
         PlayerInfo.AnimationManager.WalkAbilityLayer.ClaimTurnOn(this);
-        PlayerInfo.AnimationManager.ModelRotModifier.ClaimLock(this, 3f);
+        PlayerInfo.AnimationManager.ModelRotModifier.ClaimLock(this, 6f);
     }
 
     protected override void ContinousEnd()

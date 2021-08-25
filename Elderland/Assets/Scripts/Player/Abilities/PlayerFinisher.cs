@@ -412,8 +412,6 @@ public sealed class PlayerFinisher : PlayerAbility
 
     public void ActLeaveBegin()
     {
-        Vector3 targetCamDir = Matho.Rotate(targetDisplacement, Vector3.up, -5f);
-        GameInfo.CameraController.TargetDirection = -targetCamDir;
         GameInfo.CameraController.ZoomIn.TryReleaseLock(this, (false, 0, 0, 0));
     }
 
