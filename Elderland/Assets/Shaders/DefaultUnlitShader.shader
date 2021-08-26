@@ -10,9 +10,11 @@ Shader "Custom/DefaultUnlitShader"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" "Queue"="Geometry+20"}
+        Tags { "RenderType"="Transparent" "Queue"="Transparent"}
         LOD 100
-        ZWrite On
+        //ZWrite On
+        ZTest LEqual
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -64,8 +66,12 @@ Shader "Custom/DefaultUnlitShader"
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 color = tex2D(_MainTex, i.uv) * _Color * i.color;
-                clip(color.a - _Threshold);
+                fixed4 color = tex2D(_MainTex, i.uv);
+                if (color.a - _Threshold < 0)
+                {
+                    color.a = 0;
+                }
+                color *= _Color * i.color;
                 return color;
             }
             ENDCG

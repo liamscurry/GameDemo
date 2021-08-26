@@ -38,6 +38,9 @@ public sealed class TurretEnemyManager : EnemyManager
     private GameObject mainHitbox;
     [SerializeField]
     private GameObject backHitbox;
+    [Header("Turret Enemy: UI")]
+    [SerializeField]
+    private GameObject healthbarLockIndicator;
 
     private Vector3 wallForward;
     private Vector3 wallRight;
@@ -67,6 +70,9 @@ public sealed class TurretEnemyManager : EnemyManager
         get { return Matrix4x4.Rotate(CannonParentRotation).MultiplyPoint3x4(Vector3.forward); }
     }
     private Quaternion startArmatureParentRotation;
+
+    public GameObject HealthbarLockIndicator { get { return healthbarLockIndicator; } }
+    public const float DefensiveWallAngle = 110f; // angle for which the defensive mode should proc from wall normal.
 
     protected override void Initialize() 
     {

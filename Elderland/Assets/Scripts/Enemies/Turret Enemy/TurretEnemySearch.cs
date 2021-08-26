@@ -178,7 +178,12 @@ public class TurretEnemySearch : StateMachineBehaviour
 
     private void DefensiveTransition()
     {
-        if (distanceToPlayer < manager.DefensiveRadius)
+        float playerForwardAngle = 
+            Matho.AngleBetween(
+                Matho.StdProj3D(PlayerInfo.Player.transform.position - manager.transform.position), 
+                Matho.StdProj3D(manager.WallForward));
+        if (distanceToPlayer < manager.DefensiveRadius &&
+            playerForwardAngle < TurretEnemyManager.DefensiveWallAngle)
         {
             DefensiveExit();
         }

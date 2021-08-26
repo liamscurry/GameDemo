@@ -31,6 +31,7 @@ public class TurretEnemyDefensive : StateMachineBehaviour
         manager.InDefensive = true;
         //manager.StatsManager.DamageTakenMultiplier.AddModifier(0);
         manager.MainHitbox.SetActive(false);
+        manager.HealthbarLockIndicator.SetActive(true);
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -61,7 +62,12 @@ public class TurretEnemyDefensive : StateMachineBehaviour
 
     private void SearchTransition()
     {
-        if (distanceToPlayer >= manager.DefensiveRadius + manager.DefensiveRadiusMargin)
+        float playerForwardAngle = 
+            Matho.AngleBetween(
+                Matho.StdProj3D(PlayerInfo.Player.transform.position - manager.transform.position), 
+                Matho.StdProj3D(manager.WallForward));
+        if (distanceToPlayer >= manager.DefensiveRadius + manager.DefensiveRadiusMargin ||
+            playerForwardAngle > TurretEnemyManager.DefensiveWallAngle)
         {
             SearchExit();
         }
@@ -74,5 +80,6 @@ public class TurretEnemyDefensive : StateMachineBehaviour
         manager.InDefensive = false;
         manager.MainHitbox.SetActive(true);
         //manager.StatsManager.DamageTakenMultiplier.RemoveModifier(0);
+        manager.HealthbarLockIndicator.SetActive(false);
     }
 }
