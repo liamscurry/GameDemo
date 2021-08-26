@@ -453,10 +453,16 @@ public class EnemyGroup : IComparable<EnemyGroup>
         ref bool exiting,
         ref bool exitingFromAttack)
     {
+        Vector3 enemyDirection =
+            manager.transform.position - PlayerInfo.Player.transform.position;
+        enemyDirection.Normalize();
+        NavMeshHit navMeshHit;
+
         Vector2 horizontalOffset = 
             Matho.StdProj2D(PlayerInfo.Player.transform.position - manager.transform.position);
-        if (horizontalOffset.magnitude > manager.AttackFollowRadius + manager.AttackFollowRadiusMargin ||
-            !AttackingGroup.enemies.Contains(manager))
+        if (horizontalOffset.magnitude > manager.AttackFollowRadius + manager.AttackFollowRadiusMargin || 
+            !AttackingGroup.enemies.Contains(manager) ||
+            manager.Agent.Raycast(manager.PlayerNavMeshPosition(enemyDirection), out navMeshHit))
         {
             AttackFollowToGroupFollowExit(manager, ref exiting);
             OnAttackFollowImmediateExit(manager);
