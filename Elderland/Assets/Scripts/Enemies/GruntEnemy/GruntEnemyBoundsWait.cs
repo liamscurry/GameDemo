@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-// Behaviour needed in order to cause enemy to return to spawn location when reaching too far away 
-// from encounter.
-public class GruntEnemySpawnReturn : StateMachineBehaviour
+// Behaviour that makes the enemy idle and wait to see if the player re-enters the encounter. If 
+// the player does not, the enemy despawns.
+public class GruntEnemyBoundsWait : StateMachineBehaviour
 {
     private GruntEnemyManager manager;
 
@@ -21,6 +21,7 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
     private float recycleTimer;
 
     private Vector3 startPosition;
+    private Vector3 startForward;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -44,14 +45,14 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
         recycleTimer = 0;
 
         startPosition = manager.transform.position;
+        startForward = manager.transform.forward;
 
         manager.AttackingPlayer = false;
     }
 
     private void OnStateExitImmediate()
     {
-        manager.GroupSensor.Reset();
-        manager.Agent.ResetPath();
+
     }    
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -68,21 +69,15 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
             distanceToPlayer = manager.DistanceToPlayer();
             remainingDistance = manager.Agent.remainingDistance;
 
-            if (checkTimer > checkDuration)
-            {
-                manager.UpdateSpawnPath();
-            }
-
-            manager.ClampToGround();
-
             if (!exiting)
                 CheckForRecycle();
-            // Need to make transition to normal approach again if given a set of conditions.
             if (!exiting)
                 ApproachTransition();
-            if (exiting)
+
+            if (!exiting)
             {
-                OnStateExitImmediate();
+                RotateOpposite();
+                manager.ClampToGround();
             }
 
             lastDistanceToPlayer = distanceToPlayer;
@@ -99,18 +94,11 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
 
     private void CheckForRecycle()
     {
-        if (distanceToPlayer > Encounter.RecycleDistance)
+        recycleTimer += Time.deltaTime;
+        if (recycleTimer > Encounter.RecycleDuration)
         {
-            recycleTimer += Time.deltaTime;
-            if (recycleTimer > Encounter.RecycleDuration)
-            {
-                manager.Recycle();
-                exiting = true;
-            }
-        }
-        else
-        {
-            recycleTimer = 0;
+            manager.Recycle();
+            exiting = true;
         }
     }
 
@@ -118,7 +106,7 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
     {
         float distanceFromStart = 
             Matho.StdProj2D(startPosition - manager.transform.position).magnitude; 
-        if (distanceToPlayer < Encounter.EngageEnemyDistance && distanceFromStart > Encounter.EngageStartDistance)
+        if (distanceToPlayer < Encounter.EngageEnemyDistance)
         {
             ApproachExit();
         }
@@ -126,7 +114,30 @@ public class GruntEnemySpawnReturn : StateMachineBehaviour
 
     private void ApproachExit()
     {
-        manager.Animator.SetTrigger("toAttack");
+        manager.Animator.SetTrigger(AnimationConstants.Enemy.ToFarFollow);
         exiting = true;
+    }
+
+    /*
+    Rotates the enemy opposite of the direction of the startinf forward vector when entering this state.
+    This gives a more realistic behaviour an enemy reaching its idle spawn state and guarding it.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void RotateOpposite()
+    {
+        Vector3 targetForward = -startForward;
+        Vector3 forward =
+            Vector3.RotateTowards(
+                manager.transform.forward,
+                targetForward,
+                Encounter.BoundsWaitRotSpeed * Time.deltaTime,
+                0f);
+        manager.transform.rotation =
+            Quaternion.LookRotation(forward, Vector3.up);
     }
 }

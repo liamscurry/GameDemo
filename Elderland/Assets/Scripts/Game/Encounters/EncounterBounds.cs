@@ -18,7 +18,7 @@ public class EncounterBounds : MonoBehaviour
     {
         if (other.tag == "PlayerHealth")
         {
-            encounter.Reset();
+            encounter.BoundsReturn();
         }
     }
 }

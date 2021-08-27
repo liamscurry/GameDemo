@@ -124,6 +124,18 @@ public sealed class TurretEnemyManager : EnemyManager
         NextAttack = Cannon;
     }
 
+    /*
+    See EnemyManager for original use. Turret enemy does not move and therefore does not have a return
+    state.
+
+    Inputs:
+    None
+
+    Outputs:
+    None.
+    */
+    public override void TryBoundsReturn() {}
+
     public Vector3 PlayerNavMeshPosition()
     {
         Vector2 projectedPlayerPosition = 

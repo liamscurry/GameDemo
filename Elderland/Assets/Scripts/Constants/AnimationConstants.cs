@@ -17,4 +17,12 @@ public static class AnimationConstants
         public const string SlowdownSpeed = "slowdownSpeed";
         public const string Slowdown = "slowdown";
     }
+
+    public static class Enemy
+    {
+        public const string BoundsAway = "boundsAway";
+        public const string BoundsWait = "boundsWait";
+
+        public const string ToFarFollow = "toFarFollow";
+    }
 }

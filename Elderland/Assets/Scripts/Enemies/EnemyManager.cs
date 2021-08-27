@@ -239,6 +239,21 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         AbilityManager.FixedUpdateAbilities();
     }
 
+    /*
+    Helper method to trigger the enemy into its Bounds Away state in the animator. May be overriden
+    so that certain enemy types such as turrets don't get affected by this event call.
+
+    Inputs:
+    None
+
+    Outputs:
+    None.
+    */
+    public virtual void TryBoundsReturn()
+    {
+        Animator.SetTrigger(AnimationConstants.Enemy.BoundsAway);
+    }
+
     protected virtual void GenerateHealthbar()
     {
         ZeroResolveBar();
