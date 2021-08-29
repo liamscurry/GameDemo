@@ -3,27 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-// Behaviour needed in order to cause enemy to return to spawn location when reaching too far away 
-// from encounter.
+// Generic behaviour needed in order to cause enemy to return to spawn location when reaching too far away 
+// from encounter. Can be overriden.
 public class GruntEnemyBoundsAway : StateMachineBehaviour
 {
-    private GruntEnemyManager manager;
+    protected GruntEnemyManager manager;
 
-    private float checkTimer;
-    private const float checkDuration = 0.5f;
+    protected float checkTimer;
+    protected const float checkDuration = 0.5f;
 
-    private bool exiting;
-    private float lastDistanceToPlayer;
-    private float distanceToPlayer;
-    private float lastRemainingDistance;
-    private float remainingDistance;
+    protected bool exiting;
+    protected float lastDistanceToPlayer;
+    protected float distanceToPlayer;
 
-    private Vector3 startPosition;
-    private float slowTurnTimer;
-    private const float slowTurnDuration = 3.5f;
+    protected Vector3 startPosition; // position of enemy on enter
+    protected float slowTurnTimer; // timer used to track when to face player or not.
+    protected const float slowTurnDuration = 3.5f; 
 
-    private float startSpeed;
-    private bool slowTurnComplete;
+    protected float startSpeed; // storage holding default agent speed.
+    protected bool slowTurnComplete; // indicator that the enemy is facing the player or not.
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -39,23 +37,20 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
 
         lastDistanceToPlayer = manager.DistanceToPlayer();
         distanceToPlayer = lastDistanceToPlayer;
-        lastRemainingDistance = distanceToPlayer;
-        remainingDistance = distanceToPlayer;
 
-        startPosition = manager.transform.position;
-
-        manager.AttackingPlayer = false;
-        EnemyGroup.RemoveAttacking(manager);
-
-        slowTurnTimer = 0;
-        startSpeed = manager.Agent.speed;
-        manager.Agent.speed = startSpeed * 0.33f;
-        manager.Agent.updateRotation = false;
-        manager.StatsManager.MovespeedMultiplier.AddModifier(0.33f);
-        slowTurnComplete = false;
+        OnBoundsAwayEnter();
     }
 
-    private void OnStateExitImmediate()
+    /*
+    Follows enemy state immediate pattern. See EnemyManager.cs for more details.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    protected virtual void OnStateExitImmediate()
     {
         manager.Agent.ResetPath();
 
@@ -76,7 +71,6 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
         {
             checkTimer += Time.deltaTime;
             distanceToPlayer = manager.DistanceToPlayer();
-            remainingDistance = manager.Agent.remainingDistance;
 
             if (!exiting)
                 ApproachTransition();
@@ -85,56 +79,17 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
 
             if (!exiting)
             {
-                if (checkTimer > checkDuration)
-                {
-                    manager.UpdateSpawnPath();
-                    manager.AgentPath = manager.Agent.path.corners;
-                }
-                if (!slowTurnComplete)
-                    UpdateSlowTurn();
-
-                manager.ClampToGround();
+                UpdateBoundsAway();
             }
 
             lastDistanceToPlayer = distanceToPlayer;
-            lastRemainingDistance = remainingDistance;
             if (checkTimer >= checkDuration)
                 checkTimer = 0;
         }
     }
 
-    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        manager.AttackingPlayer = true;
-    }
-
-    /*
-    Rotation function that initially rotates the enemy towards the player, walking backwards. After
-    a duration, the enemy then rotates towards its path.
-
-    Inputs:
-    None
-
-    Outputs:
-    None
-    */
-    private void UpdateSlowTurn()
-    {
-        slowTurnTimer += Time.deltaTime;
-        if (slowTurnTimer < slowTurnDuration)
-        {
-            RotateTowardsPlayer();
-        }
-        else
-        {
-            slowTurnComplete = true;
-            manager.Agent.updateRotation = true;
-            manager.Agent.speed = startSpeed;
-            manager.StatsManager.MovespeedMultiplier.RemoveModifier(0.33f);
-        }
-    }
-
-    private void ApproachTransition()
+    // Transitions //
+    protected virtual void ApproachTransition()
     {
         float distanceFromStart = 
             Matho.StdProj2D(startPosition - manager.transform.position).magnitude; 
@@ -145,7 +100,7 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
         }
     }
 
-    private void ApproachExit()
+    protected virtual void ApproachExit()
     {
         manager.Animator.SetTrigger(AnimationConstants.Enemy.ToFarFollow);
         exiting = true;
@@ -155,7 +110,7 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
         manager.StatsManager.MovespeedMultiplier.RemoveModifier(0.33f);
     }
 
-    private void BoundsWaitTransition()
+    protected virtual void BoundsWaitTransition()
     {
         float distanceFromSpawn = 
             Matho.StdProj2D(manager.EncounterSpawn.spawnPosition - manager.transform.position).magnitude; 
@@ -165,14 +120,14 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
         }
     }
 
-    private void BoundsWaitExit()
+    protected virtual void BoundsWaitExit()
     {
         manager.Animator.SetTrigger(AnimationConstants.Enemy.BoundsWait);
         exiting = true;
     }
-
+    
     /*
-    Rotates the enemy towards the player when initially in the state.
+    Sets enemy group fields on enter.
 
     Inputs:
     None
@@ -180,17 +135,63 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
     Outputs:
     None
     */
-    private void RotateTowardsPlayer()
+    protected virtual void OnBoundsAwayEnter()
     {
-        Vector3 targetForward = PlayerInfo.Player.transform.position - manager.transform.position;
-        targetForward = Matho.StdProj3D(targetForward).normalized;
-        Vector3 forward =
-            Vector3.RotateTowards(
-                manager.transform.forward,
-                targetForward,
-                Encounter.BoundsWaitRotSpeed * Time.deltaTime,
-                0f);
-        manager.transform.rotation =
-            Quaternion.LookRotation(forward, Vector3.up);
+        startPosition = manager.transform.position;
+        EnemyGroup.RemoveAttacking(manager);
+        slowTurnTimer = 0;
+        slowTurnComplete = false;
+        startSpeed = manager.Agent.speed;
+        manager.Agent.speed = startSpeed * 0.33f;
+        manager.Agent.updateRotation = false;
+        manager.StatsManager.MovespeedMultiplier.AddModifier(0.33f);
+    }
+
+    /*
+    Updates enemy group movement and fields.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    protected virtual void UpdateBoundsAway()
+    {
+        if (checkTimer > checkDuration)
+        {
+            manager.UpdateSpawnPath();
+            manager.AgentPath = manager.Agent.path.corners;
+        }
+        if (!slowTurnComplete)
+            UpdateSlowTurn();
+
+        manager.ClampToGround();
+    }
+
+    /*
+    Rotation function that initially rotates the enemy towards the player, walking backwards. After
+    a duration, the enemy then rotates towards its path goal.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    protected virtual void UpdateSlowTurn()
+    {
+        slowTurnTimer += Time.deltaTime;
+        if (slowTurnTimer < slowTurnDuration)
+        {
+            EnemyGroup.RotateTowardsPlayer(manager, Encounter.BoundsWaitRotSpeed);
+        }
+        else
+        {
+            slowTurnComplete = true;
+            manager.Agent.updateRotation = true;
+            manager.Agent.speed = startSpeed;
+            manager.StatsManager.MovespeedMultiplier.RemoveModifier(0.33f);
+        }
     }
 }

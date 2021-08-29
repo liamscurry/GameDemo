@@ -3,25 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-// Behaviour that makes the enemy idle and wait to see if the player re-enters the encounter. If 
-// the player does not, the enemy despawns.
+// Generic behaviour that makes the enemy idle and wait to see if the player re-enters the encounter. If 
+// the player does not, the enemy despawns. Can be overriden.
 public class GruntEnemyBoundsWait : StateMachineBehaviour
 {
-    private GruntEnemyManager manager;
+    protected GruntEnemyManager manager;
 
-    private float checkTimer;
-    private const float checkDuration = 0.5f;
+    protected float checkTimer;
+    protected const float checkDuration = 0.5f;
 
-    private bool exiting;
-    private float lastDistanceToPlayer;
-    private float distanceToPlayer;
-    private float lastRemainingDistance;
-    private float remainingDistance;
+    protected bool exiting;
+    protected float lastDistanceToPlayer;
+    protected float distanceToPlayer;
 
-    private float recycleTimer;
+    protected float recycleTimer;
 
-    private Vector3 startPosition;
-    private Vector3 startForward;
+    protected Vector3 startForward; // Vector that stores the player's forward rotation when entering the state.
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -35,35 +32,22 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
         checkTimer = checkDuration;
         exiting = false;
 
-        manager.ChooseNextAbility();
-
         lastDistanceToPlayer = manager.DistanceToPlayer();
         distanceToPlayer = lastDistanceToPlayer;
-        lastRemainingDistance = distanceToPlayer;
-        remainingDistance = distanceToPlayer;
-        manager.Agent.updateRotation = true;
-        recycleTimer = 0;
 
-        startPosition = manager.transform.position;
-        if (manager.AgentPath.Length >= 2)
-        {
-            startForward =
-                manager.AgentPath[manager.AgentPath.Length - 1] - manager.AgentPath[manager.AgentPath.Length - 2];
-            startForward = Matho.StdProj3D(startForward).normalized;
-            if (startForward.magnitude == 0)
-                startForward = manager.transform.forward;
-        }
-        else
-        {
-            startForward = manager.transform.forward;
-        }
-    
-        manager.Agent.ResetPath();
-
-        manager.AttackingPlayer = false;
+        OnBoundsWaitEnter();
     }
 
-    private void OnStateExitImmediate()
+    /*
+    Follows enemy state immediate pattern. See EnemyManager.cs for more details.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    protected virtual void OnStateExitImmediate()
     {
 
     }    
@@ -80,7 +64,6 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
         {
             checkTimer += Time.deltaTime;
             distanceToPlayer = manager.DistanceToPlayer();
-            remainingDistance = manager.Agent.remainingDistance;
 
             if (!exiting)
                 CheckForRecycle();
@@ -94,18 +77,21 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
             }
 
             lastDistanceToPlayer = distanceToPlayer;
-            lastRemainingDistance = remainingDistance;
             if (checkTimer >= checkDuration)
                 checkTimer = 0;
         }
     }
 
-    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        manager.AttackingPlayer = true;
-    }
+    /*
+    Recycles the enemy in an encounter after a duration.
 
-    private void CheckForRecycle()
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    protected virtual void CheckForRecycle()
     {
         recycleTimer += Time.deltaTime;
         if (recycleTimer > Encounter.RecycleDuration)
@@ -115,20 +101,49 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
         }
     }
 
-    private void ApproachTransition()
+    // Transitions //
+    protected virtual void ApproachTransition()
     {
-        float distanceFromStart = 
-            Matho.StdProj2D(startPosition - manager.transform.position).magnitude; 
         if (distanceToPlayer < Encounter.EngageEnemyDistance)
         {
             ApproachExit();
         }
     }
 
-    private void ApproachExit()
+    protected virtual void ApproachExit()
     {
         manager.Animator.SetTrigger(AnimationConstants.Enemy.ToFarFollow);
         exiting = true;
+    }
+
+    /*
+    Sets enemy group fields on enter.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    protected virtual void OnBoundsWaitEnter()
+    {
+        manager.Agent.updateRotation = true;
+        recycleTimer = 0;
+
+        if (manager.AgentPath.Length >= 2)
+        {
+            startForward =
+                manager.AgentPath[manager.AgentPath.Length - 1] - manager.AgentPath[manager.AgentPath.Length - 2];
+            startForward = Matho.StdProj3D(startForward).normalized;
+            if (startForward.magnitude == 0)
+                startForward = manager.transform.forward;
+        }
+        else
+        {
+            startForward = manager.transform.forward;
+        }
+    
+        manager.Agent.ResetPath();
     }
 
     /*
@@ -141,7 +156,7 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
     Outputs:
     None
     */
-    private void RotateOpposite()
+    protected virtual void RotateOpposite()
     {
         Vector3 targetForward = -startForward;
         Vector3 forward =

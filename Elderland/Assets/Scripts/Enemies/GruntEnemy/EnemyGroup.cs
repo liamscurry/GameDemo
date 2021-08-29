@@ -26,7 +26,12 @@ States are safely exited internally or externally using an immediate method that
 externally exiting from another source such as when getting hit (flinch state). Some of this logic may
 be used with internal transitions, and thus may be called in interal transitions.
 
-Required method to be used:
+The following structure below was the initially structure update. Now the structure is the following:
+Current Structure:
+Use the generic AttackFollow, GroupFollow, etc behaviours. If slightly different functionality is
+needed, override the class.
+
+Old Structure (currently used in FarFollow, GroupFollow and AttackFollow):
 Group Follow:
 EnemyGroup.OnGroupFollowEnter(manager);
 EnemyGroup.FarFollowTransition(manager, ref exiting);
@@ -204,7 +209,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
             else
             {
                 manager.Agent.updateRotation = false;
-                RotateTowardsPlayer(manager);
+                RotateTowardsPlayer(manager, 1f);
             }
 
             manager.UpdatingRotation = true;
@@ -218,7 +223,7 @@ public class EnemyGroup : IComparable<EnemyGroup>
             else
             {
                 manager.UpdatingRotation = false;
-                RotateTowardsPlayer(manager);
+                RotateTowardsPlayer(manager, 1f);
             }
         }
     }
@@ -233,12 +238,12 @@ public class EnemyGroup : IComparable<EnemyGroup>
     Outputs:
     None
     */
-    private static void RotateTowardsPlayer(GruntEnemyManager manager)
+    public static void RotateTowardsPlayer(GruntEnemyManager manager, float speed)
     {
         Vector3 targetForward =
             Matho.StdProj3D(PlayerInfo.Player.transform.position - manager.transform.position).normalized;
         Vector3 forward =
-            Vector3.RotateTowards(manager.transform.forward, targetForward, 1f * Time.deltaTime, 0f);
+            Vector3.RotateTowards(manager.transform.forward, targetForward, speed * Time.deltaTime, 0f);
         manager.transform.rotation =
             Quaternion.LookRotation(forward, Vector3.up);
     }
