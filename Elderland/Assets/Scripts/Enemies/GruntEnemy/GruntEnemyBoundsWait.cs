@@ -7,7 +7,7 @@ using UnityEngine.AI;
 // the player does not, the enemy despawns. Can be overriden.
 public class GruntEnemyBoundsWait : StateMachineBehaviour
 {
-    protected GruntEnemyManager manager;
+    protected EnemyManager manager;
 
     protected float checkTimer;
     protected const float checkDuration = 0.5f;
@@ -24,7 +24,7 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
     {
         if (manager == null)
         {
-            manager = animator.GetComponentInParent<GruntEnemyManager>();
+            manager = animator.GetComponentInParent<EnemyManager>();
         }
 
         manager.BehaviourLock = this;
@@ -47,16 +47,16 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
     Outputs:
     None
     */
-    protected virtual void OnStateExitImmediate()
+    protected virtual void OnStateExitImmediate(Animator animator)
     {
-
+        animator.SetBool(AnimationConstants.Enemy.InBoundsReturn, false);
     }    
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (manager.BehaviourLock != this && !exiting)
         {
-            OnStateExitImmediate();
+            OnStateExitImmediate(animator);
             exiting = true;
         }
 
@@ -68,7 +68,7 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
             if (!exiting)
                 CheckForRecycle();
             if (!exiting)
-                ApproachTransition();
+                ApproachTransition(animator);
 
             if (!exiting)
             {
@@ -102,18 +102,19 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
     }
 
     // Transitions //
-    protected virtual void ApproachTransition()
+    protected virtual void ApproachTransition(Animator animator)
     {
         if (distanceToPlayer < Encounter.EngageEnemyDistance)
         {
-            ApproachExit();
+            ApproachExit(animator);
         }
     }
 
-    protected virtual void ApproachExit()
+    protected virtual void ApproachExit(Animator animator)
     {
         manager.Animator.SetTrigger(AnimationConstants.Enemy.ToFarFollow);
         exiting = true;
+        animator.SetBool(AnimationConstants.Enemy.InBoundsReturn, false);
     }
 
     /*
@@ -130,7 +131,9 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
         manager.Agent.updateRotation = true;
         recycleTimer = 0;
 
-        if (manager.AgentPath.Length >= 2)
+        // Must check to see if AgentPath is not null as can't check to transition to this state
+        // in bounds away for the qualifier Agent.hasPath, as the enemy may be at its goal already.
+        if (manager.AgentPath != null && manager.AgentPath.Length >= 2)
         {
             startForward =
                 manager.AgentPath[manager.AgentPath.Length - 1] - manager.AgentPath[manager.AgentPath.Length - 2];

@@ -2,13 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+Generic recycle behaviour for enemies. Can be overriden.
+*/
 public class GruntEnemyRecycle : StateMachineBehaviour
 {
-    private GruntEnemyManager manager;
+    protected EnemyManager manager;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-        manager = animator.GetComponentInParent<GruntEnemyManager>();
+        manager = animator.GetComponentInParent<EnemyManager>();
 
         foreach (var recycleParticle in manager.RecycleParticles)
         {

@@ -40,24 +40,12 @@ public class TurretEnemyDefensive : StateMachineBehaviour
         {
             distanceToPlayer = manager.DistanceToPlayer();
 
-            RotateTowardsDefault();
+            manager.RotateTowardsDefault();
             SearchTransition();
 
             lastDistanceToPlayer = distanceToPlayer;
             lastRemainingDistance = remainingDistance;
         }
-    }
-
-    private void RotateTowardsDefault()
-    {
-        Vector3 incrementedForward =
-            Vector3.RotateTowards(
-                manager.CannonParentForward,
-                manager.WallForward,
-                manager.DefensiveRotateSpeed * Time.deltaTime, 0);
-
-        manager.CannonParentRotation = 
-            Quaternion.LookRotation(incrementedForward, Vector3.up);
     }
 
     private void SearchTransition()

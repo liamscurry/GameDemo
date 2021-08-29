@@ -164,6 +164,7 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
 
     private bool isAgentOn;
     public bool Alive { get; private set; }
+    public Vector3[] AgentPath { get; set; } // stores the current agent path and does not clear when finished.
 
     private Vector3 dynamicAgentVelocity;
     private bool moveViaMovementManagerDuringAnimating;
@@ -251,7 +252,8 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
     */
     public virtual void TryBoundsReturn()
     {
-        Animator.SetTrigger(AnimationConstants.Enemy.BoundsAway);
+        if (!Animator.GetBool(AnimationConstants.Enemy.InBoundsReturn))
+            Animator.SetTrigger(AnimationConstants.Enemy.BoundsAway);
     }
 
     protected virtual void GenerateHealthbar()

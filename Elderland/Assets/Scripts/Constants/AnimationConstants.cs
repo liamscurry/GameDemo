@@ -20,9 +20,12 @@ public static class AnimationConstants
 
     public static class Enemy
     {
+        public const string InBoundsReturn = "inBoundsReturn";
         public const string BoundsAway = "boundsAway";
         public const string BoundsWait = "boundsWait";
 
         public const string ToFarFollow = "toFarFollow";
+
+        public const string ToSearch = "toSearch";
     }
 }

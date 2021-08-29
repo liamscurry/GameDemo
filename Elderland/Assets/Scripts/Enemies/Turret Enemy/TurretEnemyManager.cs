@@ -125,8 +125,8 @@ public sealed class TurretEnemyManager : EnemyManager
     }
 
     /*
-    See EnemyManager for original use. Turret enemy does not move and therefore does not have a return
-    state.
+    See EnemyManager for original use. Turret enemy does not move but simply waits and recycles if
+    player is not in range.
 
     Inputs:
     None
@@ -134,7 +134,11 @@ public sealed class TurretEnemyManager : EnemyManager
     Outputs:
     None.
     */
-    public override void TryBoundsReturn() {}
+    public override void TryBoundsReturn()
+    {
+        if (!Animator.GetBool(AnimationConstants.Enemy.InBoundsReturn))
+            Animator.SetTrigger(AnimationConstants.Enemy.BoundsWait);
+    }
 
     public Vector3 PlayerNavMeshPosition()
     {
@@ -155,4 +159,25 @@ public sealed class TurretEnemyManager : EnemyManager
     }
 
     protected override void SpawnPickups() {}
+
+    /*
+    Helper method that rotates the turret so that it faces in the same direction as its wall normal.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    public void RotateTowardsDefault()
+    {
+        Vector3 incrementedForward =
+            Vector3.RotateTowards(
+                CannonParentForward,
+                WallForward,
+                DefensiveRotateSpeed * Time.deltaTime, 0);
+
+        CannonParentRotation = 
+            Quaternion.LookRotation(incrementedForward, Vector3.up);
+    }
 }

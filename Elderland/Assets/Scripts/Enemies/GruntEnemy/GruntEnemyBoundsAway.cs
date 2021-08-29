@@ -38,6 +38,8 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
         lastDistanceToPlayer = manager.DistanceToPlayer();
         distanceToPlayer = lastDistanceToPlayer;
 
+        animator.SetBool(AnimationConstants.Enemy.InBoundsReturn, true);
+
         OnBoundsAwayEnter();
     }
 
@@ -50,20 +52,22 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
     Outputs:
     None
     */
-    protected virtual void OnStateExitImmediate()
+    protected virtual void OnStateExitImmediate(Animator animator)
     {
         manager.Agent.ResetPath();
 
         manager.Agent.updateRotation = true;
         manager.Agent.speed = startSpeed;
         manager.StatsManager.MovespeedMultiplier.RemoveModifier(0.33f);
+
+        animator.SetBool(AnimationConstants.Enemy.InBoundsReturn, false);
     }    
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (manager.BehaviourLock != this && !exiting)
         {
-            OnStateExitImmediate();
+            OnStateExitImmediate(animator);
             exiting = true;
         }
 
@@ -73,7 +77,7 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
             distanceToPlayer = manager.DistanceToPlayer();
 
             if (!exiting)
-                ApproachTransition();
+                ApproachTransition(animator);
             if (!exiting)
                 BoundsWaitTransition();
 
@@ -89,18 +93,18 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
     }
 
     // Transitions //
-    protected virtual void ApproachTransition()
+    protected virtual void ApproachTransition(Animator animator)
     {
         float distanceFromStart = 
             Matho.StdProj2D(startPosition - manager.transform.position).magnitude; 
         if (distanceToPlayer < Encounter.EngageEnemyDistance &&
             distanceFromStart > Encounter.EngageStartDistance)
         {
-            ApproachExit();
+            ApproachExit(animator);
         }
     }
 
-    protected virtual void ApproachExit()
+    protected virtual void ApproachExit(Animator animator)
     {
         manager.Animator.SetTrigger(AnimationConstants.Enemy.ToFarFollow);
         exiting = true;
@@ -108,12 +112,15 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
         manager.Agent.updateRotation = true;
         manager.Agent.speed = startSpeed;
         manager.StatsManager.MovespeedMultiplier.RemoveModifier(0.33f);
+
+        animator.SetBool(AnimationConstants.Enemy.InBoundsReturn, false);
     }
 
     protected virtual void BoundsWaitTransition()
     {
         float distanceFromSpawn = 
             Matho.StdProj2D(manager.EncounterSpawn.spawnPosition - manager.transform.position).magnitude; 
+
         if (distanceFromSpawn < Encounter.BoundsWaitDistance)
         {
             BoundsWaitExit();
@@ -123,6 +130,7 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
     protected virtual void BoundsWaitExit()
     {
         manager.Animator.SetTrigger(AnimationConstants.Enemy.BoundsWait);
+        manager.StatsManager.MovespeedMultiplier.RemoveModifier(0.33f);
         exiting = true;
     }
     
