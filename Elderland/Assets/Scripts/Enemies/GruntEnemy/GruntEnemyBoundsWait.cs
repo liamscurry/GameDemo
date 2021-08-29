@@ -45,7 +45,20 @@ public class GruntEnemyBoundsWait : StateMachineBehaviour
         recycleTimer = 0;
 
         startPosition = manager.transform.position;
-        startForward = manager.transform.forward;
+        if (manager.AgentPath.Length >= 2)
+        {
+            startForward =
+                manager.AgentPath[manager.AgentPath.Length - 1] - manager.AgentPath[manager.AgentPath.Length - 2];
+            startForward = Matho.StdProj3D(startForward).normalized;
+            if (startForward.magnitude == 0)
+                startForward = manager.transform.forward;
+        }
+        else
+        {
+            startForward = manager.transform.forward;
+        }
+    
+        manager.Agent.ResetPath();
 
         manager.AttackingPlayer = false;
     }

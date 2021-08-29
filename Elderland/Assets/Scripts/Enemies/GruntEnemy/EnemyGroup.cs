@@ -640,8 +640,9 @@ public class EnemyGroup : IComparable<EnemyGroup>
     /*
     Method called when OnStateExit is immediately invoked from an outside source in the AttackFollow
     state machine behaviour. Assumes right now that after being pulled out of attackfollow/attack
-    states that it will return directly afterwards to the attack follow state. If it does not
-    then this method will need to remove attacking for the manager as an input for the method (boolean).
+    states that it will return directly afterwards to the attack follow state. If the state it is pulled
+    to wants it to not be in attacking state (such as bounds away) then it must manually clear the attacking
+    group.
 
     Inputs:
     GruntEnemyManager : manager : enemy manager that supports using EnemyGroup logic.

@@ -19,6 +19,11 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
     private float remainingDistance;
 
     private Vector3 startPosition;
+    private float slowTurnTimer;
+    private const float slowTurnDuration = 3.5f;
+
+    private float startSpeed;
+    private bool slowTurnComplete;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -36,16 +41,27 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
         distanceToPlayer = lastDistanceToPlayer;
         lastRemainingDistance = distanceToPlayer;
         remainingDistance = distanceToPlayer;
-        manager.Agent.updateRotation = true;
 
         startPosition = manager.transform.position;
 
         manager.AttackingPlayer = false;
+        EnemyGroup.RemoveAttacking(manager);
+
+        slowTurnTimer = 0;
+        startSpeed = manager.Agent.speed;
+        manager.Agent.speed = startSpeed * 0.33f;
+        manager.Agent.updateRotation = false;
+        manager.StatsManager.MovespeedMultiplier.AddModifier(0.33f);
+        slowTurnComplete = false;
     }
 
     private void OnStateExitImmediate()
     {
         manager.Agent.ResetPath();
+
+        manager.Agent.updateRotation = true;
+        manager.Agent.speed = startSpeed;
+        manager.StatsManager.MovespeedMultiplier.RemoveModifier(0.33f);
     }    
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -72,7 +88,10 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
                 if (checkTimer > checkDuration)
                 {
                     manager.UpdateSpawnPath();
+                    manager.AgentPath = manager.Agent.path.corners;
                 }
+                if (!slowTurnComplete)
+                    UpdateSlowTurn();
 
                 manager.ClampToGround();
             }
@@ -89,6 +108,32 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
         manager.AttackingPlayer = true;
     }
 
+    /*
+    Rotation function that initially rotates the enemy towards the player, walking backwards. After
+    a duration, the enemy then rotates towards its path.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void UpdateSlowTurn()
+    {
+        slowTurnTimer += Time.deltaTime;
+        if (slowTurnTimer < slowTurnDuration)
+        {
+            RotateTowardsPlayer();
+        }
+        else
+        {
+            slowTurnComplete = true;
+            manager.Agent.updateRotation = true;
+            manager.Agent.speed = startSpeed;
+            manager.StatsManager.MovespeedMultiplier.RemoveModifier(0.33f);
+        }
+    }
+
     private void ApproachTransition()
     {
         float distanceFromStart = 
@@ -97,7 +142,6 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
             distanceFromStart > Encounter.EngageStartDistance)
         {
             ApproachExit();
-            OnStateExitImmediate();
         }
     }
 
@@ -105,6 +149,10 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
     {
         manager.Animator.SetTrigger(AnimationConstants.Enemy.ToFarFollow);
         exiting = true;
+
+        manager.Agent.updateRotation = true;
+        manager.Agent.speed = startSpeed;
+        manager.StatsManager.MovespeedMultiplier.RemoveModifier(0.33f);
     }
 
     private void BoundsWaitTransition()
@@ -121,5 +169,28 @@ public class GruntEnemyBoundsAway : StateMachineBehaviour
     {
         manager.Animator.SetTrigger(AnimationConstants.Enemy.BoundsWait);
         exiting = true;
+    }
+
+    /*
+    Rotates the enemy towards the player when initially in the state.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void RotateTowardsPlayer()
+    {
+        Vector3 targetForward = PlayerInfo.Player.transform.position - manager.transform.position;
+        targetForward = Matho.StdProj3D(targetForward).normalized;
+        Vector3 forward =
+            Vector3.RotateTowards(
+                manager.transform.forward,
+                targetForward,
+                Encounter.BoundsWaitRotSpeed * Time.deltaTime,
+                0f);
+        manager.transform.rotation =
+            Quaternion.LookRotation(forward, Vector3.up);
     }
 }

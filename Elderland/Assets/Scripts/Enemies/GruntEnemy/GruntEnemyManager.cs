@@ -78,6 +78,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
             Debug.Log("GruntEnemyManager nearby grunts cannot be set. This message should not be printed");
         }
     }
+    public Vector3[] AgentPath { get; set; } // stores the current agent path and does not clear when finished.
 
     public bool InGroupState { get; set; }
 
@@ -220,7 +221,7 @@ public sealed class GruntEnemyManager : EnemyManager, IEnemyGroup
             Matho.StdProj2D(transform.position - lastPosition).normalized; 
         float deltaMag = Matho.StdProj2D(transform.position - lastPosition).magnitude;
 
-        if (deltaMag > minMoveDistance)
+        if (deltaMag > minMoveDistance * StatsManager.MovespeedMultiplier.Value)
         {
             currentPercSpeed += acceleration * Time.deltaTime;
             if (currentPercSpeed > 1)
