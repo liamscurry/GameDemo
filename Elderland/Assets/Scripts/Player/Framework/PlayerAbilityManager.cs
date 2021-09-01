@@ -149,16 +149,6 @@ public class PlayerAbilityManager : AbilitySystem
     //Updates each ability slot, called by PlayerManager.
 	public override void UpdateAbilities() 
     {
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            EquipAbility<PlayerKnockbackPush>(ref aoe);
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            UnequipAbility<PlayerKnockbackPush>(ref aoe);
-        }
-
         //Try to run specified ability if held down
         bool rangedInput = false;
         bool aoeInput = false;

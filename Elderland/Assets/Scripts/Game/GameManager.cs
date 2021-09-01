@@ -84,6 +84,11 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
             PlayerInfo.Manager.MaxOutHealth();
         }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            PlayerInfo.Manager.ChangeHealth(-1);
+        }
     }
 
     public void CheckForCombat()

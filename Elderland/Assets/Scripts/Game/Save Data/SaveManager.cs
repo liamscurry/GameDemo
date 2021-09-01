@@ -25,13 +25,12 @@ public class SaveManager : MonoBehaviour
     private string autoSaveName = "AutoSave";
     private List<SaveObject> changedObjects;
 
-    private void Awake()
+    private void Start()
     {
         changedObjects = new List<SaveObject>();
 
         // temp: current save will be selected in main menu.
-        SetCurrentSave(autoSaveName);
-        Load(autoSaveName);
+        StartCoroutine(TestSaveSelect());
     }
 
     private void Update()
@@ -52,6 +51,18 @@ public class SaveManager : MonoBehaviour
         {
             PlayerInfo.Manager.ChangeHealth(-1000);
         }
+    }
+
+    /*
+    Developement function used to load auto save file after everything else is initialized
+    */
+    private IEnumerator TestSaveSelect()
+    {
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+
+        SetCurrentSave(autoSaveName);
+        Load(autoSaveName);
     }
 
     /*
@@ -158,6 +169,7 @@ public class SaveManager : MonoBehaviour
         {
             saveObjects.AddRange(rootObject.GetComponentsInChildren<SaveObject>());
         }
+
         return saveObjects;
     }
 
@@ -169,29 +181,38 @@ public class SaveManager : MonoBehaviour
         return next;
     }
 
+    /*
+    Generates ids for prefabs/objects in scene. Needs to be called before each build.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    [ContextMenu("GenerateIDs")]
+    public void GenerateIDs()
+    {
+        var saveObjects = GetAllSaveObjects();
+        foreach (var saveObject in saveObjects)
+        {
+            saveObject.CheckID(this, false);
+        }
+    }
+
     // Force resets all IDs. Used in development of save files only, not used in application.
-    [ContextMenu("RegenerateIDs")]
+    [ContextMenu("RegenerateIDs: Development only, wipes saves")]
     public void RegenerateIDs()
     {
         uniqueIDCounter = 1;
         EditorUtility.SetDirty(this);
         PrefabUtility.RecordPrefabInstancePropertyModifications(this);
-        Scene activeScene = SceneManager.GetActiveScene();
-        GameObject[] rootObjects = activeScene.GetRootGameObjects();
-        var saveObjects = new List<SaveObject>();
-        foreach (GameObject rootObject in rootObjects)
-        {
-            saveObjects.AddRange(rootObject.GetComponentsInChildren<SaveObject>());
-        }
-    
-        List<string> jsonObjects = new List<string>();
+
+        var saveObjects = GetAllSaveObjects();
         foreach (var saveObject in saveObjects)
         {
-            string jsonObject = saveObject.Save(this, true);
-            jsonObjects.Add(jsonObject);
+            saveObject.CheckID(this, true);
         }
-
-        WriteToSaveFile(activeScene.name + "-Save-01", jsonObjects);
     }
 
     [ContextMenu("PrintIDs")]
@@ -230,6 +251,15 @@ public class SaveManager : MonoBehaviour
         }
     }
 
+    /*
+    Helper method for load that parses the save file into json id structures.
+
+    Inputs:
+    string : saveName : name of save file.
+
+    Outputs:
+    List<JsonIDPair> : list of id json objects pairs found in save file.
+    */
     private List<JsonIDPair> ReadFromSaveFile(string saveName)
     {
         string cwd = Directory.GetCurrentDirectory();
