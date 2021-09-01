@@ -90,6 +90,7 @@ public class PlayerMovementManager
         }
     }
 
+    // Needed for octagonal movement for rotation targets.
     public Vector3 ModelTargetForward 
     { 
         get 
@@ -99,7 +100,7 @@ public class PlayerMovementManager
             percentage = Mathf.Clamp01(percentage);
 
             percentage = (percentage > 0.9) ? 1 : 0;
-            
+
             return PlayerInfo.AbilityManager.DirFocus * (1 - percentage) +
                     GameInfo.CameraController.Direction * percentage;
         }
@@ -198,7 +199,7 @@ public class PlayerMovementManager
                 
                 if (!PlayerInfo.Animator.IsInTransition(0))
                 {
-                    UpdateFreeRotation(false);
+                    UpdateFreeRotation(true);
                     //if (updateAnimProperties)
                     //    PlayerInfo.AnimationManager.UpdateRotationProperties();
                 }

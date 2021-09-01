@@ -54,10 +54,13 @@ public class PlayerAnimationManager
 	public const float RotationObserverMin = 0.2f;
     private const float rotationSpeedSpeedIncrease = 1.0f;
     private const float rotationSpeedSpeedDecrease = 0.2f;
+
+	// Slowing down is an animation that is detected and played when the player is sprinting and stops.
 	private float slowdownTimer;
 	private const float slowdownDuration = 0.9f;
 	private const float slowdownTrigger = 0.35f;
 	private bool slowingDown;
+	public bool SlowingDown { get { return slowingDown; } }
 
 	private bool movedThisFrame;
 
