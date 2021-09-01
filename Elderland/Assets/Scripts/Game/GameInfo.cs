@@ -18,12 +18,15 @@ public static class GameInfo
     public static EnemyLevel CurrentLevel { get; set; }
     public static Transform RespawnTransformNoLevel { get; set; }
 
+    public static SaveManager SaveManager { get; private set; }
+
     //States
     public static bool Panning { get; set; }
     public static bool Paused { get; set; }
 
     //Initializes references, called from GameInitializer.
     public static void Initialize(
+        SaveManager saveManager,
         GameObject menuManager,
         GameObject manager,
         ProjectilePool projectilePool,
@@ -31,6 +34,7 @@ public static class GameInfo
     {
         //Systems
         Manager = manager.GetComponent<GameManager>();
+        SaveManager = saveManager;
         Menu = menuManager.GetComponent<MenuManager>();
         Settings = manager.GetComponent<GameSettings>();
 

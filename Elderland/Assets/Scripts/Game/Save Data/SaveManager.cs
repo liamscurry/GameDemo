@@ -19,21 +19,26 @@ public class SaveManager : MonoBehaviour
 
     [HideInInspector]
     [SerializeField]
-    private int uniqueIDCounter; // one of the id is being set to -1 on play, only prefab instance.
-    // using prefab method, need to use it differently/another method?
+    private int uniqueIDCounter;
 
+    public string CurrentSave { get; private set; }
+    private string autoSaveName = "AutoSave";
     private List<SaveObject> changedObjects;
 
     private void Awake()
     {
         changedObjects = new List<SaveObject>();
+
+        // temp: current save will be selected in main menu.
+        SetCurrentSave(autoSaveName);
+        Load(autoSaveName);
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.S))
         {
-            GenerateIDs();
+            Save(SceneManager.GetActiveScene().name + "-Save-01");
             Debug.Log("saved");
         }
 
@@ -42,11 +47,67 @@ public class SaveManager : MonoBehaviour
             Load(SceneManager.GetActiveScene().name + "-Save-01");
             Debug.Log("loaded");
         }
+
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            PlayerInfo.Manager.ChangeHealth(-1000);
+        }
     }
 
-    // Finds all save objects correctly.
-    [ContextMenu("GenerateIDs")]
-    public void GenerateIDs()
+    /*
+    Helper method needed in main menus to set the current save when loading into a specified save
+
+    Inputs:
+    string : saveName : name of save file.
+
+    Outputs:
+    None
+    */
+    public void SetCurrentSave(string saveName)
+    {
+        CurrentSave = saveName;
+    }
+
+    /*
+    Saves the game to the auto save slot. In addition, sets current save to the auto save
+    so that if the player dies, it will load the auto save.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    public void AutoSave()
+    {
+        Save(autoSaveName);
+    }
+
+    /*
+    Loads the most recent save file.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    public void LoadCurrentSave()
+    {
+        Load(CurrentSave);
+    }
+
+    /*
+    Takes a snapshot of all changed objects and adds it to the save file.
+
+    Inputs: 
+    string : saveName : name of save file.
+
+    Outputs:
+    None
+    */
+    [ContextMenu("Save")]
+    public void Save(string saveName)
     {
         var saveObjects = GetAllSaveObjects();
         List<string> jsonObjects = new List<string>();
@@ -56,9 +117,20 @@ public class SaveManager : MonoBehaviour
             jsonObjects.Add(jsonObject);
         }
 
-        WriteToSaveFile(SceneManager.GetActiveScene().name + "-Save-01", jsonObjects);
+        WriteToSaveFile(saveName, jsonObjects);
+
+        CurrentSave = saveName;
     }
 
+    /*
+    Loads a save file, changing objects in the scene.
+
+    Inputs:
+    string : saveName : name of save file.
+
+    Outputs:
+    None
+    */
     public void Load(string saveName)
     {
         List<JsonIDPair> jsonIDPairs =

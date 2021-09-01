@@ -63,9 +63,9 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        //Fix UI focus loss when clicking with mouse. There should be a better solution built in,
-        //but this seems like the best solution at the moment annoyingly, as I have read from the forum.
-        //Credit idea of logic goes to them.
+        // Fix UI focus loss when clicking with mouse. There should be a better solution built in,
+        // but this seems like the best solution at the moment annoyingly, as I have read from the forum.
+        // Credit idea of logic goes to them.
         if (eventSystem.currentSelectedGameObject == null)
         {
             eventSystem.SetSelectedGameObject(eventSystem.firstSelectedGameObject);
@@ -252,25 +252,13 @@ public class GameManager : MonoBehaviour
                 GameInfo.CurrentLevel.RespawnTransform.rotation;
             GameInfo.CameraController.SetDirection(
                 GameInfo.CurrentLevel.RespawnTransform.rotation);
-
-            PlayerInfo.Manager.RestoreHealth();
-            PlayerInfo.Manager.RestoreStamina();
         }
-        else
-        {
-            PlayerInfo.Player.transform.position =
-                GameInfo.RespawnTransformNoLevel.position;
-            PlayerInfo.Player.transform.rotation = 
-                GameInfo.RespawnTransformNoLevel.rotation;
-            GameInfo.CameraController.SetDirection(
-                GameInfo.RespawnTransformNoLevel.rotation);
-
-            PlayerInfo.Manager.RestoreHealth();
-            PlayerInfo.Manager.RestoreStamina();
-        }
+     
         PlayerInfo.Manager.Reset();
         if (OnRespawn != null)
             OnRespawn.Invoke(this, EventArgs.Empty);
+
+        GameInfo.SaveManager.LoadCurrentSave();
 
         //Fade out
         yield return Fade(duration / 2, 0);

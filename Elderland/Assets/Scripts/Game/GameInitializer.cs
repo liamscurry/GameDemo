@@ -7,6 +7,8 @@ using UnityEngine;
 public class GameInitializer : MonoBehaviour 
 {
     [SerializeField]
+    private SaveManager saveManager;
+    [SerializeField]
     private GameObject menuManager;
 
     [Header("Player")]
@@ -38,7 +40,7 @@ public class GameInitializer : MonoBehaviour
     public void Initialize()
     {
         //Reference initialization
-        GameInfo.Initialize(menuManager, gameObject, projectilePool, pickupPool);
+        GameInfo.Initialize(saveManager, menuManager, gameObject, projectilePool, pickupPool);
         PlayerInfo.Initialize(player, sensor, playerObjects, meleeObjects, cooldownOriginTransform);
         EnemyInfo.Initialize(ArmorColor, HealthColor, FinisherHealthColor, shadowColorDim);
         GetComponent<GameSettings>().Initialize();
