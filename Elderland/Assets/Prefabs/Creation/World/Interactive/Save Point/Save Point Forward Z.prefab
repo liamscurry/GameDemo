@@ -5295,19 +5295,6 @@ MonoBehaviour:
   endEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 730082341741502346, guid: 34732ef00bf8afa4382d41f9e9e81f64,
-          type: 3}
-        m_TargetAssemblyTypeName: SaveManager, Assembly-CSharp
-        m_MethodName: AutoSave
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 1
       - m_Target: {fileID: 7056408269037194850, guid: 7f59d9a7fd4839f41872f40657c1b19d,
           type: 3}
         m_TargetAssemblyTypeName: PlayerManagerCore, Assembly-CSharp
@@ -5320,11 +5307,11 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
-      - m_Target: {fileID: 5901380110555310564, guid: 7f59d9a7fd4839f41872f40657c1b19d,
+        m_CallState: 1
+      - m_Target: {fileID: 730082341741502346, guid: 34732ef00bf8afa4382d41f9e9e81f64,
           type: 3}
-        m_TargetAssemblyTypeName: GameManagerCore, Assembly-CSharp
-        m_MethodName: ResetAllEncounters
+        m_TargetAssemblyTypeName: SaveManager, Assembly-CSharp
+        m_MethodName: AutoSave
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5682,22 +5669,22 @@ PrefabInstance:
     - target: {fileID: 2673189589299705387, guid: 282198453cdaffe4cb50954173c35dbf,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.706092
+      value: -0.4296619
       objectReference: {fileID: 0}
     - target: {fileID: 2673189589299705387, guid: 282198453cdaffe4cb50954173c35dbf,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.70609206
+      value: 0.42966196
       objectReference: {fileID: 0}
     - target: {fileID: 2673189589299705387, guid: 282198453cdaffe4cb50954173c35dbf,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.037869725
+      value: 0.5615965
       objectReference: {fileID: 0}
     - target: {fileID: 2673189589299705387, guid: 282198453cdaffe4cb50954173c35dbf,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.037869696
+      value: 0.5615965
       objectReference: {fileID: 0}
     - target: {fileID: 7770875293318537930, guid: 282198453cdaffe4cb50954173c35dbf,
         type: 3}

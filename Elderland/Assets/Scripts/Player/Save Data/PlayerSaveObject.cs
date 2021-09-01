@@ -39,7 +39,7 @@ public class PlayerSaveObject : BaseSaveObject
         PlayerSaveData saveInfo =
             JsonUtility.FromJson<PlayerSaveData>(jsonString);
         PlayerInfo.Manager.MaxOutHealth();
-        PlayerInfo.Manager.ChangeHealth(-1 * (PlayerInfo.Manager.MaxHealth - saveInfo.health));
+        PlayerInfo.Manager.ChangeHealth(-1 * (PlayerInfo.Manager.MaxHealth - saveInfo.health), false, false);
         PlayerInfo.Manager.MaxOutStamina();
         PlayerInfo.Manager.ChangeStamina(-1 * (PlayerAbilityManager.MaxStamina - saveInfo.stamina));
     }

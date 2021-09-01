@@ -160,7 +160,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
             PhysicsSystem.HandleOverlapCollisions(PlayerInfo.PhysicsSystem, PlayerInfo.Capsule, transform.position, other);
     }
 
-    public void ChangeHealth(float value, bool unblockable = false)
+    public void ChangeHealth(float value, bool unblockable = false, bool shakeCamera = true)
     {
         //|| (!PlayerInfo.StatsManager.Blocking || unblockable))
         if (value >= 0)
@@ -190,7 +190,8 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
                 ChangeHealthBar(value);
             }
 
-            GameInfo.CameraController.ShakeCamera();
+            if (shakeCamera)
+                GameInfo.CameraController.ShakeCamera();
 
             if (preHealth != 0 && Health == 0)
             {
