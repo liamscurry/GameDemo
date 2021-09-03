@@ -55,13 +55,16 @@ public abstract class BaseSaveObject : MonoBehaviour, SaveObject
 
     References:
     Unity Event, EventType, OnInspectorGUI API
+    https://answers.unity.com/questions/1274030/unity-duplicate-event.html ?
+    EditorApplication.hierarchyChanged ?
+    EditorSceneManager
     */
     private void OnGUI()
     {
-        //Debug.Log("called gui");
-        if (Event.current.commandName == "Paste")//Event.current.type == EventType.ValidateCommand && 
+        //Debug.Log("called gui: " + Event.current.commandName + ", " + Event.current);
+        if (Event.current.commandName != "")//Event.current.type == EventType.ValidateCommand && 
         {
-            Debug.Log("paste reset");
+            //Debug.Log("called gui: " + Event.current.commandName + ", " + Event.current);
             /*
             id = 0;
             EditorUtility.SetDirty(this);
