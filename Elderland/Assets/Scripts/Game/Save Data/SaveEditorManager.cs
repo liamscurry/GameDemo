@@ -38,7 +38,9 @@ public class SaveEditorManager : MonoBehaviour
     private List<SaveObject> GetSaveObjects(Scene scene)
     {
         GameObject[] rootObjects = scene.GetRootGameObjects();
-        Debug.Log(scene.name + ", root objects: " + rootObjects.Length);
+
+        //Debug.Log(scene.name + ", root objects: " + rootObjects.Length);
+
         var saveObjects = new List<SaveObject>();
         foreach (GameObject rootObject in rootObjects)
         {
@@ -70,19 +72,49 @@ public class SaveEditorManager : MonoBehaviour
         foreach (Scene scene in openedScenes)
         {
             var sceneSaveObjects = GetSaveObjects(scene);
+
+            /*
             Debug.Log(scene.name + ", save object count:" + sceneSaveObjects.Count);
             foreach (var obj in sceneSaveObjects)
             {
                 Debug.Log(obj.GameObject.name);
             }
+            */
+
             newSceneState.Add((scene, sceneSaveObjects));
         }
 
         return newSceneState;
     }
 
-    private void OnHierarchyChanged()
+    /*
+    Function needed to update to new scene list state and detect which scenes are still there since the
+    last hierarchy change. (this way we only consider existing states that change in the hierarchy,
+    not the change in loading/unloading scenes). When these persistent scenes are found, then
+    the parser goes through and sets new save game objects to have an ID of 0.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void OnHierarchyChanged() // No need to serialize after assigning lastSceneStates, as it is held in edit memory.
     {
-        GetCurrentHierarchyState();
+        var newSceneStates = GetCurrentHierarchyState();
+
+        if (lastSceneStates != null)
+        {
+            foreach (var newPair in newSceneStates)
+            {
+                if (lastSceneStates.Exists((lastPair) => lastPair.Item1 == newPair.Item1))
+                {
+                    // Existing scene still here, may have hierarchy count change.
+                    Debug.Log("same pair still here: " + newPair.Item1.name);
+                }
+            }
+        }
+
+        lastSceneStates = newSceneStates;
     }
 }
