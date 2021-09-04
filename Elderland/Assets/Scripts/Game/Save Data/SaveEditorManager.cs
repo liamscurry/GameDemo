@@ -9,12 +9,15 @@ using UnityEditor.SceneManagement;
 
 // Helper class responsible for detecting when scenes are edited during edit mode (not play mode).
 // This is needed to reset id's of copied/duplicated objects.
+
+// As of right now, if you accidently remove a save object, unload the scene (or quit unity) and readd it
+// the id of the save object is lost. Control z after accidently deleting this object works fine though (TODO).
 [ExecuteInEditMode]
 public class SaveEditorManager : MonoBehaviour
 {
     [SerializeField]
     [HideInInspector]
-    private List<(Scene, List<SaveObject>)> lastSceneStates;
+    private List<(Scene, string, List<SaveObject>)> lastSceneStates;
 
     [SerializeField]
     private string lastScene;
@@ -57,9 +60,9 @@ public class SaveEditorManager : MonoBehaviour
     None
 
     Outputs:
-    List<(Scene, List<SaveObject>)> : list of scene, save object list pairs.
+    List<(Scene, string, List<SaveObject>)> : list of scene, scene name, save object list pairs.
     */
-    private List<(Scene, List<SaveObject>)> GetCurrentHierarchyState()
+    private List<(Scene, string, List<SaveObject>)> GetCurrentHierarchyState()
     {
         List<Scene> openedScenes = new List<Scene>();
         for (int i = 0; i < SceneManager.sceneCount; i++)
@@ -68,7 +71,7 @@ public class SaveEditorManager : MonoBehaviour
                 openedScenes.Add(SceneManager.GetSceneAt(i));
         }
 
-        var newSceneState = new List<(Scene, List<SaveObject>)>();
+        var newSceneState = new List<(Scene, string,List<SaveObject>)>();
         foreach (Scene scene in openedScenes)
         {
             var sceneSaveObjects = GetSaveObjects(scene);
@@ -81,10 +84,41 @@ public class SaveEditorManager : MonoBehaviour
             }
             */
 
-            newSceneState.Add((scene, sceneSaveObjects));
+            newSceneState.Add((scene, scene.name, sceneSaveObjects));
         }
 
         return newSceneState;
+    }
+
+    /*
+    Detects when an existing scene gains a new save object object. If so, calls the reset ID function
+    of the save object.
+
+    Inputs:
+    Scene : scene : the scene to scan for new save objects.
+    List<SaveObject> : currentSaveObjects : list of save objects currently in the scene 'scene.'
+
+    Outputs:
+    None
+    */
+    private void DetectNewSaveObjects(Scene scene, List<SaveObject> newSaveObjects)
+    {
+        Scene tupleFiller;
+        string tupleFillerName;
+        List<SaveObject> oldSaveObjects;
+        (tupleFiller, tupleFillerName, oldSaveObjects) = lastSceneStates.Find((pair) => pair.Item1 == scene);
+
+        foreach (SaveObject newSaveObject in newSaveObjects)
+        {
+            if (!oldSaveObjects.Exists((saveObject) => newSaveObject == saveObject))
+            {
+                // New save object detected.
+                Debug.Log("new save object detected");
+                // objects in scenes: rearragning and renaming don't trigger,
+                // and while adding works on its own (which it should trigger), removing and readding
+                // with control z triggers this when it shouldnt.
+            }
+        }
     }
 
     /*
@@ -107,10 +141,11 @@ public class SaveEditorManager : MonoBehaviour
         {
             foreach (var newPair in newSceneStates)
             {
-                if (lastSceneStates.Exists((lastPair) => lastPair.Item1 == newPair.Item1))
+                if (lastSceneStates.Exists((lastPair) => 
+                    lastPair.Item1 == newPair.Item1 && lastPair.Item2 == newPair.Item2))
                 {
-                    // Existing scene still here, may have hierarchy count change.
-                    Debug.Log("same pair still here: " + newPair.Item1.name);
+                    // Existing scene still here, may have hierarchy save object change.
+                    DetectNewSaveObjects(newPair.Item1, newPair.Item3); 
                 }
             }
         }
