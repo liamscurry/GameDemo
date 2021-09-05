@@ -21,7 +21,6 @@ public class SaveManager : MonoBehaviour
     [SerializeField]
     private int uniqueIDCounter;
 
-    public string CurrentSave { get; private set; }
     private string autoSaveName = "AutoSave";
     private List<SaveObject> changedObjects;
 
@@ -54,6 +53,34 @@ public class SaveManager : MonoBehaviour
     }
 
     /*
+    Returns the autoSave file save name for a given scene.
+
+    Inputs:
+    Scene : scene : the scene to get the auto save file name of
+
+    Outputs:
+    string : the auto save file name.
+    */
+    public string GetSceneAutoSaveName(Scene scene)
+    {
+        return scene.name + "-" + autoSaveName;
+    }
+
+    /*
+    Returns the autoSave file save name for the current scene.
+
+    Inputs:
+    None
+
+    Outputs:
+    string : the auto save file name.
+    */
+    public string GetCurrentSceneAutoSaveName()
+    {
+        return GetSceneAutoSaveName(SceneManager.GetActiveScene());
+    }
+
+    /*
     Developement function used to load auto save file after everything else is initialized
     */
     private IEnumerator TestSaveSelect()
@@ -61,27 +88,11 @@ public class SaveManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
 
-        SetCurrentSave(autoSaveName);
-        Load(autoSaveName);
+        LoadAutoSave();
     }
 
     /*
-    Helper method needed in main menus to set the current save when loading into a specified save
-
-    Inputs:
-    string : saveName : name of save file.
-
-    Outputs:
-    None
-    */
-    public void SetCurrentSave(string saveName)
-    {
-        CurrentSave = saveName;
-    }
-
-    /*
-    Saves the game to the auto save slot. In addition, sets current save to the auto save
-    so that if the player dies, it will load the auto save.
+    Saves the game to the auto save slot (for the current scene)
 
     Inputs:
     None
@@ -91,11 +102,11 @@ public class SaveManager : MonoBehaviour
     */
     public void AutoSave()
     {
-        Save(autoSaveName);
+        Save(GetCurrentSceneAutoSaveName());
     }
 
     /*
-    Loads the most recent save file.
+    Loads the auto save file (for the current scene)
 
     Inputs:
     None
@@ -103,9 +114,9 @@ public class SaveManager : MonoBehaviour
     Outputs:
     None
     */
-    public void LoadCurrentSave()
+    public void LoadAutoSave()
     {
-        Load(CurrentSave);
+        Load(GetCurrentSceneAutoSaveName());
     }
 
     /*
@@ -129,8 +140,6 @@ public class SaveManager : MonoBehaviour
         }
 
         WriteToSaveFile(saveName, jsonObjects);
-
-        CurrentSave = saveName;
     }
 
     /*
@@ -283,5 +292,30 @@ public class SaveManager : MonoBehaviour
 
             return jsonIDPairs;
         }
+    }
+
+    /*
+    Moves save data of a swapped save object from one scene save file to another save scene file.
+
+    Inputs:
+    SaveObject : newSaveObject : the save object to be moved in the save scene files.
+    string : newSaveFile : the file path to the new save file newSaveObject will reside in.
+    string : oldSaveFile : the file path to the old save file newSaveObject will be removed from.
+
+    Outputs:
+    None
+    */
+    public void TransferObjectToSaveFile(
+        SaveObject newSaveObject,
+        string newSaveFile,
+        string oldSaveFile)
+    {
+        Debug.Log("swapped from: " + oldSaveFile + " to " + newSaveFile);
+    }
+
+    // Standard automated tests for save transfer from one file to another
+    private void TransferObjectToSaveFileTests()
+    {
+
     }
 }

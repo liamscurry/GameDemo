@@ -20,10 +20,30 @@ public class SaveEditorManager : MonoBehaviour
     private List<(Scene, string, List<SaveObject>)> lastSceneStates;
 
     [SerializeField]
+    [HideInInspector]
     private string lastScene;
+
+    [SerializeField]
+    [HideInInspector]
+    private bool initialized;
+
+    [SerializeField]
+    [HideInInspector]
+    private SaveManager saveManager;
+
+    private void TryInitialize()
+    {
+        if (!initialized)
+        {
+            initialized = true;
+            saveManager = GetComponent<SaveManager>();
+        }
+    }
 
     private void Update()
     {
+        TryInitialize();
+
         EditorApplication.hierarchyChanged -= OnHierarchyChanged;
         EditorApplication.hierarchyChanged += OnHierarchyChanged;
 
@@ -118,14 +138,17 @@ public class SaveEditorManager : MonoBehaviour
         {
             if (!oldSaveObjects.Exists((saveObject) => newSaveObject == saveObject))
             {
-                if (!DetectNewSaveObjectSceneSwap(newSaveObject))
+                Scene oldScene;
+                bool foundOldScene;
+                (oldScene, foundOldScene) = DetectNewSaveObjectSceneSwap(newSaveObject);
+                if (!foundOldScene)
                 {
                     // New save object detected, reset id, no need to edit save files
                     Debug.Log("new save object detected");
                 }
                 else
                 {
-                    SwapSaveObjectFile(newSaveObject, scene);
+                    SwapSaveObjectFile(newSaveObject, scene, oldScene);
                     Debug.Log("nothing happens, save object swapped scenes");
                 }
                 
@@ -145,19 +168,20 @@ public class SaveEditorManager : MonoBehaviour
     SaveObject : newSaveObject : possible new save object to be checked for scene transfer
 
     Outputs:
-    bool : true if the object scene swapped, false if newSaveObject is an actual new object.
+    Scene : scene found if the object scene swapped, generic scene if newSaveObject is an actual new object.
+    bool : was an old scene found.
     */
-    private bool DetectNewSaveObjectSceneSwap(SaveObject newSaveObject) 
+    private (Scene, bool) DetectNewSaveObjectSceneSwap(SaveObject newSaveObject) 
     {
         foreach (var oldPair in lastSceneStates)
         {
             if (oldPair.Item3.Contains(newSaveObject))
             {
-                return true;
+                return (oldPair.Item1, true);
             }
         }
     
-        return false;
+        return (new Scene(), false);
     }
 
     /*
@@ -170,9 +194,11 @@ public class SaveEditorManager : MonoBehaviour
     Outputs:
     None
     */
-    private void SwapSaveObjectFile(SaveObject newSaveObject, Scene newScene)
+    private void SwapSaveObjectFile(SaveObject newSaveObject, Scene newScene, Scene oldScene)
     {
-        
+        string oldSaveName = saveManager.GetSceneAutoSaveName(oldScene);
+        string newSaveName = saveManager.GetSceneAutoSaveName(newScene);
+        saveManager.TransferObjectToSaveFile(newSaveObject, newSaveName, oldSaveName);
     }
 
     /*

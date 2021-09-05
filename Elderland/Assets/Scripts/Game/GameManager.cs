@@ -263,7 +263,7 @@ public class GameManager : MonoBehaviour
         if (OnRespawn != null)
             OnRespawn.Invoke(this, EventArgs.Empty);
 
-        GameInfo.SaveManager.LoadCurrentSave();
+        GameInfo.SaveManager.LoadAutoSave();
 
         //Fade out
         yield return Fade(duration / 2, 0);
