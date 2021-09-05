@@ -26,6 +26,12 @@ public class SaveEditorManager : MonoBehaviour
     {
         EditorApplication.hierarchyChanged -= OnHierarchyChanged;
         EditorApplication.hierarchyChanged += OnHierarchyChanged;
+
+        if (lastSceneStates == null) // Needed to keep track of existing state on compilation for swap detection.
+        {
+            var newSceneStates = GetCurrentHierarchyState();
+            lastSceneStates = newSceneStates;
+        }
     }
 
     /*
@@ -112,13 +118,61 @@ public class SaveEditorManager : MonoBehaviour
         {
             if (!oldSaveObjects.Exists((saveObject) => newSaveObject == saveObject))
             {
-                // New save object detected.
-                Debug.Log("new save object detected");
+                if (!DetectNewSaveObjectSceneSwap(newSaveObject))
+                {
+                    // New save object detected, reset id, no need to edit save files
+                    Debug.Log("new save object detected");
+                }
+                else
+                {
+                    SwapSaveObjectFile(newSaveObject, scene);
+                    Debug.Log("nothing happens, save object swapped scenes");
+                }
+                
                 // objects in scenes: rearragning and renaming don't trigger,
                 // and while adding works on its own (which it should trigger), removing and readding
                 // with control z triggers this when it shouldnt.
             }
         }
+    }
+
+    /*
+    Checks if 'new' object detected in DetectNewSaveObjects really is a new object or if it
+    was an object in another scene that was moved to this scene. This method assumes the object
+    can be in only one scene at a time.
+
+    Inputs: 
+    SaveObject : newSaveObject : possible new save object to be checked for scene transfer
+
+    Outputs:
+    bool : true if the object scene swapped, false if newSaveObject is an actual new object.
+    */
+    private bool DetectNewSaveObjectSceneSwap(SaveObject newSaveObject) 
+    {
+        foreach (var oldPair in lastSceneStates)
+        {
+            if (oldPair.Item3.Contains(newSaveObject))
+            {
+                return true;
+            }
+        }
+    
+        return false;
+    }
+
+    /*
+    Moves save data of a swapped save object from one scene save file to another save scene file.
+
+    Inputs:
+    SaveObject : newSaveObject : the save object to be moved in the save scene files.
+    Scene : newScene : the new save scene file the object should reside in.
+
+    Outputs:
+    None
+    */
+    private void SwapSaveObjectFile(SaveObject newSaveObject, Scene newScene)
+    {
+        
     }
 
     /*
