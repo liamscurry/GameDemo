@@ -276,7 +276,7 @@ public class SaveManager : MonoBehaviour
 
         if (!File.Exists(filePath))
         {
-            throw new System.Exception("Save file does not exist: " + filePath);
+            return new List<JsonIDPair>();
         }
         else
         {

@@ -12,16 +12,12 @@ using UnityEditor.SceneManagement;
 
 // As of right now, if you accidently remove a save object, unload the scene (or quit unity) and readd it
 // the id of the save object is lost. Control z after accidently deleting this object works fine though (TODO).
-[ExecuteInEditMode]
+[ExecuteAlways]
 public class SaveEditorManager : MonoBehaviour
 {
     [SerializeField]
     [HideInInspector]
     private List<(Scene, string, List<SaveObject>)> lastSceneStates;
-
-    [SerializeField]
-    [HideInInspector]
-    private string lastScene;
 
     [SerializeField]
     [HideInInspector]
@@ -42,15 +38,25 @@ public class SaveEditorManager : MonoBehaviour
 
     private void Update()
     {
-        TryInitialize();
-
-        EditorApplication.hierarchyChanged -= OnHierarchyChanged;
-        EditorApplication.hierarchyChanged += OnHierarchyChanged;
-
-        if (lastSceneStates == null) // Needed to keep track of existing state on compilation for swap detection.
+        if (!Application.isPlaying)
         {
-            var newSceneStates = GetCurrentHierarchyState();
-            lastSceneStates = newSceneStates;
+            TryInitialize();
+
+            EditorApplication.hierarchyChanged -= OnHierarchyChanged;
+            EditorApplication.hierarchyChanged += OnHierarchyChanged;
+
+            if (lastSceneStates == null) // Needed to keep track of existing state on compilation for swap detection.
+            {
+                var newSceneStates = GetCurrentHierarchyState();
+                lastSceneStates = newSceneStates;
+            }
+        }
+        else
+        {
+            // Needed to clear state when playing and going back
+            //into edit mode.
+            EditorApplication.hierarchyChanged -= OnHierarchyChanged; 
+            lastSceneStates = null;
         }
     }
 
@@ -225,7 +231,7 @@ public class SaveEditorManager : MonoBehaviour
                     lastPair.Item1 == newPair.Item1 && lastPair.Item2 == newPair.Item2))
                 {
                     // Existing scene still here, may have hierarchy save object change.
-                    DetectNewSaveObjects(newPair.Item1, newPair.Item3); 
+                    DetectNewSaveObjects(newPair.Item1, newPair.Item3);
                 }
             }
         }
