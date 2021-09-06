@@ -43,33 +43,4 @@ public abstract class BaseSaveObject : MonoBehaviour, SaveObject
             PrefabUtility.RecordPrefabInstancePropertyModifications(this);
         }
     }
-
-    /*
-    Helper event method called during editor events. Needed to reset id when pasted/duplicated.
-
-    Inputs:
-    None
-
-    Outputs:
-    None
-
-    References:
-    Unity Event, EventType, OnInspectorGUI API
-    https://answers.unity.com/questions/1274030/unity-duplicate-event.html ?
-    EditorApplication.hierarchyChanged ?
-    EditorSceneManager
-    */
-    private void OnGUI()
-    {
-        //Debug.Log("called gui: " + Event.current.commandName + ", " + Event.current);
-        if (Event.current.commandName != "")//Event.current.type == EventType.ValidateCommand && 
-        {
-            //Debug.Log("called gui: " + Event.current.commandName + ", " + Event.current);
-            /*
-            id = 0;
-            EditorUtility.SetDirty(this);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(this);
-            */
-        }
-    }
 }

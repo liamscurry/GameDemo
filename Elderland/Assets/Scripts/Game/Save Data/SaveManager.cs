@@ -15,6 +15,9 @@ using UnityEditor;
 // Main manager class for saving/loading data.
 public class SaveManager : MonoBehaviour
 {
+    // Enum used for unit testing TransferObjectToSaveFile
+    public enum TransferResult { BothEmpty, NewEmpty, OldEmpty, NoneEmpty }
+
     private const int unitializedID = 0;
 
     [HideInInspector]
@@ -299,23 +302,111 @@ public class SaveManager : MonoBehaviour
 
     Inputs:
     SaveObject : newSaveObject : the save object to be moved in the save scene files.
-    string : newSaveFile : the file path to the new save file newSaveObject will reside in.
-    string : oldSaveFile : the file path to the old save file newSaveObject will be removed from.
+    string : newSaveFile : the file name to the new save file newSaveObject will reside in.
+    string : oldSaveFile : the file name to the old save file newSaveObject will be removed from.
 
     Outputs:
     None
     */
-    public void TransferObjectToSaveFile(
+    public TransferResult TransferObjectToSaveFile(
         SaveObject newSaveObject,
         string newSaveFile,
         string oldSaveFile)
     {
-        Debug.Log("swapped from: " + oldSaveFile + " to " + newSaveFile);
+        string cwd = Directory.GetCurrentDirectory();
+        string newFilePath = cwd + "\\Assets\\Save Files\\" + newSaveFile + ".txt";
+        string oldFilePath = cwd + "\\Assets\\Save Files\\" + oldSaveFile + ".txt";
+
+        if (!File.Exists(newFilePath) && !File.Exists(oldFilePath))
+        { 
+            // do nothing, no record of save object in either file as they are empty.
+            return TransferResult.BothEmpty; 
+        }
+        else if (File.Exists(newFilePath) && !File.Exists(oldFilePath))
+        {
+            // do nothing, no record of save on old scene, so no data to transfer
+            return TransferResult.OldEmpty;
+        }
+        else if (!File.Exists(newFilePath) && File.Exists(oldFilePath))
+        {
+            // No new file but old file has data -> create a new file save and put the data in it,
+            // then remove from old file.
+            TransferObjectToSaveFileHelper(newSaveObject, newFilePath, oldFilePath);
+            return TransferResult.NewEmpty;
+        }
+        else
+        {
+            // Both files exist -> append to new file and remove from old one.
+            TransferObjectToSaveFileHelper(newSaveObject, newFilePath, oldFilePath);
+            return TransferResult.NoneEmpty;
+        }
+    }
+
+    /*
+    Moves the save object specified in the case of TransferObjectToSaveFile where file editing is neccesary.
+
+    Inputs:
+    SaveObject : newSaveObject : the save object to be moved in the save scene files.
+    string : newFilePath : the file path to the new save file newSaveObject will reside in.
+    string : oldFilePath : the file path to the old save file newSaveObject will be removed from.
+
+    Outputs:
+    None
+    */
+    private void TransferObjectToSaveFileHelper(
+        SaveObject newSaveObject,
+        string newFilePath, 
+        string oldFilePath)
+    {
+        string[] jsonObjects = System.IO.File.ReadAllLines(oldFilePath);
+        string oldData = "";
+        string searchString = newSaveObject.ID + " ";
+
+        using (StreamWriter streamWriter = File.CreateText(oldFilePath))
+        {
+            foreach (string jsonObject in jsonObjects)
+            {
+                if (jsonObject.Substring(0, (newSaveObject.ID + " ").Length) == searchString)
+                {
+                    oldData = jsonObject;
+                }
+                else
+                {
+                    streamWriter.WriteLine(jsonObject);
+                }
+            }
+        }
+
+        if (oldData == "")
+        {
+            // hierarchy change may get called multiple times, in which case old data may have already been moved.
+            return; 
+        }
+        else
+        {
+            using (StreamWriter streamWriter = File.AppendText(newFilePath))
+            {
+                streamWriter.WriteLine(oldData);
+            }
+        }
     }
 
     // Standard automated tests for save transfer from one file to another
-    private void TransferObjectToSaveFileTests()
+    public static void TransferObjectToSaveFileTests(SaveManager saveManager)
     {
-
+        TransferResult result1 =
+            saveManager.TransferObjectToSaveFile(null, "NonExistantFile1", "NonExistantFile2");
+        UT.CheckEquality<bool>(result1 == TransferResult.BothEmpty, true);
+        TransferResult result2 =
+            saveManager.TransferObjectToSaveFile(null, "TransferSaveTestFile", "NonExistantFile2");
+        UT.CheckEquality<bool>(result2 == TransferResult.OldEmpty, true);
+        var swapObject1 = new TestSaveNonMonoObject(1);
+        TransferResult result3 =
+            saveManager.TransferObjectToSaveFile(swapObject1, "TransferSaveTestFile1", "TransferSaveTestFile2");
+        UT.CheckEquality<bool>(result3 == TransferResult.NewEmpty, true);
+        var swapObject2 = new TestSaveNonMonoObject(2);
+        TransferResult result4 =
+            saveManager.TransferObjectToSaveFile(swapObject2, "TransferSaveTestFile1", "TransferSaveTestFile2");
+        UT.CheckEquality<bool>(result4 == TransferResult.NoneEmpty, true);
     }
 }

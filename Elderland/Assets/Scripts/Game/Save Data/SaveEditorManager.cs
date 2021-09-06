@@ -155,7 +155,6 @@ public class SaveEditorManager : MonoBehaviour
                 else
                 {
                     SwapSaveObjectFile(newSaveObject, scene, oldScene);
-                    Debug.Log("nothing happens, save object swapped scenes");
                 }
                 
                 // objects in scenes: rearragning and renaming don't trigger,
