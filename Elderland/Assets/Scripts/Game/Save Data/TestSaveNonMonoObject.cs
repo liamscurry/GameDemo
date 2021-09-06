@@ -27,4 +27,5 @@ public sealed class TestSaveNonMonoObject : SaveObject
 
     public void Load(string jsonString) {}
     public void CheckID(SaveManager saveManager, bool resetSave) {}
+    public void PrintID() {}
 }

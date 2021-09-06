@@ -10,14 +10,19 @@ using UnityEditor.SceneManagement;
 // Helper class responsible for detecting when scenes are edited during edit mode (not play mode).
 // This is needed to reset id's of copied/duplicated objects.
 
-// As of right now, if you accidently remove a save object, unload the scene (or quit unity) and readd it
-// the id of the save object is lost. Control z after accidently deleting this object works fine though (TODO).
+// As of right now, if you accidently remove a save object, unload the scene, quit unity or hit play,
+// the id of the save object is lost. Control z after accidently deleting this object is supported
+// and does not remove the id of the object, so it is retained.
 [ExecuteAlways]
 public class SaveEditorManager : MonoBehaviour
 {
     [SerializeField]
     [HideInInspector]
     private List<(Scene, string, List<SaveObject>)> lastSceneStates;
+
+    [SerializeField]
+    [HideInInspector]
+    private List<SaveObject> deletedSaveObjects;
 
     [SerializeField]
     [HideInInspector]
@@ -29,11 +34,21 @@ public class SaveEditorManager : MonoBehaviour
 
     private void TryInitialize()
     {
+        if (deletedSaveObjects == null)
+            initialized = false;
+
         if (!initialized)
         {
-            initialized = true;
-            saveManager = GetComponent<SaveManager>();
+            ForceInitialize();
         }
+    }
+
+    [ContextMenu("ForceInitialize")]
+    private void ForceInitialize()
+    {
+        initialized = true;
+        saveManager = GetComponent<SaveManager>();
+        deletedSaveObjects = new List<SaveObject>();
     }
 
     private void Update()
@@ -150,7 +165,15 @@ public class SaveEditorManager : MonoBehaviour
                 if (!foundOldScene)
                 {
                     // New save object detected, reset id, no need to edit save files
-                    Debug.Log("new save object detected");
+                    if (deletedSaveObjects.Contains(newSaveObject))
+                    {
+                        deletedSaveObjects.Remove(newSaveObject);
+                    }
+                    else
+                    {
+                        newSaveObject.CheckID(saveManager, true);
+                        Debug.Log("new save object detected, given a new ID");
+                    }
                 }
                 else
                 {
@@ -160,6 +183,37 @@ public class SaveEditorManager : MonoBehaviour
                 // objects in scenes: rearragning and renaming don't trigger,
                 // and while adding works on its own (which it should trigger), removing and readding
                 // with control z triggers this when it shouldnt.
+            }
+        }
+    }
+
+    /*
+    Detects when an existing scene removes a save object from the entire hierarhcy. If so, the method
+    adds the save object to the deleted list of objects.
+
+    Testing: doesnt proc on scene rename, rearrange, unload, load, which it shouldn't. In addition
+    doesn't proc when swapping objects to different scenes, renaming objects, rearranging them,
+    duplicating, adding objects. Only detects a removed object when it is deleted or control z
+    deleted, this is the behaviour that is expected. 9.6.21
+
+    Inputs:
+    List<(Scene, string, List<SaveObject>)> : list os new scene state pairs.
+
+    Outputs:
+    None
+    */
+    private void DetectRemovedSaveObjects(List<(Scene, string, List<SaveObject>)> newSceneStates)
+    {
+        foreach (var state in lastSceneStates)    
+        {
+            // Needed to not check for removed on a state that was unloaded/renamed
+            if (!newSceneStates.Exists((newState) => newState.Item2 == state.Item2))
+                continue;
+
+            foreach (SaveObject oldSaveObject in state.Item3)
+            {
+                if (!newSceneStates.Exists((state) => (state.Item3.Exists((obj) => obj == oldSaveObject))))
+                    deletedSaveObjects.Add(oldSaveObject);
             }
         }
     }
@@ -224,6 +278,8 @@ public class SaveEditorManager : MonoBehaviour
 
         if (lastSceneStates != null)
         {
+            DetectRemovedSaveObjects(newSceneStates);
+
             foreach (var newPair in newSceneStates)
             {
                 if (lastSceneStates.Exists((lastPair) => 

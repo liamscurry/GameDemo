@@ -9,4 +9,5 @@ public interface SaveObject
     string Save(SaveManager saveManager, bool resetSave = false);
     void Load(string jsonString);
     void CheckID(SaveManager saveManager, bool resetSave);
+    void PrintID();
 }

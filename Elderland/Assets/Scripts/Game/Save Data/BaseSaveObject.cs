@@ -43,4 +43,11 @@ public abstract class BaseSaveObject : MonoBehaviour, SaveObject
             PrefabUtility.RecordPrefabInstancePropertyModifications(this);
         }
     }
+
+    // Display ID to the console
+    [ContextMenu("PrintSaveID")]
+    public void PrintID()
+    {
+        Debug.Log(gameObject.name + "'s save ID: " + id);
+    }
 }
