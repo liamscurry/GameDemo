@@ -13,12 +13,19 @@ public class InteractionHoldEventBehaviour : StateMachineBehaviour
         PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
         PlayerInfo.MovementManager.SnapSpeed();
         PlayerInfo.AnimationManager.UpdateFreeWalkProperties();
+        PlayerInfo.AnimationManager.UpdateFreeRotationProperties();
+        PlayerInfo.MovementManager.TargetDirection =
+            Matho.StdProj2D(PlayerInfo.Player.transform.forward);
+        PlayerInfo.MovementManager.SnapDirection();
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (!exiting)
         {
+            PlayerInfo.AnimationManager.UpdateFreeWalkProperties();
+            PlayerInfo.AnimationManager.UpdateFreeRotationProperties();
+
             float percentage =
                 Mathf.Clamp01(stateInfo.normalizedTime * stateInfo.length / PlayerInfo.Manager.Interaction.HoldDuration);
             PlayerInfo.Manager.Interaction.HoldNormalizedTime = percentage;

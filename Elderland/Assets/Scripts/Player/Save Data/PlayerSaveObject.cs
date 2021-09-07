@@ -15,11 +15,19 @@ public class PlayerSaveObject : BaseSaveObject
     {
         public float health;
         public float stamina;
+        public Vector3 position;
+        public Quaternion rotation;
 
-        public PlayerSaveData(float health, float stamina)
+        public PlayerSaveData(
+            float health,
+            float stamina,
+            Vector3 position,
+            Quaternion rotation)
         {
             this.health = health;
             this.stamina = stamina;
+            this.position = position;
+            this.rotation = rotation;
         }
     }
 
@@ -29,7 +37,11 @@ public class PlayerSaveObject : BaseSaveObject
         CheckID(saveManager, resetSave);
 
         PlayerSaveData saveInfo =
-            new PlayerSaveData(PlayerInfo.Manager.Health, PlayerInfo.AbilityManager.Stamina);
+            new PlayerSaveData(
+                PlayerInfo.Manager.Health,
+                PlayerInfo.AbilityManager.Stamina,
+                PlayerInfo.Player.transform.position,
+                PlayerInfo.Player.transform.rotation);
         string saveInfoJson = JsonUtility.ToJson(saveInfo);
         return ID + " " + saveInfoJson;
     }
@@ -42,5 +54,16 @@ public class PlayerSaveObject : BaseSaveObject
         PlayerInfo.Manager.ChangeHealth(-1 * (PlayerInfo.Manager.MaxHealth - saveInfo.health), false, false);
         PlayerInfo.Manager.MaxOutStamina();
         PlayerInfo.Manager.ChangeStamina(-1 * (PlayerAbilityManager.MaxStamina - saveInfo.stamina));
+
+        PlayerInfo.Player.transform.position = saveInfo.position;
+        PlayerInfo.Player.transform.rotation = saveInfo.rotation;
+
+        PlayerInfo.MovementManager.TargetDirection =
+            Matho.StdProj2D(PlayerInfo.Player.transform.forward);
+        PlayerInfo.MovementManager.SnapDirection();
+        PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
+        PlayerInfo.MovementManager.SnapSpeed();
+
+        GameInfo.CameraController.SetDirection(PlayerInfo.Player.transform);
     }
 }

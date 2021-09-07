@@ -15,7 +15,17 @@ public class InteractionEndEventBehaviour : StateMachineBehaviour
         animator.SetTrigger("exitInteraction");
         PlayerInfo.MovementManager.TargetPercentileSpeed = 0;
         PlayerInfo.MovementManager.SnapSpeed();
+        PlayerInfo.MovementManager.TargetDirection =
+            Matho.StdProj2D(PlayerInfo.Player.transform.forward);
+        PlayerInfo.MovementManager.SnapDirection();
         PlayerInfo.AnimationManager.UpdateFreeWalkProperties();
+        PlayerInfo.AnimationManager.UpdateFreeRotationProperties();
+    }
+
+    public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        PlayerInfo.AnimationManager.UpdateFreeWalkProperties();
+        PlayerInfo.AnimationManager.UpdateFreeRotationProperties();
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
