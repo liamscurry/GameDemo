@@ -65,5 +65,7 @@ public class PlayerSaveObject : BaseSaveObject
         PlayerInfo.MovementManager.SnapSpeed();
 
         GameInfo.CameraController.SetDirection(PlayerInfo.Player.transform);
+
+        PlayerInfo.KiltPhysics.ClearTransformMotion();
     }
 }

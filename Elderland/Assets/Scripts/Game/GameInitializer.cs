@@ -26,6 +26,8 @@ public class GameInitializer : MonoBehaviour
     private PickupPool pickupPool;
     [SerializeField]
     private Transform cooldownOriginTransform;
+    [SerializeField]
+    private Cloth kiltPhysics;
     [Header("Universal Enemy Info")]
     [SerializeField]
     private Color ArmorColor;
@@ -41,7 +43,13 @@ public class GameInitializer : MonoBehaviour
     {
         //Reference initialization
         GameInfo.Initialize(saveManager, menuManager, gameObject, projectilePool, pickupPool);
-        PlayerInfo.Initialize(player, sensor, playerObjects, meleeObjects, cooldownOriginTransform);
+        PlayerInfo.Initialize(
+            player,
+            sensor,
+            playerObjects,
+            meleeObjects,
+            cooldownOriginTransform,
+            kiltPhysics);
         EnemyInfo.Initialize(ArmorColor, HealthColor, FinisherHealthColor, shadowColorDim);
         GetComponent<GameSettings>().Initialize();
     }

@@ -21,6 +21,7 @@ public static class PlayerInfo
 
     //Components on player children
     public static PlayerSensor Sensor { get; private set; }
+    public static Cloth KiltPhysics { get; private set; }
 
     //System subparts
     public static AdvancedMovementSystem MovementSystem { get; private set; }
@@ -49,7 +50,8 @@ public static class PlayerInfo
         GameObject sensor,
         GameObject objects,
         GameObject meleeObjects,
-        Transform cooldownOriginTransform)
+        Transform cooldownOriginTransform,
+        Cloth kiltPhysics)
     {
         //Object References
         Player = player;
@@ -68,6 +70,7 @@ public static class PlayerInfo
 
         //Components on player children assignments
         Sensor = sensor.GetComponent<PlayerSensor>();
+        KiltPhysics = kiltPhysics;
 
         //System subpart initializations
         PhysicsSystem = new PhysicsSystem(Player, Capsule, Body, 1);
