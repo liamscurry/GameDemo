@@ -26,6 +26,29 @@ public class UpperLayerBehaviour : StateMachineBehaviour
 	{
         if (!exiting)
         {
+            if (PlayerInfo.AnimationManager.UpperLayer.CurrentBehaviour == null)
+            {
+                exiting = true;
+                return;
+            }
+            else if (PlayerInfo.AnimationManager.UpperLayer.CurrentBehaviour != this)
+            {
+                exiting = true;
+                if (onShortCircuit != null)
+                    onShortCircuit();
+
+                return;
+            }
+            else if (stateInfo.normalizedTime >= 1)
+            {
+                exiting = true;
+                PlayerInfo.Animator.SetLayerWeight(layerIndex, 0);
+                if (PlayerInfo.AnimationManager.UpperLayer.OnEnd != null)
+                    PlayerInfo.AnimationManager.UpperLayer.OnEnd();
+
+                return;
+            }
+
             float currentWeight = 
                 PlayerInfo.Animator.GetLayerWeight(layerIndex);
             if (stateInfo.normalizedTime < duration)
@@ -44,20 +67,6 @@ public class UpperLayerBehaviour : StateMachineBehaviour
             else
             {
                 PlayerInfo.Animator.SetLayerWeight(layerIndex, 1f);
-            }
-
-            if (PlayerInfo.AnimationManager.UpperLayer.CurrentBehaviour != this)
-            {
-                exiting = true;
-                if (onShortCircuit != null)
-                    onShortCircuit();
-            }
-            else if (stateInfo.normalizedTime >= 1)
-            {
-                exiting = true;
-                PlayerInfo.Animator.SetLayerWeight(layerIndex, 0);
-                if (PlayerInfo.AnimationManager.UpperLayer.OnEnd != null)
-                    PlayerInfo.AnimationManager.UpperLayer.OnEnd();
             }
         }
 	}

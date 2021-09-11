@@ -50,6 +50,18 @@ public class PlayerAnimationPersistLayer
         PlayerInfo.Manager.StartCoroutine(weightSmoothCoro);
     }
 
+    // Immediate for of TurnOn.
+    public void TurnOnImmediate()
+    {
+        if (weightSmoothCoro != null)
+        {
+            PlayerInfo.Manager.StopCoroutine(weightSmoothCoro);
+            weightSmoothCoro = null;
+        }
+
+        PlayerInfo.Animator.SetLayerWeight(layerIndex, 1);
+    }
+
     public void TurnOff()
     {
         if (weightSmoothCoro != null)
@@ -59,6 +71,18 @@ public class PlayerAnimationPersistLayer
 
         weightSmoothCoro = FadeWeight(opacity, 0);
         PlayerInfo.Manager.StartCoroutine(weightSmoothCoro);
+    }
+
+    // Immediate for of TurnOff.
+    public void TurnOffImmediate()
+    {
+        if (weightSmoothCoro != null)
+        {
+            PlayerInfo.Manager.StopCoroutine(weightSmoothCoro);
+            weightSmoothCoro = null;
+        }
+
+        PlayerInfo.Animator.SetLayerWeight(layerIndex, 0);
     }
 
     public void ClaimTurnOn(Object user)

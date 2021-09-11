@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -34,10 +35,11 @@ public class Encounter : MonoBehaviour
         }
     }*/
 
-    public void Awake()
+    public void Start()
     {
         spawners = GetComponentsInChildren<EncounterSpawner>();
         spawnedEnemies = new List<EnemyManager>();
+        GameInfo.Manager.OnRespawn += OnRespawn;
     }
 
     public void Spawn()
@@ -69,6 +71,15 @@ public class Encounter : MonoBehaviour
         }
     }
 
+    /*
+    Resets the encounter so that all enemies are immediately recycled and all spawn when triggered.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
     public void Reset()
     {
         foreach (var enemy in spawnedEnemies)
@@ -85,5 +96,40 @@ public class Encounter : MonoBehaviour
         {
             spawner.Reset();
         }
+    }
+
+    /*
+    Same as normal reset method but immediately recycles enemies.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    public void ResetImmediate()
+    {
+        foreach (var enemy in spawnedEnemies)
+        {
+            if (enemy != null && enemy.isActiveAndEnabled)
+            {
+                enemy.RecycleImmediate();
+            }
+        }
+
+        spawnedEnemies.Clear();
+
+        foreach (var spawner in spawners)
+        {
+            spawner.Reset();
+        }
+    }
+
+    /*
+    Consumer of OnRespawn event in GameManager.
+    */
+    private void OnRespawn(object sender, EventArgs args)
+    {
+        ResetImmediate();
     }
 }

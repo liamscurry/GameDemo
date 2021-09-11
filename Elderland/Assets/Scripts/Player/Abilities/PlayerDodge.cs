@@ -81,7 +81,7 @@ public sealed class PlayerDodge : PlayerAbility
     private void ActBegin()
     {
         direction = GameInfo.CameraController.StdToCameraDir(GameInfo.Settings.LeftDirectionalInput);
-        PlayerInfo.MovementManager.TargetDirection = direction;
+        PlayerInfo.MovementManager.TargetDirection = -direction;
         PlayerInfo.MovementManager.SnapDirection();
         system.Physics.GravityStrength = 0;
 
@@ -102,7 +102,7 @@ public sealed class PlayerDodge : PlayerAbility
 
     private void ActEnd()
     {  
-        PlayerInfo.MovementManager.TargetDirection = direction;
+        PlayerInfo.MovementManager.TargetDirection = -direction;
         PlayerInfo.MovementManager.SnapDirection();
         PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude;
         PlayerInfo.MovementManager.SnapSpeed();

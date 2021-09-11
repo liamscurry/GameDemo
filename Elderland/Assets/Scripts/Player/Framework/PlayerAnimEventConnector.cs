@@ -43,6 +43,13 @@ public class PlayerAnimEventConnector : MonoBehaviour
         meleeWeapon.GetComponent<Animator>().Play("Fade Out");
     }
 
+    // Immediate version of FadeOutMelee
+    public void FadeOutMeleeImmediate()
+    {
+        meleeWeapon.GetComponent<Animator>().Play("Default");
+        meleeWeapon.GetComponent<MeshRenderer>().material.SetFloat("CutoutThreshold", 1);
+    }
+
     public void DisableMelee()
     {
         meleeWeapon.transform.parent = meleeWeaponStartParent;

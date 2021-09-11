@@ -93,22 +93,31 @@ public class GameManager : MonoBehaviour
 
     public void CheckForCombat()
     {
+        if (respawning)
+        {
+            InCombat = false;
+            combatCheckTimer = 0;
+            return;
+        }
+
         combatCheckTimer += Time.deltaTime;
         if (combatCheckTimer > combatCheckDuration)
         {
             combatCheckTimer = 0;
-            
+            InCombat = false;
+
+            // Will parse to only include enemies that are attacking player.
             Collider[] nearbyEnemies = 
                 Physics.OverlapSphere(
                     PlayerInfo.Player.transform.position,
                     combatCheckRadius,
                     LayerConstants.Enemy);
-            
-            // Will parse to only include enemies that are attacking player.
-            InCombat = false;
+
             foreach (Collider collider in nearbyEnemies)
             {
-                if (collider.GetComponent<EnemyManager>().AttackingPlayer)
+                var enemyManager = collider.GetComponent<EnemyManager>();
+                if (enemyManager.AttackingPlayer &&
+                    enemyManager.Alive)
                 {
                     InCombat = true;
                     break;
@@ -240,6 +249,9 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator FadeRespawn(float duration)
     {
+        // Lock released in RespawnBehaviour.cs
+        GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
+
         Time.timeScale = 0;
         respawning = true;
 
@@ -249,26 +261,17 @@ public class GameManager : MonoBehaviour
         yield return Fade(duration, 1);
 
         if (GameInfo.CurrentLevel != null)
-        {
             GameInfo.CurrentLevel.Reset();
-            PlayerInfo.Player.transform.position =
-                GameInfo.CurrentLevel.RespawnTransform.position;
-            PlayerInfo.Player.transform.rotation = 
-                GameInfo.CurrentLevel.RespawnTransform.rotation;
-            GameInfo.CameraController.SetDirection(
-                GameInfo.CurrentLevel.RespawnTransform.rotation);
-        }
-     
-        PlayerInfo.Manager.Reset();
+        GameInfo.ProjectilePool.ClearProjectilePool();
+        GameInfo.PickupPool.ClearPickupPool();
+        
         if (OnRespawn != null)
-            OnRespawn.Invoke(this, EventArgs.Empty);
+            OnRespawn.Invoke(this, EventArgs.Empty); 
 
         GameInfo.SaveManager.LoadAutoSave();
 
         //Fade out
         yield return Fade(duration / 2, 0);
-
-        PlayerInfo.Manager.Respawn();
 
         Time.timeScale = 1;
         respawning = false;

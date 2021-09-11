@@ -37,7 +37,6 @@ public class Door : BaseSaveObject
     public override string Save(SaveManager saveManager, bool resetSave = false)
     {
         Initialize();
-        CheckID(saveManager, resetSave);
 
         DoorSaveInfo saveInfo = new DoorSaveInfo();
         saveInfo.state = state;

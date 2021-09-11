@@ -7,7 +7,6 @@ public class TestSaveObject : BaseSaveObject
 {
     public override string Save(SaveManager saveManager, bool resetSave = false)
     {
-        CheckID(saveManager, resetSave);
         return ID + " " + "{\"test\": 1}";
     }
 

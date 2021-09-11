@@ -34,8 +34,6 @@ public class PlayerSaveObject : BaseSaveObject
     // Format for Json in files is [ID jsonString\n] without braces. One object per line.
     public override string Save(SaveManager saveManager, bool resetSave = false)
     {
-        CheckID(saveManager, resetSave);
-
         PlayerSaveData saveInfo =
             new PlayerSaveData(
                 PlayerInfo.Manager.Health,

@@ -703,33 +703,43 @@ public abstract class EnemyManager : MonoBehaviour, ICharacterManager
         }
     }
 
+    /*
+    Kills the enemy and marks them as available for respawn. Deletes the enemy and associated
+    resources after a timer.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
     public void Recycle()
     {
         Alive = false;
         RecycleLogic();
-
         StartCoroutine(RecycleTimer());
+    }
+
+    /*
+    Kills the enemy and marks them as available for respawn. Deletes the enemy after the frame this
+    method is called in.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    public void RecycleImmediate()
+    {
+        Alive = false;
+        RecycleLogic();
+        Destroy(gameObject);
     }
 
     public void RecycleLogic()
     {
         Animator.SetTrigger("recycle");
-
-        /*
-        if (Type == EnemyType.Melee && ArrangementNode != -1)
-        {
-            EnemyInfo.MeleeArranger.ClearNode(ArrangementNode);
-        }*/
-
-        /*
-        if (State == EnemyState.Attacking)
-        {
-            UnsubscribeFromAttack();
-        }
-        else if (State == EnemyState.Watching)
-        {
-            UnsubscribeFromWatch();
-        }*/
 
         TurnOffAgent();
 

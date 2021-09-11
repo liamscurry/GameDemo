@@ -68,6 +68,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         UnlockSprint();
         glitchRenderers =
             glitchRenderersParent.GetComponentsInChildren<SkinnedMeshRenderer>();
+        GameInfo.Manager.OnRespawn += OnRespawn;
     }
 
 	private void Update()
@@ -105,20 +106,6 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
     public void ForceClamp()
     {
         PlayerInfo.PhysicsSystem.ForceTouchingFloor();
-    }
-
-    public void OnDeath()
-    {
-        GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
-        PlayerInfo.BuffManager.ClearBuffs();
-        PlayerInfo.BuffManager.ClearDebuffs();
-        PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
-    }
-
-    public void Respawn()
-    {
-        GameInfo.Manager.ReceivingInput.TryReleaseLock(this, GameInput.Full);
-        PlayerInfo.AnimationManager.IgnoreFallingAnimation = false;
     }
 
     //Collision
@@ -190,12 +177,11 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
                 ChangeHealthBar(value);
             }
 
-            if (shakeCamera)
+            if (shakeCamera && Health != 0)
                 GameInfo.CameraController.ShakeCamera();
 
             if (preHealth != 0 && Health == 0)
             {
-                OnDeath();
                 GameInfo.Manager.Respawn();
             }
         }
@@ -604,39 +590,15 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         GameInfo.CameraController.AllowZoom = true;
     }
 
-    public void Reset()
+    /*
+    Consumer of OnRespawn GameManager event.
+    */
+    public void OnRespawn(object sender, EventArgs args)
     {
-        PlayerInfo.AbilityManager.ResetCooldowns();
-
-        PlayerInfo.PhysicsSystem.TotalZero(true, true, true);
-        PlayerInfo.PhysicsSystem.ForceTouchingFloor();
-        PlayerInfo.Animator.Play("Movement");
-        PlayerInfo.Animator.SetFloat("speed", 0.0f);
-        PlayerInfo.Animator.SetBool("jump", false);
-        PlayerInfo.Animator.ResetTrigger("runAbility");
-        PlayerInfo.Animator.ResetTrigger("proceedAbility");
-        PlayerInfo.Animator.SetBool("exitAbility", false);
-        PlayerInfo.Animator.ResetTrigger("dash");
-        PlayerInfo.Animator.ResetTrigger("dodge");
-        PlayerInfo.Animator.ResetTrigger("interacting");
-        PlayerInfo.Animator.ResetTrigger("climbing");
-        PlayerInfo.Animator.ResetTrigger("climbEnterTop");
-        PlayerInfo.Animator.ResetTrigger("climbEnterBottom");
-        PlayerInfo.Animator.SetFloat("climbSpeedVertical", 0.0f);
-        PlayerInfo.Animator.SetFloat("climbSpeedHorizontal", 0.0f);
-        PlayerInfo.Animator.ResetTrigger("climbExitTop");
-        PlayerInfo.Animator.ResetTrigger("climbExitBottom");
-        PlayerInfo.Animator.ResetTrigger("climbExitBottom");
-        PlayerInfo.Animator.ResetTrigger("lightSword");
-        PlayerInfo.Animator.ResetTrigger("generalInteracting");
-        PlayerInfo.Animator.SetBool("targetMatch", false);
-        PlayerInfo.Animator.SetBool("falling", false);
-        PlayerInfo.Animator.ResetTrigger("mantle");
-        PlayerInfo.Animator.ResetTrigger("tallMantle");
-        PlayerInfo.Animator.ResetTrigger("shortMantle");
-        PlayerInfo.Animator.ResetTrigger("mantleTop");
-        PlayerInfo.Animator.ResetTrigger("mantleBottom");
-        PlayerInfo.Animator.ResetTrigger("fall");
+        PlayerInfo.BuffManager.ClearBuffs();
+        PlayerInfo.BuffManager.ClearDebuffs();
+        PlayerInfo.AnimationManager.OnRespawn(sender, args);
+        PlayerInfo.AbilityManager.OnRespawn(sender, args);
     }
 
 	public Vector3 currentTargetPosition;

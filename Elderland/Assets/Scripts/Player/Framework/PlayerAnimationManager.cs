@@ -82,14 +82,12 @@ public class PlayerAnimationManager
 		ModelRotModifier = new StatLock<float>(1.0f);
 	}
 
-	public void UpdateAnimations()
-	{
-
-	}
+	public void UpdateAnimations() {}
 
 	public void LateUpdateAnimations()
 	{
-		if (PlayerInfo.Sensor.Interaction != null && GameInfo.Manager.ReceivingInput.Value == GameInput.Full)
+		if (PlayerInfo.Sensor.Interaction != null &&
+			GameInfo.Manager.ReceivingInput.Value == GameInput.Full)
 		{
 			float angle = 
 				Matho.AngleBetween(
@@ -525,13 +523,18 @@ public class PlayerAnimationManager
 		PlayerInfo.StatsManager.Invulnerable.ClaimLock(this, true);
 	}
 
-	public void AwayCombatStanceNoClaim()
+	/*
+	Executes logic to put away sword stance without animations or gameplay locks.
+
+	Inputs:
+	None
+
+	Outputs:
+	None
+	*/
+	public void AwayCombatStanceImmediate()
 	{
-		combatLayer.TurnOff();
-		UpperLayer.RequestAction(
-			GetAnim("PutSwordAway"),
-			PlayerInfo.AbilityManager.OnCombatStanceOff,
-			PlayerInfo.AbilityManager.ShortCircuitCombatStanceOff);
+		PlayerInfo.AbilityManager.ShortCircuitCombatStanceOff();
 	}
 
 	/*
@@ -574,21 +577,25 @@ public class PlayerAnimationManager
             PlayerInfo.Controller.ApplyOverrides(overrideClips);
     }
 
+	[Obsolete("Use custom direct target match methods")]
 	public void EnqueueTarget(MatchTarget target)
 	{
 		matchTargets.Enqueue(target);
 	}
 
+	[Obsolete("Use custom direct target match methods")]
 	public void StartTarget()
 	{
 		PlayerInfo.Manager.StartCoroutine(CoUpdateTargetMatch(matchTargets.Dequeue()));
 	}
 
+	[Obsolete("Use custom direct target match methods")]
 	public void StartTarget(MatchTarget target)
 	{
 		PlayerInfo.Manager.StartCoroutine(CoUpdateTargetMatch(target));
 	}
 
+	[Obsolete("Use custom direct target match methods")]
 	public void StartTargetImmediately(MatchTarget target)
 	{
 		MatchTargetWeightMask mask = new MatchTargetWeightMask(target.positionWeight, target.rotationWeight);
@@ -600,6 +607,7 @@ public class PlayerAnimationManager
 		PlayerInfo.Manager.currentTargetPosition = target.position;
 	}
 
+	[Obsolete("Use custom direct target match methods")]
 	public IEnumerator CoUpdateTargetMatch(MatchTarget target)
 	{
 		if (PlayerInfo.Animator.IsInTransition(0))
@@ -626,13 +634,6 @@ public class PlayerAnimationManager
 			target.endTime);
 		PlayerInfo.Manager.currentTargetPosition = target.position;
 	}
-
-	/* 
-	public void SetInteractionAnimation(AnimationClip interactionClip)
-	{
-		controller["Interaction"] = interactionClip;
-	}
-	*/
 	
 	/*
 	* Direct target methods are for abilities. These are custom target coroutines that allow for
@@ -653,7 +654,7 @@ public class PlayerAnimationManager
 		float startTime = 0;
 		float animDuration = 0;
 		bool inTransition;
-		// assumes when transitioning that the next state is still in first loop (normalized time < 1)
+		// Assumes when transitioning that the next state is still in first loop (normalized time < 1)
 		if (PlayerInfo.Animator.IsInTransition(0)) 
 		{
 			var nextState = 
@@ -809,28 +810,41 @@ public class PlayerAnimationManager
 		}
 	}
 
-	public void KinematicEnable()
+	/*
+	Clears direct target coroutine so that the player will not follow the direct target anymore.
+
+	Inputs:
+	None
+
+	Outputs:
+	None
+	*/
+	public void TryStopDirectTargetMatch()
 	{
-		PlayerInfo.Body.isKinematic = true;
-		PlayerInfo.Animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
-		PlayerInfo.Animator.applyRootMotion = true;
+		if (directTargetCorou != null)
+		{
+			PlayerInfo.Manager.StopCoroutine(directTargetCorou);
+			directTargetCorou = null;
+			PlayerInfo.CharMoveSystem.Kinematic.TryReleaseLock(this, false);
+		}
 	}
 
-	public void KinematicDisable()
+	/*
+	Indirect consumer of event OnRespawn in GameManager.
+	*/
+	public void OnRespawn(object sender, EventArgs args)
 	{
-		PlayerInfo.Body.isKinematic = false;
-		PlayerInfo.Animator.updateMode = AnimatorUpdateMode.Normal;
-		PlayerInfo.Animator.applyRootMotion = false;
-	}
+		UpperLayer.TryShortCircuit();
+		FullLayer.TryShortCircuit();
 
-	public void AnimationPhysicsEnable()
-	{
-		PlayerInfo.PhysicsSystem.Animating = true;
-	}
+		if (PlayerInfo.AbilityManager.InCombatStance)
+			AwayCombatStanceImmediate();
 
-	public void AnimationPhysicsDisable()
-	{
-		PlayerInfo.PhysicsSystem.Animating = false;
+        TryStopDirectTargetMatch();
+        PlayerInfo.Animator.WriteDefaultValues();
+		PlayerInfo.Animator.Play(
+			AnimationConstants.Player.Respawn,
+			PlayerInfo.Animator.GetLayerIndex(AnimationConstants.Player.BaseLayer));
 	}
 
 	[System.Serializable]

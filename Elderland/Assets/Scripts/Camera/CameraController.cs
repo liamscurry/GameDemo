@@ -1,5 +1,5 @@
 ﻿#define DevMode
-
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -128,7 +128,8 @@ public class CameraController : MonoBehaviour
     float sprintTimer;
     float sprintPercentage;
     float orientationDelta;
-    float sprintOrientation;
+    private float sprintOrientation;
+    public float SprintOrientation { get { return sprintOrientation; } set { sprintOrientation = value; } } 
     float orientationTimer;
 
     // target direction threshold
@@ -155,6 +156,8 @@ public class CameraController : MonoBehaviour
         #else
         StartIdle();
         #endif
+
+        GameInfo.Manager.OnRespawn += OnRespawn;
 
         //Default values
         DefaultGameplaySettings();
@@ -471,10 +474,10 @@ public class CameraController : MonoBehaviour
 
     private IEnumerator ShakeCameraCoroutine()
     {
-        int signOffset = (Random.value > 0.5f) ? 1 : 0;
+        int signOffset = (UnityEngine.Random.value > 0.5f) ? 1 : 0;
         for (int i = 0; i < shakeSteps; i++)
         {
-            targetShake = Random.value * Mathf.Pow(-1, i + signOffset);
+            targetShake = UnityEngine.Random.value * Mathf.Pow(-1, i + signOffset);
             startShake = currentShake;
             shakeTimer = 0;
             yield return new WaitForSeconds(shakeStepDuration);
@@ -711,4 +714,12 @@ public class CameraController : MonoBehaviour
                 Time.deltaTime);
         return newPosition;
     }
+
+    /*
+	Consumer of event OnRespawn in GameManager.
+	*/
+	public void OnRespawn(object sender, EventArgs args)
+	{
+        SprintOrientation = 0;       
+	}
 }

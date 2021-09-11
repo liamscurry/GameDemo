@@ -35,25 +35,7 @@ public class SaveManager : MonoBehaviour
         StartCoroutine(TestSaveSelect());
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            Save(SceneManager.GetActiveScene().name + "-Save-01");
-            Debug.Log("saved");
-        }
-
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            Load(SceneManager.GetActiveScene().name + "-Save-01");
-            Debug.Log("loaded");
-        }
-
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            PlayerInfo.Manager.ChangeHealth(-1000);
-        }
-    }
+    private void Update() {}
 
     /*
     Returns the autoSave file save name for a given scene.

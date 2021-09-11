@@ -300,8 +300,8 @@ public class PlayerAbilityManager : AbilitySystem
     public void ShortCircuitCombatStanceOn()
     {
         PlayerInfo.AnimConnector.GraspMelee();
+        PlayerInfo.AnimationManager.CombatLayer.TurnOnImmediate();
         OnCombatStanceOn();
-        Debug.Log("called");
     }
 
     public void OnCombatStanceOff()
@@ -313,8 +313,9 @@ public class PlayerAbilityManager : AbilitySystem
 
     public void ShortCircuitCombatStanceOff()
     {
-        PlayerInfo.AnimConnector.FadeOutMelee();
+        PlayerInfo.AnimConnector.FadeOutMeleeImmediate();
         PlayerInfo.AnimConnector.DisableMelee();
+        PlayerInfo.AnimationManager.CombatLayer.TurnOffImmediate();
         OnCombatStanceOff();
     }
 
@@ -473,4 +474,13 @@ public class PlayerAbilityManager : AbilitySystem
             PlayerInfo.Animator.ResetTrigger("proceedAbility");
         }
     }
+
+    /*
+	Indirect consumer of event OnRespawn in GameManager.
+	*/
+	public void OnRespawn(object sender, EventArgs args)
+	{
+        // Ability short circuited from receiving input claim override in death change health logic.
+        ResetCooldowns();
+	}
 }

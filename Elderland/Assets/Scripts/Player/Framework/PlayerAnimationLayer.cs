@@ -46,6 +46,28 @@ public class PlayerAnimationLayer
         return true;
     }
 
+    /*
+    Short circuits the currently requested action and calls short circuit logic as appropriate (if
+    an action is taking place)
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    public void TryShortCircuit()
+    {
+        if (CurrentBehaviour != null)
+        {
+            if (OnShortCircuit != null)
+                OnShortCircuit();
+            
+            PlayerInfo.Animator.SetLayerWeight(layerIndex, 0);
+            OnInteractionFinish();
+        }
+    }
+
     private void OnInteractionFinish()
     {
         PlayerInfo.Animator.SetBool(layerName + "Exit", true);

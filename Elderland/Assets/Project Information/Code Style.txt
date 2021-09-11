@@ -6,7 +6,7 @@ Max method lines: 30-35.
 Comments:
 Before methods:
 /*
-* Words go here. Only describe WHY this function needs to exist.
+Words go here. Only describe WHY this function needs to exist.
 */
 
 Include names and types of parameters, what they are. Also include return types and what they are.
@@ -66,3 +66,6 @@ Input: input based tests use a fake controller and thus the controller cannot be
 
 Feedback: feedback tests validate themselves via output, posting a success upon completion if
 no bugs were detected.
+
+Indirect consumer on events:
+Called when event is invoked but called from a method that was invoked by the event (IE secondary invoked).
