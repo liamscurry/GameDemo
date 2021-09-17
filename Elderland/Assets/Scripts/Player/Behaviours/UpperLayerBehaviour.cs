@@ -11,29 +11,30 @@ public class UpperLayerBehaviour : StateMachineBehaviour
 {
     // Fields
     private Action onShortCircuit;
-    private bool exiting;
     private readonly float duration = 0.20f;
+
+    private bool Exiting { get; set; }
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
+        Exiting = false;
         PlayerInfo.Animator.SetLayerWeight(layerIndex, 0);
-        exiting = false;
         PlayerInfo.AnimationManager.UpperLayer.CurrentBehaviour = this;
         onShortCircuit = PlayerInfo.AnimationManager.UpperLayer.OnShortCircuit;
 	}
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-        if (!exiting)
+        if (!Exiting)
         {
             if (PlayerInfo.AnimationManager.UpperLayer.CurrentBehaviour == null)
             {
-                exiting = true;
+                Exiting = true;
                 return;
             }
             else if (PlayerInfo.AnimationManager.UpperLayer.CurrentBehaviour != this)
             {
-                exiting = true;
+                Exiting = true;
                 if (onShortCircuit != null)
                     onShortCircuit();
 
@@ -41,7 +42,7 @@ public class UpperLayerBehaviour : StateMachineBehaviour
             }
             else if (stateInfo.normalizedTime >= 1)
             {
-                exiting = true;
+                Exiting = true;
                 PlayerInfo.Animator.SetLayerWeight(layerIndex, 0);
                 if (PlayerInfo.AnimationManager.UpperLayer.OnEnd != null)
                     PlayerInfo.AnimationManager.UpperLayer.OnEnd();

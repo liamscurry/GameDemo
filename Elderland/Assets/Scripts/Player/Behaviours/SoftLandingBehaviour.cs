@@ -2,11 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoftLandingBehaviour : StateMachineBehaviour
+// PlayerStateMachineBehaviour incorporated.
+public class SoftLandingBehaviour : PlayerStateMachineBehaviour
 {
+	public void Awake()
+	{
+		transitionless = true;
+	}
+
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-		PlayerInfo.MovementManager.UpdateFreeWalkMovement(true);
+		base.OnStateUpdate(animator, stateInfo, layerIndex);
+
+		if (!Exiting)
+		{
+			PlayerInfo.MovementManager.UpdateFreeWalkMovement(true);
+		}
 	}
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 

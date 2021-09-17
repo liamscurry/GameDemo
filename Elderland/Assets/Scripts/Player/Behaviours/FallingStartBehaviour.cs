@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FallingStartBehaviour : StateMachineBehaviour 
+// PlayerStateMachineBehaviour incorporated.
+public class FallingStartBehaviour : PlayerStateMachineBehaviour 
 {
-	private bool exiting;
 	private float fastestFallingSpeed;
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
-		exiting = false;
+		base.OnStateEnter(animator, stateInfo, layerIndex);
 
 		animator.SetBool(AnimationConstants.Player.Jump, false);
 		animator.SetBool(AnimationConstants.Player.Falling, true);
@@ -20,7 +20,9 @@ public class FallingStartBehaviour : StateMachineBehaviour
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-		if (!exiting)
+		base.OnStateUpdate(animator, stateInfo, layerIndex);
+
+		if (!Exiting)
 		{
 			if (PlayerInfo.CharMoveSystem.DynamicAirVelocity.y < fastestFallingSpeed)
 				fastestFallingSpeed = PlayerInfo.CharMoveSystem.DynamicAirVelocity.y;
@@ -38,7 +40,7 @@ public class FallingStartBehaviour : StateMachineBehaviour
 				}
 
 				animator.SetBool(AnimationConstants.Player.Falling, false);
-				exiting = true;
+				Exiting = true;
 			}	
 		}
 	}
