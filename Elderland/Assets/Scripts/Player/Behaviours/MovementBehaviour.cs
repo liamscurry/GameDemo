@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
-// PlayerStateMachineBehaviour incorporated.
 public class MovementBehaviour : PlayerStateMachineBehaviour 
 {
     private bool keepSprintOnExit;

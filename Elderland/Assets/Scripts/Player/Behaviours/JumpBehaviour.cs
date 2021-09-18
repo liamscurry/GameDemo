@@ -2,26 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// PlayerStateMachineBehaviour incorporated.
-public class JumpBehaviour : PlayerStateMachineBehaviour 
+public class JumpBehaviour : StateMachineBehaviour 
 {
-	public void Awake()
-	{
-		transitionless = true;
-	}
+	private bool exiting;
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-		base.OnStateEnter(animator, stateInfo, layerIndex);
-
+		exiting = false;
 		PlayerInfo.MovementManager.UpdateFreeWalkMovement(true);
 	}
 
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-		base.OnStateUpdate(animator, stateInfo, layerIndex);
-
-		if (!Exiting)
+		if (!exiting)
 		{
 			PlayerInfo.MovementManager.UpdateFreeWalkMovement(true);
 		}

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // No immediate exit code needed, as it is handled in all cases through exit state method.
-// PlayerStateMachineBehaviour incorporated.
 public class SlowdownBehaviour : PlayerStateMachineBehaviour 
 {
 	public void Awake()
