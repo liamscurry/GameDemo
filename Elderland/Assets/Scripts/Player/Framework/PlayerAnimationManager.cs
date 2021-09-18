@@ -12,19 +12,8 @@ public class PlayerAnimationManager
 
 	public StandardInteraction CurrentInteraction { get; set; }
 
-	[Obsolete]
 	public StateMachineBehaviour AnimationPhysicsBehaviour { get; set; }
-	[Obsolete]
 	public StateMachineBehaviour KinematicBehaviour { get; set; }
-
-	/*
-	Stores the lastest state machine behaviour that has run in the player's animator.
-	This is used to detect when states are changed from outside sources, such as when
-	the player dies. For ease of use some behaviours can inherit from the player state machine 
-	behaviour class for automatic outside state transition handling.
-	*/
-	public StateMachineBehaviour CurrentBehaviour { get; set; }
-
 	public PlayerAnimationLayer UpperLayer { get; private set; }
 	public PlayerAnimationLayer FullLayer { get; private set; }
 	public bool IgnoreFallingAnimation { get; set; }
@@ -72,7 +61,6 @@ public class PlayerAnimationManager
 	private const float slowdownTrigger = 0.35f;
 	private bool slowingDown;
 	public bool SlowingDown { get { return slowingDown; } }
-	public bool TriggeredSlowdown { get; set; }
 
 	private bool movedThisFrame;
 
@@ -323,7 +311,7 @@ public class PlayerAnimationManager
 	{
 		if (!slowingDown)
 		{
-			TriggeredSlowdown = true;
+			PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.Slowdown);
 			slowingDown = true;
 		}
 	}

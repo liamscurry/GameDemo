@@ -4,38 +4,32 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
-public class MovementBehaviour : PlayerStateMachineBehaviour 
+public class MovementBehaviour : StateMachineBehaviour 
 {
+    private bool exiting;
+    private float movespeedVelocity;
     private bool keepSprintOnExit;
 
 	public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
-        base.OnStateEnter(animator, stateInfo, layerIndex);
+		exiting = false;
+        movespeedVelocity = 0;
         keepSprintOnExit = false;
 	}
 
-    protected override void OnStateExitImmediate()
-    {
-        Debug.Log("called immediate exit");
-    }
-
 	public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{   
-        base.OnStateUpdate(animator, stateInfo, layerIndex);
-
-        if (!Exiting && GameInfo.Manager.ReceivingInput.Value != GameInput.None)
+        if (!exiting && GameInfo.Manager.ReceivingInput.Value != GameInput.None)
         {
             PlayerInfo.MovementManager.UpdateFreeWalkMovement(true);
 
             //Transitions//
-            //if (!animator.IsInTransition(0))
+            if (!animator.IsInTransition(0))
             {
-                if (!Exiting)
+                if (!exiting)
                     JumpTransition(animator, stateInfo, layerIndex);
-                if (!Exiting)
+                if (!exiting)
                     FallingTransition(animator, stateInfo, layerIndex);
-                if (!Exiting)
-                    SlowdownTransition(animator, stateInfo, layerIndex);
                 /*
                 if (!exiting)
                     LadderTransition(animator, stateInfo, layerIndex);
@@ -60,7 +54,7 @@ public class MovementBehaviour : PlayerStateMachineBehaviour
             bool jumped = PlayerInfo.MovementManager.TryJump();
             if (jumped)
             {
-                Exiting = true;
+                exiting = true;
                 keepSprintOnExit = true;
             }
         }
@@ -73,18 +67,8 @@ public class MovementBehaviour : PlayerStateMachineBehaviour
             GameInfo.Manager.ReceivingInput.ClaimLock(PlayerInfo.MovementManager, GameInput.GameplayUnoverride);
             PlayerInfo.CharMoveSystem.HorizontalOnExit.ClaimLock(PlayerInfo.MovementManager, true);
             animator.SetBool(AnimationConstants.Player.Falling, true);
-            Exiting = true;
+            exiting = true;
             keepSprintOnExit = true;
-        }
-    }
-
-    private void SlowdownTransition(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        if (PlayerInfo.AnimationManager.TriggeredSlowdown)
-        {
-            PlayerInfo.Animator.SetTrigger(AnimationConstants.Player.Slowdown);
-            PlayerInfo.AnimationManager.TriggeredSlowdown = false;
-            Exiting = true;
         }
     }
 
@@ -137,7 +121,7 @@ public class MovementBehaviour : PlayerStateMachineBehaviour
                 animator.SetTrigger("climbing");
                 animator.SetTrigger("climbEnterBottom");
 
-                Exiting = true;
+                exiting = true;
                 GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
                 PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
                 GameInfo.CameraController.AllowZoom = false;
@@ -192,7 +176,7 @@ public class MovementBehaviour : PlayerStateMachineBehaviour
                 animator.SetTrigger("climbing");
                 animator.SetTrigger("climbEnterTop");
 
-                Exiting = true;
+                exiting = true;
                 GameInfo.Manager.ReceivingInput.ClaimLock(this, GameInput.None);
                 PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
                 GameInfo.CameraController.AllowZoom = false;
@@ -280,7 +264,7 @@ public class MovementBehaviour : PlayerStateMachineBehaviour
             PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
             GameInfo.CameraController.AllowZoom = false;
             GameInfo.CameraController.TargetDirection = mantle.Normal;
-            Exiting = true;
+            exiting = true;
         }
     }
 
@@ -339,7 +323,7 @@ public class MovementBehaviour : PlayerStateMachineBehaviour
             PlayerInfo.AnimationManager.IgnoreFallingAnimation = true;
             GameInfo.CameraController.AllowZoom = false;
             GameInfo.CameraController.TargetDirection = mantle.Normal;
-            Exiting = true;
+            exiting = true;
         }
     }
 }

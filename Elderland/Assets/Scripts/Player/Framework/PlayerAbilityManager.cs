@@ -38,11 +38,7 @@ public class PlayerAbilityManager : AbilitySystem
     public PlayerAbility Ranged { get { return ranged; } }
     [Obsolete]
     public PlayerAbility AOE { get { return aoe; } }
-    public new PlayerAbility CurrentAbility
-    {
-        get { return (PlayerAbility) currentAbility; }
-        set { currentAbility = value; }
-    }
+    public new PlayerAbility CurrentAbility { get { return (PlayerAbility) currentAbility; } set { currentAbility = value; } }
 
     public bool MeleeAvailable { get; set; }
     public bool DodgeAvailable { get; set; }
