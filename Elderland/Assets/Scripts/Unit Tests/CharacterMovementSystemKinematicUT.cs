@@ -71,7 +71,7 @@ public class CharacterMovementSystemKinematicUT : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
 
         var matchTarget = new PlayerAnimationManager.MatchTarget(
-            PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 4,
+            PlayerInfo.Player.transform.position + PlayerInfo.Player.transform.forward * 5f,
             Quaternion.identity,
             AvatarTarget.Root,
             Vector3.one,

@@ -123,14 +123,11 @@ public class ReceivingInputUT : MonoBehaviour
             Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
             yield break;
         }
-
+        
         yield return new WaitForSeconds(3f);
         
         try
         {
-            UT.CheckEquality<bool>(
-                PlayerInfo.CharMoveSystem.Grounded,
-                true);  
             UT.CheckEquality<bool>(
                 GameInfo.Manager.ReceivingInput.Tracker == GameInfo.CameraController.GameplayCutscene ||
                 GameInfo.Manager.ReceivingInput.Tracker == GameInfo.CameraController.CameraCutscene,
@@ -141,6 +138,7 @@ public class ReceivingInputUT : MonoBehaviour
         }
         catch (Exception e)
         {
+            Time.timeScale = 0;
             Debug.Log("Receiving Input: Failed. " + e.Message + " " + e.StackTrace);
             yield break;
         }
@@ -353,7 +351,7 @@ public class ReceivingInputUT : MonoBehaviour
     private IEnumerator FallingTest()
     {
         SetFakeControllerDirection(new Vector2(-1, 0).normalized * 0.95f);
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1.25f);
         SetFakeControllerDirection(new Vector2(0, 1));
         yield return new WaitForSeconds(2f);
 

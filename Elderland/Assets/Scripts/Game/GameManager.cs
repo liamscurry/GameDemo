@@ -34,16 +34,18 @@ public class GameManager : MonoBehaviour
     private const float combatCheckRadius = 30f;
 
     // GameplayOverride Input
-    // Can be overriden (by overriders marked below), yet do not override:
+    // Can be overriden, yet do not override:
     // Player abilities
     // Sword take out and put away.
 
     // GameplayUnoverride Input
-    // Cannot be overriden, yet do not override:
+    // Cannot be overriden (except by respawn), yet do not override:
     // Player falling
 
     // None Input
-    // Cannot be overriden, may override, player cannot be hurt:
+    // Cannot be overriden (even by respawn), may override:
+    // PS: respawn must implement short circuits for GameplayUnoverride input manually for each occurance
+    // if player can take damage in that state.
     // Interactions
     // Cutscenes
     public StatLock<GameInput> ReceivingInput { get; private set; }
