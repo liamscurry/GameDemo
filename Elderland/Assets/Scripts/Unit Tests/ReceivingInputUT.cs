@@ -157,8 +157,8 @@ public class ReceivingInputUT : MonoBehaviour
     */
     private IEnumerator OverrideTest()
     {
-        yield return OverrideTestHelper(cameraCutscene.Invoke);
-        yield return OverrideTestHelper(gameplayOverrideCutscene.Invoke);
+        yield return OverrideTestHelper(cameraCutscene.WaitInvoke);
+        yield return OverrideTestHelper(gameplayOverrideCutscene.WaitInvoke);
     }
 
     private IEnumerator OverrideTestHelper(Action overrideCall)
@@ -425,7 +425,7 @@ public class ReceivingInputUT : MonoBehaviour
         // Camera Cutscene
         yield return new WaitForSeconds(2f);
 
-        cameraCutscene.Invoke();
+        cameraCutscene.WaitInvoke();
         
         // Tests during fall
         TurnOnAllUnique();
@@ -453,7 +453,7 @@ public class ReceivingInputUT : MonoBehaviour
         yield return CheckForFreeLock();
 
         // Gameplay cutscene
-        gameplayUniqueCutscene.Invoke();
+        gameplayUniqueCutscene.WaitInvoke();
         
         // Tests during fall
         TurnOnAllUnique();

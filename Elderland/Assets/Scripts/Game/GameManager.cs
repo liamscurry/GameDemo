@@ -93,6 +93,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /*
+    Stream-lined method for use by None input actions. Overrides the input if overridable currently and
+    also procs when simply input set to full currently.
+    */
+    public bool IsInputFreeOrOverridable()
+    {
+        return ReceivingInput.Value == GameInput.Full ||
+               ReceivingInput.Value == GameInput.GameplayOverride;
+    }
+
     public void CheckForCombat()
     {
         if (respawning)

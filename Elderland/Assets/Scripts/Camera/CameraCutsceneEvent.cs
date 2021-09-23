@@ -34,14 +34,39 @@ public class CameraCutsceneEvent : MonoBehaviour
 	[SerializeField]
 	private UnityEvent endEvent;
 
-	// Non overriding invoke, waits until there are no gameplay unoverride states going.
+	/*
+	Non overriding invoke, waits until there are no gameplay unoverride states going, or if possible
+	triggers the event immediately.
+
+	Inputs:
+	None
+
+	Outputs:
+	None
+	*/
 	public void WaitInvoke()
 	{
-		GameInfo.Manager.ReceivingInput.NotifyLock(Invoke);
+		if (GameInfo.Manager.IsInputFreeOrOverridable())
+		{
+			Invoke();
+		}
+		else
+		{
+			GameInfo.Manager.ReceivingInput.NotifyLock(Invoke);
+		}
 	}
 
-	// Overriding invoke. Assumes not in gameplay unoverride state such as in interactions.
-	public void Invoke()
+	/*
+	Overriding invoke. Assumes not in gameplay unoverride state such as in interactions.
+	Should not be used as an event in inspector. Use WaitInvoke instead.
+
+	Inputs: 
+	None
+
+	Outputs:
+	None
+	*/
+	private void Invoke()
 	{
 		if (waypoints.Length == 0)
 		{

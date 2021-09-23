@@ -30,7 +30,7 @@ public class PlayerAnimationManager
 
 	private Coroutine directTargetCorou;
 	public bool InDirectTargetMatch { get { return directTargetCorou != null; } }
-	private const float directTargetClampOffset = 0.05f;
+	private const float directTargetClampOffset = 0.5f + 0.05f;
 
 	public const float ModelRotSpeedIdle = 4f;
 	public const float ModelRotSpeedMoving = 2.0f;

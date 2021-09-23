@@ -102,10 +102,13 @@ public sealed class PlayerDodge : PlayerAbility
 
     private void ActEnd()
     {  
-        PlayerInfo.MovementManager.TargetDirection = -direction;
-        PlayerInfo.MovementManager.SnapDirection();
         PlayerInfo.MovementManager.TargetPercentileSpeed = GameInfo.Settings.LeftDirectionalInput.magnitude;
         PlayerInfo.MovementManager.SnapSpeed();
+        int targetDirSign = 1;
+        if (PlayerInfo.MovementManager.TargetPercentileSpeed > PlayerMovementManager.MinWalkStickMag)
+            targetDirSign = -1;
+        PlayerInfo.MovementManager.TargetDirection = targetDirSign * -direction;
+        PlayerInfo.MovementManager.SnapDirection();
 
         GameInfo.CameraController.SpeedGradation = 0.08f;
     }

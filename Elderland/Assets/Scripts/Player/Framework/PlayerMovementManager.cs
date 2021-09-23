@@ -106,6 +106,9 @@ public class PlayerMovementManager
         }
     }
 
+    // Used in abilities to determine if after abilities whether the player should remain moving or not.
+    public const float MinWalkStickMag = 0.2f;
+
     public PlayerMovementManager()
     {
         TargetDirection = Vector2.right;

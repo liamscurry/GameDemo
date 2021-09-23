@@ -14,7 +14,7 @@ public class MainMenuUI : MonoBehaviour
 
 	public void OnStartButton()
 	{
-		cutscene.Invoke();
+		cutscene.WaitInvoke();
 		//mainMenuCanvas.SetActive(false);
 		if (onStartButton != null)
 			onStartButton.Invoke();
