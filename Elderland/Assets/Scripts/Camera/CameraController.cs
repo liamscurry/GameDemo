@@ -158,6 +158,7 @@ public class CameraController : MonoBehaviour
         #endif
 
         GameInfo.Manager.OnRespawn += OnRespawn;
+        GameInfo.Manager.OnLateRespawn += OnLateRespawn;
 
         //Default values
         DefaultGameplaySettings();
@@ -302,13 +303,6 @@ public class CameraController : MonoBehaviour
                     GeneratePosition(FollowTarget.transform.position + GenerateSprintOffset());
                 transform.position =
                     FollowPosition(transform.position, targetPosition);
-            }
-            else
-            {
-                HorizontalOffset = 5;
-                MaxRadius = 4.25f;
-                transform.rotation = GenerateRotation();
-                transform.position = GeneratePosition(FollowTarget.transform.position);
             }
         }
     }
@@ -721,5 +715,16 @@ public class CameraController : MonoBehaviour
 	public void OnRespawn(object sender, EventArgs args)
 	{
         SprintOrientation = 0;       
+	}
+
+    /*
+	Consumer of event OnLateRespawn in GameManager.
+	*/
+	public void OnLateRespawn(object sender, EventArgs args)
+	{
+        Gameplay();
+        Vector3 targetPosition =
+            GeneratePosition(FollowTarget.transform.position + GenerateSprintOffset());
+        transform.position = targetPosition;
 	}
 }

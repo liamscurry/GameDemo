@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -508,4 +509,14 @@ public class PlayerMovementManager
     {
         ZeroSpeed();
     }
+
+    /*
+	Indirect consumer of event OnRespawn in GameManager.
+	*/
+	public void OnRespawn(object sender, EventArgs args)
+	{
+        // Nothing needed to hard reset falling besides animator properties, which are already
+        // set in OnRespawn for animation manager.
+        PlayerInfo.CharMoveSystem.ResetVelocities();
+	}
 }

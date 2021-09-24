@@ -139,6 +139,23 @@ public class CharacterMovementSystem : MonoBehaviour
         }
     }
 
+    /*
+    Resets character move system's velocity partitions to zero.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    public void ResetVelocities()
+    {
+        dynamicAirVelocity = Vector3.zero;
+        dynamicVelocity = Vector3.zero;
+        constantAirVelocity = Vector3.zero;
+        constantVelocity = Vector3.zero;
+    }
+
     // Almost all ported over.
     // analogInput : world space x and z deltas
     public void GroundMove(Vector2 analogInput)

@@ -599,6 +599,7 @@ public class PlayerManager : MonoBehaviour, ICharacterManager
         PlayerInfo.BuffManager.ClearDebuffs();
         PlayerInfo.AnimationManager.OnRespawn(sender, args);
         PlayerInfo.AbilityManager.OnRespawn(sender, args);
+        PlayerInfo.MovementManager.OnRespawn(sender, args);
     }
 
 	public Vector3 currentTargetPosition;

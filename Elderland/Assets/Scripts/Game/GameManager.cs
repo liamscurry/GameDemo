@@ -53,6 +53,7 @@ public class GameManager : MonoBehaviour
     public bool InCombat { get; private set; }
 
     public event EventHandler OnRespawn;
+    public event EventHandler OnLateRespawn;
 
     //Set up all components of the game.
 	private void Awake() 
@@ -281,6 +282,9 @@ public class GameManager : MonoBehaviour
             OnRespawn.Invoke(this, EventArgs.Empty); 
 
         GameInfo.SaveManager.LoadAutoSave();
+
+        if (OnLateRespawn != null)
+            OnLateRespawn.Invoke(this, EventArgs.Empty);
 
         //Fade out
         yield return Fade(duration / 2, 0);
