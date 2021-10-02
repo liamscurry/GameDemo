@@ -16,6 +16,12 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject gameplayUI;
     [SerializeField]
+    private GameObject respawnText;
+    [SerializeField]
+    private GameObject respawnUI;
+    [SerializeField]
+    private GameObject respawnButton;
+    [SerializeField]
     private EventSystem eventSystem;
     [SerializeField]
     private UnityEvent onFadeOutroIn;
@@ -32,6 +38,8 @@ public class GameManager : MonoBehaviour
     private float combatCheckTimer;
     private const float combatCheckDuration = 1f;
     private const float combatCheckRadius = 30f;
+
+    public GameObject GameplayUI { get { return gameplayUI; } }
 
     // GameplayOverride Input
     // Can be overriden, yet do not override:
@@ -276,7 +284,9 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(2);
 
         //Fade in
+        respawnUI.SetActive(true);
         yield return Fade(duration, 1);
+        gameplayUI.SetActive(false);
 
         if (GameInfo.CurrentLevel != null)
             GameInfo.CurrentLevel.Reset();
@@ -291,8 +301,15 @@ public class GameManager : MonoBehaviour
         if (OnLateRespawn != null)
             OnLateRespawn.Invoke(this, EventArgs.Empty);
 
+        respawnText.SetActive(true);
+        respawnButton.SetActive(true);
+        eventSystem.SetSelectedGameObject(respawnButton);
+        yield return new WaitUntil(() => respawnButton.activeInHierarchy);
+        yield return new WaitUntil(() => !respawnButton.activeInHierarchy);
+
         //Fade out
         yield return Fade(duration / 2, 0);
+        respawnUI.SetActive(false);
 
         Time.timeScale = 1;
         respawning = false;
