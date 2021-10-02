@@ -27,6 +27,8 @@ public class HoldButtonUIController : MonoBehaviour
     [Header("References")]
     [SerializeField]
     private GameObject slideObject;
+    [SerializeField]
+    private GameObject selectedImage;
 
     private float timer;
     private Button button;
@@ -52,6 +54,8 @@ public class HoldButtonUIController : MonoBehaviour
     // Currently zeroes on deselect and button release as intended. 9.25.21.
     private void Update()
     {
+        UpdateSelectedImage();
+
         if (holdState == HoldState.NotHeld)
         {
             // Entry case
@@ -135,5 +139,32 @@ public class HoldButtonUIController : MonoBehaviour
                 0,
                 slideObject.transform.parent.localScale.y,
                 slideObject.transform.parent.localScale.z);
+    }
+
+    /*
+    Turns the selected outline on (and off) when the button is selected/not selected.
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+    */
+    private void UpdateSelectedImage()
+    {
+        if (EventSystem.current.currentSelectedGameObject == gameObject)
+        {
+            if (!selectedImage.activeInHierarchy)
+            {
+                selectedImage.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            if (selectedImage.activeInHierarchy)   
+            {
+                selectedImage.gameObject.SetActive(false);
+            }
+        }
     }
 }

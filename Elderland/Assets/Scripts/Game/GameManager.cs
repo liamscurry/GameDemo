@@ -92,6 +92,11 @@ public class GameManager : MonoBehaviour
         {
             PlayerInfo.Manager.ChangeHealth(-1);
         }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            GameInfo.Settings.ChangeKeybindTest();
+        }
     }
 
     /*
