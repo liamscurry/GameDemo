@@ -109,7 +109,12 @@ public class Door : BaseSaveObject
                 closedPosition + transform.up * (liftHeight) * (int) type;
             transform.localPosition = openPosition;
             state = State.Open;
+
+            /*
+            #if UNITY_EDITOR
             EditorUtility.SetDirty(gameObject);
+            #endif
+            */
         }
     }
 
@@ -119,7 +124,12 @@ public class Door : BaseSaveObject
         {
             transform.localPosition = closedPosition;
             state = State.Closed;
+
+            /*
+            #if UNITY_EDITOR
             EditorUtility.SetDirty(gameObject);
+            #endif
+            */
         }
     }
 

@@ -167,6 +167,7 @@ public class SaveManager : MonoBehaviour
         return saveObjects;
     }
 
+    #if UNITY_EDITOR
     public int RequestUniqueID()
     {
         int next = uniqueIDCounter++;
@@ -199,6 +200,7 @@ public class SaveManager : MonoBehaviour
     public void RegenerateIDs()
     {
         uniqueIDCounter = 1;
+        
         EditorUtility.SetDirty(this);
         PrefabUtility.RecordPrefabInstancePropertyModifications(this);
 
@@ -224,6 +226,7 @@ public class SaveManager : MonoBehaviour
             Debug.Log(saveObject.GameObject.name + ": " + saveObject.ID);
         }
     }
+    #endif
 
     public void ObjectChanged(SaveObject saveObject)
     {

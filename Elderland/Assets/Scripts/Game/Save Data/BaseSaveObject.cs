@@ -36,12 +36,15 @@ public abstract class BaseSaveObject : MonoBehaviour, SaveObject
     */
     public void CheckID(SaveManager saveManager, bool resetSave) 
     {
+        #if UNITY_EDITOR
         if (id == 0 || resetSave)
         {
             id = saveManager.RequestUniqueID();
+            
             EditorUtility.SetDirty(this);
             PrefabUtility.RecordPrefabInstancePropertyModifications(this);
         }
+        #endif
     }
 
     // Display ID to the console

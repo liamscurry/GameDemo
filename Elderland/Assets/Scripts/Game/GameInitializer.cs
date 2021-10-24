@@ -10,6 +10,8 @@ public class GameInitializer : MonoBehaviour
     private SaveManager saveManager;
     [SerializeField]
     private GameObject menuManager;
+    [SerializeField]
+    private CameraController cameraController;
 
     [Header("Player")]
     [SerializeField]
@@ -42,7 +44,13 @@ public class GameInitializer : MonoBehaviour
     public void Initialize()
     {
         //Reference initialization
-        GameInfo.Initialize(saveManager, menuManager, gameObject, projectilePool, pickupPool);
+        GameInfo.Initialize(
+            saveManager,
+            menuManager,
+            gameObject,
+            cameraController,
+            projectilePool,
+            pickupPool);
         PlayerInfo.Initialize(
             player,
             sensor,

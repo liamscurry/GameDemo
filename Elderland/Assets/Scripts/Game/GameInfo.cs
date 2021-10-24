@@ -29,6 +29,7 @@ public static class GameInfo
         SaveManager saveManager,
         GameObject menuManager,
         GameObject manager,
+        CameraController cameraController,
         ProjectilePool projectilePool,
         PickupPool pickupPool)
     {
@@ -39,7 +40,7 @@ public static class GameInfo
         Settings = manager.GetComponent<GameSettings>();
 
         //References
-        CameraController = Camera.main.GetComponent<CameraController>();
+        CameraController = cameraController;
         ProjectilePool = projectilePool;
         PickupPool = pickupPool;
 

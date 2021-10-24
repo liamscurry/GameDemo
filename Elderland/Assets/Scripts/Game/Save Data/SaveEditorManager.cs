@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using UnityEngine.SceneManagement;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 
 // Helper class responsible for detecting when scenes are edited during edit mode (not play mode).
 // This is needed to reset id's of copied/duplicated objects.
@@ -13,9 +12,10 @@ using UnityEditor.SceneManagement;
 // As of right now, if you accidently remove a save object, unload the scene, quit unity or hit play,
 // the id of the save object is lost. Control z after accidently deleting this object is supported
 // and does not remove the id of the object, so it is retained.
-[ExecuteAlways]
+[ExecuteInEditMode]
 public class SaveEditorManager : MonoBehaviour
 {
+    #if UNITY_EDITOR
     [SerializeField]
     [HideInInspector]
     private List<(Scene, string, List<SaveObject>)> lastSceneStates;
@@ -293,4 +293,6 @@ public class SaveEditorManager : MonoBehaviour
 
         lastSceneStates = newSceneStates;
     }
+
+    #endif
 }

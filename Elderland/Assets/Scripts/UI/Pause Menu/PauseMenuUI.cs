@@ -53,4 +53,10 @@ public class PauseMenuUI : MonoBehaviour
         
         eventSystem.SetSelectedGameObject(startUIObject);
     }
+
+    // Button Logic
+    public void QuitButtonLogic()
+    {
+        Application.Quit();
+    }
 }

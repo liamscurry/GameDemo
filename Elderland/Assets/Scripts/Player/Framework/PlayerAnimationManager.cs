@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor.Animations;
 using System;
 
 //Implement a queue based match target that is consumed by the target match behaviour (1 dequeue per state). 
@@ -20,7 +19,6 @@ public class PlayerAnimationManager
 
 	private AnimationClip[] playerAnims;
 	private List<KeyValuePair<AnimationClip, AnimationClip>> overrideClips;
-	public AnimatorController AnimatorController { get; private set; }
 
 	// Anim layers
 	private PlayerAnimationPersistLayer combatLayer;
@@ -72,9 +70,6 @@ public class PlayerAnimationManager
 		walkAbilityLayer = new PlayerAnimationPersistLayer(0.5f, "WalkAbilityLayer", 1f);
 		UpperLayer = new PlayerAnimationLayer("upperAction");
 		FullLayer = new PlayerAnimationLayer("fullAction");
-
-		AnimatorController =
-			Resources.Load<AnimatorController>(ResourceConstants.Player.Art.AnimatorController);
 
 		positionAnalogDirection = Vector2.zero;
 		movedThisFrame = false;
