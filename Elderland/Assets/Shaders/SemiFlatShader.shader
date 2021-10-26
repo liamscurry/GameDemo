@@ -5,7 +5,11 @@
 //Wanted to add group of objects for forward and backward rendering but can't as unity terrain details
 //can only have one object hierarchy per detail or else it is not drawn.
 
-//Based on built in grass shaders.
+//Based on built in deferred shaders.
+//References: 
+//Standard.shader
+//UnityStandardCore.cginc
+//UnityStandardShadow.cginc
 Shader "Custom/SemiFlatShader"
 {
     Properties
@@ -44,96 +48,122 @@ Shader "Custom/SemiFlatShader"
     {
         LOD 400
 
-        // SemiFlatShader pass structure
-        Pass
-        {
-            Name "SemiFlatShaderShadow"
-            Tags { "LightMode"="ShadowCaster" }
-
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment semiFlatFrag
-            #pragma multi_compile_shadowcaster
-            
-            #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderShadowCaster.cginc"
-            ENDCG
-        }
-
+        // Custom, partial fragments from Internal-DeferredShading.shader
+        // Pass 1: Lighting Pass
         Pass
         {
             Name "SemiFlatShader"
             Tags 
             { 
-                "LightMode"="ForwardBase"
-                "RenderType"="Geometry+20"
+                "LightMode"="Deferred"
             }
 
             CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment semiFlatFrag
-            #pragma multi_compile_fwdbase
+            #pragma target 3.0
+            #pragma multi_compile_lightpass
+            #pragma multi_compile ___ UNITY_HDR_ON
+            #pragma exclude_renderers nomrt
 
-            #pragma multi_compile_local __ _ALPHATEST_ON
-            #pragma multi_compile_local __ _NORMALMAP
+            #include "UnityCG.cginc"
+            #include "UnityDeferredLibrary.cginc"
+            #include "UnityPBSLighting.cginc"
+            #include "UnityStandardUtils.cginc"
+            #include "UnityGBuffer.cginc"
+            #include "UnityStandardBRDF.cginc"
 
-            #define TERRAIN_STANDARD_SHADER
-            #define TERRAIN_INSTANCED_PERPIXEL_NORMAL
-
-            #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderBase.cginc"
-            ENDCG
-        }
-
-        Pass
-        {
-            Name "PointLights"
-            Tags
-            {
-                "LightMode"="ForwardAdd"
-            }
-
-            Blend One One
-            ZWrite Off
-            ZTest LEqual
-            
-            CGPROGRAM
-            
-            #pragma vertex vert
-            #pragma fragment lightHelperFrag
-            #pragma multi_compile_fwdadd_fullshadows
-            #pragma multi_compile_shadowcaster
-
-            #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderAdditive.cginc"
-            ENDCG
-        }
-
-        Pass
-        {
-            Name "VolumetricOcclusion"
-            Tags
-            {
-                "RenderType"="Overlay"
-            }
-
-            Blend SrcAlpha OneMinusSrcAlpha
-            ZWrite Off
-            ZTest LEqual
-            
-            CGPROGRAM
-            
-            #pragma vertex vert
+            #pragma vertex VolumeVert
             #pragma fragment VolumeFrag
-            #pragma multi_compile_fwdadd_fullshadows
-            #pragma multi_compile_shadowcaster
 
-            #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderBase.cginc"
+            sampler2D _CameraGBufferTexture0;
+            sampler2D _CameraGBufferTexture1;
+            sampler2D _CameraGBufferTexture2;
 
-            fixed4 VolumeFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
+            unity_v2f_deferred VolumeVert (float4 vertex : POSITION, float3 normal : NORMAL)
             {
-                float inShadow = SHADOW_ATTENUATION(i);
-                return fixed4(inShadow, inShadow, inShadow, 1);
-                return fixed4(1,0,0,1);
+                unity_v2f_deferred o;
+                o.pos = UnityObjectToClipPos(vertex);
+                o.uv = ComputeScreenPos(o.pos);
+                o.ray = UnityObjectToViewPos(vertex) * float3(-1,-1,1);
+
+                // normal contains a ray pointing from the camera to one of near plane's
+                // corners in camera space when we are drawing a full screen quad.
+                // Otherwise, when rendering 3D shapes, use the ray calculated here.
+                o.ray = lerp(o.ray, normal, _LightAsQuad);
+
+                return o;
+            }
+
+            fixed4 VolumeFrag(unity_v2f_deferred i, fixed facingCamera : VFACE) : SV_Target
+            {
+                // Overlay defined.
+                //return fixed4(1,0,0,1);
+
+                float2 scaledScreenPos = i.uv.xy / i.uv.w;
+
+                // Normals defined.
+                float3 worldNormal = normalize((float3)tex2D(_CameraGBufferTexture2, scaledScreenPos).xyz * 2 - 1);
+                //return fixed4(worldNormal.xyz, 1);
+
+                // Depth defined.
+                float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, scaledScreenPos));
+                //return fixed4(depth, depth, depth, 1);
+
+                // Shadow 
+                float3 wpos;
+                float2 uv;
+                float atten, fadeDist;
+                UnityLight light;
+                UNITY_INITIALIZE_OUTPUT(UnityLight, light);
+                UnityDeferredCalculateLightParams (i, wpos, uv, light.dir, atten, fadeDist);
+
+                return fixed4(atten, atten, atten, 1);
             }
             ENDCG
+        }
+
+        // Provided as is, from Internal-DeferredShading.shader
+        // Pass 2: Final decode pass.
+        // Used only with HDR off, to decode the logarithmic buffer into the main RT
+        Pass {
+            ZTest Always Cull Off ZWrite Off
+            Stencil {
+                ref [_StencilNonBackground]
+                readmask [_StencilNonBackground]
+                // Normally just comp would be sufficient, but there's a bug and only front face stencil state is set (case 583207)
+                compback equal
+                compfront equal
+            }
+
+        CGPROGRAM
+        #pragma target 3.0
+        #pragma vertex vert
+        #pragma fragment frag
+        #pragma exclude_renderers nomrt
+
+        #include "UnityCG.cginc"
+
+        sampler2D _LightBuffer;
+        struct v2f {
+            float4 vertex : SV_POSITION;
+            float2 texcoord : TEXCOORD0;
+        };
+
+        v2f vert (float4 vertex : POSITION, float2 texcoord : TEXCOORD0)
+        {
+            v2f o;
+            o.vertex = UnityObjectToClipPos(vertex);
+            o.texcoord = texcoord.xy;
+        #ifdef UNITY_SINGLE_PASS_STEREO
+            o.texcoord = TransformStereoScreenSpaceTex(o.texcoord, 1.0f);
+        #endif
+            return o;
+        }
+
+        fixed4 frag (v2f i) : SV_Target
+        {
+            return -log2(tex2D(_LightBuffer, i.texcoord));
+        }
+        ENDCG
         }
     }
 }
