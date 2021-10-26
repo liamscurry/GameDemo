@@ -105,5 +105,35 @@ Shader "Custom/SemiFlatShader"
             #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderAdditive.cginc"
             ENDCG
         }
+
+        Pass
+        {
+            Name "VolumetricOcclusion"
+            Tags
+            {
+                "RenderType"="Overlay"
+            }
+
+            Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
+            ZTest LEqual
+            
+            CGPROGRAM
+            
+            #pragma vertex vert
+            #pragma fragment VolumeFrag
+            #pragma multi_compile_fwdadd_fullshadows
+            #pragma multi_compile_shadowcaster
+
+            #include "Assets/Shaders/ShaderCgincFiles/SemiFlatShaderBase.cginc"
+
+            fixed4 VolumeFrag(customV2F i, fixed facingCamera : VFACE) : SV_Target
+            {
+                float inShadow = SHADOW_ATTENUATION(i);
+                return fixed4(inShadow, inShadow, inShadow, 1);
+                return fixed4(1,0,0,1);
+            }
+            ENDCG
+        }
     }
 }
