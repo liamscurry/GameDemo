@@ -215,6 +215,7 @@ Shader "Custom/TreeLeaves"
 
                 //float inShadow = tex2Dproj(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).x;
                 float inShadow = SHADOW_ATTENUATION(i);
+                return fixed4(inShadow, inShadow, inShadow, 1);
                 float4 finalColor = _Color;
                 
                 //return fixed4(inShadow, inShadow, inShadow, 1);

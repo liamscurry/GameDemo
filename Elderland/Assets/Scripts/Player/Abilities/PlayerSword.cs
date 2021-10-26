@@ -198,18 +198,18 @@ public sealed class PlayerSword : PlayerAbility
             if (distance > hitboxScale.z / 2)
             {
                 type = Type.FarTarget;
-                Debug.Log("far target");
+                //Debug.Log("far target");
             }
             else
             {
                 type = Type.CloseTarget;
-                Debug.Log("close target");
+                //Debug.Log("close target");
             }
         }
         else
         {
             type = Type.NoTarget;
-            Debug.Log("no target");
+            //Debug.Log("no target");
         }
 
         calculatedTargetInfo = false;

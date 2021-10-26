@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SubsurfaceVegetationTest
+  m_Shader: {fileID: 4800000, guid: 8b25d21863e935f41b199cc6c38fd0dc, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ClipTexture:
+        m_Texture: {fileID: 2800000, guid: 858801ed5efef67429269a99bc956f1d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CutoutTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CutoutTexture:
+        m_Texture: {fileID: 2800000, guid: 858801ed5efef67429269a99bc956f1d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecularMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ApplyLight: 1
+    - _BakedLightLevel: 1
+    - _BumpMapIntensity: 0
+    - _ClipThreshold: 0.631
+    - _CrossFade: 0
+    - _CutoutThreshold: 0.298
+    - _Dimness: 1
+    - _EvenFade: 0
+    - _FlatShading: 0
+    - _FresnelStrength: 0
+    - _Glitch: 1
+    - _HighlightIntensity: 0.79
+    - _HighlightStrength: 0.27
+    - _LightShadowStrength: 0
+    - _OddFade: 0
+    - _Radius: 0.302
+    - _ReflectedIntensity: 1
+    - _ShadowStrength: 0.532
+    - _SizeWarpStrength: 0.28
+    - _Threshold: 0.1
+    - _WarmColorStrength: 1
+    - _WarpXOffset: 0.45
+    - _Width: 0.049
+    - _WorldMaxHeight: 10000
+    m_Colors:
+    - _Color: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
+    - _EndFogColor: {r: 1, g: 1, b: 1, a: 1}
+    - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}
+    - _MidFogColor: {r: 1, g: 1, b: 1, a: 1}
+    - _WaterBedColor: {r: 0.38318795, g: 0.597309, b: 0.745283, a: 1}
+  m_BuildTextureStacks: []

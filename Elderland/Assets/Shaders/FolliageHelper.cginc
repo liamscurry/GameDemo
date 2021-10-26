@@ -2,6 +2,7 @@
 
 float3 WarpFolliage(float3 vertex, float2 uv, float3 normal)
 {
+    return vertex;
     float3 alteredObjectVertex = vertex;
     float3 planarDirection = cross(normal, float3(1,0,0));
     float3 oppositePlanarDirection = cross(planarDirection, normal);
