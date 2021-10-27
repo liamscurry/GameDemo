@@ -78,9 +78,85 @@ Shader "Custom/SemiFlatShader"
             sampler2D _CameraGBufferTexture1;
             sampler2D _CameraGBufferTexture2;
 
-            unity_v2f_deferred VolumeVert (float4 vertex : POSITION, float3 normal : NORMAL)
+            struct unity_v2f_deferred_custom {
+                float4 pos : SV_POSITION;
+                float4 uv : TEXCOORD0;
+                float3 ray : TEXCOORD1;
+            };
+
+            // Provided as is. Made changes to fit struct requirements.
+            void UnityDeferredCalculateLightParamsCustom (
+                unity_v2f_deferred_custom i,
+                out float3 outWorldPos,
+                out float2 outUV,
+                out half3 outLightDir,
+                out float outAtten,
+                out float outFadeDist)
             {
-                unity_v2f_deferred o;
+                i.ray = i.ray * (_ProjectionParams.z / i.ray.z);
+                float2 uv = i.uv.xy / i.uv.w;
+
+                // read depth and reconstruct world position
+                float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+                depth = Linear01Depth (depth);
+                float4 vpos = float4(i.ray * depth,1);
+                float3 wpos = mul (unity_CameraToWorld, vpos).xyz;
+
+                float fadeDist = UnityComputeShadowFadeDistance(wpos, vpos.z);
+
+                // spot light case
+                #if defined (SPOT)
+                    float3 tolight = _LightPos.xyz - wpos;
+                    half3 lightDir = normalize (tolight);
+
+                    float4 uvCookie = mul (unity_WorldToLight, float4(wpos,1));
+                    // negative bias because http://aras-p.info/blog/2010/01/07/screenspace-vs-mip-mapping/
+                    float atten = tex2Dbias (_LightTexture0, float4(uvCookie.xy / uvCookie.w, 0, -8)).w;
+                    atten *= uvCookie.w < 0;
+                    float att = dot(tolight, tolight) * _LightPos.w;
+                    atten *= tex2D (_LightTextureB0, att.rr).r;
+
+                    atten *= UnityDeferredComputeShadow (wpos, fadeDist, uv);
+
+                // directional light case
+                #elif defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE)
+                    half3 lightDir = -_LightDir.xyz;
+                    float atten = 1.0;
+
+                    atten *= UnityDeferredComputeShadow (wpos, fadeDist, uv);
+
+                    #if defined (DIRECTIONAL_COOKIE)
+                    atten *= tex2Dbias (_LightTexture0, float4(mul(unity_WorldToLight, half4(wpos,1)).xy, 0, -8)).w;
+                    #endif //DIRECTIONAL_COOKIE
+
+                // point light case
+                #elif defined (POINT) || defined (POINT_COOKIE)
+                    float3 tolight = wpos - _LightPos.xyz;
+                    half3 lightDir = -normalize (tolight);
+
+                    float att = dot(tolight, tolight) * _LightPos.w;
+                    float atten = tex2D (_LightTextureB0, att.rr).r;
+
+                    atten *= UnityDeferredComputeShadow (tolight, fadeDist, uv);
+
+                    #if defined (POINT_COOKIE)
+                    atten *= texCUBEbias(_LightTexture0, float4(mul(unity_WorldToLight, half4(wpos,1)).xyz, -8)).w;
+                    #endif //POINT_COOKIE
+                #else
+                    half3 lightDir = 0;
+                    float atten = 0;
+                #endif
+
+                outWorldPos = wpos;
+                outUV = uv;
+                outLightDir = lightDir;
+                outAtten = atten;
+                outFadeDist = fadeDist;
+            }
+
+            unity_v2f_deferred_custom VolumeVert (float4 vertex : POSITION, float3 normal : NORMAL)
+            {
+                unity_v2f_deferred_custom o;
                 o.pos = UnityObjectToClipPos(vertex);
                 o.uv = ComputeScreenPos(o.pos);
                 o.ray = UnityObjectToViewPos(vertex) * float3(-1,-1,1);
@@ -90,10 +166,14 @@ Shader "Custom/SemiFlatShader"
                 // Otherwise, when rendering 3D shapes, use the ray calculated here.
                 o.ray = lerp(o.ray, normal, _LightAsQuad);
 
+                // Need to calculate light direction on the screen space, that way we know what
+                // direction to raymarch in. Then will use normals and depth to calculate occlusion.
+                // From what I can tell, there are no conversion here for world space and object space in this pass.
+
                 return o;
             }
 
-            fixed4 VolumeFrag(unity_v2f_deferred i, fixed facingCamera : VFACE) : SV_Target
+            fixed4 VolumeFrag(unity_v2f_deferred_custom i, fixed facingCamera : VFACE) : SV_Target
             {
                 // Overlay defined.
                 //return fixed4(1,0,0,1);
@@ -112,10 +192,17 @@ Shader "Custom/SemiFlatShader"
                 float3 wpos;
                 float2 uv;
                 float atten, fadeDist;
-                UnityLight light;
+                UnityLight light; // light.dir is world space light direction (same for all values in each pixel)
                 UNITY_INITIALIZE_OUTPUT(UnityLight, light);
-                UnityDeferredCalculateLightParams (i, wpos, uv, light.dir, atten, fadeDist);
+                UnityDeferredCalculateLightParamsCustom (i, wpos, uv, light.dir, atten, fadeDist);
 
+                float3 worldDeltaPos = wpos + _WorldSpaceLightPos0.xyz;
+
+                float4 camPos = mul(unity_WorldToCamera, wpos); // changing based on camera.
+                float4 camDeltaPos = mul(unity_WorldToCamera, wpos + 500 * light.dir);
+                float2 camDelta = normalize((camDeltaPos - camPos).xy); // correct delta values based on camera
+                return fixed4(camDelta.x, camDelta.y, 0, 1);
+             
                 return fixed4(atten, atten, atten, 1);
             }
             ENDCG
